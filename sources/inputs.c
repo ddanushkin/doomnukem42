@@ -8,13 +8,13 @@ void	update_inputs(t_app *app)
 
 void	reset_inputs_states(t_app *app)
 {
-	ft_bzero(&app->keyboard.up, sizeof(app->keyboard.up));
-	ft_bzero(&app->keyboard.down, sizeof(app->keyboard.down));
-	ft_bzero(&app->mouse.keys.up, sizeof(app->mouse.keys.up));
-	ft_bzero(&app->mouse.keys.down, sizeof(app->mouse.keys.down));
-	app->mouse.move = 0;
-	app->mouse.x_prev = app->mouse.x;
-	app->mouse.y_prev = app->mouse.y;
-	app->mouse.hdir = 0;
-	app->mouse.vdir = 0;
+	int	x;
+	int y;
+
+	x = app->mouse.x;
+	y = app->mouse.y;
+	ft_bzero(&app->mouse, sizeof(app->mouse));
+	app->mouse.x_prev = x;
+	app->mouse.y_prev = y;
+	ft_bzero(&app->keyboard, sizeof(app->keyboard));
 }

@@ -30,13 +30,8 @@ void	init_image(t_image *image, t_window *window, void *mlx)
 
 void	init_app(t_app *app)
 {
+	ft_bzero(app, sizeof(t_app));
 	app->mlx = mlx_init();
 	init_window(&app->window, app->mlx);
 	init_image(&app->screen, &app->window, app->mlx);
-
-	ft_bzero(&app->mouse, sizeof(app->mouse));
-	ft_bzero(&app->mouse.keys.up, sizeof(app->mouse.keys.up));
-	ft_bzero(&app->mouse.keys.down, sizeof(app->mouse.keys.down));
-	ft_bzero(&app->keyboard.up, sizeof(app->keyboard.up));
-	ft_bzero(&app->keyboard.down, sizeof(app->keyboard.down));
 }
