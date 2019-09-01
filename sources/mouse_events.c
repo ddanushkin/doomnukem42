@@ -18,26 +18,23 @@ void	mouse_update(t_app *app, int x, int y)
 
 int 	mouse_event_down(int key_code, int x, int y, t_app *app)
 {
-	if (PRINT_DEBUG)
-		printf("mouse event -> down\n");
 	app->mouse.keys.down[key_code] = 1;
 	mouse_update(app, x, y);
+	debug_mouse(app, "key_down", key_code);
 	return (0);
 }
 int 	mouse_event_up(int key_code, int x, int y, t_app *app)
 {
-	if (PRINT_DEBUG)
-		printf("mouse event -> up\n");
 	app->mouse.keys.up[key_code] = 1;
 	mouse_update(app, x, y);
+	debug_mouse(app, "key_up", key_code);
 	return (0);
 }
 
 int 	mouse_event_move(int x, int y, t_app *app)
 {
-	if (PRINT_DEBUG)
-		printf("mouse event -> move\n");
 	app->mouse.move = 1;
 	mouse_update(app, x, y);
+	debug_mouse(app, "move", -1);
 	return (0);
 }

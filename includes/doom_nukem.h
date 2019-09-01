@@ -7,7 +7,7 @@
 # include <pthread.h>
 # include "stdio.h"
 
-# define PRINT_DEBUG 0
+# define PRINT_DEBUG 1
 
 # define KB_ESQ 53
 # define KB_TAB 48
@@ -140,6 +140,9 @@ typedef struct	s_app
 	t_kb_keys_state	keyboard;
 	t_mouse_state	mouse;
 } 				t_app;
+
+void	debug_mouse(t_app *app, char *event, int key_code);
+void	debug_keyboard(char *event, int key_code);
 
 void	init_window(t_window *window, void *mlx);
 void	init_image(t_image *image, t_window *window, void *mlx);
