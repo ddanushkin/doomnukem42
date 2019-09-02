@@ -7,7 +7,7 @@
 # include <pthread.h>
 # include "stdio.h"
 
-# define PRINT_DEBUG 1
+# define PRINT_DEBUG 0
 
 # define KB_ESQ 53
 # define KB_TAB 48
@@ -88,6 +88,35 @@ typedef struct	s_color
 	int			b;
 }				t_color;
 
+typedef struct	s_mat4x4
+{
+	float m[4][4];
+}				t_mat4x4;
+
+typedef struct	s_vector
+{
+	float		x;
+	float		y;
+	float		z;
+}				t_vector;
+
+typedef struct	s_vector_i
+{
+	int			x;
+	int			y;
+	int			z;
+}				t_vector_i;
+
+typedef struct	s_triangle
+{
+	t_vector	v[3];
+}				t_triangle;
+
+typedef struct	s_mesh
+{
+	t_triangle	t[100];
+}				t_mesh;
+
 typedef struct	s_kb_keys_state
 {
 	int			up[300];
@@ -132,6 +161,16 @@ typedef struct	s_window
 	int			half_h;
 }				t_window;
 
+typedef struct	s_camera
+{
+	float 		z_near;
+	float 		z_far;
+	float 		fov;
+	float 		for_rad;
+	float 		asp_ratio;
+	t_vector	pos;
+}				t_camera;
+
 typedef struct	s_app
 {
 	void			*mlx;
@@ -139,10 +178,17 @@ typedef struct	s_app
 	t_image			screen;
 	t_kb_keys_state	keyboard;
 	t_mouse_state	mouse;
+	t_camera		camera;
+	t_mat4x4		projection_mat;
+	t_mat4x4		rotation_mat_z;
+	t_mat4x4		rotation_mat_x;
+	t_vector		rot;
 } 				t_app;
 
 void	debug_mouse(t_app *app, char *event, int key_code);
 void	debug_keyboard(char *event, int key_code);
+
+void 	app_close(t_app *app);
 
 void	init_window(t_window *window, void *mlx);
 void	init_image(t_image *image, t_window *window, void *mlx);
@@ -161,7 +207,16 @@ int		window_event_expose(t_app *app);
 void	update_inputs(t_app *app);
 void	reset_inputs_states(t_app *app);
 
-void 	app_close(t_app *app);
-void	set_pixel(t_image *image, int x, int y, t_color c);
+void	project_triangle(t_triangle *in, t_triangle *out, t_mat4x4 *proj_mat);
+void	translate_triangle(t_triangle *in, t_triangle *out);
+void	scale_triangle(t_app *app, t_triangle *triangle);
 
+void	set_vector(t_vector *v, float x, float y, float z);
+
+void	update_rotation_mat_z(t_app *app, float angle);
+void	update_rotation_mat_x(t_app *app, float angle);
+
+void	set_pixel(t_image *image, int x, int y, t_color *c);
+void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c);
+void	draw_triangle(t_app *app, t_triangle triangle, t_color *color);
 #endif
