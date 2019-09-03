@@ -40,3 +40,33 @@ void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c)
 		}
 	}
 }
+
+void	line_(t_app *app, t_vector p0, t_vector p1, t_color *c)
+{
+	int		steep;
+	int		x;
+	int 	y;
+	float	tmp;
+
+	steep = 0;
+	if (ABS(p0.x-p1.x) < ABS(p0.y-p1.y))
+	{
+		SWAP(p0.x, p0.y, float);
+		SWAP(p1.x, p1.y, float);
+		steep = 1;
+	}
+	if (p0.x > p1.x)
+		SWAP(p0, p1, t_vector);
+
+	x = p0.x;
+	while (x <= p1.x)
+	{
+		tmp = (x - p0.x) / (float)(p1.x - p0.x);
+		y = p0.y * (1.0f - tmp) + p1.y * tmp;
+		if (steep)
+			set_pixel(&app->screen, y, x, c);
+		else
+			set_pixel(&app->screen, x, y, c);
+		x++;
+	}
+}

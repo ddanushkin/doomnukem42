@@ -40,7 +40,7 @@ void	fill_top_flat(t_app *app, t_triangle *triangle)
 	curx1 = triangle->v[2].x;
 	curx2 = triangle->v[2].x;
 	scanlineY = (int)triangle->v[2].y;
-	while (scanlineY > (int)triangle->v[0].y)
+	while (scanlineY >= (int)triangle->v[0].y)
 	{
 		t_vector start;
 		t_vector end;
@@ -86,6 +86,7 @@ void	fill_triangle(t_app *app, t_triangle *triangle)
 	t_triangle sorted;
 
 	sort_triangle_by_y(triangle, &sorted);
+	sorted.color = triangle->color;
 	if (sorted.v[1].y == sorted.v[2].y)
 		fill_bottom_flat(app, &sorted);
 	else if (sorted.v[0].y == sorted.v[1].y)
@@ -95,7 +96,9 @@ void	fill_triangle(t_app *app, t_triangle *triangle)
 		t_vector tmp_vector;
 		t_triangle tmp_triangle;
 
-		tmp_vector.x = (int)(sorted.v[0].x + ((float)(sorted.v[1].y - sorted.v[0].y) / (float)(sorted.v[2].y - sorted.v[0].y)) * (sorted.v[2].x - sorted.v[0].x));
+		tmp_triangle.color = sorted.color;
+
+		tmp_vector.x = (int)(sorted.v[0].x + ((sorted.v[1].y - sorted.v[0].y) / (sorted.v[2].y - sorted.v[0].y)) * (sorted.v[2].x - sorted.v[0].x));
 		tmp_vector.y = sorted.v[1].y;
 
 		tmp_triangle.v[0] = triangle->v[0];
@@ -111,4 +114,3 @@ void	fill_triangle(t_app *app, t_triangle *triangle)
 		fill_top_flat(app, &tmp_triangle);
 	}
 }
-

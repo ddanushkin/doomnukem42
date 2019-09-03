@@ -90,10 +90,6 @@ void	draw_triangle(t_app *app, t_triangle triangle)
 
 	t_vector normal, line1, line2;
 
-	t_color color;
-
-	color = triangle.color;
-
 	rotate_triangle(&triangle, &rotated_z, &app->rotation_mat_z);
 	rotate_triangle(&rotated_z, &rotated_x, &app->rotation_mat_x);
 
@@ -119,14 +115,14 @@ void	draw_triangle(t_app *app, t_triangle triangle)
 
 	if (normal.x * (translated.v[1].x - app->camera.pos.x) +
 		normal.y * (translated.v[1].y - app->camera.pos.y) +
-		normal.z * (translated.v[1].z - app->camera.pos.z) > 0.0f)
+		normal.z * (translated.v[1].z - app->camera.pos.z) < 0.0f)
 	{
 		project_triangle(&translated, &projected, &app->projection_mat);
+		projected.color = triangle.color;
 		scale_triangle(app, &projected);
-		//fill_triangle(app, &projected);
-		draw_line(app, projected.v[0], projected.v[1], &color);
-		draw_line(app, projected.v[1], projected.v[2], &color);
-		draw_line(app, projected.v[2], projected.v[0], &color);
-
+		fill_triangle(app, &projected);
+		draw_line(app, projected.v[0], projected.v[1], &triangle.color);
+		draw_line(app, projected.v[1], projected.v[2], &triangle.color);
+		draw_line(app, projected.v[2], projected.v[0], &triangle.color);
 	}
 }

@@ -213,6 +213,7 @@ void	translate_triangle(t_triangle *in, t_triangle *out);
 void	scale_triangle(t_app *app, t_triangle *triangle);
 
 void	set_vector(t_vector *v, float x, float y, float z);
+float 	cross_product(t_vector *v_1, t_vector *v_2);
 
 void	update_rotation_mat_z(t_app *app, float angle);
 void	update_rotation_mat_x(t_app *app, float angle);

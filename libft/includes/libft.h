@@ -6,7 +6,7 @@
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/21 17:36:42 by lglover           #+#    #+#             */
-/*   Updated: 2019/08/26 15:11:47 by lglover          ###   ########.fr       */
+/*   Updated: 2019/09/03 18:46:58 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,11 @@
 
 # define BUFF_SIZE 100000
 # define MAX_FD 65000
+
+# define MIN(a,b) (((a)<(b))?(a):(b))
+# define MAX(a,b) (((a)>(b))?(a):(b))
+# define ABS(N) ((N<0)?(-N):(N))
+# define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
 
 typedef struct	s_list
 {
