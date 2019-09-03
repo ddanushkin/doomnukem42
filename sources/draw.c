@@ -20,47 +20,6 @@ void	mat_vector_mult(t_vector *in_vec, t_vector *out_vec, t_mat4x4 *mat)
 	}
 }
 
-void	delta_vector(t_vector start, t_vector end, t_vector_i *out)
-{
-	out->x = abs((int)end.x - (int)start.x);
-	out->y = -abs((int)end.y - (int)start.y);
-}
-
-void	direction_vector(t_vector start, t_vector end, t_vector_i *out)
-{
-	out->x = start.x < end.x ? 1 : -1;
-	out->y = start.y < end.y ? 1 : -1;
-}
-
-void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c)
-{
-	t_vector_i	dt;
-	t_vector_i	dir;
-	int			error;
-	int			error_tmp;
-
-	delta_vector(start, end, &dt);
-	direction_vector(start, end, &dir);
-	error = dt.x + dt.y;
-	while (1)
-	{
-		set_pixel(&app->screen, start.x, start.y, c);
-		if ((int)start.x == (int)end.x && (int)start.y == (int)end.y)
-			break;
-		error_tmp = error << 1;
-		if (error_tmp >= dt.y)
-		{
-			error += dt.y;
-			start.x += dir.x;
-		}
-		if (error_tmp <= dt.x)
-		{
-			error += dt.x;
-			start.y += dir.y;
-		}
-	}
-}
-
 void	update_rotation_mat_z(t_app *app, float angle)
 {
 	ft_bzero(&app->rotation_mat_z, sizeof(t_mat4x4));
@@ -122,7 +81,7 @@ void	scale_triangle(t_app *app, t_triangle *triangle)
 	scale_vector(app, &triangle->v[2]);
 }
 
-void	draw_triangle(t_app *app, t_triangle triangle, t_color *color)
+void	draw_triangle(t_app *app, t_triangle triangle)
 {
 	t_triangle	projected;
 	t_triangle	rotated_z;
@@ -130,6 +89,10 @@ void	draw_triangle(t_app *app, t_triangle triangle, t_color *color)
 	t_triangle	translated;
 
 	t_vector normal, line1, line2;
+
+	t_color color;
+
+	color = triangle.color;
 
 	rotate_triangle(&triangle, &rotated_z, &app->rotation_mat_z);
 	rotate_triangle(&rotated_z, &rotated_x, &app->rotation_mat_x);
@@ -154,15 +117,16 @@ void	draw_triangle(t_app *app, t_triangle triangle, t_color *color)
 	normal.y /= length;
 	normal.z /= length;
 
-	//if (normal.z > 0)
 	if (normal.x * (translated.v[1].x - app->camera.pos.x) +
 		normal.y * (translated.v[1].y - app->camera.pos.y) +
 		normal.z * (translated.v[1].z - app->camera.pos.z) > 0.0f)
 	{
 		project_triangle(&translated, &projected, &app->projection_mat);
 		scale_triangle(app, &projected);
-		draw_line(app, projected.v[0], projected.v[1], color);
-		draw_line(app, projected.v[1], projected.v[2], color);
-		draw_line(app, projected.v[2], projected.v[0], color);
+		//fill_triangle(app, &projected);
+		draw_line(app, projected.v[0], projected.v[1], &color);
+		draw_line(app, projected.v[1], projected.v[2], &color);
+		draw_line(app, projected.v[2], projected.v[0], &color);
+
 	}
 }

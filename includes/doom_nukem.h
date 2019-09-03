@@ -110,6 +110,7 @@ typedef struct	s_vector_i
 typedef struct	s_triangle
 {
 	t_vector	v[3];
+	t_color		color;
 }				t_triangle;
 
 typedef struct	s_mesh
@@ -216,7 +217,12 @@ void	set_vector(t_vector *v, float x, float y, float z);
 void	update_rotation_mat_z(t_app *app, float angle);
 void	update_rotation_mat_x(t_app *app, float angle);
 
+void	set_color(t_color *color, int r, int g, int b);
+
 void	set_pixel(t_image *image, int x, int y, t_color *c);
 void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c);
-void	draw_triangle(t_app *app, t_triangle triangle, t_color *color);
+void	draw_triangle(t_app *app, t_triangle triangle);
+void	fill_triangle(t_app *app, t_triangle *triangle);
+
+void	make_cube(t_mesh *mesh);
 #endif

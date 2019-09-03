@@ -1,91 +1,13 @@
 #include "doom_nukem.h"
 
-void	set_vector(t_vector *v, float x, float y, float z)
-{
-	v->x = x;
-	v->y = y;
-	v->z = z;
-}
-
-void	set_color(t_color *color, int r, int g, int b)
-{
-	color->r = r;
-	color->g = g;
-	color->b = b;
-}
-
 void	clear_screen(t_app *app)
 {
 	ft_bzero(app->screen.pixels,app->window.w * app->window.h * 4);
 }
 
-void	make_cube(t_mesh *mesh)
-{
-	//FRONT PLANE
-	//
-	set_vector(&mesh->t[0].v[0], 0, 0, 0);
-	set_vector(&mesh->t[0].v[1], 1, 0, 0);
-	set_vector(&mesh->t[0].v[2], 0, 1, 0);
-	//
-	set_vector(&mesh->t[1].v[0], 1, 0, 0);
-	set_vector(&mesh->t[1].v[1], 1, 1, 0);
-	set_vector(&mesh->t[1].v[2], 0, 1, 0);
-
-	//RIGHT PLANE
-	//
-	set_vector(&mesh->t[2].v[0], 1, 0, 0);
-	set_vector(&mesh->t[2].v[1], 1, 0, 1);
-	set_vector(&mesh->t[2].v[2], 1, 1, 0);
-	//
-	set_vector(&mesh->t[3].v[0], 1, 0, 1);
-	set_vector(&mesh->t[3].v[1], 1, 1, 1);
-	set_vector(&mesh->t[3].v[2], 1, 1, 0);
-
-	//BACK PLANE
-	//
-	set_vector(&mesh->t[4].v[0], 1, 0, 1);
-	set_vector(&mesh->t[4].v[1], 0, 0, 1);
-	set_vector(&mesh->t[4].v[2], 1, 1, 1);
-	//
-	set_vector(&mesh->t[5].v[0], 0, 0, 1);
-	set_vector(&mesh->t[5].v[1], 0, 1, 1);
-	set_vector(&mesh->t[5].v[2], 1, 1, 1);
-
-	//LEFT PLANE
-	//
-	set_vector(&mesh->t[6].v[0], 0, 0, 1);
-	set_vector(&mesh->t[6].v[1], 0, 0, 0);
-	set_vector(&mesh->t[6].v[2], 0, 1, 1);
-	//
-	set_vector(&mesh->t[7].v[0], 0, 0, 0);
-	set_vector(&mesh->t[7].v[1], 0, 1, 0);
-	set_vector(&mesh->t[7].v[2], 0, 1, 1);
-
-	//TOP PLANE
-	//
-	set_vector(&mesh->t[8].v[0], 0, 0, 1);
-	set_vector(&mesh->t[8].v[1], 1, 0, 1);
-	set_vector(&mesh->t[8].v[2], 0, 0, 0);
-	//
-	set_vector(&mesh->t[9].v[0], 1, 0, 1);
-	set_vector(&mesh->t[9].v[1], 1, 0, 0);
-	set_vector(&mesh->t[9].v[2], 0, 0, 0);
-
-	//BOTTOM PLANE
-	//
-	set_vector(&mesh->t[10].v[0], 0, 0, 0);
-	set_vector(&mesh->t[10].v[1], 0, 0, 0);
-	set_vector(&mesh->t[10].v[2], 0, 0, 0);
-	//
-	set_vector(&mesh->t[11].v[0], 0, 0, 0);
-	set_vector(&mesh->t[11].v[1], 0, 0, 0);
-	set_vector(&mesh->t[11].v[2], 0, 0, 0);
-}
-
 int 	update(t_app *app)
 {
 	t_mesh	cube;
-	t_color	color;
 	update_inputs(app);
 	make_cube(&cube);
 
@@ -94,26 +16,26 @@ int 	update(t_app *app)
 
 	clear_screen(app);
 
-	set_color(&color, 255, 0, 0);
-	draw_triangle(app, cube.t[0], &color);
-	set_color(&color, 0, 255, 0);
-	draw_triangle(app, cube.t[1], &color);
-	set_color(&color, 0, 0, 255);
-	draw_triangle(app, cube.t[2], &color);
-	set_color(&color, 255, 0, 0);
-	draw_triangle(app, cube.t[3], &color);
-	set_color(&color, 0, 255, 0);
-	draw_triangle(app, cube.t[4], &color);
-	set_color(&color, 0, 0, 255);
-	draw_triangle(app, cube.t[5], &color);
-	set_color(&color, 255, 0, 0);
-	draw_triangle(app, cube.t[6], &color);
-	set_color(&color, 0, 255, 0);
-	draw_triangle(app, cube.t[7], &color);
-	set_color(&color, 0, 0, 255);
-	draw_triangle(app, cube.t[8], &color);
-	set_color(&color, 255, 0, 0);
-	draw_triangle(app, cube.t[9], &color);
+	set_color(&cube.t[0].color, 255, 0, 0);
+	draw_triangle(app, cube.t[0]);
+	set_color(&cube.t[1].color, 0, 255, 0);
+	draw_triangle(app, cube.t[1]);
+	set_color(&cube.t[2].color, 0, 0, 255);
+	draw_triangle(app, cube.t[2]);
+	set_color(&cube.t[3].color, 255, 0, 0);
+	draw_triangle(app, cube.t[3]);
+	set_color(&cube.t[4].color, 0, 255, 0);
+	draw_triangle(app, cube.t[4]);
+	set_color(&cube.t[5].color, 0, 0, 255);
+	draw_triangle(app, cube.t[5]);
+	set_color(&cube.t[6].color, 255, 0, 0);
+	draw_triangle(app, cube.t[6]);
+	set_color(&cube.t[7].color, 0, 255, 0);
+	draw_triangle(app, cube.t[7]);
+	set_color(&cube.t[8].color, 0, 0, 255);
+	draw_triangle(app, cube.t[8]);
+	set_color(&cube.t[9].color, 255, 0, 0);
+	draw_triangle(app, cube.t[9]);
 
 	mlx_put_image_to_window(app->mlx, app->window.ptr, app->screen.ptr, 0, 0);
 	reset_inputs_states(app);
