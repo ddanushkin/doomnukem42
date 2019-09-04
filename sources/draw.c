@@ -115,14 +115,20 @@ void	draw_triangle(t_app *app, t_triangle triangle)
 
 	if (normal.x * (translated.v[1].x - app->camera.pos.x) +
 		normal.y * (translated.v[1].y - app->camera.pos.y) +
-		normal.z * (translated.v[1].z - app->camera.pos.z) < 0.0f)
+		normal.z * (translated.v[1].z - app->camera.pos.z) > 0.0f)
 	{
 		project_triangle(&translated, &projected, &app->projection_mat);
 		projected.color = triangle.color;
 		scale_triangle(app, &projected);
 		fill_triangle(app, &projected);
-		draw_line(app, projected.v[0], projected.v[1], &triangle.color);
-		draw_line(app, projected.v[1], projected.v[2], &triangle.color);
-		draw_line(app, projected.v[2], projected.v[0], &triangle.color);
+
+		t_color black;
+
+		black.b = 0;
+		black.r = 0;
+		black.g = 0;
+		draw_line(app, projected.v[0], projected.v[1], &black);
+		draw_line(app, projected.v[1], projected.v[2], &black);
+		draw_line(app, projected.v[2], projected.v[0], &black);
 	}
 }

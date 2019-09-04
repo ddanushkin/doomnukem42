@@ -222,8 +222,9 @@ void	set_color(t_color *color, int r, int g, int b);
 
 void	set_pixel(t_image *image, int x, int y, t_color *c);
 void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c);
+void	draw_line2(t_app *app, t_vector p0, t_vector p1, t_color *c);
 void	draw_triangle(t_app *app, t_triangle triangle);
-void	fill_triangle(t_app *app, t_triangle *triangle);
+void	fill_triangle(t_app *app, t_triangle *t);
 
 void	make_cube(t_mesh *mesh);
 #endif
