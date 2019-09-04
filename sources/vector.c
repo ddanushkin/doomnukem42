@@ -1,13 +1,13 @@
 #include "doom_nukem.h"
 
-void	set_vector(t_vector *vector, float x, float y, float z)
+void	set_vertex(t_vertex *vertex, float x, float y, float z)
 {
-	vector->x = x;
-	vector->y = y;
-	vector->z = z;
+	vertex->x = x;
+	vertex->y = y;
+	vertex->z = z;
 }
 
-float 	cross_product(t_vector *v_1, t_vector *v_2)
+float 	cross_product(t_vertex *v_1, t_vertex *v_2)
 {
 	return (v_1->x * v_2->x +
 			v_1->y * v_2->y +

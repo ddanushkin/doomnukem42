@@ -1,44 +1,123 @@
 #include "doom_nukem.h"
 
+void	*my_memset(void *b, int c, size_t len)
+{
+	unsigned char *dst;
+	long *dst_f;
+
+
+	dst_f = b;
+	while (len >= 8)
+	{
+		*dst_f = (long)c;
+		dst_f += 8;
+		len -= 8;
+	}
+
+	dst = (void *)dst_f;
+	while (len > 0)
+	{
+		*dst = (unsigned char)c;
+		dst++;
+		if (len != 0)
+			len--;
+	}
+	return (b);
+}
+
 void	clear_screen(t_app *app)
 {
+	char *test;
+
+	test = (char *)malloc(sizeof(char) * 11);
+	test[0] = 0+'0';
+	test[1] = 1+'0';
+	test[2] = 2+'0';
+	test[3] = 3+'0';
+	test[4] = 4+'0';
+	test[5] = 5+'0';
+	test[6] = 6+'0';
+	test[7] = 7+'0';
+	test[8] = 8+'0';
+	test[9] = 9+'0';
+	test[10] = 0;
+
+	//my_memset(test, 0, 11);
+
+	bzero(app->screen.pixels,app->window.w * app->window.h * 4);
 	ft_bzero(app->screen.pixels,app->window.w * app->window.h * 4);
+}
+
+void	draw_cube(t_app *app, t_mesh *m)
+{
+	set_color(&m->t[0].color, 255, 0, 0);
+	draw_triangle(app, m->t[0]);
+	set_color(&m->t[1].color, 0, 255, 0);
+	draw_triangle(app, m->t[1]);
+	set_color(&m->t[2].color, 0, 0, 255);
+	draw_triangle(app, m->t[2]);
+	set_color(&m->t[3].color, 0, 255, 255);
+	draw_triangle(app, m->t[3]);
+	set_color(&m->t[4].color, 255, 255, 0);
+	draw_triangle(app, m->t[4]);
+	set_color(&m->t[5].color, 255, 0, 255);
+	draw_triangle(app, m->t[5]);
+	set_color(&m->t[6].color, 255, 0, 0);
+	draw_triangle(app, m->t[6]);
+	set_color(&m->t[7].color, 0, 255, 0);
+	draw_triangle(app, m->t[7]);
+	set_color(&m->t[8].color, 0, 0, 255);
+	draw_triangle(app, m->t[8]);
+	set_color(&m->t[9].color, 0, 255, 255);
+	draw_triangle(app, m->t[9]);
+	set_color(&m->t[10].color, 255, 255, 0);
+	draw_triangle(app, m->t[10]);
+	set_color(&m->t[11].color, 255, 0, 255);
+	draw_triangle(app, m->t[11]);
 }
 
 int		update(t_app *app)
 {
-	t_mesh	cube;
+	init_image(&app->screen, &app->window, app->mlx);
+	clock_t current_ticks, delta_ticks;
+	clock_t fps = 0;
+
+	current_ticks = clock();
+	clear_screen(app);
+
 	update_inputs(app);
-	make_cube(&cube);
+
+	app->rot.x += app->speed > 0.0f ? app->speed : 0.0f;
+	app->rot.z += app->speed > 0.0f ? app->speed : 0.0f;
 
 	update_rotation_mat_z(app, app->rot.z);
 	update_rotation_mat_x(app, app->rot.x);
 
-	clear_screen(app);
+	int repeat = 1;
 
-	set_color(&cube.t[0].color, 255, 0, 0);
-	draw_triangle(app, cube.t[0]);
-	set_color(&cube.t[1].color, 0, 255, 0);
-	draw_triangle(app, cube.t[1]);
-	set_color(&cube.t[2].color, 0, 0, 255);
-	draw_triangle(app, cube.t[2]);
-	set_color(&cube.t[3].color, 0, 255, 255);
-	draw_triangle(app, cube.t[3]);
-	set_color(&cube.t[4].color, 255, 255, 0);
-	draw_triangle(app, cube.t[4]);
-	set_color(&cube.t[5].color, 255, 0, 255);
-	draw_triangle(app, cube.t[5]);
+	make_cube(&app->cube, 2.5);
 
-	set_color(&cube.t[6].color, 255, 0, 0);
-	draw_triangle(app, cube.t[6]);
-	set_color(&cube.t[7].color, 0, 255, 0);
-	draw_triangle(app, cube.t[7]);
-	set_color(&cube.t[8].color, 0, 0, 255);
-	draw_triangle(app, cube.t[8]);
-	set_color(&cube.t[9].color, 0, 255, 255);
-	draw_triangle(app, cube.t[9]);
+	while (repeat >= 0)
+	{
+		draw_cube(app, &app->cube);
+		repeat--;
+	}
+
+	free(app->cube.v);
 
 	mlx_put_image_to_window(app->mlx, app->window.ptr, app->screen.ptr, 0, 0);
+	mlx_destroy_image(app->mlx, app->screen.ptr);
+
+	delta_ticks = clock() - current_ticks;
+
+	if(delta_ticks > 0)
+		fps = CLOCKS_PER_SEC / delta_ticks;
+
+	char *fps_text;
+	fps_text = ft_itoa((int)fps);
+	mlx_string_put(app->mlx, app->window.ptr, 10, 10, 0xFFFFFF, "FPS: ");
+	mlx_string_put(app->mlx, app->window.ptr, 55, 10, 0xFFFFFF, fps_text);
+	ft_strdel(&fps_text);
 	reset_inputs_states(app);
 	return (0);
 }

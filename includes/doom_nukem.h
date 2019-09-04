@@ -6,6 +6,7 @@
 # include <math.h>
 # include <pthread.h>
 # include "stdio.h"
+# include <time.h>
 
 # define PRINT_DEBUG 0
 
@@ -73,8 +74,8 @@
 # define MS_SCROLL_UP 4
 # define MS_SCROLL_DOWN 5
 
-# define	SCREEN_W 640
-# define	SCREEN_H 480
+# define	SCREEN_W 1280
+# define	SCREEN_H 720
 # define	WIN_TITLE "DOOM-NUKEM"
 
 # define	COLOR_KEY_R 128
@@ -93,13 +94,6 @@ typedef struct	s_mat4x4
 	float m[4][4];
 }				t_mat4x4;
 
-typedef struct	s_vector
-{
-	float		x;
-	float		y;
-	float		z;
-}				t_vector;
-
 typedef struct	s_vector_i
 {
 	int			x;
@@ -107,15 +101,25 @@ typedef struct	s_vector_i
 	int			z;
 }				t_vector_i;
 
+typedef struct	s_vertex
+{
+	float		x;
+	float		y;
+	float		z;
+}				t_vertex;
+
 typedef struct	s_triangle
 {
-	t_vector	v[3];
+	t_vertex	*v[3];
 	t_color		color;
 }				t_triangle;
 
 typedef struct	s_mesh
 {
+	t_vertex	*v;
 	t_triangle	t[100];
+	int 		last_vt;
+	int 		last_tr;
 }				t_mesh;
 
 typedef struct	s_kb_keys_state
@@ -169,7 +173,7 @@ typedef struct	s_camera
 	float 		fov;
 	float 		for_rad;
 	float 		asp_ratio;
-	t_vector	pos;
+	t_vertex	pos;
 }				t_camera;
 
 typedef struct	s_app
@@ -183,7 +187,9 @@ typedef struct	s_app
 	t_mat4x4		projection_mat;
 	t_mat4x4		rotation_mat_z;
 	t_mat4x4		rotation_mat_x;
-	t_vector		rot;
+	t_vertex		rot;
+	t_mesh			cube;
+	float 			speed;
 } 				t_app;
 
 void	debug_mouse(t_app *app, char *event, int key_code);
@@ -212,8 +218,8 @@ void	project_triangle(t_triangle *in, t_triangle *out, t_mat4x4 *proj_mat);
 void	translate_triangle(t_triangle *in, t_triangle *out);
 void	scale_triangle(t_app *app, t_triangle *triangle);
 
-void	set_vector(t_vector *v, float x, float y, float z);
-float 	cross_product(t_vector *v_1, t_vector *v_2);
+void	set_vertex(t_vertex *vertex, float x, float y, float z);
+float 	cross_product(t_vertex *v_1, t_vertex *v_2);
 
 void	update_rotation_mat_z(t_app *app, float angle);
 void	update_rotation_mat_x(t_app *app, float angle);
@@ -221,10 +227,10 @@ void	update_rotation_mat_x(t_app *app, float angle);
 void	set_color(t_color *color, int r, int g, int b);
 
 void	set_pixel(t_image *image, int x, int y, t_color *c);
-void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c);
-void	draw_line2(t_app *app, t_vector p0, t_vector p1, t_color *c);
+void	draw_line(t_app *app, t_vertex start, t_vertex end, t_color *c);
+void	draw_line2(t_app *app, t_vertex p0, t_vertex p1, t_color *c);
 void	draw_triangle(t_app *app, t_triangle triangle);
 void	fill_triangle(t_app *app, t_triangle *t);
 
-void	make_cube(t_mesh *mesh);
+void	make_cube(t_mesh *m, float size);
 #endif

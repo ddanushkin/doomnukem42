@@ -1,18 +1,18 @@
 #include "doom_nukem.h"
 
-void	delta_vector(t_vector start, t_vector end, t_vector_i *out)
+void	delta_vector(t_vertex start, t_vertex end, t_vector_i *out)
 {
 	out->x = abs((int)end.x - (int)start.x);
 	out->y = -abs((int)end.y - (int)start.y);
 }
 
-void	direction_vector(t_vector start, t_vector end, t_vector_i *out)
+void	direction_vector(t_vertex start, t_vertex end, t_vector_i *out)
 {
 	out->x = start.x < end.x ? 1 : -1;
 	out->y = start.y < end.y ? 1 : -1;
 }
 
-void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c)
+void	draw_line(t_app *app, t_vertex start, t_vertex end, t_color *c)
 {
 	t_vector_i	dt;
 	t_vector_i	dir;

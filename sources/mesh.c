@@ -1,64 +1,79 @@
 #include "doom_nukem.h"
 
-void	make_cube(t_mesh *mesh)
+void	set_triangle(t_triangle *t, t_vertex *v0, t_vertex *v1, t_vertex *v2)
 {
-	//FRONT PLANE
-	//
-	set_vector(&mesh->t[0].v[0], 0, 0, 0);
-	set_vector(&mesh->t[0].v[1], 1, 0, 0);
-	set_vector(&mesh->t[0].v[2], 0, 1, 0);
-	//
-	set_vector(&mesh->t[1].v[0], 1, 0, 0);
-	set_vector(&mesh->t[1].v[1], 1, 1, 0);
-	set_vector(&mesh->t[1].v[2], 0, 1, 0);
+	t->v[0] = v0;
+	t->v[1] = v1;
+	t->v[2] = v2;
+}
 
-	//RIGHT PLANE
-	//
-	set_vector(&mesh->t[2].v[0], 1, 0, 0);
-	set_vector(&mesh->t[2].v[1], 1, 0, 1);
-	set_vector(&mesh->t[2].v[2], 1, 1, 0);
-	//
-	set_vector(&mesh->t[3].v[0], 1, 0, 1);
-	set_vector(&mesh->t[3].v[1], 1, 1, 1);
-	set_vector(&mesh->t[3].v[2], 1, 1, 0);
+void	make_face(t_mesh *m, int *vt_id)
+{
+	set_triangle(
+			&m->t[m->last_tr],
+			&m->v[vt_id[0]],
+			&m->v[vt_id[1]],
+			&m->v[vt_id[2]]);
+	m->last_tr++;
+	set_triangle(
+			&m->t[m->last_tr],
+			&m->v[vt_id[0]],
+			&m->v[vt_id[2]],
+			&m->v[vt_id[3]]);
+	m->last_tr++;
+}
 
-	//BACK PLANE
-	//
-	set_vector(&mesh->t[4].v[0], 1, 0, 1);
-	set_vector(&mesh->t[4].v[1], 0, 0, 1);
-	set_vector(&mesh->t[4].v[2], 1, 1, 1);
-	//
-	set_vector(&mesh->t[5].v[0], 0, 0, 1);
-	set_vector(&mesh->t[5].v[1], 0, 1, 1);
-	set_vector(&mesh->t[5].v[2], 1, 1, 1);
+void	make_cube(t_mesh *m, float size)
+{
+	int vt_id[4];
+	float half_size = size * 0.5f;
+	m->v = (t_vertex *)malloc(sizeof(t_vertex) * 8);
 
-	//LEFT PLANE
-	//
-	set_vector(&mesh->t[6].v[0], 0, 0, 1);
-	set_vector(&mesh->t[6].v[1], 0, 0, 0);
-	set_vector(&mesh->t[6].v[2], 0, 1, 1);
-	//
-	set_vector(&mesh->t[7].v[0], 0, 0, 0);
-	set_vector(&mesh->t[7].v[1], 0, 1, 0);
-	set_vector(&mesh->t[7].v[2], 0, 1, 1);
+	set_vertex(&m->v[0], -half_size, -half_size, -half_size);
+	set_vertex(&m->v[1], -half_size, half_size, -half_size);
+	set_vertex(&m->v[2], half_size, half_size, -half_size);
+	set_vertex(&m->v[3], half_size, -half_size, -half_size);
+	set_vertex(&m->v[4], -half_size, -half_size, half_size);
+	set_vertex(&m->v[5], -half_size, half_size, half_size);
+	set_vertex(&m->v[6], half_size, half_size, half_size);
+	set_vertex(&m->v[7], half_size, -half_size, half_size);
 
-	//TOP PLANE
-	//
-	set_vector(&mesh->t[8].v[0], 0, 0, 1);
-	set_vector(&mesh->t[8].v[1], 1, 0, 1);
-	set_vector(&mesh->t[8].v[2], 0, 0, 0);
-	//
-	set_vector(&mesh->t[9].v[0], 1, 0, 1);
-	set_vector(&mesh->t[9].v[1], 1, 0, 0);
-	set_vector(&mesh->t[9].v[2], 0, 0, 0);
+	m->last_vt = 7;
+	m->last_tr = 0;
 
-	//BOTTOM PLANE
-	//
-	set_vector(&mesh->t[10].v[0], 0, 0, 0);
-	set_vector(&mesh->t[10].v[1], 0, 0, 0);
-	set_vector(&mesh->t[10].v[2], 0, 0, 0);
-	//
-	set_vector(&mesh->t[11].v[0], 0, 0, 0);
-	set_vector(&mesh->t[11].v[1], 0, 0, 0);
-	set_vector(&mesh->t[11].v[2], 0, 0, 0);
+	vt_id[0] = 0;
+	vt_id[1] = 1;
+	vt_id[2] = 2;
+	vt_id[3] = 3;
+	make_face(m, vt_id);
+
+	vt_id[0] = 3;
+	vt_id[1] = 2;
+	vt_id[2] = 6;
+	vt_id[3] = 7;
+	make_face(m, vt_id);
+
+	vt_id[0] = 7;
+	vt_id[1] = 6;
+	vt_id[2] = 5;
+	vt_id[3] = 4;
+	make_face(m, vt_id);
+
+	vt_id[0] = 4;
+	vt_id[1] = 5;
+	vt_id[2] = 1;
+	vt_id[3] = 0;
+	make_face(m, vt_id);
+
+	vt_id[0] = 1;
+	vt_id[1] = 5;
+	vt_id[2] = 6;
+	vt_id[3] = 2;
+	make_face(m, vt_id);
+
+	vt_id[0] = 4;
+	vt_id[1] = 0;
+	vt_id[2] = 3;
+	vt_id[3] = 7;
+	make_face(m, vt_id);
 }

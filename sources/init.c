@@ -52,6 +52,7 @@ void	init_app(t_app *app)
 	app->camera.z_near = 0.1f;
 	app->camera.asp_ratio = (float)app->window.h / (float)app->window.w;
 	app->camera.for_rad = 1.0f / tanf(app->camera.fov * 0.5f / 180.0f * 3.14159f);
-	set_vector(&app->camera.pos, 0.0f, 0.0f, 0.0f);
+	set_vertex(&app->camera.pos, 0.0f, 0.0f, 0.0f);
+	app->speed = 0.01f;
 	init_projection_mat(app);
 }
