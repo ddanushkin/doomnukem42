@@ -188,6 +188,8 @@ typedef struct	s_app
 
 void	debug_mouse(t_app *app, char *event, int key_code);
 void	debug_keyboard(char *event, int key_code);
+void	do_input(t_app *app);
+
 
 void 	app_close(t_app *app);
 
@@ -205,7 +207,6 @@ int 	mouse_event_move(int x, int y, t_app *app);
 int		window_event_close(t_app *app);
 int		window_event_expose(t_app *app);
 
-void	update_inputs(t_app *app);
 void	reset_inputs_states(t_app *app);
 
 void	project_triangle(t_triangle *in, t_triangle *out, t_mat4x4 *proj_mat);
