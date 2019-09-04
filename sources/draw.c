@@ -137,14 +137,13 @@ void	draw_triangle(t_app *app, t_triangle triangle)
 		scale_triangle(app, &projected);
 		fill_triangle(app, &projected);
 
-		t_color black;
-
-		black.b = 255;
-		black.r = 255;
-		black.g = 255;
-		draw_line(app, *projected.v[1], *projected.v[0], &black);
-		draw_line(app, *projected.v[2], *projected.v[0], &black);
-		draw_line(app, *projected.v[1], *projected.v[2], &black);
+		t_color white;
+		white.b = 255;
+		white.r = 255;
+		white.g = 255;
+		draw_line(app, *projected.v[1], *projected.v[0], &white);
+		draw_line(app, *projected.v[2], *projected.v[0], &white);
+		draw_line(app, *projected.v[1], *projected.v[2], &white);
 	}
 	free(translated.v[0]);
 	free(translated.v[1]);

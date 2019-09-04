@@ -82,6 +82,33 @@
 # define	COLOR_KEY_G 128
 # define	COLOR_KEY_B 128
 
+# define	ZERO_SIZE 1024 * 8
+
+typedef struct	s_128byte
+{
+	unsigned long int	uli1;
+	unsigned long int	uli2;
+	unsigned long int	uli3;
+	unsigned long int	uli4;
+	unsigned long int	uli5;
+	unsigned long int	uli6;
+	unsigned long int	uli7;
+	unsigned long int	uli8;
+	unsigned long int	uli9;
+	unsigned long int	uli10;
+	unsigned long int	uli11;
+	unsigned long int	uli12;
+	unsigned long int	uli13;
+	unsigned long int	uli14;
+	unsigned long int	uli15;
+	unsigned long int	uli16;
+}				t_128byte;
+
+typedef struct	s_zero_char
+{
+	unsigned char z[1024];
+}				t_zero_char;
+
 typedef struct	s_color
 {
 	int			r;

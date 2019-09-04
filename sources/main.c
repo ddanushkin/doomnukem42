@@ -1,51 +1,35 @@
 #include "doom_nukem.h"
 
-void	*my_memset(void *b, int c, size_t len)
+void	*fast_bzero(void *b, int c, size_t len)
 {
 	unsigned char *dst;
-	long *dst_f;
+	t_zero_char *dst_64;
+	t_zero_char zero;
 
-
-	dst_f = b;
-	while (len >= 8)
+	ft_bzero(&zero, 1024);
+	dst_64 = b;
+	while (len >= 1024)
 	{
-		*dst_f = (long)c;
-		dst_f += 8;
-		len -= 8;
+		*dst_64 = zero;
+		dst_64++;
+		len -= 1024;
 	}
 
-	dst = (void *)dst_f;
+	dst = (void *)dst_64;
 	while (len > 0)
 	{
 		*dst = (unsigned char)c;
 		dst++;
-		if (len != 0)
-			len--;
+		len--;
 	}
 	return (b);
 }
 
 void	clear_screen(t_app *app)
 {
-	char *test;
-
-	test = (char *)malloc(sizeof(char) * 11);
-	test[0] = 0+'0';
-	test[1] = 1+'0';
-	test[2] = 2+'0';
-	test[3] = 3+'0';
-	test[4] = 4+'0';
-	test[5] = 5+'0';
-	test[6] = 6+'0';
-	test[7] = 7+'0';
-	test[8] = 8+'0';
-	test[9] = 9+'0';
-	test[10] = 0;
-
-	//my_memset(test, 0, 11);
-
-	bzero(app->screen.pixels,app->window.w * app->window.h * 4);
-	ft_bzero(app->screen.pixels,app->window.w * app->window.h * 4);
+	fast_bzero(app->screen.pixels, 0,app->window.w * app->window.h * 4);
+	//bzero(app->screen.pixels, app->window.w * app->window.h * 4);
+	//ft_bzero(app->screen.pixels,app->window.w * app->window.h * 4);
 }
 
 void	draw_cube(t_app *app, t_mesh *m)
@@ -78,7 +62,6 @@ void	draw_cube(t_app *app, t_mesh *m)
 
 int		update(t_app *app)
 {
-	init_image(&app->screen, &app->window, app->mlx);
 	clock_t current_ticks, delta_ticks;
 	clock_t fps = 0;
 
@@ -93,9 +76,9 @@ int		update(t_app *app)
 	update_rotation_mat_z(app, app->rot.z);
 	update_rotation_mat_x(app, app->rot.x);
 
-	int repeat = 1;
+	int repeat = 0;
 
-	make_cube(&app->cube, 2.5);
+	make_cube(&app->cube, 1);
 
 	while (repeat >= 0)
 	{
@@ -106,7 +89,6 @@ int		update(t_app *app)
 	free(app->cube.v);
 
 	mlx_put_image_to_window(app->mlx, app->window.ptr, app->screen.ptr, 0, 0);
-	mlx_destroy_image(app->mlx, app->screen.ptr);
 
 	delta_ticks = clock() - current_ticks;
 
