@@ -197,6 +197,8 @@ void	init_window(t_window *window, void *mlx);
 void	init_image(t_image *image, t_window *window, void *mlx);
 void	init_app(t_app *app);
 
+void	update_inputs(t_app *app);
+
 int 	keyboard_event_down(int key_code, t_app *app);
 int 	keyboard_event_up(int key_code, t_app *app);
 

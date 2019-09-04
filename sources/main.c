@@ -5,10 +5,21 @@ void	clear_screen(t_app *app)
 	ft_bzero(app->screen.pixels,app->window.w * app->window.h * 4);
 }
 
+void	mlx_events(t_app *app)
+{
+	mlx_hook(app->window.ptr, 17, 5, window_event_close, app);
+	mlx_hook(app->window.ptr, 12, 5, window_event_expose, app);
+	mlx_hook(app->window.ptr, 2, 5, keyboard_event_down, app);
+	mlx_hook(app->window.ptr, 3, 5, keyboard_event_up, app);
+	mlx_hook(app->window.ptr, 4, 5, mouse_event_down, app);
+	mlx_hook(app->window.ptr, 5, 5, mouse_event_up, app);
+	mlx_hook(app->window.ptr, 6, 5, mouse_event_move, app);
+}
+
 int		update(t_app *app)
 {
 	t_mesh	cube;
-	do_input(app);
+	update_inputs(app);
 	make_cube(&cube);
 
 	update_rotation_mat_z(app, app->rot.z);
@@ -48,6 +59,7 @@ int		main()
 	t_app	app;
 
 	init_app(&app);
+	mlx_events(&app);
 	mlx_loop_hook(app.mlx, update, &app);
 	mlx_loop(app.mlx);
 }
