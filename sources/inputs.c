@@ -2,7 +2,7 @@
 
 void	update_inputs(t_app *app)
 {
-	if (app->keyboard.up[KB_ESQ])
+	if (app->keyboard.down[KB_ESQ])
 		app_close(app);
 	if (app->keyboard.down[KB_Q])
 		app->speed -= 0.01f;

@@ -60,6 +60,17 @@ void	draw_cube(t_app *app, t_mesh *m)
 	draw_triangle(app, m->t[11]);
 }
 
+void	mlx_events(t_app *app)
+{
+	mlx_hook(app->window.ptr, 17, 5, window_event_close, app);
+	mlx_hook(app->window.ptr, 12, 5, window_event_expose, app);
+	mlx_hook(app->window.ptr, 2, 5, keyboard_event_down, app);
+	mlx_hook(app->window.ptr, 3, 5, keyboard_event_up, app);
+	mlx_hook(app->window.ptr, 4, 5, mouse_event_down, app);
+	mlx_hook(app->window.ptr, 5, 5, mouse_event_up, app);
+	mlx_hook(app->window.ptr, 6, 5, mouse_event_move, app);
+}
+
 int		update(t_app *app)
 {
 	clock_t current_ticks, delta_ticks;
@@ -109,13 +120,7 @@ int		main()
 	t_app	app;
 
 	init_app(&app);
-	mlx_hook(app.window.ptr, 17, 5, window_event_close, &app);
-	mlx_hook(app.window.ptr, 12, 5, window_event_expose, &app);
-	mlx_hook(app.window.ptr, 2, 5, keyboard_event_down, &app);
-	mlx_hook(app.window.ptr, 3, 5, keyboard_event_up, &app);
-	mlx_hook(app.window.ptr, 4, 5, mouse_event_down, &app);
-	mlx_hook(app.window.ptr, 5, 5, mouse_event_up, &app);
-	mlx_hook(app.window.ptr, 6, 5, mouse_event_move, &app);
+	mlx_events(&app);
 	mlx_loop_hook(app.mlx, update, &app);
 	mlx_loop(app.mlx);
 }
