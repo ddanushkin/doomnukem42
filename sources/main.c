@@ -22,19 +22,20 @@ int		update(t_app *app)
 	draw_triangle(app, cube.t[1]);
 	set_color(&cube.t[2].color, 0, 0, 255);
 	draw_triangle(app, cube.t[2]);
-	set_color(&cube.t[3].color, 255, 0, 0);
+	set_color(&cube.t[3].color, 0, 255, 255);
 	draw_triangle(app, cube.t[3]);
-	set_color(&cube.t[4].color, 0, 255, 0);
+	set_color(&cube.t[4].color, 255, 255, 0);
 	draw_triangle(app, cube.t[4]);
-	set_color(&cube.t[5].color, 0, 0, 255);
+	set_color(&cube.t[5].color, 255, 0, 255);
 	draw_triangle(app, cube.t[5]);
+
 	set_color(&cube.t[6].color, 255, 0, 0);
 	draw_triangle(app, cube.t[6]);
 	set_color(&cube.t[7].color, 0, 255, 0);
 	draw_triangle(app, cube.t[7]);
 	set_color(&cube.t[8].color, 0, 0, 255);
 	draw_triangle(app, cube.t[8]);
-	set_color(&cube.t[9].color, 255, 0, 0);
+	set_color(&cube.t[9].color, 0, 255, 255);
 	draw_triangle(app, cube.t[9]);
 
 	mlx_put_image_to_window(app->mlx, app->window.ptr, app->screen.ptr, 0, 0);

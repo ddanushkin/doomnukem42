@@ -96,10 +96,9 @@ void	sort_triangle_by_y(t_triangle *in, t_triangle *out)
 void	fill_triangle(t_app *app, t_triangle *t)
 {
 	t_triangle	sorted;
-	t_color		orig_color;
 
 	sort_triangle_by_y(t, &sorted);
-	orig_color = t->color;
+	sorted.color = t->color;
 
 	if (sorted.v[0].y == sorted.v[1].y)
 	{
@@ -132,7 +131,7 @@ void	fill_triangle(t_app *app, t_triangle *t)
 		vz = sorted.v[0].z + (sorted.v[2].z - sorted.v[0].z) * split_alpha;
 		set_vector(&v_tmp, vx, vy, vz);
 
-		tmp_triangle.color = orig_color;
+		tmp_triangle.color = t->color;
 		if (sorted.v[1].x < vx)
 		{
 			tmp_triangle.v[0] = sorted.v[0];
