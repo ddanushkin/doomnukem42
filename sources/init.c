@@ -14,64 +14,34 @@ void	init_projection_mat(t_app *app)
 	app->projection_mat.m[3][3] = 0.0f;
 }
 
-void	init_window(t_window *window, void *mlx)
-{
-	window->w = SCREEN_W;
-	window->h = SCREEN_H;
-	window->half_w = window->w * 0.5f;
-	window->half_h = window->h * 0.5f;
-	window->title = ft_strdup(WIN_TITLE);
-	window->ptr = mlx_new_window(
-			mlx,
-			window->w,
-			window->h,
-			window->title);
-}
-
-void	init_image(t_image *image, t_window *window, void *mlx)
-{
-	image->ptr = mlx_new_image(
-			mlx,
-			window->w,
-			window->h);
-	image->pixels = mlx_get_data_addr(
-			image->ptr,
-			&(image->bpp),
-			&(image->s_l),
-			&(image->endian));
-}
-
 static	void	init_sdl(t_sdl *sdl)
 {
-	float	fov;
-
-	fov = M_PI / 6.0;
-	sdl->width = 1280;
+	sdl->width = SCREEN_W;
 	sdl->half_width = (int)(sdl->width * 0.5);
-	sdl->height = 720;
+	sdl->height = SCREEN_H;
 	sdl->half_height = (int)(sdl->height * 0.5);
-	sdl->dist_to_pp = (int)((float)sdl->half_width / tanf(fov));
-	sdl->draw_dist = 840;
-	sdl->pixels = (Uint32 *)malloc(sizeof(Uint32) * sdl->width * sdl->height);
-	sdl->dist_per_x = (float *)malloc(sizeof(float) * sdl->width);
 }
 
 static	void	create_stuff(t_sdl *sdl)
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	sdl->window = SDL_CreateWindow(WIN_TITLE, SDL_WINDOWPOS_CENTERED,
-								   SDL_WINDOWPOS_CENTERED, SCREEN_W, SCREEN_H, 0);
+	sdl->window = SDL_CreateWindow(
+			WIN_TITLE,
+			SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED,
+			sdl->width,
+			sdl->height,
+			0);
 	sdl->surface = SDL_GetWindowSurface(sdl->window);
-	sdl->pixels = (Uint32 *)malloc(sizeof(Uint32) * SCREEN_W * SCREEN_H);
-
 }
 
 void	init_app(t_app *app)
 {
-
+	app = (t_app *)malloc(sizeof(t_app));
 	ft_bzero(app, sizeof(t_app));
 	app->sdl = (t_sdl *)malloc(sizeof(t_sdl));
+	app->sdl->timer = (t_timer *)malloc(sizeof(t_timer));
 	init_sdl(app->sdl);
 	create_stuff(app->sdl);
 	app->inputs = (t_inputs *)malloc(sizeof(t_inputs));

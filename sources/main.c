@@ -34,54 +34,6 @@ void	draw_cube(t_app *app, t_mesh *m)
 	draw_triangle(app, m->t[11]);
 }
 
-void	mlx_events(t_app *app)
-{
-	mlx_hook(app->window.ptr, 17, 5, window_event_close, app);
-	mlx_hook(app->window.ptr, 12, 5, window_event_expose, app);
-	mlx_hook(app->window.ptr, 2, 5, keyboard_event_down, app);
-	mlx_hook(app->window.ptr, 3, 5, keyboard_event_up, app);
-	mlx_hook(app->window.ptr, 4, 5, mouse_event_down, app);
-	mlx_hook(app->window.ptr, 5, 5, mouse_event_up, app);
-	mlx_hook(app->window.ptr, 6, 5, mouse_event_move, app);
-}
-
-int		update(t_app *app)
-{
-	t_color c;
-
-	c.b = 255;
-	c.r = 255;
-	c.g = 255;
-
-	get_ticks(&app->timer);
-	clear_screen(app);
-	update_inputs(app);
-
-	set_pixel(&app->screen, 100, 100, &c);
-	set_pixel(&app->screen, 200, 200, &c);
-//	app->rot.x += app->speed > 0.0f ? app->speed : 0.0f;
-//	app->rot.z += app->speed > 0.0f ? app->speed : 0.0f;
-//
-//	update_rotation_mat_z(app, app->rot.z);
-//	update_rotation_mat_x(app, app->rot.x);
-//
-//	int repeat = 0;
-//
-//	make_cube(&app->cube, 2.6f);
-//	while (repeat >= 0)
-//	{
-//		draw_cube(app, &app->cube);
-//		repeat--;
-//	}
-//	free(app->cube.v);
-
-	mlx_put_image_to_window(app->mlx, app->window.ptr, app->screen.ptr, 0, 0);
-	get_delta_time(&app->timer);
-	show_fps(app);
-	reset_inputs_states(app);
-	return (0);
-}
-
 void	get_color(SDL_Surface *surface, int x, int y, t_color *c)
 {
 	int 		offset;
@@ -95,35 +47,36 @@ void	get_color(SDL_Surface *surface, int x, int y, t_color *c)
 
 void	start_the_game(t_sdl *sdl)
 {
+	t_color color;
 
+	color.r = 255;
+	color.g = 0;
+	color.b = 0;
 	while (1)
 	{
-		get_ticks(&sdl->timer);
+		get_ticks(sdl->timer);
 		SDL_PollEvent(&sdl->event);
 		if (sdl->event.type == SDL_QUIT)
 			break;
 
-		//get_color(sdl->surface, 100, 100, &clr);
-		//get_color(sdl->surface, 200, 200, &clr);
+		get_color(sdl->surface, 100, 100, &color);
+		get_color(sdl->surface, 200, 200, &color);
 
 		SDL_UpdateWindowSurface(sdl->window);
 
-		get_delta_time(&sdl->timer);
-		show_fps_sdl(&sdl->timer);
+		get_delta_time(sdl->timer);
+		show_fps_sdl(sdl->timer);
 	}
 	SDL_Quit();
 	SDL_DestroyWindow(sdl->window);
 }
 
-int		main()
+int		main(int argv, char**argc)
 {
-	t_app	*app;
-	app = (t_app *)malloc(sizeof(t_app));
-	init_app(app);
-	start_the_game(app->sdl);
-	quit_properly(app);
-	//mlx_events(&app);
-	//mlx_loop_hook(app.mlx, update, &app);
-	//mlx_loop(app.mlx);
+	t_app	app;
+	init_app(&app);
+	start_the_game(app.sdl);
+	quit_properly(&app);
+	return (0);
 }
 

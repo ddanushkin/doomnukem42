@@ -1,7 +1,5 @@
 #include "doom_nukem.h"
 
-#include <libc.h>
-
 void	mat_vector_mult(t_vertex *in_vec, t_vertex *out_vec, t_mat4x4 *mat)
 {
 	float	w;

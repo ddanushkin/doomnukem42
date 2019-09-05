@@ -1,14 +1,12 @@
 #ifndef DOOM_NUKEM_H
 #define DOOM_NUKEM_H
 
-# include "mlx.h"
 # include "libft.h"
 # include <math.h>
 # include <pthread.h>
 # include "stdio.h"
 # include <time.h> // LIBC ?!
 # include <SDL.h>
-
 # define PRINT_DEBUG 0
 
 # define KB_ESQ 53
@@ -204,30 +202,17 @@ typedef struct		s_inputs
 typedef struct		s_sdl
 {
 	SDL_Event		event;
-	Uint32			*pixels;
-	SDL_Renderer	*renderer;
-	SDL_Texture		*texture;
 	SDL_Window		*window;
 	SDL_Surface		*surface;
-	t_timer			timer;
-	float			*diag_dist;
-	float			*dist_per_x;
-	int				dist_to_pp;
-	int				draw_dist;
+	t_timer			*timer;
 	int				half_height;
 	int				half_width;
 	int				height;
-	SDL_Renderer	*renderer2;
-
-	SDL_Texture		*ui;
 	int				width;
-	SDL_Texture		*logo;
-	SDL_Texture		*main;
 }					t_sdl;
 
 typedef struct	s_app
 {
-	void			*mlx;
 	t_window		window;
 	t_image			screen;
 	t_timer			timer;
