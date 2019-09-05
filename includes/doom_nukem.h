@@ -7,6 +7,7 @@
 # include <pthread.h>
 # include "stdio.h"
 # include <time.h> // LIBC ?!
+# include <SDL.h>
 
 # define PRINT_DEBUG 0
 
@@ -188,6 +189,42 @@ typedef struct	s_timer
 	float 	delta;
 	clock_t fps;
 }				t_timer;
+
+typedef struct		s_inputs
+{
+	const Uint8		*keyboard;
+	int				left_pressed;
+	int				right_pressed;
+	float			sensitivity;
+	int				x;
+	int				y;
+	int				zoom;
+}					t_inputs;
+
+typedef struct		s_sdl
+{
+	SDL_Event		event;
+	Uint32			*pixels;
+	SDL_Renderer	*renderer;
+	SDL_Texture		*texture;
+	SDL_Window		*window;
+	SDL_Surface		*surface;
+	t_timer			timer;
+	float			*diag_dist;
+	float			*dist_per_x;
+	int				dist_to_pp;
+	int				draw_dist;
+	int				half_height;
+	int				half_width;
+	int				height;
+	SDL_Renderer	*renderer2;
+
+	SDL_Texture		*ui;
+	int				width;
+	SDL_Texture		*logo;
+	SDL_Texture		*main;
+}					t_sdl;
+
 typedef struct	s_app
 {
 	void			*mlx;
@@ -203,7 +240,10 @@ typedef struct	s_app
 	t_vertex		rot;
 	t_mesh			cube;
 	float 			speed;
-} 				t_app;
+	t_sdl			*sdl;
+	t_inputs		*inputs;
+}
+t_app;
 
 void	debug_mouse(t_app *app, char *event, int key_code);
 void	debug_keyboard(char *event, int key_code);
@@ -252,10 +292,16 @@ void	draw_triangle(t_app *app, t_triangle triangle);
 void	fill_triangle(t_app *app, t_triangle t);
 void	fill_triangle2(t_app *app, t_triangle t);
 
+void	show_fps_sdl(t_timer *timer);
 
 void	make_cube(t_mesh *m, float size);
 
-void	get_ticks(t_app *app);
-void	get_delta_time(t_app *app);
+void	get_ticks(t_timer *timer);
+void	get_delta_time(t_timer *timer);
 void	show_fps(t_app *app);
+
+void	get_color(SDL_Surface *surface, int x, int y, t_color *c);
+int 	out_of_borders(int x, int y);
+int 	color_key(t_color *c);
+void	quit_properly(t_app *app);
 #endif

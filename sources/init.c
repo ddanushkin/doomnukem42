@@ -41,12 +41,40 @@ void	init_image(t_image *image, t_window *window, void *mlx)
 			&(image->endian));
 }
 
+static	void	init_sdl(t_sdl *sdl)
+{
+	float	fov;
+
+	fov = M_PI / 6.0;
+	sdl->width = 1280;
+	sdl->half_width = (int)(sdl->width * 0.5);
+	sdl->height = 720;
+	sdl->half_height = (int)(sdl->height * 0.5);
+	sdl->dist_to_pp = (int)((float)sdl->half_width / tanf(fov));
+	sdl->draw_dist = 840;
+	sdl->pixels = (Uint32 *)malloc(sizeof(Uint32) * sdl->width * sdl->height);
+	sdl->dist_per_x = (float *)malloc(sizeof(float) * sdl->width);
+}
+
+static	void	create_stuff(t_sdl *sdl)
+{
+	SDL_Init(SDL_INIT_VIDEO);
+
+	sdl->window = SDL_CreateWindow(WIN_TITLE, SDL_WINDOWPOS_CENTERED,
+								   SDL_WINDOWPOS_CENTERED, SCREEN_W, SCREEN_H, 0);
+	sdl->surface = SDL_GetWindowSurface(sdl->window);
+	sdl->pixels = (Uint32 *)malloc(sizeof(Uint32) * SCREEN_W * SCREEN_H);
+
+}
+
 void	init_app(t_app *app)
 {
+
 	ft_bzero(app, sizeof(t_app));
-	app->mlx = mlx_init();
-	init_window(&app->window, app->mlx);
-	init_image(&app->screen, &app->window, app->mlx);
+	app->sdl = (t_sdl *)malloc(sizeof(t_sdl));
+	init_sdl(app->sdl);
+	create_stuff(app->sdl);
+	app->inputs = (t_inputs *)malloc(sizeof(t_inputs));
 	app->camera.fov = 90.0f;
 	app->camera.z_far = 1000.0f;
 	app->camera.z_near = 0.1f;

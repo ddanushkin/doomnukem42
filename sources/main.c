@@ -47,39 +47,83 @@ void	mlx_events(t_app *app)
 
 int		update(t_app *app)
 {
-	get_ticks(app);
+	t_color c;
+
+	c.b = 255;
+	c.r = 255;
+	c.g = 255;
+
+	get_ticks(&app->timer);
 	clear_screen(app);
 	update_inputs(app);
 
+	set_pixel(&app->screen, 100, 100, &c);
+	set_pixel(&app->screen, 200, 200, &c);
 //	app->rot.x += app->speed > 0.0f ? app->speed : 0.0f;
 //	app->rot.z += app->speed > 0.0f ? app->speed : 0.0f;
-
-	update_rotation_mat_z(app, app->rot.z);
-	update_rotation_mat_x(app, app->rot.x);
-
-	int repeat = 0;
-
-	make_cube(&app->cube, 2.6f);
-	while (repeat >= 0)
-	{
-		draw_cube(app, &app->cube);
-		repeat--;
-	}
-	free(app->cube.v);
+//
+//	update_rotation_mat_z(app, app->rot.z);
+//	update_rotation_mat_x(app, app->rot.x);
+//
+//	int repeat = 0;
+//
+//	make_cube(&app->cube, 2.6f);
+//	while (repeat >= 0)
+//	{
+//		draw_cube(app, &app->cube);
+//		repeat--;
+//	}
+//	free(app->cube.v);
 
 	mlx_put_image_to_window(app->mlx, app->window.ptr, app->screen.ptr, 0, 0);
-	get_delta_time(app);
+	get_delta_time(&app->timer);
 	show_fps(app);
 	reset_inputs_states(app);
 	return (0);
 }
 
+void	get_color(SDL_Surface *surface, int x, int y, t_color *c)
+{
+	int 		offset;
+
+	offset = 4 * (y * surface -> w + x);
+	unsigned char* pixels = (unsigned char*)surface -> pixels;
+	pixels[offset] = c->b;
+	pixels[offset + 1] = c->g;
+	pixels[offset + 2] = c->r;
+}
+
+void	start_the_game(t_sdl *sdl)
+{
+
+	while (1)
+	{
+		get_ticks(&sdl->timer);
+		SDL_PollEvent(&sdl->event);
+		if (sdl->event.type == SDL_QUIT)
+			break;
+
+		//get_color(sdl->surface, 100, 100, &clr);
+		//get_color(sdl->surface, 200, 200, &clr);
+
+		SDL_UpdateWindowSurface(sdl->window);
+
+		get_delta_time(&sdl->timer);
+		show_fps_sdl(&sdl->timer);
+	}
+	SDL_Quit();
+	SDL_DestroyWindow(sdl->window);
+}
+
 int		main()
 {
-	t_app	app;
-
-	init_app(&app);
-	mlx_events(&app);
-	mlx_loop_hook(app.mlx, update, &app);
-	mlx_loop(app.mlx);
+	t_app	*app;
+	app = (t_app *)malloc(sizeof(t_app));
+	init_app(app);
+	start_the_game(app->sdl);
+	quit_properly(app);
+	//mlx_events(&app);
+	//mlx_loop_hook(app.mlx, update, &app);
+	//mlx_loop(app.mlx);
 }
+
