@@ -1,5 +1,7 @@
 #include "doom_nukem.h"
 
+#include <libc.h>
+
 void	mat_vector_mult(t_vertex *in_vec, t_vertex *out_vec, t_mat4x4 *mat)
 {
 	float	w;
@@ -135,8 +137,7 @@ void	draw_triangle(t_app *app, t_triangle triangle)
 		project_triangle(&translated, &projected, &app->projection_mat);
 		projected.color = triangle.color;
 		scale_triangle(app, &projected);
-		fill_triangle(app, &projected);
-
+		fill_triangle(app, projected);
 		t_color white;
 		white.b = 255;
 		white.r = 255;

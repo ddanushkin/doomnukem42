@@ -6,7 +6,7 @@
 # include <math.h>
 # include <pthread.h>
 # include "stdio.h"
-# include <time.h>
+# include <time.h> // LIBC ?!
 
 # define PRINT_DEBUG 0
 
@@ -82,39 +82,17 @@
 # define	COLOR_KEY_G 128
 # define	COLOR_KEY_B 128
 
-# define	ZERO_SIZE 1024 * 8
-
-typedef struct	s_128byte
-{
-	unsigned long int	uli1;
-	unsigned long int	uli2;
-	unsigned long int	uli3;
-	unsigned long int	uli4;
-	unsigned long int	uli5;
-	unsigned long int	uli6;
-	unsigned long int	uli7;
-	unsigned long int	uli8;
-	unsigned long int	uli9;
-	unsigned long int	uli10;
-	unsigned long int	uli11;
-	unsigned long int	uli12;
-	unsigned long int	uli13;
-	unsigned long int	uli14;
-	unsigned long int	uli15;
-	unsigned long int	uli16;
-}				t_128byte;
-
-typedef struct	s_zero_char
-{
-	unsigned char z[1024];
-}				t_zero_char;
-
 typedef struct	s_color
 {
 	int			r;
 	int			g;
 	int			b;
 }				t_color;
+
+typedef struct	s_image_chunk
+{
+	unsigned char z[1024];
+}				t_image_chunk;
 
 typedef struct	s_mat4x4
 {
@@ -203,11 +181,19 @@ typedef struct	s_camera
 	t_vertex	pos;
 }				t_camera;
 
+typedef struct	s_timer
+{
+	clock_t current_ticks;
+	clock_t delta_ticks;
+	float 	delta;
+	clock_t fps;
+}				t_timer;
 typedef struct	s_app
 {
 	void			*mlx;
 	t_window		window;
 	t_image			screen;
+	t_timer			timer;
 	t_kb_keys_state	keyboard;
 	t_mouse_state	mouse;
 	t_camera		camera;
@@ -223,6 +209,7 @@ void	debug_mouse(t_app *app, char *event, int key_code);
 void	debug_keyboard(char *event, int key_code);
 void	do_input(t_app *app);
 
+void	*image_clear(void *b, int c, size_t len);
 
 void 	app_close(t_app *app);
 
@@ -254,13 +241,21 @@ float 	cross_product(t_vertex *v_1, t_vertex *v_2);
 void	update_rotation_mat_z(t_app *app, float angle);
 void	update_rotation_mat_x(t_app *app, float angle);
 
+void	set_triangle(t_triangle *t, t_vertex *v0, t_vertex *v1, t_vertex *v2);
+
 void	set_color(t_color *color, int r, int g, int b);
 
 void	set_pixel(t_image *image, int x, int y, t_color *c);
 void	draw_line(t_app *app, t_vertex start, t_vertex end, t_color *c);
 void	draw_line2(t_app *app, t_vertex p0, t_vertex p1, t_color *c);
 void	draw_triangle(t_app *app, t_triangle triangle);
-void	fill_triangle(t_app *app, t_triangle *t);
+void	fill_triangle(t_app *app, t_triangle t);
+void	fill_triangle2(t_app *app, t_triangle t);
+
 
 void	make_cube(t_mesh *m, float size);
+
+void	get_ticks(t_app *app);
+void	get_delta_time(t_app *app);
+void	show_fps(t_app *app);
 #endif

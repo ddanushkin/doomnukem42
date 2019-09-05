@@ -6,7 +6,7 @@
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/21 17:36:42 by lglover           #+#    #+#             */
-/*   Updated: 2019/09/03 18:46:58 by lglover          ###   ########.fr       */
+/*   Updated: 2019/09/05 10:45:55 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # define MIN(a,b) (((a)<(b))?(a):(b))
 # define MAX(a,b) (((a)>(b))?(a):(b))
 # define ABS(N) ((N<0)?(-N):(N))
+# define SIGN(x) ((x < 0) ? -1 : (x > 0));
 # define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
 
 typedef struct	s_list
@@ -32,6 +33,11 @@ typedef struct	s_list
 	size_t			content_size;
 	struct s_list	*next;
 }				t_list;
+
+typedef struct	s_bzero_chunk
+{
+	unsigned char z[1024];
+}				t_bzero_chunk;
 
 int				ft_tolower(int c);
 int				ft_toupper(int c);

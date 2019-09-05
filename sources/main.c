@@ -1,35 +1,9 @@
 #include "doom_nukem.h"
 
-void	*fast_bzero(void *b, int c, size_t len)
-{
-	unsigned char *dst;
-	t_zero_char *dst_64;
-	t_zero_char zero;
-
-	ft_bzero(&zero, 1024);
-	dst_64 = b;
-	while (len >= 1024)
-	{
-		*dst_64 = zero;
-		dst_64++;
-		len -= 1024;
-	}
-
-	dst = (void *)dst_64;
-	while (len > 0)
-	{
-		*dst = (unsigned char)c;
-		dst++;
-		len--;
-	}
-	return (b);
-}
-
 void	clear_screen(t_app *app)
 {
-	fast_bzero(app->screen.pixels, 0,app->window.w * app->window.h * 4);
-	//bzero(app->screen.pixels, app->window.w * app->window.h * 4);
-	//ft_bzero(app->screen.pixels,app->window.w * app->window.h * 4);
+	image_clear(app->screen.pixels, 0, app->window.w * app->window.h * 4);
+	//bzero(app->screen.pixels,app->window.w * app->window.h * 4);
 }
 
 void	draw_cube(t_app *app, t_mesh *m)
@@ -73,44 +47,29 @@ void	mlx_events(t_app *app)
 
 int		update(t_app *app)
 {
-	clock_t current_ticks, delta_ticks;
-	clock_t fps = 0;
-
-	current_ticks = clock();
+	get_ticks(app);
 	clear_screen(app);
-
 	update_inputs(app);
 
-	app->rot.x += app->speed > 0.0f ? app->speed : 0.0f;
-	app->rot.z += app->speed > 0.0f ? app->speed : 0.0f;
+//	app->rot.x += app->speed > 0.0f ? app->speed : 0.0f;
+//	app->rot.z += app->speed > 0.0f ? app->speed : 0.0f;
 
 	update_rotation_mat_z(app, app->rot.z);
 	update_rotation_mat_x(app, app->rot.x);
 
 	int repeat = 0;
 
-	make_cube(&app->cube, 1);
-
+	make_cube(&app->cube, 2.6f);
 	while (repeat >= 0)
 	{
 		draw_cube(app, &app->cube);
 		repeat--;
 	}
-
 	free(app->cube.v);
 
 	mlx_put_image_to_window(app->mlx, app->window.ptr, app->screen.ptr, 0, 0);
-
-	delta_ticks = clock() - current_ticks;
-
-	if(delta_ticks > 0)
-		fps = CLOCKS_PER_SEC / delta_ticks;
-
-	char *fps_text;
-	fps_text = ft_itoa((int)fps);
-	mlx_string_put(app->mlx, app->window.ptr, 10, 10, 0xFFFFFF, "FPS: ");
-	mlx_string_put(app->mlx, app->window.ptr, 55, 10, 0xFFFFFF, fps_text);
-	ft_strdel(&fps_text);
+	get_delta_time(app);
+	show_fps(app);
 	reset_inputs_states(app);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/23 12:41:00 by lglover           #+#    #+#             */
-/*   Updated: 2018/12/21 13:29:22 by lglover          ###   ########.fr       */
+/*   Updated: 2019/09/05 11:17:27 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,23 @@
 
 void	*ft_memset(void *b, int c, size_t len)
 {
-	unsigned char *dst;
+	unsigned char		*dst_small;
+	unsigned long int	*dst_big;
 
-	dst = b;
+	dst_big = b;
+	while (len >= 8)
+	{
+		*dst_big = (unsigned long int)c;
+		dst_big++;
+		len -= 8;
+	}
+
+	dst_small = (void *)dst_big;
 	while (len > 0)
 	{
-		*dst = (unsigned char)c;
-		dst++;
-		if (len != 0)
-			len--;
+		*dst_small = (unsigned char)c;
+		dst_small++;
+		len--;
 	}
 	return (b);
 }
