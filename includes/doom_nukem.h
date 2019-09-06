@@ -95,6 +95,17 @@ typedef struct	s_image
 	int			endian;
 }				t_image;
 
+typedef struct	s_window
+{
+	void		*ptr;
+	char		*title;
+	int			w;
+	int			h;
+	float		ratio;
+	int			half_w;
+	int			half_h;
+}				t_window;
+
 typedef struct	s_camera
 {
 	float 		z_near;
@@ -138,6 +149,7 @@ typedef struct		s_sdl
 
 typedef struct	s_app
 {
+	t_window		window;
 	t_image			screen;
 	t_timer			timer;
 	t_kb_keys_state	keyboard;
@@ -162,6 +174,8 @@ void	*image_clear(void *b, int c, size_t len);
 
 void 	app_close(t_app *app);
 
+void	init_window(t_window *window, void *mlx);
+void	init_image(t_image *image, t_window *window, void *mlx);
 void	init_app(t_app *app);
 
 void	update_inputs(t_app *app);
@@ -192,7 +206,7 @@ void	set_triangle(t_triangle *t, t_vertex *v0, t_vertex *v1, t_vertex *v2);
 
 void	set_color(t_color *color, int r, int g, int b);
 
-void	set_pixel(SDL_Surface *s, int x, int y, t_color *c);
+void	set_pixel(t_image *image, int x, int y, t_color *c);
 void	draw_line(t_app *app, t_vertex start, t_vertex end, t_color *c);
 void	draw_line2(t_app *app, t_vertex p0, t_vertex p1, t_color *c);
 void	draw_triangle(t_app *app, t_triangle triangle);
@@ -212,5 +226,5 @@ int 	out_of_borders(int x, int y);
 int 	color_key(t_color *c);
 void	quit_properly(t_app *app);
 
-int		event_handling(t_app *app);
+void	event_handling(t_app *app);
 #endif
