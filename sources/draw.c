@@ -79,8 +79,8 @@ void	scale_vector(t_app *app, t_vertex *vector)
 {
 	vector->x += 1.0f;
 	vector->y += 1.0f;
-	vector->x *= 0.5f * (float)app->window.w;
-	vector->y *= 0.5f * (float)app->window.h;
+	vector->x *= 0.5f * (float)SCREEN_W;
+	vector->y *= 0.5f * (float)SCREEN_H;
 }
 
 void	scale_triangle(t_app *app, t_triangle *triangle)
@@ -128,9 +128,7 @@ void	draw_triangle(t_app *app, t_triangle triangle)
 	normal.y /= length;
 	normal.z /= length;
 
-	if (normal.x * (translated.v[1]->x - app->camera.pos.x) +
-		normal.y * (translated.v[1]->y - app->camera.pos.y) +
-		normal.z * (translated.v[1]->z - app->camera.pos.z) < 0.0f)
+	if (1)
 	{
 		project_triangle(&translated, &projected, &app->projection_mat);
 		projected.color = triangle.color;
@@ -143,6 +141,10 @@ void	draw_triangle(t_app *app, t_triangle triangle)
 		draw_line(app, *projected.v[1], *projected.v[0], &white);
 		draw_line(app, *projected.v[2], *projected.v[0], &white);
 		draw_line(app, *projected.v[1], *projected.v[2], &white);
+	}
+	else
+	{
+		printf("huevo\n");
 	}
 	free(translated.v[0]);
 	free(translated.v[1]);

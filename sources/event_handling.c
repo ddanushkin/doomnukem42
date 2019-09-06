@@ -9,8 +9,8 @@ int		event_handling(t_app *app)
 	if (app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
 		return(0);
 	if (app->inputs->keyboard[SDL_SCANCODE_E])
-		app->speed -= 0.01f;
+		app->speed -= 0.001f;
 	if (app->inputs->keyboard[SDL_SCANCODE_Q])
-		app->speed += 0.01f;
+		app->speed += 0.001f;
 	return (1);
 }

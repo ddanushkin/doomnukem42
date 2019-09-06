@@ -2,7 +2,7 @@
 
 void	clear_screen(t_app *app)
 {
-	image_clear(app->screen.pixels, 0, app->window.w * app->window.h * 4);
+	image_clear(app->sdl->surface->pixels, 0, SCREEN_W * SCREEN_H * 4);
 	//bzero(app->screen.pixels,app->window.w * app->window.h * 4);
 }
 
@@ -44,8 +44,15 @@ void	start_the_game(t_app *app)
 	while (1)
 	{
 		get_ticks(app->sdl->timer);
+		clear_screen(app);
 		if (!event_handling(app))
 			break;
+
+		app->rot.x += app->speed;
+		app->rot.z += app->speed;
+
+		//printf("speed: %f", app->speed);
+
 		update_rotation_mat_z(app, app->rot.z);
 		update_rotation_mat_x(app, app->rot.x);
 

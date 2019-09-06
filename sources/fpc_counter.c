@@ -9,6 +9,7 @@ void	get_ticks(t_timer *timer)
 void	get_delta_time(t_timer *timer)
 {
 	timer->delta_ticks = clock() - timer->current_ticks;
+	timer->delta = timer->delta_ticks;
 }
 
 void	show_fps_sdl(t_timer *timer)
@@ -16,7 +17,7 @@ void	show_fps_sdl(t_timer *timer)
 	if(timer->delta_ticks > 0)
 		timer->fps = CLOCKS_PER_SEC / timer->delta_ticks;
 
-	printf("FPS: %d\n", (int)timer->fps);
+	//printf("FPS: %d\n", (int)timer->fps);
 }
 
 void	show_fps(t_app *app)
@@ -24,7 +25,7 @@ void	show_fps(t_app *app)
 	if(app->timer.delta_ticks > 0)
 		app->timer.fps = CLOCKS_PER_SEC / app->timer.delta_ticks;
 
-	printf("FPS: %d\n", (int)app->timer.fps);
+	//printf("FPS: %d\n", (int)app->timer.fps);
 //	char *fps_text;
 //	fps_text = ft_itoa((int)app->timer.fps);
 //	mlx_string_put(app->mlx, app->window.ptr, 10, 10, 0xFFFFFF, "FPS: ");
