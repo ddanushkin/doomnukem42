@@ -73,10 +73,12 @@ void	start_the_game(t_sdl *sdl)
 
 int		main(int argv, char**argc)
 {
-	t_app	app;
-	init_app(&app);
-	start_the_game(app.sdl);
-	quit_properly(&app);
+	t_app	*app;
+
+	app = (t_app *)malloc(sizeof(t_app));
+	init_app(app);
+	start_the_game(app->sdl);
+	quit_properly(app);
 	return (0);
 }
 

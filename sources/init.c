@@ -38,8 +38,7 @@ static	void	create_stuff(t_sdl *sdl)
 
 void	init_app(t_app *app)
 {
-	app = (t_app *)malloc(sizeof(t_app));
-	ft_bzero(app, sizeof(t_app));
+
 	app->sdl = (t_sdl *)malloc(sizeof(t_sdl));
 	app->sdl->timer = (t_timer *)malloc(sizeof(t_timer));
 	init_sdl(app->sdl);
