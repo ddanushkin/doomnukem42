@@ -34,6 +34,24 @@ void	draw_cube(t_app *app, t_mesh *m)
 	draw_triangle(app, m->t[11]);
 }
 
+void	draw_mesh(t_app *app, t_mesh *mesh)
+{
+	int t;
+	t_triangle triangle;
+
+	t = 0;
+
+	while (t < mesh->t_idx)
+	{
+		triangle = mesh->t[t];
+		set_color(&triangle.color, 128, 128, 128);
+		draw_triangle(app, triangle);
+		t++;
+	}
+}
+
+#include <libc.h>
+
 void	start_the_game(t_app *app)
 {
 	t_color color;
@@ -48,8 +66,8 @@ void	start_the_game(t_app *app)
 		if (!event_handling(app))
 			break;
 
-		app->rot.x += app->speed;
-		app->rot.z += app->speed;
+		app->rot.x += app->speed * app->sdl->timer->delta_ticks * 0.00001f;
+		app->rot.z += app->speed * app->sdl->timer->delta_ticks * 0.00001f;
 
 		//printf("speed: %f", app->speed);
 
@@ -58,21 +76,35 @@ void	start_the_game(t_app *app)
 
 		int repeat = 0;
 
-		make_cube(&app->cube, 1);
-		while (repeat >= 0)
-		{
-			draw_cube(app, &app->cube);
-			repeat--;
-		}
-		free(app->cube.v);
+//		make_cube(&app->cube, fabsf(sinf(app->sdl->timer->current_ticks * 0.000001f)) + 1);
+//		while (repeat >= 0)
+//		{
+//			draw_cube(app, &app->cube);
+//			repeat--;
+//		}
+//		free(app->cube.v);
+
+		draw_mesh(app, &app->mesh[0]);
 
 		SDL_UpdateWindowSurface(app->sdl->window);
 
 		get_delta_time(app->sdl->timer);
-		show_fps_sdl(app->sdl->timer);
 	}
 	SDL_Quit();
 	SDL_DestroyWindow(app->sdl->window);
+}
+
+int 	cmpr(const void *p, const void *q)
+{
+	float l = *(const float *)p;
+	float r = *(const float *)q;
+
+	if (l < r)
+		return 1;
+	else if (l > r)
+		return -1;
+	else
+		return 0;
 }
 
 int		main(int argv, char**argc)
@@ -80,6 +112,11 @@ int		main(int argv, char**argc)
 	t_app	*app;
 
 	app = (t_app *)malloc(sizeof(t_app));
+	app->mesh = (t_mesh *)malloc(sizeof(t_mesh) * 1);
+
+	read_obj("../Wolf.obj", &app->mesh[0]);
+	qsort((void*)app->mesh[0].t, app->mesh[0].t_idx, sizeof(t_triangle), cmpr);
+
 	init_app(app);
 	start_the_game(app);
 	quit_properly(app);

@@ -20,6 +20,8 @@ static	void	init_sdl(t_sdl *sdl)
 	sdl->half_width = (int)(sdl->width * 0.5);
 	sdl->height = SCREEN_H;
 	sdl->half_height = (int)(sdl->height * 0.5);
+	sdl->timer->delta_ticks = 0;
+	sdl->timer->delta = 0.0;
 }
 
 static	void	create_stuff(t_sdl *sdl)
@@ -53,5 +55,5 @@ void	init_app(t_app *app)
 	app->speed = 0.001f;
 	init_projection_mat(app);
 	app->inputs->keyboard = SDL_GetKeyboardState(NULL);
-
+	set_vertex(&app->rot, 0, 0, 0);
 }

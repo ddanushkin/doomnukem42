@@ -6,7 +6,7 @@
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/21 17:36:42 by lglover           #+#    #+#             */
-/*   Updated: 2019/09/05 10:45:55 by lglover          ###   ########.fr       */
+/*   Updated: 2019/09/06 18:33:02 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include <unistd.h>
 # include <fcntl.h>
 
-# define BUFF_SIZE 100000
+# define BUFF_SIZE 2
 # define MAX_FD 65000
 
 # define MIN(a,b) (((a)<(b))?(a):(b))

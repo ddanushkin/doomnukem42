@@ -55,7 +55,7 @@ void	rotate_triangle(t_triangle *in, t_triangle *out, t_mat4x4 *rot_mat)
 
 void	project_triangle(t_triangle *in, t_triangle *out, t_mat4x4 *proj_mat)
 {
-	ft_bzero(out, sizeof(t_triangle));
+//	ft_bzero(out, sizeof(t_triangle));
 	out->v[0] = (t_vertex *)malloc(sizeof(t_vertex));
 	out->v[1] = (t_vertex *)malloc(sizeof(t_vertex));
 	out->v[2] = (t_vertex *)malloc(sizeof(t_vertex));
@@ -70,12 +70,12 @@ void	translate_triangle(t_triangle *in, t_triangle *out)
 	out->v[0] = (t_vertex *)malloc(sizeof(t_vertex));
 	out->v[1] = (t_vertex *)malloc(sizeof(t_vertex));
 	out->v[2] = (t_vertex *)malloc(sizeof(t_vertex));
-	set_vertex(out->v[0], in->v[0]->x, in->v[0]->y, in->v[0]->z + 3.0f);
-	set_vertex(out->v[1], in->v[1]->x, in->v[1]->y, in->v[1]->z + 3.0f);
-	set_vertex(out->v[2], in->v[2]->x, in->v[2]->y, in->v[2]->z + 3.0f);
+	set_vertex(out->v[0], in->v[0]->x, in->v[0]->y, in->v[0]->z + 300.0f);
+	set_vertex(out->v[1], in->v[1]->x, in->v[1]->y, in->v[1]->z + 300.0f);
+	set_vertex(out->v[2], in->v[2]->x, in->v[2]->y, in->v[2]->z + 300.0f);
 }
 
-void	scale_vector(t_app *app, t_vertex *vector)
+void	scale_vector(t_vertex *vector)
 {
 	vector->x += 1.0f;
 	vector->y += 1.0f;
@@ -85,9 +85,9 @@ void	scale_vector(t_app *app, t_vertex *vector)
 
 void	scale_triangle(t_app *app, t_triangle *triangle)
 {
-	scale_vector(app, triangle->v[0]);
-	scale_vector(app, triangle->v[1]);
-	scale_vector(app, triangle->v[2]);
+	scale_vector(triangle->v[0]);
+	scale_vector(triangle->v[1]);
+	scale_vector(triangle->v[2]);
 }
 
 void	draw_triangle(t_app *app, t_triangle triangle)
@@ -122,29 +122,44 @@ void	draw_triangle(t_app *app, t_triangle triangle)
 	normal.y = line1.z * line2.x - line1.x * line2.z;
 	normal.z = line1.x * line2.y - line1.y * line2.x;
 
-	float length = sqrtf(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+	normal = normalise_vector(normal);
 
-	normal.x /= length;
-	normal.y /= length;
-	normal.z /= length;
+//	if (normal.x * (translated.v[1]->x - app->camera.pos.x) +
+//		normal.y * (translated.v[1]->y - app->camera.pos.y) +
+//		normal.z * (translated.v[1]->z - app->camera.pos.z) < 0.0f)
 
-	if (1)
+	t_vertex translated_tmp;
+
+	translated_tmp = vector_subtract(*translated.v[1], app->camera.pos);
+
+	if (cross_product(&normal, &translated_tmp) < 0.0f)
 	{
+
+		t_vertex light_dir;
+		float light_dp;
+		set_vertex(&light_dir, 0.0f, 0.0f, -1.0f);
+		light_dir = normalise_vector(light_dir);
+
+		light_dp = dot_product(normal, light_dir);
+		translated.color = triangle.color;
+		translated.color.r *= light_dp;
+		translated.color.g *= light_dp;
+		translated.color.b *= light_dp;
+		translated.color.r %= 255;
+		translated.color.g %= 255;
+		translated.color.b %= 255;
+
+		projected.color = translated.color;
 		project_triangle(&translated, &projected, &app->projection_mat);
-		projected.color = triangle.color;
 		scale_triangle(app, &projected);
 		fill_triangle(app, projected);
-		t_color white;
-		white.b = 255;
-		white.r = 255;
-		white.g = 255;
-		draw_line(app, *projected.v[1], *projected.v[0], &white);
-		draw_line(app, *projected.v[2], *projected.v[0], &white);
-		draw_line(app, *projected.v[1], *projected.v[2], &white);
-	}
-	else
-	{
-		printf("huevo\n");
+//		t_color white;
+//		white.b = 0;
+//		white.r = 0;
+//		white.g = 0;
+//		draw_line(app, *projected.v[1], *projected.v[0], &white);
+//		draw_line(app, *projected.v[2], *projected.v[0], &white);
+//		draw_line(app, *projected.v[1], *projected.v[2], &white);
 	}
 	free(translated.v[0]);
 	free(translated.v[1]);

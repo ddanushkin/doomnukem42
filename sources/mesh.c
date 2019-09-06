@@ -10,17 +10,17 @@ void	set_triangle(t_triangle *t, t_vertex *v0, t_vertex *v1, t_vertex *v2)
 void	make_face(t_mesh *m, int *vt_id)
 {
 	set_triangle(
-			&m->t[m->last_tr],
+			&m->t[m->t_idx],
 			&m->v[vt_id[0]],
 			&m->v[vt_id[1]],
 			&m->v[vt_id[2]]);
-	m->last_tr++;
+	m->t_idx++;
 	set_triangle(
-			&m->t[m->last_tr],
+			&m->t[m->t_idx],
 			&m->v[vt_id[0]],
 			&m->v[vt_id[2]],
 			&m->v[vt_id[3]]);
-	m->last_tr++;
+	m->t_idx++;
 }
 
 void	make_cube(t_mesh *m, float size)
@@ -38,8 +38,8 @@ void	make_cube(t_mesh *m, float size)
 	set_vertex(&m->v[6], half_size, half_size, half_size);
 	set_vertex(&m->v[7], half_size, -half_size, half_size);
 
-	m->last_vt = 7;
-	m->last_tr = 0;
+	m->v_idx = 7;
+	m->t_idx = 0;
 
 	vt_id[0] = 0;
 	vt_id[1] = 1;
