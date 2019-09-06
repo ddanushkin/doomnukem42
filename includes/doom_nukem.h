@@ -289,4 +289,6 @@ void	get_color(SDL_Surface *surface, int x, int y, t_color *c);
 int 	out_of_borders(int x, int y);
 int 	color_key(t_color *c);
 void	quit_properly(t_app *app);
+
+void	event_handling(t_app *app);
 #endif
