@@ -34,17 +34,6 @@ void	draw_cube(t_app *app, t_mesh *m)
 	draw_triangle(app, m->t[11]);
 }
 
-void	get_color(SDL_Surface *surface, int x, int y, t_color *c)
-{
-	int 		offset;
-
-	offset = 4 * (y * surface -> w + x);
-	unsigned char* pixels = (unsigned char*)surface -> pixels;
-	pixels[offset] = c->b;
-	pixels[offset + 1] = c->g;
-	pixels[offset + 2] = c->r;
-}
-
 void	start_the_game(t_sdl *sdl)
 {
 	t_color color;
@@ -59,8 +48,7 @@ void	start_the_game(t_sdl *sdl)
 		if (sdl->event.type == SDL_QUIT)
 			break;
 
-		get_color(sdl->surface, 100, 100, &color);
-		get_color(sdl->surface, 200, 200, &color);
+
 
 		SDL_UpdateWindowSurface(sdl->window);
 

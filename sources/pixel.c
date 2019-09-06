@@ -18,14 +18,13 @@ int 	color_key(t_color *c)
 	return (0);
 }
 
-void	set_pixel(t_image *image, int x, int y, t_color *c)
+void	set_pixel(SDL_Surface *surface, int x, int y, t_color *c)
 {
-	int		index;
+	int 		offset;
 
-	if (out_of_borders(x, y) || color_key(c))
-		return ;
-	index = x * 4 + image->s_l * y;
-	image->pixels[index] = c->b;
-	image->pixels[index + 1] = c->g;
-	image->pixels[index + 2] = c->r;
+	offset = 4 * (y * surface -> w + x);
+	unsigned char* pixels = (unsigned char*)surface -> pixels;
+	pixels[offset] = c->b;
+	pixels[offset + 1] = c->g;
+	pixels[offset + 2] = c->r;
 }

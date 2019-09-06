@@ -270,7 +270,7 @@ void	set_triangle(t_triangle *t, t_vertex *v0, t_vertex *v1, t_vertex *v2);
 
 void	set_color(t_color *color, int r, int g, int b);
 
-void	set_pixel(t_image *image, int x, int y, t_color *c);
+void	set_pixel(SDL_Surface *s, int x, int y, t_color *c);
 void	draw_line(t_app *app, t_vertex start, t_vertex end, t_color *c);
 void	draw_line2(t_app *app, t_vertex p0, t_vertex p1, t_color *c);
 void	draw_triangle(t_app *app, t_triangle triangle);
