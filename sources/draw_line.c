@@ -24,7 +24,7 @@ void	draw_line(t_app *app, t_vertex start, t_vertex end, t_color *c)
 	error = dt.x + dt.y;
 	while (1)
 	{
-		set_pixel(&app->screen, start.x, start.y, c);
+		set_pixel(app->sdl->surface, start.x, start.y, c);
 		if ((int)start.x == (int)end.x && (int)start.y == (int)end.y)
 			break;
 		error_tmp = error << 1;

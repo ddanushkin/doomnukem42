@@ -22,6 +22,8 @@ void	set_pixel(SDL_Surface *surface, int x, int y, t_color *c)
 {
 	int 		offset;
 
+	if (out_of_borders(x, y) || color_key(c))
+		return ;
 	offset = 4 * (y * surface -> w + x);
 	unsigned char* pixels = (unsigned char*)surface -> pixels;
 	pixels[offset] = c->b;
