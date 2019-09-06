@@ -195,7 +195,7 @@ int		window_event_expose(t_app *app);
 void	reset_inputs_states(t_app *app);
 
 void	project_triangle(t_triangle *in, t_triangle *out, t_mat4x4 *proj_mat);
-void	translate_triangle(t_triangle *in, t_triangle *out);
+void	translate_triangle(t_triangle *in, t_triangle *out, t_app *app);
 void	scale_triangle(t_app *app, t_triangle *triangle);
 
 void	set_vertex(t_vertex *vertex, float x, float y, float z);

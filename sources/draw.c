@@ -64,15 +64,15 @@ void	project_triangle(t_triangle *in, t_triangle *out, t_mat4x4 *proj_mat)
 	mat_vector_mult(in->v[2], out->v[2], proj_mat);
 }
 
-void	translate_triangle(t_triangle *in, t_triangle *out)
+void	translate_triangle(t_triangle *in, t_triangle *out, t_app *app)
 {
 	ft_bzero(out, sizeof(t_triangle));
 	out->v[0] = (t_vertex *)malloc(sizeof(t_vertex));
 	out->v[1] = (t_vertex *)malloc(sizeof(t_vertex));
 	out->v[2] = (t_vertex *)malloc(sizeof(t_vertex));
-	set_vertex(out->v[0], in->v[0]->x, in->v[0]->y, in->v[0]->z + 300.0f);
-	set_vertex(out->v[1], in->v[1]->x, in->v[1]->y, in->v[1]->z + 300.0f);
-	set_vertex(out->v[2], in->v[2]->x, in->v[2]->y, in->v[2]->z + 300.0f);
+	set_vertex(out->v[0], in->v[0]->x + app->camera.pos.x, in->v[0]->y, in->v[0]->z + 300.0f + app->camera.pos.y);
+	set_vertex(out->v[1], in->v[1]->x + app->camera.pos.x, in->v[1]->y, in->v[1]->z + 300.0f + app->camera.pos.y);
+	set_vertex(out->v[2], in->v[2]->x + app->camera.pos.x, in->v[2]->y, in->v[2]->z + 300.0f + app->camera.pos.y);
 }
 
 void	scale_vector(t_vertex *vector)
@@ -105,7 +105,7 @@ void	draw_triangle(t_app *app, t_triangle triangle)
 	free(rotated_z.v[1]);
 	free(rotated_z.v[2]);
 
-	translate_triangle(&rotated_x, &translated);
+	translate_triangle(&rotated_x, &translated, app);
 	free(rotated_x.v[0]);
 	free(rotated_x.v[1]);
 	free(rotated_x.v[2]);
