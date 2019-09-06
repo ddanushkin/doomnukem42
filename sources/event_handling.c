@@ -17,5 +17,13 @@ int		event_handling(t_app *app)
 		app->speed += 0.001f;
 	if (key[SDL_SCANCODE_R])
 		show_fps(app);
+	if (key[SDL_SCANCODE_UP])
+		app->camera.pos.y += 1.01f;
+	if (key[SDL_SCANCODE_DOWN])
+		app->camera.pos.y -= 1.01f;
+	if (key[SDL_SCANCODE_RIGHT])
+		app->camera.pos.x += 1.1f;
+	if (key[SDL_SCANCODE_LEFT])
+		app->camera.pos.x -= 1.01f;
 	return (1);
 }

@@ -96,15 +96,12 @@ void	start_the_game(t_app *app)
 
 int 	cmpr(const void *p, const void *q)
 {
-	float l = *(const float *)p;
-	float r = *(const float *)q;
+	t_triangle t1 = *(t_triangle *)p;
+	t_triangle  t2 = *(t_triangle *)q;
 
-	if (l < r)
-		return 1;
-	else if (l > r)
-		return -1;
-	else
-		return 0;
+	float z1 = (t1.v[0]->z + t1.v[1]->z + t1.v[2]->z) / 3.0f;
+	float z2 = (t2.v[0]->z + t2.v[1]->z + t2.v[2]->z) / 3.0f;
+	return z1 > z2;
 }
 
 int		main(int argv, char**argc)
@@ -115,7 +112,6 @@ int		main(int argv, char**argc)
 	app->mesh = (t_mesh *)malloc(sizeof(t_mesh) * 1);
 
 	read_obj("../Wolf.obj", &app->mesh[0]);
-	qsort((void*)app->mesh[0].t, app->mesh[0].t_idx, sizeof(t_triangle), cmpr);
 
 	init_app(app);
 	start_the_game(app);
