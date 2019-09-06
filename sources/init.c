@@ -52,4 +52,6 @@ void	init_app(t_app *app)
 	set_vertex(&app->camera.pos, 0.0f, 0.0f, 0.0f);
 	app->speed = 0.01f;
 	init_projection_mat(app);
+	app->inputs->keyboard = SDL_GetKeyboardState(NULL);
+
 }
