@@ -44,13 +44,8 @@ void	start_the_game(t_app *app)
 	while (1)
 	{
 		get_ticks(app->sdl->timer);
-		SDL_PollEvent(&app->sdl->event);
-		if (app->sdl->event.type == SDL_QUIT)
+		if (!event_handling(app))
 			break;
-		event_handling(app);
-		get_color(app->sdl->surface, 100, 100, &color);
-		get_color(app->sdl->surface, 200, 200, &color);
-
 		update_rotation_mat_z(app, app->rot.z);
 		update_rotation_mat_x(app, app->rot.x);
 
@@ -70,7 +65,7 @@ void	start_the_game(t_app *app)
 		show_fps_sdl(app->sdl->timer);
 	}
 	SDL_Quit();
-	SDL_DestroyWindow(sdl->window);
+	SDL_DestroyWindow(app->sdl->window);
 }
 
 int		main(int argv, char**argc)
@@ -79,7 +74,7 @@ int		main(int argv, char**argc)
 
 	app = (t_app *)malloc(sizeof(t_app));
 	init_app(app);
-	start_the_game(app->sdl);
+	start_the_game(app);
 	quit_properly(app);
 	return (0);
 }
