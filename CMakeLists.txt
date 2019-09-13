@@ -6,7 +6,6 @@ file(GLOB_RECURSE PROJ_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "libft/sources/*.c")
 file(GLOB_RECURSE LIBFT_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "sources/*.c")
 
 project(${EXECUTABLE_NAME} C)
-
 set(CMAKE_C_STANDARD 99)
 
 include_directories("includes")

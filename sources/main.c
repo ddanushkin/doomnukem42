@@ -50,8 +50,6 @@ void	draw_mesh(t_app *app, t_mesh *mesh)
 	}
 }
 
-#include <libc.h>
-
 void	start_the_game(t_app *app)
 {
 	t_color color;

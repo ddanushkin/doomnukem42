@@ -5,7 +5,7 @@
 # include <math.h>
 # include <pthread.h>
 # include "stdio.h"
-# include <time.h> // LIBC ?!
+# include <time.h>
 # include <SDL.h>
 # define PRINT_DEBUG 0
 
