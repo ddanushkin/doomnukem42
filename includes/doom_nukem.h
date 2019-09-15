@@ -13,9 +13,15 @@
 # define	SCREEN_H 720
 # define	WIN_TITLE "DOOM-NUKEM"
 
-# define	COLOR_KEY_R 128
-# define	COLOR_KEY_G 128
-# define	COLOR_KEY_B 128
+# define	COLOR_KEY_R 255
+# define	COLOR_KEY_G 0
+# define	COLOR_KEY_B 255
+
+# ifdef		_WIN64
+#  define	CLOCK_FIX 0.01f
+# elif		__APPLE__
+#  define	CLOCK_FIX 0.00001f
+# endif
 
 typedef struct	s_color
 {
@@ -51,7 +57,7 @@ typedef struct	s_vertex
 
 typedef struct	s_triangle
 {
-	t_vertex	*v[3];
+	t_vertex	v[3];
 	t_color		color;
 }				t_triangle;
 
@@ -194,9 +200,9 @@ int		window_event_expose(t_app *app);
 
 void	reset_inputs_states(t_app *app);
 
-void	project_triangle(t_triangle *in, t_triangle *out, t_mat4x4 *proj_mat);
-void	translate_triangle(t_triangle *in, t_triangle *out, t_app *app);
-void	scale_triangle(t_app *app, t_triangle *triangle);
+void	project_triangle(t_triangle *tr, t_mat4x4 *proj_mat);
+void	translate_triangle(t_triangle *tr, t_app *app);
+void	scale_triangle(t_triangle *triangle);
 
 void	set_vertex(t_vertex *vertex, float x, float y, float z);
 float 	cross_product(t_vertex *v_1, t_vertex *v_2);

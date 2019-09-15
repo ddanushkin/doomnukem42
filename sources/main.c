@@ -44,7 +44,7 @@ void	draw_mesh(t_app *app, t_mesh *mesh)
 	while (t < mesh->t_idx)
 	{
 		triangle = mesh->t[t];
-		set_color(&triangle.color, 128, 128, 128);
+		set_color(&triangle.color, 128, 128, 127);
 		draw_triangle(app, triangle);
 		t++;
 	}
@@ -64,8 +64,8 @@ void	start_the_game(t_app *app)
 		if (!event_handling(app))
 			break;
 
-		app->rot.x += app->speed * app->sdl->timer->delta_ticks * 0.00001f;
-		app->rot.z += app->speed * app->sdl->timer->delta_ticks * 0.00001f;
+		app->rot.x += app->speed * app->sdl->timer->delta_ticks * CLOCK_FIX;
+		app->rot.z += app->speed * app->sdl->timer->delta_ticks * CLOCK_FIX;
 
 		//printf("speed: %f", app->speed);
 
@@ -97,8 +97,8 @@ int 	cmpr(const void *p, const void *q)
 	t_triangle t1 = *(t_triangle *)p;
 	t_triangle  t2 = *(t_triangle *)q;
 
-	float z1 = (t1.v[0]->z + t1.v[1]->z + t1.v[2]->z) / 3.0f;
-	float z2 = (t2.v[0]->z + t2.v[1]->z + t2.v[2]->z) / 3.0f;
+	float z1 = (t1.v[0].z + t1.v[1].z + t1.v[2].z) / 3.0f;
+	float z2 = (t2.v[0].z + t2.v[1].z + t2.v[2].z) / 3.0f;
 	return z1 > z2;
 }
 

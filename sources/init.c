@@ -21,7 +21,7 @@ static	void	init_sdl(t_sdl *sdl)
 	sdl->height = SCREEN_H;
 	sdl->half_height = (int)(sdl->height * 0.5);
 	sdl->timer->delta_ticks = 0;
-	sdl->timer->delta = 0.0;
+	sdl->timer->delta = 0.0f;
 }
 
 static	void	create_stuff(t_sdl *sdl)

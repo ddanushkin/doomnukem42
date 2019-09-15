@@ -1,22 +1,24 @@
 #include "doom_nukem.h"
 
-void	mat_vector_mult(t_vertex *in_vec, t_vertex *out_vec, t_mat4x4 *mat)
+void	mat_vector_mult(t_vertex *vt, t_mat4x4 *mat)
 {
-	float	w;
+	t_vertex	tmp;
+	float		w;
 
-	out_vec->x = in_vec->x * mat->m[0][0] + in_vec->y * mat->m[1][0]
-				 + in_vec->z * mat->m[2][0] + mat->m[3][0];
-	out_vec->y = in_vec->x * mat->m[0][1] + in_vec->y * mat->m[1][1]
-				 + in_vec->z * mat->m[2][1] + mat->m[3][1];
-	out_vec->z = in_vec->x * mat->m[0][2] + in_vec->y * mat->m[1][2]
-				 + in_vec->z * mat->m[2][2] + mat->m[3][2];
-	w = in_vec->x * mat->m[0][3] + in_vec->y * mat->m[1][3]
-		+ in_vec->z * mat->m[2][3] + mat->m[3][3];
+	tmp = *vt;
+	vt->x = tmp.x * mat->m[0][0] + tmp.y * mat->m[1][0]
+				 + tmp.z * mat->m[2][0] + mat->m[3][0];
+	vt->y = tmp.x * mat->m[0][1] + tmp.y * mat->m[1][1]
+				 + tmp.z * mat->m[2][1] + mat->m[3][1];
+	vt->z = tmp.x * mat->m[0][2] + tmp.y * mat->m[1][2]
+				 + tmp.z * mat->m[2][2] + mat->m[3][2];
+	w = tmp.x * mat->m[0][3] + tmp.y * mat->m[1][3]
+		+ tmp.z * mat->m[2][3] + mat->m[3][3];
 	if (w != 0.0f)
 	{
-		out_vec->x /= w;
-		out_vec->y /= w;
-		out_vec->z /= w;
+		vt->x /= w;
+		vt->y /= w;
+		vt->z /= w;
 	}
 }
 
@@ -42,37 +44,25 @@ void	update_rotation_mat_x(t_app *app, float angle)
 	app->rotation_mat_x.m[3][3] = 1;
 }
 
-void	rotate_triangle(t_triangle *in, t_triangle *out, t_mat4x4 *rot_mat)
+void	rotate_triangle(t_triangle *tr, t_mat4x4 *rot_mat)
 {
-	ft_bzero(out, sizeof(t_triangle));
-	out->v[0] = (t_vertex *)malloc(sizeof(t_vertex));
-	out->v[1] = (t_vertex *)malloc(sizeof(t_vertex));
-	out->v[2] = (t_vertex *)malloc(sizeof(t_vertex));
-	mat_vector_mult(in->v[0], out->v[0], rot_mat);
-	mat_vector_mult(in->v[1], out->v[1], rot_mat);
-	mat_vector_mult(in->v[2], out->v[2], rot_mat);
+	mat_vector_mult(&tr->v[0], rot_mat);
+	mat_vector_mult(&tr->v[1], rot_mat);
+	mat_vector_mult(&tr->v[2], rot_mat);
 }
 
-void	project_triangle(t_triangle *in, t_triangle *out, t_mat4x4 *proj_mat)
+void	project_triangle(t_triangle *tr, t_mat4x4 *proj_mat)
 {
-//	ft_bzero(out, sizeof(t_triangle));
-	out->v[0] = (t_vertex *)malloc(sizeof(t_vertex));
-	out->v[1] = (t_vertex *)malloc(sizeof(t_vertex));
-	out->v[2] = (t_vertex *)malloc(sizeof(t_vertex));
-	mat_vector_mult(in->v[0], out->v[0], proj_mat);
-	mat_vector_mult(in->v[1], out->v[1], proj_mat);
-	mat_vector_mult(in->v[2], out->v[2], proj_mat);
+	mat_vector_mult(&tr->v[0], proj_mat);
+	mat_vector_mult(&tr->v[1], proj_mat);
+	mat_vector_mult(&tr->v[2], proj_mat);
 }
 
-void	translate_triangle(t_triangle *in, t_triangle *out, t_app *app)
+void	translate_triangle(t_triangle *tr, t_app *app)
 {
-	ft_bzero(out, sizeof(t_triangle));
-	out->v[0] = (t_vertex *)malloc(sizeof(t_vertex));
-	out->v[1] = (t_vertex *)malloc(sizeof(t_vertex));
-	out->v[2] = (t_vertex *)malloc(sizeof(t_vertex));
-	set_vertex(out->v[0], in->v[0]->x + app->camera.pos.x, in->v[0]->y, in->v[0]->z + 300.0f + app->camera.pos.y);
-	set_vertex(out->v[1], in->v[1]->x + app->camera.pos.x, in->v[1]->y, in->v[1]->z + 300.0f + app->camera.pos.y);
-	set_vertex(out->v[2], in->v[2]->x + app->camera.pos.x, in->v[2]->y, in->v[2]->z + 300.0f + app->camera.pos.y);
+	set_vertex(&tr->v[0], tr->v[0].x + app->camera.pos.x, tr->v[0].y, tr->v[0].z + 300.0f + app->camera.pos.y);
+	set_vertex(&tr->v[1], tr->v[1].x + app->camera.pos.x, tr->v[1].y, tr->v[1].z + 300.0f + app->camera.pos.y);
+	set_vertex(&tr->v[2], tr->v[2].x + app->camera.pos.x, tr->v[2].y, tr->v[2].z + 300.0f + app->camera.pos.y);
 }
 
 void	scale_vector(t_vertex *vector)
@@ -83,85 +73,83 @@ void	scale_vector(t_vertex *vector)
 	vector->y *= 0.5f * (float)SCREEN_H;
 }
 
-void	scale_triangle(t_app *app, t_triangle *triangle)
+void	scale_triangle(t_triangle *triangle)
 {
-	scale_vector(triangle->v[0]);
-	scale_vector(triangle->v[1]);
-	scale_vector(triangle->v[2]);
+	scale_vector(&triangle->v[0]);
+	scale_vector(&triangle->v[1]);
+	scale_vector(&triangle->v[2]);
+}
+
+void	calc_light(t_triangle *tr, t_vertex normal)
+{
+	t_vertex	light_dir;
+	float		light_dp;
+
+	set_vertex(&light_dir, 0.0f, 0.0f, -1.0f);
+	light_dir = normalise_vector(light_dir);
+	light_dp = dot_product(normal, light_dir);
+	tr->color.r = (int)((float)tr->color.r * light_dp);
+	tr->color.g = (int)((float)tr->color.g * light_dp);
+	tr->color.b = (int)((float)tr->color.b * light_dp);
+	tr->color.r = CLAMP(tr->color.r, 0, 255);
+	tr->color.g = CLAMP(tr->color.g, 0, 255);
+	tr->color.b = CLAMP(tr->color.b, 0, 255);
+
+}
+
+t_vertex	calc_normal(t_triangle tr)
+{
+	t_vertex line1;
+	t_vertex line2;
+	t_vertex normal;
+
+	line1.x = tr.v[1].x - tr.v[0].x;
+	line1.y = tr.v[1].y - tr.v[0].y;
+	line1.z = tr.v[1].z - tr.v[0].z;
+	line2.x = tr.v[2].x - tr.v[0].x;
+	line2.y = tr.v[2].y - tr.v[0].y;
+	line2.z = tr.v[2].z - tr.v[0].z;
+	normal.x = line1.y * line2.z - line1.z * line2.y;
+	normal.y = line1.z * line2.x - line1.x * line2.z;
+	normal.z = line1.x * line2.y - line1.y * line2.x;
+	return (normalise_vector(normal));
+}
+
+void	draw_outline(t_app *app, t_triangle triangle)
+{
+	t_color		clr;
+
+	clr.r = 0;
+	clr.g = 0;
+	clr.b = 0;
+	draw_line(app, triangle.v[1], triangle.v[0], &clr);
+	draw_line(app, triangle.v[2], triangle.v[0], &clr);
+	draw_line(app, triangle.v[1], triangle.v[2], &clr);
+}
+
+int 	triangle_is_visible(t_app *app, t_triangle tr, t_vertex normal)
+{
+	t_vertex	tmp;
+
+	tmp = vector_subtract(tr.v[1], app->camera.pos);
+	return (cross_product(&normal, &tmp) < 0.0f);
 }
 
 void	draw_triangle(t_app *app, t_triangle triangle)
 {
-	t_triangle	projected;
-	t_triangle	rotated_z;
-	t_triangle	rotated_x;
-	t_triangle	translated;
+	t_vertex	normal;
 
-	t_vertex normal, line1, line2;
-
-	rotate_triangle(&triangle, &rotated_z, &app->rotation_mat_z);
-	rotate_triangle(&rotated_z, &rotated_x, &app->rotation_mat_x);
-	free(rotated_z.v[0]);
-	free(rotated_z.v[1]);
-	free(rotated_z.v[2]);
-
-	translate_triangle(&rotated_x, &translated, app);
-	free(rotated_x.v[0]);
-	free(rotated_x.v[1]);
-	free(rotated_x.v[2]);
-
-	line1.x = translated.v[1]->x - translated.v[0]->x;
-	line1.y = translated.v[1]->y - translated.v[0]->y;
-	line1.z = translated.v[1]->z - translated.v[0]->z;
-
-	line2.x = translated.v[2]->x - translated.v[0]->x;
-	line2.y = translated.v[2]->y - translated.v[0]->y;
-	line2.z = translated.v[2]->z - translated.v[0]->z;
-
-	normal.x = line1.y * line2.z - line1.z * line2.y;
-	normal.y = line1.z * line2.x - line1.x * line2.z;
-	normal.z = line1.x * line2.y - line1.y * line2.x;
-
-	normal = normalise_vector(normal);
-
-//	if (normal.x * (translated.v[1]->x - app->camera.pos.x) +
-//		normal.y * (translated.v[1]->y - app->camera.pos.y) +
-//		normal.z * (translated.v[1]->z - app->camera.pos.z) < 0.0f)
-
-	t_vertex translated_tmp;
-
-	translated_tmp = vector_subtract(*translated.v[1], app->camera.pos);
-
-	if (cross_product(&normal, &translated_tmp) < 0.0f)
+	rotate_triangle(&triangle, &app->rotation_mat_z);
+	rotate_triangle(&triangle, &app->rotation_mat_x);
+	translate_triangle(&triangle, app);
+	normal = calc_normal(triangle);
+	if (triangle_is_visible(app, triangle, normal))
 	{
-
-		t_vertex light_dir;
-		float light_dp;
-		set_vertex(&light_dir, 0.0f, 0.0f, -1.0f);
-		light_dir = normalise_vector(light_dir);
-
-		light_dp = dot_product(normal, light_dir);
-		translated.color = triangle.color;
-		translated.color.r *= light_dp;
-		translated.color.g *= light_dp;
-		translated.color.b *= light_dp;
-		translated.color.r %= 255;
-		translated.color.g %= 255;
-		translated.color.b %= 255;
-
-		projected.color = translated.color;
-		project_triangle(&translated, &projected, &app->projection_mat);
-		scale_triangle(app, &projected);
-		fill_triangle(app, projected);
-//		t_color white;
-//		white.b = 0;
-//		white.r = 0;
-//		white.g = 0;
-//		draw_line(app, *projected.v[1], *projected.v[0], &white);
-//		draw_line(app, *projected.v[2], *projected.v[0], &white);
-//		draw_line(app, *projected.v[1], *projected.v[2], &white);
+		calc_light(&triangle, normal);
+		project_triangle(&triangle, &app->projection_mat);
+		scale_triangle(&triangle);
+		fill_triangle(app, triangle);
+		if (PRINT_DEBUG)
+			draw_outline(app, triangle);
 	}
-	free(translated.v[0]);
-	free(translated.v[1]);
-	free(translated.v[2]);
 }

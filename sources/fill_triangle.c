@@ -5,16 +5,16 @@ void	fill_flat_bot(t_app *app, t_triangle *t)
 	float	m0;
 	float	m1;
 
-	m0 = (t->v[1]->x - t->v[0]->x) / (t->v[1]->y - t->v[0]->y);
-	m1 = (t->v[2]->x - t->v[0]->x) / (t->v[2]->y - t->v[0]->y);
+	m0 = (t->v[1].x - t->v[0].x) / (t->v[1].y - t->v[0].y);
+	m1 = (t->v[2].x - t->v[0].x) / (t->v[2].y - t->v[0].y);
 
 	int		y_start;
 	int		y_end;
 	int		y;
 	int		x;
 
-	y_start = (int)ceilf(t->v[0]->y - 0.5f);
-	y_end = (int)ceilf(t->v[2]->y - 0.5f);
+	y_start = (int)ceilf(t->v[0].y - 0.5f);
+	y_end = (int)ceilf(t->v[2].y - 0.5f);
 
 	y = y_start;
 	while (y < y_end)
@@ -24,8 +24,8 @@ void	fill_flat_bot(t_app *app, t_triangle *t)
 		float	px0;
 		float	px1;
 
-		px0 = m0 * ((float)y + 0.5f - t->v[0]->y) + t->v[0]->x;
-		px1 = m1 * ((float)y + 0.5f - t->v[0]->y) + t->v[0]->x;
+		px0 = m0 * ((float)y + 0.5f - t->v[0].y) + t->v[0].x;
+		px1 = m1 * ((float)y + 0.5f - t->v[0].y) + t->v[0].x;
 
 		x_start = (int)ceilf(px0 - 0.5f);
 		x_end = (int)ceilf(px1 - 0.5f);
@@ -45,16 +45,16 @@ void	fill_flat_top(t_app *app, t_triangle *t)
 	float	m0;
 	float	m1;
 
-	m0 = (t->v[2]->x - t->v[0]->x) / (t->v[2]->y - t->v[0]->y);
-	m1 = (t->v[2]->x - t->v[1]->x) / (t->v[2]->y - t->v[1]->y);
+	m0 = (t->v[2].x - t->v[0].x) / (t->v[2].y - t->v[0].y);
+	m1 = (t->v[2].x - t->v[1].x) / (t->v[2].y - t->v[1].y);
 
 	int		y_start;
 	int		y_end;
 	int		y;
 	int		x;
 
-	y_start = (int)ceilf(t->v[0]->y - 0.5f);
-	y_end = (int)ceilf(t->v[2]->y - 0.5f);
+	y_start = (int)ceilf(t->v[0].y - 0.5f);
+	y_end = (int)ceilf(t->v[2].y - 0.5f);
 
 	y = y_start;
 	while (y < y_end)
@@ -64,8 +64,8 @@ void	fill_flat_top(t_app *app, t_triangle *t)
 		float	px0;
 		float	px1;
 
-		px0 = m0 * ((float)y + 0.5f - t->v[0]->y) + t->v[0]->x;
-		px1 = m1 * ((float)y + 0.5f - t->v[1]->y) + t->v[1]->x;
+		px0 = m0 * ((float)y + 0.5f - t->v[0].y) + t->v[0].x;
+		px1 = m1 * ((float)y + 0.5f - t->v[1].y) + t->v[1].x;
 
 		x_start = (int)ceilf(px0 - 0.5f);
 		x_end = (int)ceilf(px1 - 0.5f);
@@ -82,28 +82,28 @@ void	fill_flat_top(t_app *app, t_triangle *t)
 
 void	sort_triangle_by_y(t_triangle *in)
 {
-	if (in->v[1]->y < in->v[0]->y)
-		SWAP(in->v[0], in->v[1], t_vertex *);
-	if (in->v[2]->y < in->v[1]->y)
-		SWAP(in->v[1], in->v[2], t_vertex *);
-	if (in->v[1]->y < in->v[0]->y)
-		SWAP(in->v[0], in->v[1], t_vertex *);
+	if (in->v[1].y < in->v[0].y)
+		SWAP(in->v[0], in->v[1], t_vertex);
+	if (in->v[2].y < in->v[1].y)
+		SWAP(in->v[1], in->v[2], t_vertex);
+	if (in->v[1].y < in->v[0].y)
+		SWAP(in->v[0], in->v[1], t_vertex);
 }
 
 void	fill_triangle(t_app *app, t_triangle t)
 {
 	sort_triangle_by_y(&t);
 
-	if (t.v[0]->y == t.v[1]->y)
+	if (t.v[0].y == t.v[1].y)
 	{
-		if (t.v[1]->x < t.v[0]->x)
-			SWAP(t.v[0], t.v[1], t_vertex *);
+		if (t.v[1].x < t.v[0].x)
+			SWAP(t.v[0], t.v[1], t_vertex);
 		fill_flat_top(app, &t);
 	}
-	else if (t.v[1]->y == t.v[2]->y)
+	else if (t.v[1].y == t.v[2].y)
 	{
-		if (t.v[2]->x < t.v[1]->x)
-			SWAP(t.v[1], t.v[2], t_vertex *);
+		if (t.v[2].x < t.v[1].x)
+			SWAP(t.v[1], t.v[2], t_vertex);
 		fill_flat_bot(app, &t);
 	}
 	else
@@ -113,39 +113,39 @@ void	fill_triangle(t_app *app, t_triangle t)
 		t_triangle	tmp_triangle;
 
 		split_alpha =
-			(t.v[1]->y - t.v[0]->y) /
-			(t.v[2]->y - t.v[0]->y);
+			(t.v[1].y - t.v[0].y) /
+			(t.v[2].y - t.v[0].y);
 
 		float vx;
 		float vy;
 		float vz;
 
-		vx = t.v[0]->x + (t.v[2]->x - t.v[0]->x) * split_alpha;
-		vy = t.v[0]->y + (t.v[2]->y - t.v[0]->y) * split_alpha;
-		vz = t.v[0]->z + (t.v[2]->z - t.v[0]->z) * split_alpha;
+		vx = t.v[0].x + (t.v[2].x - t.v[0].x) * split_alpha;
+		vy = t.v[0].y + (t.v[2].y - t.v[0].y) * split_alpha;
+		vz = t.v[0].z + (t.v[2].z - t.v[0].z) * split_alpha;
 		set_vertex(&v_tmp, vx, vy, vz);
 
 		tmp_triangle.color = t.color;
-		if (t.v[1]->x < vx)
+		if (t.v[1].x < vx)
 		{
 			tmp_triangle.v[0] = t.v[0];
 			tmp_triangle.v[1] = t.v[1];
-			tmp_triangle.v[2] = &v_tmp;
+			tmp_triangle.v[2] = v_tmp;
 			fill_flat_bot(app, &tmp_triangle);
 
 			tmp_triangle.v[0] = t.v[1];
-			tmp_triangle.v[1] = &v_tmp;
+			tmp_triangle.v[1] = v_tmp;
 			tmp_triangle.v[2] = t.v[2];
 			fill_flat_top(app, &tmp_triangle);
 		}
 		else
 		{
 			tmp_triangle.v[0] = t.v[0];
-			tmp_triangle.v[1] = &v_tmp;
+			tmp_triangle.v[1] = v_tmp;
 			tmp_triangle.v[2] = t.v[1];
 			fill_flat_bot(app, &tmp_triangle);
 
-			tmp_triangle.v[0] = &v_tmp;
+			tmp_triangle.v[0] = v_tmp;
 			tmp_triangle.v[1] = t.v[1];
 			tmp_triangle.v[2] = t.v[2];
 			fill_flat_top(app, &tmp_triangle);

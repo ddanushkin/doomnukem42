@@ -2,9 +2,9 @@
 
 void	set_triangle(t_triangle *t, t_vertex *v0, t_vertex *v1, t_vertex *v2)
 {
-	t->v[0] = v0;
-	t->v[1] = v1;
-	t->v[2] = v2;
+	t->v[0] = *v0;
+	t->v[1] = *v1;
+	t->v[2] = *v2;
 }
 
 void	make_face(t_mesh *m, int *vt_id)
