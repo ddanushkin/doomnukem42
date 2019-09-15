@@ -20,12 +20,12 @@ int 	color_key(t_color *c)
 
 void	set_pixel(SDL_Surface *surface, int x, int y, t_color *c)
 {
-	int 		offset;
+	int		offset;
 
 	if (out_of_borders(x, y) || color_key(c))
 		return ;
 	offset = 4 * (y * surface -> w + x);
-	unsigned char* pixels = (unsigned char*)surface -> pixels;
+	unsigned char* pixels = (unsigned char*)surface->pixels;
 	pixels[offset] = c->b;
 	pixels[offset + 1] = c->g;
 	pixels[offset + 2] = c->r;

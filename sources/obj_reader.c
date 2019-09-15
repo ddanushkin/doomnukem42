@@ -20,6 +20,7 @@ void	get_triangle(t_mesh *mesh, char *line)
 	mesh->t[mesh->t_idx].v[0] = mesh->v[ft_atoi(data[1]) - 1];
 	mesh->t[mesh->t_idx].v[1] = mesh->v[ft_atoi(data[2]) - 1];
 	mesh->t[mesh->t_idx].v[2] = mesh->v[ft_atoi(data[3]) - 1];
+	set_color(&mesh->t[mesh->t_idx].color, 128, 128, 128);
 	mesh->t_idx++;
 	ft_delarr(data);
 }

@@ -59,6 +59,7 @@ typedef struct	s_triangle
 {
 	t_vertex	v[3];
 	t_color		color;
+	int 		visible;
 }				t_triangle;
 
 typedef struct	s_mesh
@@ -216,10 +217,10 @@ void	set_color(t_color *color, int r, int g, int b);
 
 void	set_pixel(SDL_Surface *s, int x, int y, t_color *c);
 void	draw_line(t_app *app, t_vertex start, t_vertex end, t_color *c);
-void	draw_line2(t_app *app, t_vertex p0, t_vertex p1, t_color *c);
-void	draw_triangle(t_app *app, t_triangle triangle);
-void	fill_triangle(t_app *app, t_triangle t);
-void	fill_triangle2(t_app *app, t_triangle t);
+
+t_triangle	check_triangle(t_app *app, t_triangle tr);
+void		render_triangle(t_app *app, t_triangle triangle);
+void		fill_triangle(t_app *app, t_triangle t);
 
 void	show_fps_sdl(t_timer *timer);
 

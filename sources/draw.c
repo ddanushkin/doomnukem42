@@ -60,9 +60,16 @@ void	project_triangle(t_triangle *tr, t_mat4x4 *proj_mat)
 
 void	translate_triangle(t_triangle *tr, t_app *app)
 {
-	set_vertex(&tr->v[0], tr->v[0].x + app->camera.pos.x, tr->v[0].y, tr->v[0].z + 300.0f + app->camera.pos.y);
-	set_vertex(&tr->v[1], tr->v[1].x + app->camera.pos.x, tr->v[1].y, tr->v[1].z + 300.0f + app->camera.pos.y);
-	set_vertex(&tr->v[2], tr->v[2].x + app->camera.pos.x, tr->v[2].y, tr->v[2].z + 300.0f + app->camera.pos.y);
+	set_vertex(&tr->v[0], tr->v[0].x + app->camera.pos.x, tr->v[0].y, tr->v[0].z + app->camera.pos.y);
+	set_vertex(&tr->v[1], tr->v[1].x + app->camera.pos.x, tr->v[1].y, tr->v[1].z + app->camera.pos.y);
+	set_vertex(&tr->v[2], tr->v[2].x + app->camera.pos.x, tr->v[2].y, tr->v[2].z + app->camera.pos.y);
+}
+
+void	offset_triangle(t_triangle *tr, float offset)
+{
+	tr->v[0].z += offset;
+	tr->v[1].z += offset;
+	tr->v[2].z += offset;
 }
 
 void	scale_vector(t_vertex *vector)
@@ -135,21 +142,28 @@ int 	triangle_is_visible(t_app *app, t_triangle tr, t_vertex normal)
 	return (cross_product(&normal, &tmp) < 0.0f);
 }
 
-void	draw_triangle(t_app *app, t_triangle triangle)
+t_triangle	check_triangle(t_app *app, t_triangle tr)
 {
 	t_vertex	normal;
 
-	rotate_triangle(&triangle, &app->rotation_mat_z);
-	rotate_triangle(&triangle, &app->rotation_mat_x);
-	translate_triangle(&triangle, app);
-	normal = calc_normal(triangle);
-	if (triangle_is_visible(app, triangle, normal))
+	rotate_triangle(&tr, &app->rotation_mat_z);
+	rotate_triangle(&tr, &app->rotation_mat_x);
+	translate_triangle(&tr, app);
+	offset_triangle(&tr, 300.0f);
+	normal = calc_normal(tr);
+	if (triangle_is_visible(app, tr, normal))
 	{
-		calc_light(&triangle, normal);
-		project_triangle(&triangle, &app->projection_mat);
-		scale_triangle(&triangle);
-		fill_triangle(app, triangle);
-		if (PRINT_DEBUG)
-			draw_outline(app, triangle);
+		calc_light(&tr, normal);
+		tr.visible = 1;
 	}
+	return (tr);
+}
+
+void	render_triangle(t_app *app, t_triangle triangle)
+{
+	project_triangle(&triangle, &app->projection_mat);
+	scale_triangle(&triangle);
+	fill_triangle(app, triangle);
+	if (PRINT_DEBUG)
+		draw_outline(app, triangle);
 }

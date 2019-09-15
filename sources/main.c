@@ -3,60 +3,53 @@
 void	clear_screen(t_app *app)
 {
 	image_clear(app->sdl->surface->pixels, 0, SCREEN_W * SCREEN_H * 4);
-	//bzero(app->screen.pixels,app->window.w * app->window.h * 4);
 }
 
-void	draw_cube(t_app *app, t_mesh *m)
+int 	tr_cmpr(const void *p, const void *q)
 {
-	set_color(&m->t[0].color, 255, 0, 0);
-	draw_triangle(app, m->t[0]);
-	set_color(&m->t[1].color, 0, 255, 0);
-	draw_triangle(app, m->t[1]);
-	set_color(&m->t[2].color, 0, 0, 255);
-	draw_triangle(app, m->t[2]);
-	set_color(&m->t[3].color, 0, 255, 255);
-	draw_triangle(app, m->t[3]);
-	set_color(&m->t[4].color, 255, 255, 0);
-	draw_triangle(app, m->t[4]);
-	set_color(&m->t[5].color, 255, 0, 255);
-	draw_triangle(app, m->t[5]);
-	set_color(&m->t[6].color, 255, 0, 0);
-	draw_triangle(app, m->t[6]);
-	set_color(&m->t[7].color, 0, 255, 0);
-	draw_triangle(app, m->t[7]);
-	set_color(&m->t[8].color, 0, 0, 255);
-	draw_triangle(app, m->t[8]);
-	set_color(&m->t[9].color, 0, 255, 255);
-	draw_triangle(app, m->t[9]);
-	set_color(&m->t[10].color, 255, 255, 0);
-	draw_triangle(app, m->t[10]);
-	set_color(&m->t[11].color, 255, 0, 255);
-	draw_triangle(app, m->t[11]);
+	t_triangle	t1;
+	t_triangle	t2;
+	float		z1;
+	float		z2;
+
+	t1 = *(t_triangle *)p;
+	t2 = *(t_triangle *)q;
+	z1 = (t1.v[0].z + t1.v[1].z + t1.v[2].z) / 3.0f;
+	z2 = (t2.v[0].z + t2.v[1].z + t2.v[2].z) / 3.0f;
+	return (z1 > z2);
 }
 
 void	draw_mesh(t_app *app, t_mesh *mesh)
 {
-	int t;
-	t_triangle triangle;
+	t_triangle	tr;
+	int			t_idx;
+	int			tr_idx;
+	t_triangle	to_render[5000];
 
-	t = 0;
+	tr_idx = 0;
+	t_idx = 0;
 
-	while (t < mesh->t_idx)
+	while (t_idx < mesh->t_idx)
 	{
-		triangle = mesh->t[t];
-		set_color(&triangle.color, 128, 128, 127);
-		draw_triangle(app, triangle);
-		t++;
+		tr = check_triangle(app, mesh->t[t_idx]);
+		if (tr.visible)
+		{
+			to_render[tr_idx] = tr;
+			tr_idx++;
+		}
+		t_idx++;
+	}
+	qsort((void*)to_render, tr_idx, sizeof(t_triangle), tr_cmpr);
+	tr_idx--;
+	while (tr_idx >= 0)
+	{
+		render_triangle(app, to_render[tr_idx]);
+		tr_idx--;
 	}
 }
 
 void	start_the_game(t_app *app)
 {
-	t_color color;
-
-	color.r = 255;
-	color.g = 0;
-	color.b = 0;
 	while (1)
 	{
 		get_ticks(app->sdl->timer);
@@ -67,20 +60,8 @@ void	start_the_game(t_app *app)
 		app->rot.x += app->speed * app->sdl->timer->delta_ticks * CLOCK_FIX;
 		app->rot.z += app->speed * app->sdl->timer->delta_ticks * CLOCK_FIX;
 
-		//printf("speed: %f", app->speed);
-
 		update_rotation_mat_z(app, app->rot.z);
 		update_rotation_mat_x(app, app->rot.x);
-
-		int repeat = 0;
-
-//		make_cube(&app->cube, fabsf(sinf(app->sdl->timer->current_ticks * 0.000001f)) + 1);
-//		while (repeat >= 0)
-//		{
-//			draw_cube(app, &app->cube);
-//			repeat--;
-//		}
-//		free(app->cube.v);
 
 		draw_mesh(app, &app->mesh[0]);
 
@@ -90,16 +71,6 @@ void	start_the_game(t_app *app)
 	}
 	SDL_Quit();
 	SDL_DestroyWindow(app->sdl->window);
-}
-
-int 	cmpr(const void *p, const void *q)
-{
-	t_triangle t1 = *(t_triangle *)p;
-	t_triangle  t2 = *(t_triangle *)q;
-
-	float z1 = (t1.v[0].z + t1.v[1].z + t1.v[2].z) / 3.0f;
-	float z2 = (t2.v[0].z + t2.v[1].z + t2.v[2].z) / 3.0f;
-	return z1 > z2;
 }
 
 int		main(int argv, char**argc)
