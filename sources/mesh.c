@@ -1,6 +1,6 @@
 #include "doom_nukem.h"
 
-void	set_triangle(t_triangle *t, t_vertex *v0, t_vertex *v1, t_vertex *v2)
+void	set_triangle(t_triangle *t, t_vector *v0, t_vector *v1, t_vector *v2)
 {
 	t->v[0] = *v0;
 	t->v[1] = *v1;
@@ -27,16 +27,16 @@ void	make_cube(t_mesh *m, float size)
 {
 	int vt_id[4];
 	float half_size = size * 0.5f;
-	m->v = (t_vertex *)malloc(sizeof(t_vertex) * 8);
+	m->v = (t_vector *)malloc(sizeof(t_vector) * 8);
 
-	set_vertex(&m->v[0], -half_size, -half_size, -half_size);
-	set_vertex(&m->v[1], -half_size, half_size, -half_size);
-	set_vertex(&m->v[2], half_size, half_size, -half_size);
-	set_vertex(&m->v[3], half_size, -half_size, -half_size);
-	set_vertex(&m->v[4], -half_size, -half_size, half_size);
-	set_vertex(&m->v[5], -half_size, half_size, half_size);
-	set_vertex(&m->v[6], half_size, half_size, half_size);
-	set_vertex(&m->v[7], half_size, -half_size, half_size);
+	set_vector(&m->v[0], -half_size, -half_size, -half_size);
+	set_vector(&m->v[1], -half_size, half_size, -half_size);
+	set_vector(&m->v[2], half_size, half_size, -half_size);
+	set_vector(&m->v[3], half_size, -half_size, -half_size);
+	set_vector(&m->v[4], -half_size, -half_size, half_size);
+	set_vector(&m->v[5], -half_size, half_size, half_size);
+	set_vector(&m->v[6], half_size, half_size, half_size);
+	set_vector(&m->v[7], half_size, -half_size, half_size);
 
 	m->v_idx = 7;
 	m->t_idx = 0;

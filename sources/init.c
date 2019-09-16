@@ -17,11 +17,9 @@ void	init_projection_mat(t_app *app)
 static	void	init_sdl(t_sdl *sdl)
 {
 	sdl->width = SCREEN_W;
-	sdl->half_width = (int)(sdl->width * 0.5);
+	sdl->half_width = (float)sdl->width * 0.5f;
 	sdl->height = SCREEN_H;
-	sdl->half_height = (int)(sdl->height * 0.5);
-	sdl->timer->delta_ticks = 0;
-	sdl->timer->delta = 0.0f;
+	sdl->half_height = (float)sdl->height * 0.5f;
 }
 
 static	void	create_stuff(t_sdl *sdl)
@@ -38,22 +36,29 @@ static	void	create_stuff(t_sdl *sdl)
 	sdl->surface = SDL_GetWindowSurface(sdl->window);
 }
 
+void	init_camera(t_camera *camera)
+{
+	camera->fov = 90.0f;
+	camera->z_far = 1000.0f;
+	camera->z_near = 0.1f;
+	camera->asp_ratio = (float)SCREEN_H / (float)SCREEN_W;
+	camera->for_rad = 1.0f / tanf(camera->fov * 0.5f / 180.0f * 3.14159f);
+	set_vector(&camera->pos, 0.0f, 0.0f, 0.0f);
+	set_vector(&camera->rot, 0.0f, 0.0f, 0.0f);
+}
+
 void	init_app(t_app *app)
 {
-
 	app->sdl = (t_sdl *)malloc(sizeof(t_sdl));
-	app->sdl->timer = (t_timer *)malloc(sizeof(t_timer));
 	init_sdl(app->sdl);
 	create_stuff(app->sdl);
 	app->inputs = (t_inputs *)malloc(sizeof(t_inputs));
-	app->camera.fov = 90.0f;
-	app->camera.z_far = 1000.0f;
-	app->camera.z_near = 0.1f;
-	app->camera.asp_ratio = (float)SCREEN_H / (float)SCREEN_W;
-	app->camera.for_rad = 1.0f / tanf(app->camera.fov * 0.5f / 180.0f * 3.14159f);
-	set_vertex(&app->camera.pos, 0.0f, 0.0f, 0.0f);
 	app->speed = 0.001f;
-	init_projection_mat(app);
 	app->inputs->keyboard = SDL_GetKeyboardState(NULL);
-	set_vertex(&app->rot, 0, 0, 0);
+	set_vector(&app->rot, 0, 0, 0);
+	app->timer.current_ticks = 0;
+	app->timer.delta_ticks = 0;
+	app->timer.fps = 0;
+	init_camera(&app->camera);
+	init_projection_mat(app);
 }

@@ -37,7 +37,7 @@ void	read_obj(char *path, t_mesh *mesh)
 		ft_putstr("error: obj file not found\n");
 		exit(0);
 	}
-	mesh->v = (t_vertex *)malloc(sizeof(t_vertex) * 3644);
+	mesh->v = (t_vector *)malloc(sizeof(t_vector) * 3644);
 	mesh->t = (t_triangle *)malloc(sizeof(t_triangle) * 6320);
 	mesh->v_idx = 0;
 	mesh->t_idx = 0;

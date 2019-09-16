@@ -2,7 +2,10 @@
 
 void	clear_screen(t_app *app)
 {
-	image_clear(app->sdl->surface->pixels, 0, SCREEN_W * SCREEN_H * 4);
+	int len;
+
+	len = app->sdl->width * app->sdl->height * 4;
+	image_clear(app->sdl->surface->pixels, 0, len);
 }
 
 int 	tr_cmpr(const void *p, const void *q)
@@ -52,22 +55,18 @@ void	start_the_game(t_app *app)
 {
 	while (1)
 	{
-		get_ticks(app->sdl->timer);
+		get_ticks(&app->timer);
+
 		clear_screen(app);
+
 		if (!event_handling(app))
 			break;
-
-		app->rot.x += app->speed * app->sdl->timer->delta_ticks * CLOCK_FIX;
-		app->rot.z += app->speed * app->sdl->timer->delta_ticks * CLOCK_FIX;
-
-		update_rotation_mat_z(app, app->rot.z);
-		update_rotation_mat_x(app, app->rot.x);
 
 		draw_mesh(app, &app->mesh[0]);
 
 		SDL_UpdateWindowSurface(app->sdl->window);
 
-		get_delta_time(app->sdl->timer);
+		get_delta_time(&app->timer);
 	}
 	SDL_Quit();
 	SDL_DestroyWindow(app->sdl->window);

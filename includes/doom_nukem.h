@@ -47,27 +47,29 @@ typedef struct	s_vector_i
 	int			z;
 }				t_vector_i;
 
-typedef struct	s_vertex
+typedef struct	s_vector
 {
 	float		x;
 	float		y;
 	float		z;
-	int 		w;
-}				t_vertex;
+	float 		w;
+}				t_vector;
 
 typedef struct	s_triangle
 {
-	t_vertex	v[3];
+	t_vector	v[3];
 	t_color		color;
 	int 		visible;
 }				t_triangle;
 
 typedef struct	s_mesh
 {
-	t_vertex	*v;
+	t_vector	*v;
 	t_triangle	*t;
 	int 		v_idx;
 	int 		t_idx;
+	t_vector	pos;
+	t_vector	rot;
 }				t_mesh;
 
 typedef struct	s_kb_keys_state
@@ -121,14 +123,14 @@ typedef struct	s_camera
 	float 		fov;
 	float 		for_rad;
 	float 		asp_ratio;
-	t_vertex	pos;
+	t_vector	pos;
+	t_vector	rot;
 }				t_camera;
 
 typedef struct	s_timer
 {
 	clock_t current_ticks;
 	clock_t delta_ticks;
-	float 	delta;
 	clock_t fps;
 }				t_timer;
 
@@ -148,17 +150,14 @@ typedef struct		s_sdl
 	SDL_Event		event;
 	SDL_Window		*window;
 	SDL_Surface		*surface;
-	t_timer			*timer;
-	int				half_height;
-	int				half_width;
+	float			half_height;
+	float			half_width;
 	int				height;
 	int				width;
 }					t_sdl;
 
 typedef struct	s_app
 {
-	t_window		window;
-	t_image			screen;
 	t_timer			timer;
 	t_kb_keys_state	keyboard;
 	t_mouse_state	mouse;
@@ -166,8 +165,7 @@ typedef struct	s_app
 	t_mat4x4		projection_mat;
 	t_mat4x4		rotation_mat_z;
 	t_mat4x4		rotation_mat_x;
-	t_vertex		rot;
-	t_mesh			cube;
+	t_vector		rot;
 	float 			speed;
 	t_sdl			*sdl;
 	t_inputs		*inputs;
@@ -203,23 +201,22 @@ void	reset_inputs_states(t_app *app);
 
 void	project_triangle(t_triangle *tr, t_mat4x4 *proj_mat);
 void	translate_triangle(t_triangle *tr, t_app *app);
-void	scale_triangle(t_triangle *triangle);
+void	offset_triangle(t_triangle *tr, t_app *app);
 
-void	set_vertex(t_vertex *vertex, float x, float y, float z);
-float 	cross_product(t_vertex *v_1, t_vertex *v_2);
+void	set_vector(t_vector *v, float x, float y, float z);
 
 void	update_rotation_mat_z(t_app *app, float angle);
 void	update_rotation_mat_x(t_app *app, float angle);
 
-void	set_triangle(t_triangle *t, t_vertex *v0, t_vertex *v1, t_vertex *v2);
+void	set_triangle(t_triangle *t, t_vector *v0, t_vector *v1, t_vector *v2);
 
 void	set_color(t_color *color, int r, int g, int b);
 
 void	set_pixel(SDL_Surface *s, int x, int y, t_color *c);
-void	draw_line(t_app *app, t_vertex start, t_vertex end, t_color *c);
+void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c);
 
 t_triangle	check_triangle(t_app *app, t_triangle tr);
-void		render_triangle(t_app *app, t_triangle triangle);
+void		render_triangle(t_app *app, t_triangle tr);
 void		fill_triangle(t_app *app, t_triangle t);
 
 void	show_fps_sdl(t_timer *timer);
@@ -240,16 +237,18 @@ int		event_handling(t_app *app);
 t_mat4x4	matrix_subtraction(t_mat4x4 matrix1, t_mat4x4 matrix2);
 t_mat4x4	matrix_summary(t_mat4x4 matrix1, t_mat4x4 matrix2);
 t_mat4x4	matrix_multiply_matrix(t_mat4x4 matrix1, t_mat4x4 matrix2);
-t_vertex	matrix_multiply_vector(t_mat4x4 matrix, t_vertex vector);
+t_vector	matrix_multiply_vector(t_mat4x4 matrix, t_vector vector);
+t_mat4x4	matrix_look_at(t_vector from, t_vector to);
 
-t_vertex	vector_summary(t_vertex vector1, t_vertex vector2);
-t_vertex	vector_subtract(t_vertex vector1, t_vertex vector2);
-t_vertex	vector_multiply(t_vertex vector1, float k);
-t_vertex	vector_divide(t_vertex vector1, float k);
-float		dot_product(t_vertex vector1, t_vertex vector2);
-float		vector_length(t_vertex vector);
-t_vertex	normalise_vector(t_vertex vector);
-t_vertex	vector_cross_product(t_vertex vector1, t_vertex vector2);
+t_vector	vector_new(float x, float y, float z, float w);
+t_vector	vector_sum(t_vector vector1, t_vector vector2);
+t_vector	vector_sub(t_vector vector1, t_vector vector2);
+t_vector	vector_mul_by(t_vector v, float k);
+t_vector	vector_div_by(t_vector v, float k);
+t_vector	vector_normalize(t_vector v);
+float		vector_length(t_vector v);
+t_vector	vector_cross_product(t_vector v1, t_vector v2);
+float		vector_dot_product(t_vector v1, t_vector v2);
 
 void		read_obj(char *path, t_mesh *mesh);
 #endif
