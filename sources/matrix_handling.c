@@ -1,5 +1,31 @@
 #include "doom_nukem.h"
 
+t_mat4x4	matrix_inverse(t_mat4x4 m)
+{
+	t_mat4x4	mat;
+
+	mat.m[0][0] = m.m[0][0];
+	mat.m[0][1] = m.m[1][0];
+	mat.m[0][2] = m.m[2][0];
+	mat.m[0][3] = 0.0f;
+	mat.m[1][0] = m.m[0][1];
+	mat.m[1][1] = m.m[1][1];
+	mat.m[1][2] = m.m[2][1];
+	mat.m[1][3] = 0.0f;
+	mat.m[2][0] = m.m[0][2];
+	mat.m[2][1] = m.m[1][2];
+	mat.m[2][2] = m.m[2][2];
+	mat.m[2][3] = 0.0f;
+	mat.m[3][0] = -(m.m[3][0] * mat.m[0][0] + m.m[3][1] *
+					mat.m[1][0] + m.m[3][2] * mat.m[2][0]);
+	mat.m[3][1] = -(m.m[3][0] * mat.m[0][1] + m.m[3][1] *
+					mat.m[1][1] + m.m[3][2] * mat.m[2][1]);
+	mat.m[3][2] = -(m.m[3][0] * mat.m[0][2] + m.m[3][1] *
+					mat.m[1][2] + m.m[3][2] * mat.m[2][2]);
+	mat.m[3][3] = 1.0f;
+	return (mat);
+}
+
 t_mat4x4	matrix_look_at(t_vector from, t_vector to)
 {
 	t_vector	forward;
@@ -27,7 +53,7 @@ t_mat4x4	matrix_look_at(t_vector from, t_vector to)
 	return (mat);
 }
 
-t_mat4x4	matrix_multiply_matrix(t_mat4x4 matrix1, t_mat4x4 matrix2)
+t_mat4x4	matrix_multiply_matrix(t_mat4x4 m1, t_mat4x4 m2)
 {
 	t_mat4x4	result;
 	int 		i;
@@ -39,15 +65,15 @@ t_mat4x4	matrix_multiply_matrix(t_mat4x4 matrix1, t_mat4x4 matrix2)
 		j = -1;
 		while (++j < 4)
 			result.m[i][j] =
-					matrix1.m[j][0] * matrix2.m[0][i] +
-					matrix1.m[j][1] * matrix2.m[1][i] +
-					matrix1.m[j][2] * matrix2.m[2][i] +
-					matrix1.m[j][3] * matrix2.m[3][i];
+					m1.m[j][0] * m2.m[0][i] +
+					m1.m[j][1] * m2.m[1][i] +
+					m1.m[j][2] * m2.m[2][i] +
+					m1.m[j][3] * m2.m[3][i];
 	}
 	return (result);
 }
 
-t_mat4x4	matrix_summary(t_mat4x4 matrix1, t_mat4x4 matrix2)
+t_mat4x4	matrix_summary(t_mat4x4 m1, t_mat4x4 m2)
 {
 	t_mat4x4	result;
 	int 		i;
@@ -58,12 +84,12 @@ t_mat4x4	matrix_summary(t_mat4x4 matrix1, t_mat4x4 matrix2)
 	{
 		j = -1;
 		while (++j < 4)
-			result.m[i][j] = matrix1.m[i][j] + matrix2.m[i][j];
+			result.m[i][j] = m1.m[i][j] + m2.m[i][j];
 	}
 	return (result);
 }
 
-t_mat4x4	matrix_subtraction(t_mat4x4 matrix1, t_mat4x4 matrix2)
+t_mat4x4	matrix_subtraction(t_mat4x4 m1, t_mat4x4 m2)
 {
 	t_mat4x4	result;
 	int 		i;
@@ -74,23 +100,23 @@ t_mat4x4	matrix_subtraction(t_mat4x4 matrix1, t_mat4x4 matrix2)
 	{
 		j = -1;
 		while (++j < 4)
-			result.m[i][j] = matrix1.m[i][j] - matrix2.m[i][j];
+			result.m[i][j] = m1.m[i][j] - m2.m[i][j];
 	}
 	return (result);
 
 }
 
-t_vector	matrix_multiply_vector(t_mat4x4 matrix, t_vector vector)
+t_vector	matrix_multiply_vector(t_mat4x4 m, t_vector v)
 {
 	t_vector	result;
 
-	result.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] +
-			vector.z * matrix.m[2][0] + vector.w * matrix.m[3][0];
-	result.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] +
-			vector.z * matrix.m[2][1] + vector.w * matrix.m[3][1];
-	result.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] +
-			vector.z * matrix.m[2][2] + vector.w * matrix.m[3][2];
-	result.w = vector.x * matrix.m[0][3] + vector.y * matrix.m[1][3] +
-			vector.z * matrix.m[2][3] + vector.w * matrix.m[3][3];
+	result.x = v.x * m.m[0][0] + v.y * m.m[1][0] +
+			   v.z * m.m[2][0] + v.w * m.m[3][0];
+	result.y = v.x * m.m[0][1] + v.y * m.m[1][1] +
+			   v.z * m.m[2][1] + v.w * m.m[3][1];
+	result.z = v.x * m.m[0][2] + v.y * m.m[1][2] +
+			   v.z * m.m[2][2] + v.w * m.m[3][2];
+	result.w = v.x * m.m[0][3] + v.y * m.m[1][3] +
+			   v.z * m.m[2][3] + v.w * m.m[3][3];
 	return (result);
 }

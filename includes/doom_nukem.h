@@ -125,6 +125,11 @@ typedef struct	s_camera
 	float 		asp_ratio;
 	t_vector	pos;
 	t_vector	rot;
+	t_vector	target;
+	t_vector	dir;
+	t_mat4x4	rot_mat;
+	t_mat4x4	world_mat;
+	t_mat4x4	view_mat;
 }				t_camera;
 
 typedef struct	s_timer
@@ -205,8 +210,9 @@ void	offset_triangle(t_triangle *tr, t_app *app);
 
 void	set_vector(t_vector *v, float x, float y, float z);
 
-void	update_rotation_mat_z(t_app *app, float angle);
-void	update_rotation_mat_x(t_app *app, float angle);
+t_mat4x4	rotation_mat_z(float angle);
+t_mat4x4	rotation_mat_x(float angle);
+t_mat4x4	rotation_mat_y(float angle);
 
 void	set_triangle(t_triangle *t, t_vector *v0, t_vector *v1, t_vector *v2);
 
@@ -234,11 +240,13 @@ void	quit_properly(t_app *app);
 
 int		event_handling(t_app *app);
 
-t_mat4x4	matrix_subtraction(t_mat4x4 matrix1, t_mat4x4 matrix2);
-t_mat4x4	matrix_summary(t_mat4x4 matrix1, t_mat4x4 matrix2);
-t_mat4x4	matrix_multiply_matrix(t_mat4x4 matrix1, t_mat4x4 matrix2);
-t_vector	matrix_multiply_vector(t_mat4x4 matrix, t_vector vector);
+t_mat4x4	matrix_subtraction(t_mat4x4 m1, t_mat4x4 m2);
+t_mat4x4	matrix_summary(t_mat4x4 m1, t_mat4x4 m2);
+t_mat4x4	matrix_multiply_matrix(t_mat4x4 m1, t_mat4x4 m2);
+t_vector	matrix_multiply_vector(t_mat4x4 m, t_vector v);
 t_mat4x4	matrix_look_at(t_vector from, t_vector to);
+t_mat4x4	matrix_inverse(t_mat4x4 m);
+
 
 t_vector	vector_new(float x, float y, float z, float w);
 t_vector	vector_sum(t_vector vector1, t_vector vector2);

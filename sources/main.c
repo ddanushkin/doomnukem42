@@ -51,6 +51,21 @@ void	draw_mesh(t_app *app, t_mesh *mesh)
 	}
 }
 
+t_mat4x4	init_translation_mat(float x, float y, float z)
+{
+	t_mat4x4	mat;
+
+	ft_bzero(&mat, sizeof(t_mat4x4));
+	mat.m[0][0] = 1.0f;
+	mat.m[1][1] = 1.0f;
+	mat.m[2][2] = 1.0f;
+	mat.m[3][3] = 1.0f;
+	mat.m[3][0] = x;
+	mat.m[3][1] = y;
+	mat.m[3][2] = z;
+	return (mat);
+}
+
 void	start_the_game(t_app *app)
 {
 	while (1)
@@ -61,6 +76,44 @@ void	start_the_game(t_app *app)
 
 		if (!event_handling(app))
 			break;
+
+		t_mat4x4 mesh_rot_mat_x;
+		t_mat4x4 mesh_rot_mat_y;
+		t_mat4x4 mesh_rot_mat_z;
+		t_mat4x4 trans_mat;
+
+		/* Animate mesh rotation */
+		app->mesh[0].rot.x += 0.001f;
+		app->mesh[0].rot.z += 0.001f;
+		app->mesh[0].rot.y += 0.001f;
+
+		mesh_rot_mat_x = rotation_mat_x(app->mesh[0].rot.x);
+		mesh_rot_mat_y = rotation_mat_y(app->mesh[0].rot.y);
+		mesh_rot_mat_z = rotation_mat_z(app->mesh[0].rot.z);
+
+		/* КАК ЭТО РАБОТАЕТ У ДЕДА????!!! */
+		trans_mat = init_translation_mat(0.0f, 0.0f, 0.0f);
+
+		app->camera.world_mat = matrix_multiply_matrix(mesh_rot_mat_z, mesh_rot_mat_x);
+		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, mesh_rot_mat_y);
+		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, trans_mat);
+
+		t_mat4x4 cam_rot_mat_x;
+		t_mat4x4 cam_rot_mat_y;
+		t_mat4x4 cam_rot_mat_z;
+
+		cam_rot_mat_x = rotation_mat_x(app->camera.rot.x);
+		cam_rot_mat_z = rotation_mat_z(app->camera.rot.z);
+		cam_rot_mat_y = rotation_mat_y(app->camera.rot.y);
+
+		app->camera.rot_mat = matrix_multiply_matrix(cam_rot_mat_z, cam_rot_mat_x);
+		app->camera.rot_mat = matrix_multiply_matrix(app->camera.rot_mat, cam_rot_mat_y);
+
+		app->camera.target = vector_new(0.0f, 0.0f, -1.0f, 1.0f);
+		app->camera.dir = matrix_multiply_vector(app->camera.rot_mat, app->camera.target);
+		app->camera.target = vector_sum(app->camera.pos, app->camera.dir);
+		app->camera.view_mat = matrix_look_at(app->camera.pos, app->camera.target);
+		app->camera.view_mat = matrix_inverse(app->camera.view_mat);
 
 		draw_mesh(app, &app->mesh[0]);
 
@@ -79,7 +132,9 @@ int		main(int argv, char**argc)
 	app = (t_app *)malloc(sizeof(t_app));
 	app->mesh = (t_mesh *)malloc(sizeof(t_mesh) * 1);
 
-	read_obj("../Wolf.obj", &app->mesh[0]);
+	app->mesh[0].rot = vector_new(0.0f, 0.0f, 0.0f, 1.0f);
+	app->mesh[0].pos = vector_new(0.0f, 0.0f, 0.0f, 1.0f);
+	read_obj("../axis.obj", &app->mesh[0]);
 
 	init_app(app);
 	start_the_game(app);

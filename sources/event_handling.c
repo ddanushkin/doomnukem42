@@ -11,23 +11,33 @@ int		event_handling(t_app *app)
 		return(0);
 	if (key[SDL_SCANCODE_ESCAPE])
 		return(0);
-	if (key[SDL_SCANCODE_E] && app->speed > -0.1)
-		app->speed -= 0.001f;
-	if (key[SDL_SCANCODE_Q] && app->speed < 0.1)
-		app->speed += 0.001f;
+
 	if (key[SDL_SCANCODE_R])
 		show_fps(app);
-	if (key[SDL_SCANCODE_UP])
-		app->camera.pos.z -= 0.5f;
-	if (key[SDL_SCANCODE_DOWN])
-		app->camera.pos.z += 0.5f;
-	if (key[SDL_SCANCODE_RIGHT])
-		app->camera.pos.x += 0.5f;
-	if (key[SDL_SCANCODE_LEFT])
-		app->camera.pos.x -= 0.5f;
+
+	/* CHANGE HEIGHT */
 	if (key[SDL_SCANCODE_LSHIFT])
 		app->camera.pos.y += 0.5f;
 	if (key[SDL_SCANCODE_SPACE])
 		app->camera.pos.y -= 0.5f;
+
+	t_vector forward = vector_mul_by(app->camera.dir, 0.01f);
+
+	/* MOVE FORWARD/BACKWARD */
+	if (key[SDL_SCANCODE_W])
+		app->camera.pos = vector_sum(app->camera.pos, forward);
+	if (key[SDL_SCANCODE_S])
+		app->camera.pos = vector_sub(app->camera.pos, forward);
+
+	/* ROTATE CAMERA */
+	if (key[SDL_SCANCODE_LEFT])
+		app->camera.rot.y += 0.01f;
+	if (key[SDL_SCANCODE_RIGHT])
+		app->camera.rot.y -= 0.01f;
+	if (key[SDL_SCANCODE_UP])
+		app->camera.rot.x += 0.01f;
+	if (key[SDL_SCANCODE_DOWN])
+		app->camera.rot.x -= 0.01f;
+
 	return (1);
 }

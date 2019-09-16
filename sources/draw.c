@@ -1,25 +1,45 @@
 #include "doom_nukem.h"
 
-void	update_rotation_mat_z(t_app *app, float angle)
+t_mat4x4	rotation_mat_z(float angle)
 {
-	ft_bzero(&app->rotation_mat_z, sizeof(t_mat4x4));
-	app->rotation_mat_z.m[0][0] = cosf(angle);
-	app->rotation_mat_z.m[0][1] = sinf(angle);
-	app->rotation_mat_z.m[1][0] = -sinf(angle);
-	app->rotation_mat_z.m[1][1] = cosf(angle);
-	app->rotation_mat_z.m[2][2] = 1;
-	app->rotation_mat_z.m[3][3] = 1;
+	t_mat4x4	mat;
+
+	ft_bzero(&mat, sizeof(t_mat4x4));
+	mat.m[0][0] = cosf(angle);
+	mat.m[0][1] = sinf(angle);
+	mat.m[1][0] = -sinf(angle);
+	mat.m[1][1] = cosf(angle);
+	mat.m[2][2] = 1.0f;
+	mat.m[3][3] = 1.0f;
+	return (mat);
 }
 
-void	update_rotation_mat_x(t_app *app, float angle)
+t_mat4x4	rotation_mat_x(float angle)
 {
-	ft_bzero(&app->rotation_mat_x, sizeof(t_mat4x4));
-	app->rotation_mat_x.m[0][0] = 1;
-	app->rotation_mat_x.m[1][1] = cosf(angle);
-	app->rotation_mat_x.m[1][2] = sinf(angle);
-	app->rotation_mat_x.m[2][1] = -sinf(angle);
-	app->rotation_mat_x.m[2][2] = cosf(angle);
-	app->rotation_mat_x.m[3][3] = 1;
+	t_mat4x4	mat;
+
+	ft_bzero(&mat, sizeof(t_mat4x4));
+	mat.m[0][0] = 1.0f;
+	mat.m[1][1] = cosf(angle);
+	mat.m[1][2] = sinf(angle);
+	mat.m[2][1] = -sinf(angle);
+	mat.m[2][2] = cosf(angle);
+	mat.m[3][3] = 1.0f;
+	return (mat);
+}
+
+t_mat4x4	rotation_mat_y(float angle)
+{
+	t_mat4x4	mat;
+
+	ft_bzero(&mat, sizeof(t_mat4x4));
+	mat.m[0][0] = cosf(angle);
+	mat.m[0][2] = sinf(angle);
+	mat.m[1][1] = 1.0f;
+	mat.m[2][0] = -sinf(angle);
+	mat.m[2][2] = cosf(angle);
+	mat.m[3][3] = 1.0f;
+	return (mat);
 }
 
 void	rotate_triangle(t_triangle *tr, t_mat4x4 *rot_mat)
@@ -38,9 +58,15 @@ void	project_triangle(t_triangle *tr, t_mat4x4 *proj_mat)
 
 void	translate_triangle(t_triangle *tr, t_app *app)
 {
-	set_vector(&tr->v[0], tr->v[0].x + app->camera.pos.x, tr->v[0].y + app->camera.pos.y, tr->v[0].z + app->camera.pos.z);
-	set_vector(&tr->v[1], tr->v[1].x + app->camera.pos.x, tr->v[1].y + app->camera.pos.y, tr->v[1].z + app->camera.pos.z);
-	set_vector(&tr->v[2], tr->v[2].x + app->camera.pos.x, tr->v[2].y + app->camera.pos.y, tr->v[2].z + app->camera.pos.z);
+	tr->v[0].x += app->camera.pos.x;
+	tr->v[0].y += app->camera.pos.y;
+	tr->v[0].z += app->camera.pos.z;
+	tr->v[1].x += app->camera.pos.x;
+	tr->v[1].y += app->camera.pos.y;
+	tr->v[1].z += app->camera.pos.z;
+	tr->v[2].x += app->camera.pos.x;
+	tr->v[2].y += app->camera.pos.y;
+	tr->v[2].z += app->camera.pos.z;
 }
 
 void	offset_z(t_triangle *tr, float offset)
@@ -120,25 +146,22 @@ void	draw_outline(t_app *app, t_triangle triangle)
 	draw_line(app, triangle.v[1], triangle.v[2], &clr);
 }
 
-int 	triangle_is_visible(t_app *app, t_triangle tr, t_vector normal)
-{
-	t_vector	tmp;
-
-	tmp = vector_sub(tr.v[1], app->camera.pos);
-	return (vector_dot_product(normal, tmp) < 0.0f);
-}
-
 t_triangle	check_triangle(t_app *app, t_triangle tr)
 {
 	t_vector	normal;
+	t_vector	camera_ray;
 
-	//Mesh rotation from it's center!
-	//rotate_triangle(&tr, &app->rotation_mat_z);
-	//rotate_triangle(&tr, &app->rotation_mat_x);
+	tr.v[0] = matrix_multiply_vector(app->camera.world_mat, tr.v[0]);
+	tr.v[1] = matrix_multiply_vector(app->camera.world_mat, tr.v[1]);
+	tr.v[2] = matrix_multiply_vector(app->camera.world_mat, tr.v[2]);
+
+	/* У ДЕДА ЭТОГО НЕТ, НО ЕСЛИ УДАЛИТЬ НЕ РАБОТАЕТ ПЕРЕМЕЩЕНИЕ КАМЕРЫ :((((( */
 	translate_triangle(&tr, app);
-	offset_z(&tr, 300.0f);
+
+	offset_z(&tr, 10.0f);
 	normal = calc_normal(tr);
-	if (triangle_is_visible(app, tr, normal))
+	camera_ray = vector_sub(tr.v[0], app->camera.pos);
+	if (vector_dot_product(normal, camera_ray) < 0.0f)
 	{
 		calc_light(&tr, normal);
 		tr.visible = 1;
@@ -148,8 +171,20 @@ t_triangle	check_triangle(t_app *app, t_triangle tr)
 
 void	render_triangle(t_app *app, t_triangle tr)
 {
+	tr.v[0] = matrix_multiply_vector(app->camera.view_mat, tr.v[0]);
+	tr.v[1] = matrix_multiply_vector(app->camera.view_mat, tr.v[1]);
+	tr.v[2] = matrix_multiply_vector(app->camera.view_mat, tr.v[2]);
+
 	project_triangle(&tr, &app->projection_mat);
 	scale_triangle(&tr);
+
+	tr.v[0].x *= -1.0f;
+	tr.v[1].x *= -1.0f;
+	tr.v[2].x *= -1.0f;
+	tr.v[0].y *= -1.0f;
+	tr.v[1].y *= -1.0f;
+	tr.v[2].y *= -1.0f;
+
 	offset_triangle(&tr, app);
 	fill_triangle(app, tr);
 	if (PRINT_DEBUG)
