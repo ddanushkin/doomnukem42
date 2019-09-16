@@ -29,6 +29,11 @@ int		event_handling(t_app *app)
 	if (key[SDL_SCANCODE_S])
 		app->camera.pos = vector_sub(app->camera.pos, forward);
 
+	if (key[SDL_SCANCODE_A])
+		app->camera.pos.x -= 0.1f;
+	if (key[SDL_SCANCODE_D])
+		app->camera.pos.x += 0.1f;
+
 	/* ROTATE CAMERA */
 	if (key[SDL_SCANCODE_LEFT])
 		app->camera.rot.y += 0.01f;

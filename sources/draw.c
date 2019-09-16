@@ -105,7 +105,7 @@ void	calc_light(t_triangle *tr, t_vector normal)
 	float		light_dp;
 
 	set_vector(&light_dir, 0.0f, 0.0f, -1.0f);
-	light_dir = vector_normalize(light_dir);
+	light_dir = vector_normalise(light_dir);
 	light_dp = vector_dot_product(normal, light_dir);
 	tr->color.r = (int)((float)tr->color.r * light_dp);
 	tr->color.g = (int)((float)tr->color.g * light_dp);
@@ -131,7 +131,7 @@ t_vector	calc_normal(t_triangle tr)
 	normal.x = line1.y * line2.z - line1.z * line2.y;
 	normal.y = line1.z * line2.x - line1.x * line2.z;
 	normal.z = line1.x * line2.y - line1.y * line2.x;
-	return (vector_normalize(normal));
+	return (vector_normalise(normal));
 }
 
 void	draw_outline(t_app *app, t_triangle triangle)
@@ -156,9 +156,9 @@ t_triangle	check_triangle(t_app *app, t_triangle tr)
 	tr.v[2] = matrix_multiply_vector(app->camera.world_mat, tr.v[2]);
 
 	/* У ДЕДА ЭТОГО НЕТ, НО ЕСЛИ УДАЛИТЬ НЕ РАБОТАЕТ ПЕРЕМЕЩЕНИЕ КАМЕРЫ :((((( */
-	translate_triangle(&tr, app);
+	//translate_triangle(&tr, app);
 
-	offset_z(&tr, 10.0f);
+	offset_z(&tr, 20.0f);
 	normal = calc_normal(tr);
 	camera_ray = vector_sub(tr.v[0], app->camera.pos);
 	if (vector_dot_product(normal, camera_ray) < 0.0f)

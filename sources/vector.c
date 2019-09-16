@@ -12,7 +12,7 @@ float 		vector_length(t_vector v)
 	return (sqrtf(vector_dot_product(v, v)));
 }
 
-t_vector	vector_normalize(t_vector v)
+t_vector	vector_normalise(t_vector v)
 {
 	t_vector	result;
 	float		length;

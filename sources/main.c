@@ -83,18 +83,20 @@ void	start_the_game(t_app *app)
 		t_mat4x4 trans_mat;
 
 		/* Animate mesh rotation */
-		app->mesh[0].rot.x += 0.001f;
-		app->mesh[0].rot.z += 0.001f;
-		app->mesh[0].rot.y += 0.001f;
+		//app->mesh[0].rot.x += 0.001f;
+		//app->mesh[0].rot.z += 0.001f;
+		//app->mesh[0].rot.y += 0.001f;
 
 		mesh_rot_mat_x = rotation_mat_x(app->mesh[0].rot.x);
 		mesh_rot_mat_y = rotation_mat_y(app->mesh[0].rot.y);
 		mesh_rot_mat_z = rotation_mat_z(app->mesh[0].rot.z);
 
 		/* КАК ЭТО РАБОТАЕТ У ДЕДА????!!! */
-		trans_mat = init_translation_mat(0.0f, 0.0f, 0.0f);
+		trans_mat = init_translation_mat(0.0f, 0.0f, 1.0f);
 
-		app->camera.world_mat = matrix_multiply_matrix(mesh_rot_mat_z, mesh_rot_mat_x);
+		app->camera.world_mat = matrix_identity();
+		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, mesh_rot_mat_z);
+		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, mesh_rot_mat_x);
 		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, mesh_rot_mat_y);
 		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, trans_mat);
 
@@ -109,7 +111,7 @@ void	start_the_game(t_app *app)
 		app->camera.rot_mat = matrix_multiply_matrix(cam_rot_mat_z, cam_rot_mat_x);
 		app->camera.rot_mat = matrix_multiply_matrix(app->camera.rot_mat, cam_rot_mat_y);
 
-		app->camera.target = vector_new(0.0f, 0.0f, -1.0f, 1.0f);
+		app->camera.target = vector_new(0.0f, 0.0f, 1.0f, 0.0f);
 		app->camera.dir = matrix_multiply_vector(app->camera.rot_mat, app->camera.target);
 		app->camera.target = vector_sum(app->camera.pos, app->camera.dir);
 		app->camera.view_mat = matrix_look_at(app->camera.pos, app->camera.target);

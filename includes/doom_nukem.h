@@ -246,14 +246,14 @@ t_mat4x4	matrix_multiply_matrix(t_mat4x4 m1, t_mat4x4 m2);
 t_vector	matrix_multiply_vector(t_mat4x4 m, t_vector v);
 t_mat4x4	matrix_look_at(t_vector from, t_vector to);
 t_mat4x4	matrix_inverse(t_mat4x4 m);
-
+t_mat4x4	matrix_identity();
 
 t_vector	vector_new(float x, float y, float z, float w);
 t_vector	vector_sum(t_vector vector1, t_vector vector2);
 t_vector	vector_sub(t_vector vector1, t_vector vector2);
 t_vector	vector_mul_by(t_vector v, float k);
 t_vector	vector_div_by(t_vector v, float k);
-t_vector	vector_normalize(t_vector v);
+t_vector	vector_normalise(t_vector v);
 float		vector_length(t_vector v);
 t_vector	vector_cross_product(t_vector v1, t_vector v2);
 float		vector_dot_product(t_vector v1, t_vector v2);
