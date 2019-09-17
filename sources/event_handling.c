@@ -17,12 +17,12 @@ int		event_handling(t_app *app)
 
 	/* CHANGE HEIGHT */
 	if (key[SDL_SCANCODE_LSHIFT])
-		app->camera.pos.y += 0.5f;
+		app->camera.pos.y -= 0.01f;
 	if (key[SDL_SCANCODE_SPACE])
-		app->camera.pos.y -= 0.5f;
+		app->camera.pos.y += 0.01f;
 
 	t_vector	forward = vector_mul_by(app->camera.dir, 0.01f);
-	t_vector	right = vector_new(forward.z, forward.y, -forward.x);
+	t_vector	right = vector_new(forward.z, 0.0f, -forward.x);
 
 	/* MOVE FORWARD/BACKWARD */
 	if (key[SDL_SCANCODE_W])
@@ -37,14 +37,10 @@ int		event_handling(t_app *app)
 		app->camera.pos = vector_sub(app->camera.pos, right);
 
 	/* ROTATE CAMERA */
-	if (key[SDL_SCANCODE_LEFT])
-		app->camera.rot.y += 0.01f;
-	if (key[SDL_SCANCODE_RIGHT])
-		app->camera.rot.y -= 0.01f;
-	if (key[SDL_SCANCODE_UP])
-		app->camera.rot.x += 0.01f;
-	if (key[SDL_SCANCODE_DOWN])
-		app->camera.rot.x -= 0.01f;
+	if (app->mouse.x)
+		app->camera.rot.y += app->mouse.x < 0 ? -0.01f : 0.01f;
+	if (app->mouse.y)
+		app->camera.rot.x += app->mouse.y < 0 ? 0.01f : -0.01f;
 
 	return (1);
 }

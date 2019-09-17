@@ -7,11 +7,8 @@ void	debug_mouse(t_app *app, char *event, int key_code)
 		printf("\nDEBUG MOUSE:\n");
 		printf("EVENT: \t\t %s\n", event);
 		printf("KEY_CODE: \t %d\n", key_code);
-		printf("MOVE: \t\t %d\n", app->mouse.move);
 		printf("X: \t\t\t %d\n", app->mouse.x);
 		printf("Y: \t\t\t %d\n", app->mouse.y);
-		printf("H_DIR: \t\t %d\n", app->mouse.hdir);
-		printf("V_DIR: \t\t %d\n", app->mouse.vdir);
 		printf("\n");
 	}
 }

@@ -40,40 +40,40 @@ t_mat4x4	matrix_inverse(t_mat4x4 m)
 
 t_mat4x4	matrix_look_at(t_vector from, t_vector to)
 {
-//	t_vector	forward;
-//	t_vector	right;
-//	t_vector	up;
-//	t_vector	tmp;
-//	t_mat4x4	mat;
-//
-//	tmp = vector_new(0.0f, 1.0f, 0.0f);
-//
-//	forward = vector_sub(to, from);
-//	forward = vector_normalise(forward);
-//
-//	up = vector_mul_by(forward, vector_dot_product(tmp, forward));
-//	up = vector_sub(tmp, up);
-//	up = vector_normalise(up);
-//
-//	right = vector_cross_product(up, forward);
-//
-//	mat.m[0][0] = right.x;
-//	mat.m[0][1] = right.y;
-//	mat.m[0][2] = right.z;
-//	mat.m[0][3] = 0.0f;
-//	mat.m[1][0] = up.x;
-//	mat.m[1][1] = up.y;
-//	mat.m[1][2] = up.z;
-//	mat.m[1][3] = 0.0f;
-//	mat.m[2][0] = forward.x;
-//	mat.m[2][1] = forward.y;
-//	mat.m[2][2] = forward.z;
-//	mat.m[2][3] = 0.0f;
-//	mat.m[3][0] = from.x;
-//	mat.m[3][1] = from.y;
-//	mat.m[3][2] = from.z;
-//	mat.m[3][3] = 1.0f;
-//	return (mat);
+	t_vector	forward;
+	t_vector	right;
+	t_vector	up;
+	t_vector	tmp;
+	t_mat4x4	mat;
+
+	tmp = vector_new(0.0f, 1.0f, 0.0f);
+
+	forward = vector_sub(to, from);
+	forward = vector_normalise(forward);
+
+	up = vector_mul_by(forward, vector_dot_product(tmp, forward));
+	up = vector_sub(tmp, up);
+	up = vector_normalise(up);
+
+	right = vector_cross_product(up, forward);
+
+	mat.m[0][0] = right.x;
+	mat.m[0][1] = right.y;
+	mat.m[0][2] = right.z;
+	mat.m[0][3] = 0.0f;
+	mat.m[1][0] = up.x;
+	mat.m[1][1] = up.y;
+	mat.m[1][2] = up.z;
+	mat.m[1][3] = 0.0f;
+	mat.m[2][0] = forward.x;
+	mat.m[2][1] = forward.y;
+	mat.m[2][2] = forward.z;
+	mat.m[2][3] = 0.0f;
+	mat.m[3][0] = from.x;
+	mat.m[3][1] = from.y;
+	mat.m[3][2] = from.z;
+	mat.m[3][3] = 1.0f;
+	return (mat);
 
 //	t_vector	forward;
 //	t_vector	right;

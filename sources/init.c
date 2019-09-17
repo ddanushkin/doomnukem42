@@ -55,10 +55,13 @@ void	init_app(t_app *app)
 	app->inputs = (t_inputs *)malloc(sizeof(t_inputs));
 	app->speed = 0.001f;
 	app->inputs->keyboard = SDL_GetKeyboardState(NULL);
-	set_vector(&app->rot, 0, 0, 0);
+
 	app->timer.current_ticks = 0;
 	app->timer.delta_ticks = 0;
 	app->timer.fps = 0;
+	app->timer.delta = 0.0f;
+	app->timer.time = 0.0f;
+
 	init_camera(&app->camera);
 	init_projection_mat(app);
 }

@@ -91,14 +91,13 @@ typedef struct	s_ms_keys_state
 
 typedef struct	s_mouse_state
 {
-	int				move;
-	t_ms_keys_state	keys;
 	int 			x;
 	int 			y;
-	int 			x_prev;
-	int 			y_prev;
-	int 			hdir;
-	int 			vdir;
+	int 			left;
+	int 			right;
+	int 			middle;
+	int 			scroll_u;
+	int 			scroll_d;
 }				t_mouse_state;
 
 typedef struct	s_camera
@@ -135,6 +134,8 @@ typedef struct	s_timer
 	clock_t current_ticks;
 	clock_t delta_ticks;
 	clock_t fps;
+	float	delta;
+	float 	time;
 }				t_timer;
 
 typedef struct		s_inputs

@@ -42,38 +42,11 @@ t_mat4x4	rotation_mat_y(float angle)
 	return (mat);
 }
 
-void	rotate_triangle(t_triangle *tr, t_mat4x4 *rot_mat)
-{
-	tr->v[0] = matrix_multiply_vector(*rot_mat, tr->v[0]);
-	tr->v[1] = matrix_multiply_vector(*rot_mat, tr->v[1]);
-	tr->v[2] = matrix_multiply_vector(*rot_mat, tr->v[2]);
-}
-
 void	project_triangle(t_triangle *tr, t_mat4x4 *proj_mat)
 {
 	tr->v[0] = matrix_multiply_vector(*proj_mat, tr->v[0]);
 	tr->v[1] = matrix_multiply_vector(*proj_mat, tr->v[1]);
 	tr->v[2] = matrix_multiply_vector(*proj_mat, tr->v[2]);
-}
-
-void	translate_triangle(t_triangle *tr, t_app *app)
-{
-	tr->v[0].x += app->camera.pos.x;
-	tr->v[0].y += app->camera.pos.y;
-	tr->v[0].z += app->camera.pos.z;
-	tr->v[1].x += app->camera.pos.x;
-	tr->v[1].y += app->camera.pos.y;
-	tr->v[1].z += app->camera.pos.z;
-	tr->v[2].x += app->camera.pos.x;
-	tr->v[2].y += app->camera.pos.y;
-	tr->v[2].z += app->camera.pos.z;
-}
-
-void	offset_z(t_triangle *tr, float offset)
-{
-	tr->v[0].z += offset;
-	tr->v[1].z += offset;
-	tr->v[2].z += offset;
 }
 
 void	scale_triangle(t_triangle *tr)
@@ -110,9 +83,15 @@ void	calc_light(t_triangle *tr, t_vector normal)
 	tr->color.r = (int)((float)tr->color.r * light_dp);
 	tr->color.g = (int)((float)tr->color.g * light_dp);
 	tr->color.b = (int)((float)tr->color.b * light_dp);
-	tr->color.r = CLAMP(tr->color.r, 0, 255);
-	tr->color.g = CLAMP(tr->color.g, 0, 255);
-	tr->color.b = CLAMP(tr->color.b, 0, 255);
+
+	//Test: Dark grey is minimal color
+	tr->color.r = CLAMP(tr->color.r, 10, 255);
+	tr->color.g = CLAMP(tr->color.g, 10, 255);
+	tr->color.b = CLAMP(tr->color.b, 10, 255);
+
+//	tr->color.r = CLAMP(tr->color.r, 0, 255);
+//	tr->color.g = CLAMP(tr->color.g, 0, 255);
+//	tr->color.b = CLAMP(tr->color.b, 0, 255);
 
 }
 
@@ -138,9 +117,17 @@ void	draw_outline(t_app *app, t_triangle triangle)
 {
 	t_color		clr;
 
-	clr.r = 0;
-	clr.g = 0;
-	clr.b = 0;
+	clr.r = 255;
+	clr.g = 255;
+	clr.b = 255;
+
+	triangle.v[0].x = CLAMP(triangle.v[0].x, 0, app->sdl->width);
+	triangle.v[0].y = CLAMP(triangle.v[0].y, 0, app->sdl->height);
+	triangle.v[1].x = CLAMP(triangle.v[1].x, 0, app->sdl->width);
+	triangle.v[1].y = CLAMP(triangle.v[1].y, 0, app->sdl->height);
+	triangle.v[2].x = CLAMP(triangle.v[2].x, 0, app->sdl->width);
+	triangle.v[2].y = CLAMP(triangle.v[2].y, 0, app->sdl->height);
+
 	draw_line(app, triangle.v[1], triangle.v[0], &clr);
 	draw_line(app, triangle.v[2], triangle.v[0], &clr);
 	draw_line(app, triangle.v[1], triangle.v[2], &clr);
@@ -151,13 +138,13 @@ t_triangle	check_triangle(t_app *app, t_mat4x4 transform, t_triangle tr)
 	t_vector	normal;
 	t_vector	camera_ray;
 
-	tr.v[0] = matrix_multiply_vector(app->world.mat, tr.v[0]);
-	tr.v[1] = matrix_multiply_vector(app->world.mat, tr.v[1]);
-	tr.v[2] = matrix_multiply_vector(app->world.mat, tr.v[2]);
-
 	tr.v[0] = matrix_multiply_vector(transform, tr.v[0]);
 	tr.v[1] = matrix_multiply_vector(transform, tr.v[1]);
 	tr.v[2] = matrix_multiply_vector(transform, tr.v[2]);
+
+	tr.v[0] = matrix_multiply_vector(app->world.mat, tr.v[0]);
+	tr.v[1] = matrix_multiply_vector(app->world.mat, tr.v[1]);
+	tr.v[2] = matrix_multiply_vector(app->world.mat, tr.v[2]);
 
 	normal = calc_normal(tr);
 	camera_ray = vector_sub(tr.v[0], app->camera.pos);
