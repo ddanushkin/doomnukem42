@@ -155,10 +155,6 @@ t_triangle	check_triangle(t_app *app, t_triangle tr)
 	tr.v[1] = matrix_multiply_vector(app->camera.world_mat, tr.v[1]);
 	tr.v[2] = matrix_multiply_vector(app->camera.world_mat, tr.v[2]);
 
-	/* У ДЕДА ЭТОГО НЕТ, НО ЕСЛИ УДАЛИТЬ НЕ РАБОТАЕТ ПЕРЕМЕЩЕНИЕ КАМЕРЫ :((((( */
-	//translate_triangle(&tr, app);
-
-	offset_z(&tr, 20.0f);
 	normal = calc_normal(tr);
 	camera_ray = vector_sub(tr.v[0], app->camera.pos);
 	if (vector_dot_product(normal, camera_ray) < 0.0f)

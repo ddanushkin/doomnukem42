@@ -8,6 +8,7 @@ void	get_coords(t_mesh *mesh, char *line)
 	mesh->v[mesh->v_idx].x = strtof(data[1], NULL);
 	mesh->v[mesh->v_idx].y = strtof(data[2], NULL);
 	mesh->v[mesh->v_idx].z = strtof(data[3], NULL);
+	mesh->v[mesh->v_idx].w = 1.0f;
 	mesh->v_idx++;
 	ft_delarr(data);
 }

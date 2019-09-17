@@ -51,6 +51,25 @@ void	draw_mesh(t_app *app, t_mesh *mesh)
 	}
 }
 
+//void		set_mat_row(t_mat4x4 *m , int row, float c0, float c1, float c2, float c3)
+//{
+//	m->m[row][0] = c0;
+//	m->m[row][1] = c1;
+//	m->m[row][2] = c2;
+//	m->m[row][3] = c3;
+//}
+//
+//t_mat4x4	init_translation_mat(float _x_, float _y_, float _z_)
+//{
+//	t_mat4x4	mat;
+//
+//	set_mat_row(&mat, 0,	1.0f,	0.0f,	0.0f,	_x_);
+//	set_mat_row(&mat, 1,	0.0f,	1.0f,	0.0f,	_y_);
+//	set_mat_row(&mat, 2,	0.0f,	0.0f,	1.0f,	_z_);
+//	set_mat_row(&mat, 3,	0.0f,	0.0f,	0.0f,	1.0f);
+//	return (mat);
+//}
+
 t_mat4x4	init_translation_mat(float x, float y, float z)
 {
 	t_mat4x4	mat;
@@ -60,9 +79,9 @@ t_mat4x4	init_translation_mat(float x, float y, float z)
 	mat.m[1][1] = 1.0f;
 	mat.m[2][2] = 1.0f;
 	mat.m[3][3] = 1.0f;
-	mat.m[3][0] = x;
-	mat.m[3][1] = y;
-	mat.m[3][2] = z;
+	mat.m[0][3] = x;
+	mat.m[1][3] = y;
+	mat.m[2][3] = z;
 	return (mat);
 }
 
@@ -91,8 +110,7 @@ void	start_the_game(t_app *app)
 		mesh_rot_mat_y = rotation_mat_y(app->mesh[0].rot.y);
 		mesh_rot_mat_z = rotation_mat_z(app->mesh[0].rot.z);
 
-		/* КАК ЭТО РАБОТАЕТ У ДЕДА????!!! */
-		trans_mat = init_translation_mat(0.0f, 0.0f, 1.0f);
+		trans_mat = init_translation_mat(0.0f, 0.0f, 10.0f);
 
 		app->camera.world_mat = matrix_identity();
 		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, mesh_rot_mat_z);
