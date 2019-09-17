@@ -22,19 +22,22 @@ int 	tr_cmpr(const void *p, const void *q)
 	return (z1 > z2);
 }
 
-void	draw_mesh(t_app *app, t_mesh *mesh)
+void	draw_mesh(t_app *app, int mesh_id)
 {
 	t_triangle	tr;
 	int			t_idx;
 	int			tr_idx;
 	t_triangle	to_render[5000];
+	t_mesh		mesh;
+
+	mesh = app->mesh[mesh_id];
 
 	tr_idx = 0;
 	t_idx = 0;
 
-	while (t_idx < mesh->t_idx)
+	while (t_idx < mesh.t_idx)
 	{
-		tr = check_triangle(app, mesh->t[t_idx]);
+		tr = check_triangle(app, mesh.transform, mesh.t[t_idx]);
 		if (tr.visible)
 		{
 			to_render[tr_idx] = tr;
@@ -70,18 +73,14 @@ void	draw_mesh(t_app *app, t_mesh *mesh)
 //	return (mat);
 //}
 
-t_mat4x4	init_translation_mat(float x, float y, float z)
+t_mat4x4	init_translation_mat(t_vector trans_v)
 {
 	t_mat4x4	mat;
 
-	ft_bzero(&mat, sizeof(t_mat4x4));
-	mat.m[0][0] = 1.0f;
-	mat.m[1][1] = 1.0f;
-	mat.m[2][2] = 1.0f;
-	mat.m[3][3] = 1.0f;
-	mat.m[0][3] = x;
-	mat.m[1][3] = y;
-	mat.m[2][3] = z;
+	mat = matrix_identity();
+	mat.m[0][3] = trans_v.x;
+	mat.m[1][3] = trans_v.y;
+	mat.m[2][3] = trans_v.z;
 	return (mat);
 }
 
@@ -96,46 +95,66 @@ void	start_the_game(t_app *app)
 		if (!event_handling(app))
 			break;
 
-		t_mat4x4 mesh_rot_mat_x;
-		t_mat4x4 mesh_rot_mat_y;
-		t_mat4x4 mesh_rot_mat_z;
-		t_mat4x4 trans_mat;
+		/* Animate world rotation */
+		//app->world.rot.x += 0.001f;
+		//app->world.rot.y += 0.001f;
+		//app->world.rot.z += 0.001f;
 
-		/* Animate mesh rotation */
-		//app->mesh[0].rot.x += 0.001f;
-		//app->mesh[0].rot.z += 0.001f;
-		//app->mesh[0].rot.y += 0.001f;
+		/* Create world rotation matrices */
+		app->world.rot_mat_x = rotation_mat_x(app->mesh[0].rot.x);
+		app->world.rot_mat_y = rotation_mat_y(app->mesh[0].rot.y);
+		app->world.rot_mat_z = rotation_mat_z(app->mesh[0].rot.z);
 
-		mesh_rot_mat_x = rotation_mat_x(app->mesh[0].rot.x);
-		mesh_rot_mat_y = rotation_mat_y(app->mesh[0].rot.y);
-		mesh_rot_mat_z = rotation_mat_z(app->mesh[0].rot.z);
+		/* Create world translation matrix */
+		app->world.trans = vector_new(0.0f, 0.0f, 50.0f);
+		app->world.trans_mat = init_translation_mat(app->world.trans);
 
-		trans_mat = init_translation_mat(0.0f, 0.0f, 10.0f);
+		/* Create world matrix */
+		app->world.mat = matrix_identity();
+		app->world.mat = matrix_multiply_matrix(app->world.mat, app->world.rot_mat_z);
+		app->world.mat = matrix_multiply_matrix(app->world.mat, app->world.rot_mat_x);
+		app->world.mat = matrix_multiply_matrix(app->world.mat, app->world.rot_mat_y);
+		app->world.mat = matrix_multiply_matrix(app->world.mat, app->world.trans_mat);
 
-		app->camera.world_mat = matrix_identity();
-		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, mesh_rot_mat_z);
-		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, mesh_rot_mat_x);
-		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, mesh_rot_mat_y);
-		app->camera.world_mat = matrix_multiply_matrix(app->camera.world_mat, trans_mat);
+		/* Create camera rotation matrices */
+		app->camera.rot_mat_x = rotation_mat_x(app->camera.rot.x);
+		app->camera.rot_mat_z = rotation_mat_z(app->camera.rot.z);
+		app->camera.rot_mat_y = rotation_mat_y(app->camera.rot.y);
 
-		t_mat4x4 cam_rot_mat_x;
-		t_mat4x4 cam_rot_mat_y;
-		t_mat4x4 cam_rot_mat_z;
+		/* Create camera rotation matrix */
+		app->camera.rot_mat = matrix_multiply_matrix(app->camera.rot_mat_z, app->camera.rot_mat_x);
+		app->camera.rot_mat = matrix_multiply_matrix(app->camera.rot_mat, app->camera.rot_mat_y);
 
-		cam_rot_mat_x = rotation_mat_x(app->camera.rot.x);
-		cam_rot_mat_z = rotation_mat_z(app->camera.rot.z);
-		cam_rot_mat_y = rotation_mat_y(app->camera.rot.y);
-
-		app->camera.rot_mat = matrix_multiply_matrix(cam_rot_mat_z, cam_rot_mat_x);
-		app->camera.rot_mat = matrix_multiply_matrix(app->camera.rot_mat, cam_rot_mat_y);
-
-		app->camera.target = vector_new(0.0f, 0.0f, 1.0f, 0.0f);
+		/* Create camera view matrix */
+		app->camera.target = vector_new(0.0f, 0.0f, 1.0f);
 		app->camera.dir = matrix_multiply_vector(app->camera.rot_mat, app->camera.target);
 		app->camera.target = vector_sum(app->camera.pos, app->camera.dir);
 		app->camera.view_mat = matrix_look_at(app->camera.pos, app->camera.target);
 		app->camera.view_mat = matrix_inverse(app->camera.view_mat);
 
-		draw_mesh(app, &app->mesh[0]);
+		/* Animate mesh[0] rotation */
+		//app->mesh[0].rot.x += 0.001f;
+		//app->mesh[0].rot.y += 0.001f;
+		//app->mesh[0].rot.z += 0.001f;
+
+		/* Animate mesh[0] position */
+		//app->mesh[0].pos.x += 0.01f;
+		//app->mesh[0].pos.y += 0.001f;
+		//app->mesh[0].pos.z += 0.001f;
+
+		app->mesh[0].rot_mat_x = rotation_mat_x(app->mesh[0].rot.x);
+		app->mesh[0].rot_mat_y = rotation_mat_y(app->mesh[0].rot.y);
+		app->mesh[0].rot_mat_z = rotation_mat_z(app->mesh[0].rot.z);
+
+		app->mesh[0].trans_mat = init_translation_mat(app->mesh[0].pos);
+
+		app->mesh[0].transform = matrix_identity();
+		app->mesh[0].transform = matrix_multiply_matrix(app->mesh[0].transform, app->mesh[0].rot_mat_z);
+		app->mesh[0].transform = matrix_multiply_matrix(app->mesh[0].transform, app->mesh[0].rot_mat_x);
+		app->mesh[0].transform = matrix_multiply_matrix(app->mesh[0].transform, app->mesh[0].rot_mat_y);
+		app->mesh[0].transform = matrix_multiply_matrix(app->mesh[0].transform, app->mesh[0].trans_mat);
+
+		draw_mesh(app, 0);
 
 		SDL_UpdateWindowSurface(app->sdl->window);
 
@@ -151,9 +170,8 @@ int		main(int argv, char**argc)
 
 	app = (t_app *)malloc(sizeof(t_app));
 	app->mesh = (t_mesh *)malloc(sizeof(t_mesh) * 1);
-
-	app->mesh[0].rot = vector_new(0.0f, 0.0f, 0.0f, 1.0f);
-	app->mesh[0].pos = vector_new(0.0f, 0.0f, 0.0f, 1.0f);
+	app->mesh[0].rot = vector_new(0.0f, 0.0f, 0.0f);
+	app->mesh[0].pos = vector_new(0.0f, 0.0f, 0.0f);
 	read_obj("../axis.obj", &app->mesh[0]);
 
 	init_app(app);

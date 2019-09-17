@@ -1,13 +1,13 @@
 #include "doom_nukem.h"
 
-t_vector	vector_new(float x, float y, float z, float w)
+t_vector	vector_new(float x, float y, float z)
 {
 	t_vector	v;
 
 	v.x = x;
 	v.y = y;
 	v.z = z;
-	v.w = w;
+	v.w = 1;
 	return (v);
 }
 

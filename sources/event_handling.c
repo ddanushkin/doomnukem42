@@ -22,7 +22,7 @@ int		event_handling(t_app *app)
 		app->camera.pos.y -= 0.5f;
 
 	t_vector	forward = vector_mul_by(app->camera.dir, 0.01f);
-	t_vector	right = vector_new(forward.z, forward.y, -forward.x, 0.0f);
+	t_vector	right = vector_new(forward.z, forward.y, -forward.x);
 
 	/* MOVE FORWARD/BACKWARD */
 	if (key[SDL_SCANCODE_W])

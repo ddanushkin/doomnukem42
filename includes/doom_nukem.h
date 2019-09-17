@@ -70,6 +70,11 @@ typedef struct	s_mesh
 	int 		t_idx;
 	t_vector	pos;
 	t_vector	rot;
+	t_mat4x4	rot_mat_x;
+	t_mat4x4	rot_mat_y;
+	t_mat4x4	rot_mat_z;
+	t_mat4x4	trans_mat;
+	t_mat4x4	transform;
 }				t_mesh;
 
 typedef struct	s_kb_keys_state
@@ -96,26 +101,6 @@ typedef struct	s_mouse_state
 	int 			vdir;
 }				t_mouse_state;
 
-typedef struct	s_image
-{
-	void		*ptr;
-	char		*pixels;
-	int			bpp;
-	int			s_l;
-	int			endian;
-}				t_image;
-
-typedef struct	s_window
-{
-	void		*ptr;
-	char		*title;
-	int			w;
-	int			h;
-	float		ratio;
-	int			half_w;
-	int			half_h;
-}				t_window;
-
 typedef struct	s_camera
 {
 	float 		z_near;
@@ -125,12 +110,25 @@ typedef struct	s_camera
 	float 		asp_ratio;
 	t_vector	pos;
 	t_vector	rot;
+	t_mat4x4	rot_mat_x;
+	t_mat4x4	rot_mat_y;
+	t_mat4x4	rot_mat_z;
 	t_vector	target;
 	t_vector	dir;
 	t_mat4x4	rot_mat;
-	t_mat4x4	world_mat;
 	t_mat4x4	view_mat;
 }				t_camera;
+
+typedef struct	s_world
+{
+	t_vector	rot;
+	t_vector	trans;
+	t_mat4x4	rot_mat_x;
+	t_mat4x4	rot_mat_y;
+	t_mat4x4	rot_mat_z;
+	t_mat4x4	trans_mat;
+	t_mat4x4	mat;
+}				t_world;
 
 typedef struct	s_timer
 {
@@ -167,9 +165,8 @@ typedef struct	s_app
 	t_kb_keys_state	keyboard;
 	t_mouse_state	mouse;
 	t_camera		camera;
+	t_world			world;
 	t_mat4x4		projection_mat;
-	t_mat4x4		rotation_mat_z;
-	t_mat4x4		rotation_mat_x;
 	t_vector		rot;
 	float 			speed;
 	t_sdl			*sdl;
@@ -186,8 +183,6 @@ void	*image_clear(void *b, int c, size_t len);
 
 void 	app_close(t_app *app);
 
-void	init_window(t_window *window, void *mlx);
-void	init_image(t_image *image, t_window *window, void *mlx);
 void	init_app(t_app *app);
 
 void	update_inputs(t_app *app);
@@ -221,7 +216,7 @@ void	set_color(t_color *color, int r, int g, int b);
 void	set_pixel(SDL_Surface *s, int x, int y, t_color *c);
 void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c);
 
-t_triangle	check_triangle(t_app *app, t_triangle tr);
+t_triangle	check_triangle(t_app *app, t_mat4x4 transform, t_triangle tr);
 void		render_triangle(t_app *app, t_triangle tr);
 void		fill_triangle(t_app *app, t_triangle t);
 
@@ -247,8 +242,9 @@ t_vector	matrix_multiply_vector(t_mat4x4 m, t_vector v);
 t_mat4x4	matrix_look_at(t_vector from, t_vector to);
 t_mat4x4	matrix_inverse(t_mat4x4 m);
 t_mat4x4	matrix_identity();
+t_mat4x4	init_translation_mat(t_vector trans_v);
 
-t_vector	vector_new(float x, float y, float z, float w);
+t_vector	vector_new(float x, float y, float z);
 t_vector	vector_sum(t_vector vector1, t_vector vector2);
 t_vector	vector_sub(t_vector vector1, t_vector vector2);
 t_vector	vector_mul_by(t_vector v, float k);
