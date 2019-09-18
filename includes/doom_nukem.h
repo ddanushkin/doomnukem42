@@ -98,6 +98,7 @@ typedef struct	s_mouse_state
 	int 			middle;
 	int 			scroll_u;
 	int 			scroll_d;
+	float 			sens;
 }				t_mouse_state;
 
 typedef struct	s_camera

@@ -3,7 +3,6 @@
 void	get_ticks(t_timer *timer)
 {
 	timer->current_ticks = clock();
-	timer->delta = 0.0f;
 }
 
 void	get_delta_time(t_timer *timer)

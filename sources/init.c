@@ -52,9 +52,12 @@ void	init_app(t_app *app)
 	app->sdl = (t_sdl *)malloc(sizeof(t_sdl));
 	init_sdl(app->sdl);
 	create_stuff(app->sdl);
+
 	app->inputs = (t_inputs *)malloc(sizeof(t_inputs));
-	app->speed = 0.001f;
 	app->inputs->keyboard = SDL_GetKeyboardState(NULL);
+
+	/* Set mouse sensitivity */
+	app->mouse.sens = 2.5f;
 
 	app->timer.current_ticks = 0;
 	app->timer.delta_ticks = 0;

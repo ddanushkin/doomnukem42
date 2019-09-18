@@ -86,34 +86,39 @@ t_mat4x4	init_translation_mat(t_vector trans_v)
 
 void		mouse_update(t_app *app)
 {
-	SDL_GetRelativeMouseState(&app->mouse.x, &app->mouse.y);
+	Uint32	mouse_state;
 
-	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
+	mouse_state = SDL_GetRelativeMouseState(&app->mouse.x, &app->mouse.y);
+	if (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT))
 		app->mouse.left = 1;
 	else
 		app->mouse.left = 0;
-
-	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+	if (mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT))
 		app->mouse.right = 1;
 	else
 		app->mouse.right = 0;
+	if (mouse_state & SDL_BUTTON(SDL_BUTTON_MIDDLE))
+		app->mouse.middle = 1;
+	else
+		app->mouse.middle = 0;
 }
 
-void	draw_cross(t_app *app)
+void	draw_cross(t_app *app, float size, int r, int g, int b)
 {
 	t_vector	cross_hl_s;
 	t_vector	cross_hl_e;
 	t_vector	cross_vl_s;
 	t_vector	cross_vl_e;
-	float		cross_len;
 	t_color		cross_color;
 
-	set_color(&cross_color, 250, 0, 250);
-	cross_len = 5.0f;
-	cross_hl_s = vector_new(app->sdl->half_width - cross_len, app->sdl->half_height, 0.0f);
-	cross_hl_e = vector_new(app->sdl->half_width + cross_len, app->sdl->half_height, 0.0f);
-	cross_vl_s = vector_new(app->sdl->half_width, app->sdl->half_height - cross_len, 0.0f);
-	cross_vl_e = vector_new(app->sdl->half_width, app->sdl->half_height + cross_len, 0.0f);
+	if (size <= 0.0f)
+		size = 5.0f;
+
+	set_color(&cross_color, r, g, b);
+	cross_hl_s = vector_new(app->sdl->half_width - size, app->sdl->half_height, 0.0f);
+	cross_hl_e = vector_new(app->sdl->half_width + size, app->sdl->half_height, 0.0f);
+	cross_vl_s = vector_new(app->sdl->half_width, app->sdl->half_height - size, 0.0f);
+	cross_vl_e = vector_new(app->sdl->half_width, app->sdl->half_height + size, 0.0f);
 	draw_line(app, cross_hl_s, cross_hl_e, &cross_color);
 	draw_line(app, cross_vl_s, cross_vl_e, &cross_color);
 }
@@ -161,8 +166,8 @@ void	start_the_game(t_app *app)
 
 		/* Create camera rotation matrices */
 		app->camera.rot_mat_x = rotation_mat_x(app->camera.rot.x);
-		app->camera.rot_mat_z = rotation_mat_z(app->camera.rot.z);
 		app->camera.rot_mat_y = rotation_mat_y(app->camera.rot.y);
+		app->camera.rot_mat_z = rotation_mat_z(app->camera.rot.z);
 
 		/* Create camera rotation matrix */
 		app->camera.rot_mat = matrix_identity();
@@ -178,8 +183,8 @@ void	start_the_game(t_app *app)
 		app->camera.view_mat = matrix_inverse(app->camera.view_mat);
 
 		/* Animate mesh[0] rotation */
-		app->mesh[0].rot.x += 0.001f;
-		app->mesh[0].rot.y += 0.001f;
+		app->mesh[0].rot.x += 1.0f * app->timer.delta;
+		app->mesh[0].rot.y += 1.0f * app->timer.delta;
 		//app->mesh[0].rot.z += 0.001f;
 
 		/* Animate mesh[0] position */
@@ -187,8 +192,8 @@ void	start_the_game(t_app *app)
 		//app->mesh[0].pos.y = sinf(app->timer.time) * 2.0f;
 		//app->mesh[0].pos.z = sinf(app->timer.time) * 2.0f;
 
-		app->mesh[0].rot_mat_y = rotation_mat_y(app->mesh[0].rot.y);
 		app->mesh[0].rot_mat_x = rotation_mat_x(app->mesh[0].rot.x);
+		app->mesh[0].rot_mat_y = rotation_mat_y(app->mesh[0].rot.y);
 		app->mesh[0].rot_mat_z = rotation_mat_z(app->mesh[0].rot.z);
 
 		app->mesh[0].trans_mat = init_translation_mat(app->mesh[0].pos);
@@ -201,7 +206,7 @@ void	start_the_game(t_app *app)
 
 		draw_mesh(app, 0);
 
-		draw_cross(app);
+		draw_cross(app, 7.0f, 255, 0, 200);
 
 		SDL_UpdateWindowSurface(app->sdl->window);
 

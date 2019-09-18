@@ -24,7 +24,8 @@
 # define MIN(a,b) (((a)<(b))?(a):(b))
 # define MAX(a,b) (((a)>(b))?(a):(b))
 # define ABS(N) ((N<0)?(-N):(N))
-# define SIGN(x) ((x < 0) ? -1 : (x > 0));
+# define SIGN(x) ((x < 0) ? -1 : 1);
+# define SIGNF(x) ((x < 0.0f) ? -1.0f : 1.0f);
 # define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
 # define CLAMP(x, min, max)  (((x) > (max)) ? (max) : (((x) < (min)) ? (min) : (x)))
 

@@ -174,6 +174,6 @@ void	render_triangle(t_app *app, t_triangle tr)
 
 	offset_triangle(&tr, app);
 	fill_triangle(app, tr);
-	if (PRINT_DEBUG)
-		draw_outline(app, tr);
+	//if (PRINT_DEBUG)
+		//draw_outline(app, tr);
 }
