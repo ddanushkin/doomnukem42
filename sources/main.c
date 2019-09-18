@@ -22,6 +22,45 @@ int 	tr_cmpr(const void *p, const void *q)
 	return (z1 > z2);
 }
 
+void	transform_vertices(t_app *app, int mesh_id)
+{
+	int			i;
+	t_mesh		mesh;
+	t_vector	v;
+
+	mesh = app->mesh[mesh_id];
+	i = 0;
+	while (i < mesh.v_count)
+	{
+		//v = matrix_multiply_vector(mesh.transform, mesh.v[i]);
+		v = matrix_multiply_vector(app->world.mat, mesh.v[i]);
+		v = matrix_multiply_vector(app->camera.view_mat, v);
+		app->vertexes[mesh_id][i] = v;
+		i++;
+	}
+}
+
+void	assemble_triangles(t_app *app, int mesh_id)
+{
+	int			i;
+	t_triangle	*t;
+	t_mesh		mesh;
+	t_vector	*vertexes;
+
+	i = 0;
+	mesh = app->mesh[mesh_id];
+	vertexes = app->vertexes[mesh_id];
+	while (i < app->mesh[mesh_id].t_count)
+	{
+		t = &mesh.t[i];
+		t->color = new_color(128, 128, 128);
+		t->v[0] = vertexes[t->i[0]];
+		t->v[1] = vertexes[t->i[1]];
+		t->v[2] = vertexes[t->i[2]];
+		i++;
+	}
+}
+
 void	draw_mesh(t_app *app, int mesh_id)
 {
 	t_triangle	tr;
@@ -35,9 +74,9 @@ void	draw_mesh(t_app *app, int mesh_id)
 	tr_idx = 0;
 	t_idx = 0;
 
-	while (t_idx < mesh.t_idx)
+	while (t_idx < mesh.t_count)
 	{
-		tr = check_triangle(app, mesh.transform, mesh.t[t_idx]);
+		tr = check_triangle(app, mesh.t[t_idx]);
 		if (tr.visible)
 		{
 			to_render[tr_idx] = tr;
@@ -53,25 +92,6 @@ void	draw_mesh(t_app *app, int mesh_id)
 		tr_idx--;
 	}
 }
-
-//void		set_mat_row(t_mat4x4 *m , int row, float c0, float c1, float c2, float c3)
-//{
-//	m->m[row][0] = c0;
-//	m->m[row][1] = c1;
-//	m->m[row][2] = c2;
-//	m->m[row][3] = c3;
-//}
-//
-//t_mat4x4	init_translation_mat(float _x_, float _y_, float _z_)
-//{
-//	t_mat4x4	mat;
-//
-//	set_mat_row(&mat, 0,	1.0f,	0.0f,	0.0f,	_x_);
-//	set_mat_row(&mat, 1,	0.0f,	1.0f,	0.0f,	_y_);
-//	set_mat_row(&mat, 2,	0.0f,	0.0f,	1.0f,	_z_);
-//	set_mat_row(&mat, 3,	0.0f,	0.0f,	0.0f,	1.0f);
-//	return (mat);
-//}
 
 t_mat4x4	init_translation_mat(t_vector trans_v)
 {
@@ -115,10 +135,10 @@ void	draw_cross(t_app *app, float size, int r, int g, int b)
 		size = 5.0f;
 
 	set_color(&cross_color, r, g, b);
-	cross_hl_s = vector_new(app->sdl->half_width - size, app->sdl->half_height, 0.0f);
-	cross_hl_e = vector_new(app->sdl->half_width + size, app->sdl->half_height, 0.0f);
-	cross_vl_s = vector_new(app->sdl->half_width, app->sdl->half_height - size, 0.0f);
-	cross_vl_e = vector_new(app->sdl->half_width, app->sdl->half_height + size, 0.0f);
+	cross_hl_s = new_vector(app->sdl->half_width - size, app->sdl->half_height, 0.0f);
+	cross_hl_e = new_vector(app->sdl->half_width + size, app->sdl->half_height, 0.0f);
+	cross_vl_s = new_vector(app->sdl->half_width, app->sdl->half_height - size, 0.0f);
+	cross_vl_e = new_vector(app->sdl->half_width, app->sdl->half_height + size, 0.0f);
 	draw_line(app, cross_hl_s, cross_hl_e, &cross_color);
 	draw_line(app, cross_vl_s, cross_vl_e, &cross_color);
 }
@@ -126,10 +146,10 @@ void	draw_cross(t_app *app, float size, int r, int g, int b)
 void	start_the_game(t_app *app)
 {
 	/* Set camera position */
-	app->camera.pos = vector_new(0.0f, 0.0f, -5.0f);
+	app->camera.pos = new_vector(0.0f, 0.0f, -5.0f);
 
 	/* Set mesh to center */
-	app->mesh[0].pos = vector_new(-0.5f,-0.5f,-0.5f);
+	app->mesh[0].pos = new_vector(-0.5f, -0.5f, -0.5f);
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	while (1)
@@ -153,8 +173,12 @@ void	start_the_game(t_app *app)
 		app->world.rot_mat_y = rotation_mat_y(app->mesh[0].rot.y);
 		app->world.rot_mat_z = rotation_mat_z(app->mesh[0].rot.z);
 
+		app->world.rot_mat_x = rotation_mat_x(app->world.rot.x);
+		app->world.rot_mat_y = rotation_mat_y(app->world.rot.y);
+		app->world.rot_mat_z = rotation_mat_z(app->world.rot.z);
+
 		/* Create world translation matrix */
-		app->world.trans = vector_new(0.0f, 0.0f, 0.0f);
+		app->world.trans = new_vector(0.0f, 0.0f, 0.0f);
 		app->world.trans_mat = init_translation_mat(app->world.trans);
 
 		/* Create world matrix */
@@ -176,16 +200,16 @@ void	start_the_game(t_app *app)
 		app->camera.rot_mat = matrix_multiply_matrix(app->camera.rot_mat, app->camera.rot_mat_z);
 
 		/* Create camera view matrix */
-		app->camera.target = vector_new(0.0f, 0.0f, 1.0f);
+		app->camera.target = new_vector(0.0f, 0.0f, 1.0f);
 		app->camera.dir = matrix_multiply_vector(app->camera.rot_mat, app->camera.target);
 		app->camera.target = vector_sum(app->camera.pos, app->camera.dir);
 		app->camera.view_mat = matrix_look_at(app->camera.pos, app->camera.target);
 		app->camera.view_mat = matrix_inverse(app->camera.view_mat);
 
 		/* Animate mesh[0] rotation */
-		app->mesh[0].rot.x += 1.0f * app->timer.delta;
+		//app->mesh[0].rot.x += 1.0f * app->timer.delta;
 		app->mesh[0].rot.y += 1.0f * app->timer.delta;
-		//app->mesh[0].rot.z += 0.001f;
+		//app->mesh[0].rot.z += 1.0f * app->timer.delta;
 
 		/* Animate mesh[0] position */
 		//app->mesh[0].pos.x = sinf(app->timer.time) * 2.0f;
@@ -204,6 +228,8 @@ void	start_the_game(t_app *app)
 		app->mesh[0].transform = matrix_multiply_matrix(app->mesh[0].transform, app->mesh[0].rot_mat_x);
 		app->mesh[0].transform = matrix_multiply_matrix(app->mesh[0].transform, app->mesh[0].trans_mat);
 
+		transform_vertices(app, 0);
+		assemble_triangles(app, 0);
 		draw_mesh(app, 0);
 
 		draw_cross(app, 7.0f, 255, 0, 200);
@@ -221,12 +247,28 @@ int		main(int argv, char**argc)
 	t_app	*app;
 
 	app = (t_app *)malloc(sizeof(t_app));
-	app->mesh = (t_mesh *)malloc(sizeof(t_mesh) * 1);
-	app->mesh[0].rot = vector_new(0.0f, 0.0f, 0.0f);
-	app->mesh[0].pos = vector_new(0.0f, 0.0f, 0.0f);
-	read_obj("../cube.obj", &app->mesh[0]);
+
+	/* TODO: Set number of meshes*/
+	int number_of_meshes = 1;
+	app->mesh = (t_mesh *)malloc(sizeof(t_mesh) * number_of_meshes);
+
+	/* TODO: While number of meshes*/
+	app->mesh[0].rot = new_vector(0.0f, 0.0f, 0.0f);
+	app->mesh[0].pos = new_vector(0.0f, 0.0f, 0.0f);
 
 	init_app(app);
+
+	/* TODO: Count or read number of vertexes & triangles from mesh */
+	int cube_vrs = 8;
+	int cube_trs = 12;
+	read_obj("../cube.obj", &app->mesh[0], cube_vrs, cube_trs);
+
+	app->triangles = new_triangle_list(cube_trs * 9);
+	app->vertexes = (t_vector **)malloc(sizeof(t_vector *) * number_of_meshes);
+
+	/* TODO: While number of loaded meshes*/
+	app->vertexes[0] = (t_vector *)malloc(sizeof(t_vector) * app->mesh[0].v_count);
+
 	start_the_game(app);
 	quit_properly(app);
 	return (0);

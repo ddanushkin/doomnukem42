@@ -1,6 +1,5 @@
 #include <doom_nukem.h>
 
-
 int		event_handling(t_app *app)
 {
 	const uint8_t *key;
@@ -22,7 +21,7 @@ int		event_handling(t_app *app)
 		app->camera.pos.y += 5.0f * app->timer.delta;
 
 	t_vector	forward = vector_mul_by(app->camera.dir, 10.0f * app->timer.delta);
-	t_vector	right = vector_new(forward.z, 0.0f, -forward.x);
+	t_vector	right = new_vector(forward.z, 0.0f, -forward.x);
 
 	/* MOVE FORWARD/BACKWARD */
 	if (key[SDL_SCANCODE_W])

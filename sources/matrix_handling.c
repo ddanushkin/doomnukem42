@@ -46,7 +46,7 @@ t_mat4x4	matrix_look_at(t_vector from, t_vector to)
 	t_vector	tmp;
 	t_mat4x4	mat;
 
-	tmp = vector_new(0.0f, 1.0f, 0.0f);
+	tmp = new_vector(0.0f, 1.0f, 0.0f);
 
 	forward = vector_sub(to, from);
 	forward = vector_normalise(forward);
@@ -81,7 +81,7 @@ t_mat4x4	matrix_look_at(t_vector from, t_vector to)
 //	t_vector	tmp;
 //	t_mat4x4	mat;
 //
-//	tmp = vector_new(0.0f, 1.0f, 0.0f);
+//	tmp = new_vector(0.0f, 1.0f, 0.0f);
 //	forward = vector_normalise(vector_sub(from, to));
 //	right = vector_cross_product(vector_normalise(tmp), forward);
 //	up = vector_cross_product(forward, right);

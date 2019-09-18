@@ -1,6 +1,6 @@
 #include "doom_nukem.h"
 
-t_vector	vector_new(float x, float y, float z)
+t_vector	new_vector(float x, float y, float z)
 {
 	t_vector	v;
 

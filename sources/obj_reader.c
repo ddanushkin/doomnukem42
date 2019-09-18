@@ -5,11 +5,11 @@ void	get_coords(t_mesh *mesh, char *line)
 	char **data;
 
 	data = ft_strsplit(line, ' ');
-	mesh->v[mesh->v_idx].x = strtof(data[1], NULL);
-	mesh->v[mesh->v_idx].y = strtof(data[2], NULL);
-	mesh->v[mesh->v_idx].z = strtof(data[3], NULL);
-	mesh->v[mesh->v_idx].w = 1.0f;
-	mesh->v_idx++;
+	mesh->v[mesh->v_count].x = strtof(data[1], NULL);
+	mesh->v[mesh->v_count].y = strtof(data[2], NULL);
+	mesh->v[mesh->v_count].z = strtof(data[3], NULL);
+	mesh->v[mesh->v_count].w = 1.0f;
+	mesh->v_count++;
 	ft_delarr(data);
 }
 
@@ -18,15 +18,14 @@ void	get_triangle(t_mesh *mesh, char *line)
 	char **data;
 
 	data = ft_strsplit(line, ' ');
-	mesh->t[mesh->t_idx].v[0] = mesh->v[ft_atoi(data[1]) - 1];
-	mesh->t[mesh->t_idx].v[1] = mesh->v[ft_atoi(data[2]) - 1];
-	mesh->t[mesh->t_idx].v[2] = mesh->v[ft_atoi(data[3]) - 1];
-	set_color(&mesh->t[mesh->t_idx].color, 128, 128, 128);
-	mesh->t_idx++;
+	mesh->t[mesh->t_count].i[0] = ft_atoi(data[1]) - 1;
+	mesh->t[mesh->t_count].i[1] = ft_atoi(data[2]) - 1;
+	mesh->t[mesh->t_count].i[2] = ft_atoi(data[3]) - 1;
+	mesh->t_count++;
 	ft_delarr(data);
 }
 
-void	read_obj(char *path, t_mesh *mesh)
+void	read_obj(char *path, t_mesh *mesh, int vrs, int trs)
 {
 	int		fd;
 	char	*line;
@@ -38,10 +37,10 @@ void	read_obj(char *path, t_mesh *mesh)
 		ft_putstr("error: obj file not found\n");
 		exit(0);
 	}
-	mesh->v = (t_vector *)malloc(sizeof(t_vector) * 3644);
-	mesh->t = (t_triangle *)malloc(sizeof(t_triangle) * 6320);
-	mesh->v_idx = 0;
-	mesh->t_idx = 0;
+	mesh->v = (t_vector *)malloc(sizeof(t_vector) * vrs);
+	mesh->t = (t_triangle *)malloc(sizeof(t_triangle) * trs);
+	mesh->v_count = 0;
+	mesh->t_count = 0;
 	while(ft_gnl(fd, &line))
 	{
 		if (line[0] == 'v' && line[1] == ' ')

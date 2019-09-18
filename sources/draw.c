@@ -60,7 +60,7 @@ void	offset_triangle(t_triangle *tr, t_app *app)
 {
 	t_vector offset_view;
 
-	offset_view = vector_new(1.0f, 1.0f, 0.0f);
+	offset_view = new_vector(1.0f, 1.0f, 0.0f);
 	tr->v[0] = vector_sum(tr->v[0], offset_view);
 	tr->v[0].x *= app->sdl->half_width;
 	tr->v[0].y *= app->sdl->half_height;
@@ -133,18 +133,10 @@ void	draw_outline(t_app *app, t_triangle triangle)
 	draw_line(app, triangle.v[1], triangle.v[2], &clr);
 }
 
-t_triangle	check_triangle(t_app *app, t_mat4x4 transform, t_triangle tr)
+t_triangle	check_triangle(t_app *app, t_triangle tr)
 {
 	t_vector	normal;
 	t_vector	camera_ray;
-
-	tr.v[0] = matrix_multiply_vector(transform, tr.v[0]);
-	tr.v[1] = matrix_multiply_vector(transform, tr.v[1]);
-	tr.v[2] = matrix_multiply_vector(transform, tr.v[2]);
-
-	tr.v[0] = matrix_multiply_vector(app->world.mat, tr.v[0]);
-	tr.v[1] = matrix_multiply_vector(app->world.mat, tr.v[1]);
-	tr.v[2] = matrix_multiply_vector(app->world.mat, tr.v[2]);
 
 	normal = calc_normal(tr);
 	camera_ray = vector_sub(tr.v[0], app->camera.pos);
@@ -158,10 +150,6 @@ t_triangle	check_triangle(t_app *app, t_mat4x4 transform, t_triangle tr)
 
 void	render_triangle(t_app *app, t_triangle tr)
 {
-	tr.v[0] = matrix_multiply_vector(app->camera.view_mat, tr.v[0]);
-	tr.v[1] = matrix_multiply_vector(app->camera.view_mat, tr.v[1]);
-	tr.v[2] = matrix_multiply_vector(app->camera.view_mat, tr.v[2]);
-
 	project_triangle(&tr, &app->projection_mat);
 	scale_triangle(&tr);
 
@@ -174,6 +162,6 @@ void	render_triangle(t_app *app, t_triangle tr)
 
 	offset_triangle(&tr, app);
 	fill_triangle(app, tr);
-	//if (PRINT_DEBUG)
-		//draw_outline(app, tr);
+	if (PRINT_DEBUG)
+		draw_outline(app, tr);
 }

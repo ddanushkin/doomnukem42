@@ -24,6 +24,6 @@ void	ft_delarr(char **array)
 		ft_strdel(&array[i]);
 		i++;
 	}
-	//free(array);
+	free(array);
 	array = NULL;
 }

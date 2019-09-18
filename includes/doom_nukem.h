@@ -57,6 +57,7 @@ typedef struct	s_vector
 
 typedef struct	s_triangle
 {
+	int			i[3];
 	t_vector	v[3];
 	t_color		color;
 	int 		visible;
@@ -66,8 +67,8 @@ typedef struct	s_mesh
 {
 	t_vector	*v;
 	t_triangle	*t;
-	int 		v_idx;
-	int 		t_idx;
+	int 		v_count;
+	int 		t_count;
 	t_vector	pos;
 	t_vector	rot;
 	t_mat4x4	rot_mat_x;
@@ -174,6 +175,8 @@ typedef struct	s_app
 	t_sdl			*sdl;
 	t_inputs		*inputs;
 	t_mesh			*mesh;
+	t_vector		**vertexes;
+	t_list			*triangles;
 }
 		t_app;
 
@@ -218,7 +221,7 @@ void	set_color(t_color *color, int r, int g, int b);
 void	set_pixel(SDL_Surface *s, int x, int y, t_color *c);
 void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c);
 
-t_triangle	check_triangle(t_app *app, t_mat4x4 transform, t_triangle tr);
+t_triangle	check_triangle(t_app *app, t_triangle tr);
 void		render_triangle(t_app *app, t_triangle tr);
 void		fill_triangle(t_app *app, t_triangle t);
 
@@ -231,11 +234,16 @@ void	get_delta_time(t_timer *timer);
 void	show_fps(t_app *app);
 
 void	get_color(SDL_Surface *surface, int x, int y, t_color *c);
+t_color	new_color(int r, int g, int b);
+
 int 	out_of_borders(int x, int y);
 int 	color_key(t_color *c);
 void	quit_properly(t_app *app);
 
 int		event_handling(t_app *app);
+
+t_list		*new_triangle_list(int len);
+t_list		*new_triangle_elem();
 
 t_mat4x4	matrix_subtraction(t_mat4x4 m1, t_mat4x4 m2);
 t_mat4x4	matrix_summary(t_mat4x4 m1, t_mat4x4 m2);
@@ -246,7 +254,7 @@ t_mat4x4	matrix_inverse(t_mat4x4 m);
 t_mat4x4	matrix_identity();
 t_mat4x4	init_translation_mat(t_vector trans_v);
 
-t_vector	vector_new(float x, float y, float z);
+t_vector	new_vector(float x, float y, float z);
 t_vector	vector_sum(t_vector vector1, t_vector vector2);
 t_vector	vector_sub(t_vector vector1, t_vector vector2);
 t_vector	vector_mul_by(t_vector v, float k);
@@ -256,5 +264,5 @@ float		vector_length(t_vector v);
 t_vector	vector_cross_product(t_vector v1, t_vector v2);
 float		vector_dot_product(t_vector v1, t_vector v2);
 
-void		read_obj(char *path, t_mesh *mesh);
+void		read_obj(char *path, t_mesh *mesh, int vrs, int trs);
 #endif
