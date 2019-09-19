@@ -9,7 +9,7 @@ t_list	*new_vertex_elem()
 	return (ft_lstnew(&v, sizeof(t_vector)));
 }
 
-t_list	*new_triangle_elem(t_vector v0, t_vector v1, t_vector v2)
+t_triangle	new_triangle(t_vector v0, t_vector v1, t_vector v2)
 {
 	t_triangle	t;
 	t_color		c;
@@ -20,17 +20,34 @@ t_list	*new_triangle_elem(t_vector v0, t_vector v1, t_vector v2)
 	set_color(&c, 128, 128, 128);
 	t.color = c;
 	t.visible = 0;
-	return (ft_lstnew(&t, sizeof(t_triangle)));
+	return (t);
 }
 
-t_list	*new_triangle_list(int len)
+t_tr_list	*new_triangle_elem()
 {
-	t_list	*head;
-	t_vector v;
+	t_vector	v;
+	t_tr_list	*elem;
 
 	v = new_vector(0.0f, 0.0f, 0.0f);
-	head = new_triangle_elem(v, v, v);
+	elem = (t_tr_list *)malloc(sizeof(t_tr_list));
+	elem->tr = new_triangle(v, v, v);
+	elem->last = 0;
+	elem->next = NULL;
+	return (elem);
+}
+
+t_tr_list	*new_triangle_list(int len)
+{
+	t_tr_list	*head;
+	t_tr_list	*cursor;
+
+	head = new_triangle_elem();
+	cursor = head;
 	while (--len > 0)
-		ft_lstadd(&head, new_triangle_elem(v, v, v));
+	{
+		cursor->next = new_triangle_elem();
+		cursor = cursor->next;
+	}
+	cursor->next = NULL;
 	return (head);
 }

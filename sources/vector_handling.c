@@ -18,6 +18,7 @@ t_vector	vector_sum(t_vector vector1, t_vector vector2)
 	result.x = vector1.x + vector2.x;
 	result.y = vector1.y + vector2.y;
 	result.z = vector1.z + vector2.z;
+	result.w = 1.0f;
 	return result;
 }
 
@@ -28,6 +29,7 @@ t_vector vector_sub(t_vector vector1, t_vector vector2)
 	result.x = vector1.x - vector2.x;
 	result.y = vector1.y - vector2.y;
 	result.z = vector1.z - vector2.z;
+	result.w = 1.0f;
 	return result;
 }
 
@@ -38,6 +40,7 @@ t_vector vector_mul_by(t_vector v, float k)
 	result.x = v.x * k;
 	result.y = v.y * k;
 	result.z = v.z * k;
+	result.w = 1.0f;
 	return result;
 }
 
@@ -48,5 +51,6 @@ t_vector vector_div_by(t_vector v, float k)
 	result.x = v.x / k;
 	result.y = v.y / k;
 	result.z = v.z / k;
+	result.w = 1.0f;
 	return result;
 }

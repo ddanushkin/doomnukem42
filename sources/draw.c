@@ -165,3 +165,23 @@ void	render_triangle(t_app *app, t_triangle tr)
 	if (PRINT_DEBUG)
 		draw_outline(app, tr);
 }
+
+void	draw_cross(t_app *app, float size, int r, int g, int b)
+{
+	t_vector	cross_hl_s;
+	t_vector	cross_hl_e;
+	t_vector	cross_vl_s;
+	t_vector	cross_vl_e;
+	t_color		cross_color;
+
+	if (size <= 0.0f)
+		size = 5.0f;
+
+	set_color(&cross_color, r, g, b);
+	cross_hl_s = new_vector(app->sdl->half_width - size, app->sdl->half_height, 0.0f);
+	cross_hl_e = new_vector(app->sdl->half_width + size, app->sdl->half_height, 0.0f);
+	cross_vl_s = new_vector(app->sdl->half_width, app->sdl->half_height - size, 0.0f);
+	cross_vl_e = new_vector(app->sdl->half_width, app->sdl->half_height + size, 0.0f);
+	draw_line(app, cross_hl_s, cross_hl_e, &cross_color);
+	draw_line(app, cross_vl_s, cross_vl_e, &cross_color);
+}

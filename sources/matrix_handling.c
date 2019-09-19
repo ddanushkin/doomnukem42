@@ -12,6 +12,17 @@ t_mat4x4	matrix_identity()
 	return (mat);
 }
 
+t_mat4x4	init_translation_mat(t_vector trans_v)
+{
+	t_mat4x4	mat;
+
+	mat = matrix_identity();
+	mat.m[0][3] = trans_v.x;
+	mat.m[1][3] = trans_v.y;
+	mat.m[2][3] = trans_v.z;
+	return (mat);
+}
+
 t_mat4x4	matrix_inverse(t_mat4x4 m)
 {
 	t_mat4x4	mat;
