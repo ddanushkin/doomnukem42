@@ -10,7 +10,7 @@ void	get_delta_time(t_timer *timer)
 	if(!PRINT_DEBUG)
 	{
 		timer->delta_ticks = clock() - timer->current_ticks;
-		timer->delta = (float)timer->delta_ticks / (float)CLOCKS_PER_SEC;
+		timer->delta = (float)timer->delta_ticks / CPS;
 		timer->time += timer->delta;
 		if(timer->delta > 0)
 			timer->fps = 1.0f / timer->delta;
@@ -18,7 +18,7 @@ void	get_delta_time(t_timer *timer)
 	while (PRINT_DEBUG)
 	{
 		timer->delta_ticks = clock() - timer->current_ticks;
-		timer->delta = (float)timer->delta_ticks / (float)CLOCKS_PER_SEC;
+		timer->delta = (float)timer->delta_ticks / CPS;
 		timer->time += timer->delta;
 		if(timer->delta > 0)
 		{
@@ -35,5 +35,5 @@ void	get_delta_time(t_timer *timer)
 
 void	show_fps(t_app *app)
 {
-	printf("FPS: %d\n", (int)app->timer.fps);
+	printf("FPS: %d\n", (int)app->timer->fps);
 }

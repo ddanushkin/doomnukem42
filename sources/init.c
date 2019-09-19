@@ -4,7 +4,7 @@ void	init_projection_mat(t_app *app)
 {
 	t_camera *camera;
 
-	camera = &app->camera;
+	camera = app->camera;
 	ft_bzero(&app->projection_mat, sizeof(t_mat4x4));
 	app->projection_mat.m[0][0] = camera->asp_ratio * camera->for_rad;
 	app->projection_mat.m[1][1] = camera->for_rad;
@@ -20,12 +20,7 @@ static	void	init_sdl(t_sdl *sdl)
 	sdl->half_width = (float)sdl->width * 0.5f;
 	sdl->height = SCREEN_H;
 	sdl->half_height = (float)sdl->height * 0.5f;
-}
-
-static	void	create_stuff(t_sdl *sdl)
-{
 	SDL_Init(SDL_INIT_VIDEO);
-
 	sdl->window = SDL_CreateWindow(
 			WIN_TITLE,
 			SDL_WINDOWPOS_CENTERED,
@@ -49,22 +44,19 @@ void	init_camera(t_camera *camera)
 
 void	init_app(t_app *app)
 {
-	app->sdl = (t_sdl *)malloc(sizeof(t_sdl));
 	init_sdl(app->sdl);
-	create_stuff(app->sdl);
 
-	app->inputs = (t_inputs *)malloc(sizeof(t_inputs));
 	app->inputs->keyboard = SDL_GetKeyboardState(NULL);
 
 	/* Set mouse sensitivity */
-	app->mouse.sens = 2.5f;
+	app->inputs->mouse.sens = 2.5f;
 
-	app->timer.current_ticks = 0;
-	app->timer.delta_ticks = 0;
-	app->timer.fps = 0;
-	app->timer.delta = 0.0f;
-	app->timer.time = 0.0f;
+	app->timer->current_ticks = 0;
+	app->timer->delta_ticks = 0;
+	app->timer->fps = 0;
+	app->timer->delta = 0.0f;
+	app->timer->time = 0.0f;
 
-	init_camera(&app->camera);
+	init_camera(app->camera);
 	init_projection_mat(app);
 }

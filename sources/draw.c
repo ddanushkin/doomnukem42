@@ -133,19 +133,18 @@ void	draw_outline(t_app *app, t_triangle triangle)
 	draw_line(app, triangle.v[1], triangle.v[2], &clr);
 }
 
-t_triangle	check_triangle(t_app *app, t_triangle tr)
+void	check_triangle(t_app *app, t_triangle *tr)
 {
 	t_vector	normal;
 	t_vector	camera_ray;
 
-	normal = calc_normal(tr);
-	camera_ray = vector_sub(tr.v[0], app->camera.pos);
+	normal = calc_normal(*tr);
+	camera_ray = vector_sub(tr->v[0], app->camera->pos);
 	if (vector_dot_product(normal, camera_ray) < 0.0f)
 	{
-		calc_light(&tr, normal);
-		tr.visible = 1;
+		calc_light(tr, normal);
+		tr->visible = 1;
 	}
-	return (tr);
 }
 
 void	render_triangle(t_app *app, t_triangle tr)

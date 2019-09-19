@@ -21,9 +21,8 @@ void	ft_delarr(char **array)
 		return ;
 	while (array[i] != NULL)
 	{
-		ft_strdel(&array[i]);
+		free(array[i]);
 		i++;
 	}
-	free(array);
-	array = NULL;
+	//free(array);
 }

@@ -18,9 +18,9 @@
 # define	COLOR_KEY_B 255
 
 # ifdef		_WIN64
-#  define	CLOCK_FIX 0.01f
+#  define	CPS 1000.0f
 # elif		__APPLE__
-#  define	CLOCK_FIX 0.00001f
+#  define	CPS 1000000.0f
 # endif
 
 # define MIN(a,b) (((a)<(b))?(a):(b))
@@ -151,6 +151,7 @@ typedef struct	s_timer
 typedef struct		s_inputs
 {
 	const Uint8		*keyboard;
+	t_mouse_state	mouse;
 	int				left_pressed;
 	int				right_pressed;
 	float			sensitivity;
@@ -179,21 +180,16 @@ typedef struct		s_tr_list
 
 typedef struct	s_app
 {
-	t_timer			timer;
-	t_kb_keys_state	keyboard;
-	t_mouse_state	mouse;
-	t_camera		camera;
-	t_world			world;
+	t_timer			*timer;
+	t_camera		*camera;
+	t_world			*world;
 	t_mat4x4		projection_mat;
-	t_vector		rot;
-	float 			speed;
 	t_sdl			*sdl;
 	t_inputs		*inputs;
 	t_mesh			*meshes;
 	t_tr_list		*triangles;
-	t_tr_list			*triangles_head;
-}
-		t_app;
+	t_tr_list		*triangles_head;
+}				t_app;
 
 void		debug_mouse(t_app *app, char *event, int key_code);
 void		debug_keyboard(char *event, int key_code);
@@ -236,7 +232,7 @@ void		set_color(t_color *color, int r, int g, int b);
 void		set_pixel(SDL_Surface *s, int x, int y, t_color *c);
 void		draw_line(t_app *app, t_vector start, t_vector end, t_color *c);
 
-t_triangle	check_triangle(t_app *app, t_triangle tr);
+void		check_triangle(t_app *app, t_triangle *tr);
 void		render_triangle(t_app *app, t_triangle tr);
 void		fill_triangle(t_app *app, t_triangle t);
 

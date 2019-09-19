@@ -11,8 +11,8 @@ void	transform_vertices(t_app *app, int mesh_id)
 	while (i < mesh->v_count)
 	{
 		v = matrix_multiply_vector(mesh->transform, mesh->v_orig[i]);
-		v = matrix_multiply_vector(app->world.mat, v);
-		v = matrix_multiply_vector(app->camera.view_mat, v);
+		v = matrix_multiply_vector(app->world->mat, v);
+		v = matrix_multiply_vector(app->camera->view_mat, v);
 		mesh->v_buff[i] = v;
 		i++;
 	}
@@ -41,21 +41,34 @@ void	assemble_triangles(t_app *app, int mesh_id)
 
 void	check_triangles(t_app *app, int mesh_id)
 {
-	t_triangle	check_t;
+	t_triangle	*tr;
 	int			t_idx;
-	t_mesh		mesh;
+	t_mesh		*mesh;
+	t_triangle	list[100];
+	int list_index = 0;
 
-	mesh = app->meshes[mesh_id];
+	mesh = &app->meshes[mesh_id];
 	t_idx = 0;
-	while (t_idx < mesh.t_count)
+	while (t_idx < mesh->t_count)
 	{
-		check_t = check_triangle(app, mesh.t[t_idx]);
-		if (check_t.visible)
+		tr = &mesh->t[t_idx];
+		check_triangle(app, tr);
+		if (tr->visible)
 		{
-			app->triangles->tr = check_t;
-			app->triangles = app->triangles->next;
+			list[list_index] = *tr;
+			list_index++;
+			//app->triangles->tr = *tr;
+			//app->triangles->last = 0;
+			//app->triangles = app->triangles->next;
 		}
 		t_idx++;
+	}
+	//app->triangles->last = 1;
+	list_index--;
+	while (list_index >= 0)
+	{
+		render_triangle(app, list[list_index]);
+		list_index--;
 	}
 }
 
@@ -63,6 +76,8 @@ void	draw_triangles(t_app *app)
 {
 	t_tr_list *cursor;
 
+	if (app->triangles_head->last)
+		return ;
 	cursor = app->triangles_head;
 	while (cursor)
 	{
@@ -72,4 +87,5 @@ void	draw_triangles(t_app *app)
 		cursor = cursor->next;
 	}
 	app->triangles = app->triangles_head;
+	app->triangles_head->last = 1;
 }
