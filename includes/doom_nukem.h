@@ -23,6 +23,12 @@
 #  define	CLOCK_FIX 0.00001f
 # endif
 
+# define MIN(a,b) (((a)<(b))?(a):(b))
+# define MAX(a,b) (((a)>(b))?(a):(b))
+# define ABS(N) ((N<0)?(-N):(N))
+# define SIGN(x) ((x < 0) ? -1 : 1);
+# define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
+
 typedef struct	s_color
 {
 	int			r;

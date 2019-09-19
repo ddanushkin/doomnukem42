@@ -169,10 +169,6 @@ void	start_the_game(t_app *app)
 		//app->world.rot.z += 0.001f;
 
 		/* Create world rotation matrices */
-		app->world.rot_mat_x = rotation_mat_x(app->mesh[0].rot.x);
-		app->world.rot_mat_y = rotation_mat_y(app->mesh[0].rot.y);
-		app->world.rot_mat_z = rotation_mat_z(app->mesh[0].rot.z);
-
 		app->world.rot_mat_x = rotation_mat_x(app->world.rot.x);
 		app->world.rot_mat_y = rotation_mat_y(app->world.rot.y);
 		app->world.rot_mat_z = rotation_mat_z(app->world.rot.z);

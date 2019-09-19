@@ -6,7 +6,7 @@
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/21 17:36:42 by lglover           #+#    #+#             */
-/*   Updated: 2019/09/06 18:33:02 by lglover          ###   ########.fr       */
+/*   Updated: 2019/09/19 10:23:32 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,6 @@
 
 # define BUFF_SIZE 2
 # define MAX_FD 65000
-
-# define MIN(a,b) (((a)<(b))?(a):(b))
-# define MAX(a,b) (((a)>(b))?(a):(b))
-# define ABS(N) ((N<0)?(-N):(N))
-# define SIGN(x) ((x < 0) ? -1 : 1);
-# define SIGNF(x) ((x < 0.0f) ? -1.0f : 1.0f);
-# define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
-# define CLAMP(x, min, max)  (((x) > (max)) ? (max) : (((x) < (min)) ? (min) : (x)))
 
 typedef struct	s_list
 {
