@@ -38,9 +38,9 @@ void	draw_line(t_app *app, t_vector start, t_vector end, t_color *c)
 			error += dt.x;
 			start.y += dir.y;
 		}
-		printf("sx -> %f, sy -> %f\n", start.x, start.y);
-		printf("ex -> %f, ey -> %f\n", end.x, end.y);
-		printf("dx -> %d, dy -> %d\n\n", dt.x, dt.y);
+//		printf("sx -> %f, sy -> %f\n", start.x, start.y);
+//		printf("ex -> %f, ey -> %f\n", end.x, end.y);
+//		printf("dx -> %d, dy -> %d\n\n", dt.x, dt.y);
 	}
 }
 

@@ -142,19 +142,30 @@ void	check_triangle(t_app *app, t_triangle *tr)
 
 void	render_triangle(t_app *app, t_triangle tr)
 {
-	project_triangle(&tr, &app->projection_mat);
-	scale_triangle(&tr);
+	t_tr_list	*tr_lst;
 
-	tr.v[0].x *= -1.0f;
-	tr.v[1].x *= -1.0f;
-	tr.v[2].x *= -1.0f;
-	tr.v[0].y *= -1.0f;
-	tr.v[1].y *= -1.0f;
-	tr.v[2].y *= -1.0f;
+	tr_lst = (t_tr_list *)malloc(sizeof(t_tr_list));
 
-	offset_triangle(&tr, app);
-	//fill_triangle(app, tr);
-	draw_outline(app, tr);
+	tr_lst->tr = tr;
+	tr_lst->next = NULL;
+	clip_triangle1(app, tr_lst);
+	while (tr_lst != NULL)
+	{
+		project_triangle(&tr_lst->tr, &app->projection_mat);
+		scale_triangle(&tr_lst->tr);
+
+		tr.v[0].x *= -1.0f;
+		tr.v[1].x *= -1.0f;
+		tr.v[2].x *= -1.0f;
+		tr.v[0].y *= -1.0f;
+		tr.v[1].y *= -1.0f;
+		tr.v[2].y *= -1.0f;
+
+		offset_triangle(&tr_lst->tr, app);
+//		fill_triangle(app, tr_lst->tr);
+		draw_outline(app, tr_lst->tr);
+		tr_lst = tr_lst->next;
+	}
 }
 
 void	draw_cross(t_app *app, float size, int r, int g, int b)
