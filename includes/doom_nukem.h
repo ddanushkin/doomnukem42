@@ -86,6 +86,14 @@ typedef struct	s_mesh
 	t_mat4x4	transform;
 }				t_mesh;
 
+typedef struct	s_line
+{
+	t_vector	cur;
+	t_vector	dir;
+	t_vector	inc;
+	t_color		color;
+}				t_line;
+
 typedef struct	s_kb_keys_state
 {
 	int			up[300];
@@ -231,6 +239,7 @@ void		set_color(t_color *color, int r, int g, int b);
 
 void		set_pixel(SDL_Surface *s, int x, int y, t_color *c);
 void		draw_line(t_app *app, t_vector start, t_vector end, t_color *c);
+void		draw_line_2(t_app *app, t_vector *start, t_vector *end, t_color color);
 
 void		check_triangle(t_app *app, t_triangle *tr);
 void		render_triangle(t_app *app, t_triangle tr);

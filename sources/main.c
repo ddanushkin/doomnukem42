@@ -65,7 +65,7 @@ void	start_the_game(t_app *app)
 		app->camera->view_mat = matrix_inverse(app->camera->view_mat);
 
 		/* Animate meshes[0] rotation */
-		app->meshes[0].rot.x += 1.0f * app->timer->delta;
+		//app->meshes[0].rot.x += 1.0f * app->timer->delta;
 		//app->meshes[0].rot.y += 1.0f * app->timer->delta;
 		//app->meshes[0].rot.z += 1.0f * app->timer->delta;
 

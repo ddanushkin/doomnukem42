@@ -121,16 +121,9 @@ void	draw_outline(t_app *app, t_triangle triangle)
 	clr.g = 255;
 	clr.b = 255;
 
-	triangle.v[0].x = CLAMP(triangle.v[0].x, 0, app->sdl->width);
-	triangle.v[0].y = CLAMP(triangle.v[0].y, 0, app->sdl->height);
-	triangle.v[1].x = CLAMP(triangle.v[1].x, 0, app->sdl->width);
-	triangle.v[1].y = CLAMP(triangle.v[1].y, 0, app->sdl->height);
-	triangle.v[2].x = CLAMP(triangle.v[2].x, 0, app->sdl->width);
-	triangle.v[2].y = CLAMP(triangle.v[2].y, 0, app->sdl->height);
-
-	draw_line(app, triangle.v[1], triangle.v[0], &clr);
-	draw_line(app, triangle.v[2], triangle.v[0], &clr);
-	draw_line(app, triangle.v[1], triangle.v[2], &clr);
+	draw_line_2(app, &triangle.v[1], &triangle.v[0], clr);
+	draw_line_2(app, &triangle.v[2], &triangle.v[0], clr);
+	draw_line_2(app, &triangle.v[1], &triangle.v[2], clr);
 }
 
 void	check_triangle(t_app *app, t_triangle *tr)
@@ -140,7 +133,7 @@ void	check_triangle(t_app *app, t_triangle *tr)
 
 	normal = calc_normal(*tr);
 	camera_ray = vector_sub(tr->v[0], app->camera->pos);
-	if (vector_dot_product(normal, camera_ray) < 0.0f)
+	if (1)
 	{
 		calc_light(tr, normal);
 		tr->visible = 1;
@@ -160,9 +153,8 @@ void	render_triangle(t_app *app, t_triangle tr)
 	tr.v[2].y *= -1.0f;
 
 	offset_triangle(&tr, app);
-	fill_triangle(app, tr);
-	if (PRINT_DEBUG)
-		draw_outline(app, tr);
+	//fill_triangle(app, tr);
+	draw_outline(app, tr);
 }
 
 void	draw_cross(t_app *app, float size, int r, int g, int b)
