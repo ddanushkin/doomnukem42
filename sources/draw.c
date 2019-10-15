@@ -143,12 +143,12 @@ void	check_triangle(t_app *app, t_triangle *tr)
 void	render_triangle(t_app *app, t_triangle tr)
 {
 	t_tr_list	*tr_lst;
+	t_tr_list	*tmp_next;
 
 	tr_lst = (t_tr_list *)malloc(sizeof(t_tr_list));
-
 	tr_lst->tr = tr;
 	tr_lst->next = NULL;
-	clip_triangle1(app, tr_lst);
+	clip_triangle1(app, &tr_lst);
 	while (tr_lst != NULL)
 	{
 		project_triangle(&tr_lst->tr, &app->projection_mat);
@@ -164,7 +164,9 @@ void	render_triangle(t_app *app, t_triangle tr)
 		offset_triangle(&tr_lst->tr, app);
 //		fill_triangle(app, tr_lst->tr);
 		draw_outline(app, tr_lst->tr);
-		tr_lst = tr_lst->next;
+		tmp_next = tr_lst->next;
+		free(tr_lst);
+		tr_lst = tmp_next;
 	}
 }
 

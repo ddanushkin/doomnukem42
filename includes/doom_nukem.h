@@ -205,7 +205,7 @@ typedef struct	s_app
 	t_tr_list		*triangles_head;
 }				t_app;
 
-void	clip_triangle1(t_app *app, t_tr_list *tr_lst);
+void	clip_triangle1(t_app *app, t_tr_list **tr_lst);
 
 void		debug_mouse(t_app *app, char *event, int key_code);
 void		debug_keyboard(char *event, int key_code);
