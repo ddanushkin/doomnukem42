@@ -133,7 +133,7 @@ void	check_triangle(t_app *app, t_triangle *tr)
 
 	normal = calc_normal(*tr);
 	camera_ray = vector_sub(tr->v[0], app->camera->pos);
-	if (1)
+	if (vector_dot_product(normal, camera_ray) < 0.0f)
 	{
 		calc_light(tr, normal);
 		tr->visible = 1;
@@ -145,6 +145,14 @@ void	render_triangle(t_app *app, t_triangle tr)
 	t_tr_list	*tr_lst;
 	t_tr_list	*tmp_next;
 
+	if (tr.v[0].z < 0.1f && tr.v[1].z < 0.1f && tr.v[2].z < 0.1f)
+		return;
+	if (tr.v[0].z < 0.1f)
+		tr.v[0].z = 0.1f;
+	if (tr.v[1].z < 0.1f)
+		tr.v[1].z = 0.1f;
+	if (tr.v[2].z < 0.1f)
+		tr.v[2].z = 0.1f;
 	project_triangle(&tr, &app->projection_mat);
 	scale_triangle(&tr);
 	tr.v[0] = vector_mul_by(tr.v[0], -1);

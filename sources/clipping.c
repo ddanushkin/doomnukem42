@@ -5,7 +5,7 @@ void	set_clip_planes(t_plane *p)
 	p[0].p = new_vector(0, 0, 0);
 	p[0].n = new_vector(0, 1, 0);
 
-	p[1].p = new_vector(0, SCREEN_H - 1.0, 0);
+	p[1].p = new_vector(0, SCREEN_H - 100.0, 0);
 	p[1].n = new_vector(0, -1, 0);
 
 	p[2].p = new_vector(0, 0, 0);
@@ -27,23 +27,27 @@ void	pop_front(t_tr_list **list)
 	(*list) = tmp;
 }
 
-double		dist(t_vector vert, t_vector vert0, t_vector vert1)
+double		dist(t_vector vert, t_vector plane_p, t_vector plane_n)
 {
-	t_vector temp;
-	double r;
+	t_vector	temp;
+	double		r;
 
 	temp = vector_normalise(vert);
-	double p = vector_dot_product(vert1, vert0);
-	r = (vector_dot_product(vert1, temp) - p);
+	double p = vector_dot_product(plane_n, plane_p);
+	if (plane_n.y < 0 && vert.y > SCREEN_H - 100)
+		p *= -1;
+	if (plane_n.x < 0 && vert.x > SCREEN_W - 1)
+		p *= -1;
+	r = (vector_dot_product(plane_n, temp) - p);
 	return (r);
 }
 
-t_vector	vector_inter_plan(t_vector vert0, t_vector vert1, t_vector line_start, t_vector line_end)
+t_vector	vector_inter_plan(t_vector plane_p, t_vector plane_n, t_vector line_start, t_vector line_end)
 {
-	vert1 = vector_normalise(vert1);
-	double d = -vector_dot_product(vert1, vert0);
-	double ad = vector_dot_product(line_start, vert1);
-	double bd = vector_dot_product(line_end, vert1);
+	plane_n = vector_normalise(plane_n);
+	double d = -vector_dot_product(plane_n, plane_p);
+	double ad = vector_dot_product(line_start, plane_n);
+	double bd = vector_dot_product(line_end, plane_n);
 	double t = (-d - ad) / (bd - ad);
 	t_vector line_s_to_end = vector_sub(line_end, line_start);
 	t_vector line_to_inter = vector_mul_by(line_s_to_end, t);
@@ -127,6 +131,7 @@ int		clip_clip_triangle(t_vector plane_p, t_vector plane_n, t_tr_list **list)
 		tr_new_1.v[0] = in_point[0];
 		tr_new_1.v[1] = vector_inter_plan(plane_p, plane_n, in_point[0], out_point[0]);
 		tr_new_1.v[2] = vector_inter_plan(plane_p, plane_n, in_point[0], out_point[1]);
+		tr_new_1.color = new_color(255, 0, 0);
 		push_back(list, tr_new_1);
 		return (1);
 	}
@@ -141,6 +146,8 @@ int		clip_clip_triangle(t_vector plane_p, t_vector plane_n, t_tr_list **list)
 		tr_new_2.v[0] = in_point[1];
 		tr_new_2.v[1] = tr_new_1.v[2];
 		tr_new_2.v[2] = vector_inter_plan(plane_p, plane_n, in_point[1], out_point[0]);
+		tr_new_1.color = new_color(0, 0, 255);
+		tr_new_2.color = new_color(0, 255, 0);
 		push_back(list, tr_new_1);
 		push_back(list, tr_new_2);
 		return (2);
@@ -175,11 +182,6 @@ void	clip_triangle(t_tr_list **tr_lst)
 		while (new_tr > 0)
 		{
 			new_tr--;
-			if (tr_lst == NULL)
-			{
-				printf("NULL list in clip1");
-				exit(2);
-			}
 			clip_clip_triangle(cp[p].p, cp[p].n, tr_lst);
 		}
 		new_tr = size_lst(*tr_lst);

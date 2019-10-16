@@ -64,12 +64,12 @@ void	start_the_game(t_app *app)
 		app->camera->view_mat = matrix_inverse(app->camera->view_mat);
 
 		/* Animate meshes[0] rotation */
-		app->meshes[0].rot.x += 1.0f * app->timer->delta;
+//		app->meshes[0].rot.x += 1.0f * app->timer->delta;
 		//app->meshes[0].rot.y += 1.0f * app->timer->delta;
 		//app->meshes[0].rot.z += 1.0f * app->timer->delta;
 
 		/* Animate meshes[0] position */
-		app->meshes[0].pos.x = sinf(app->timer->time) * 2.0f;
+//		app->meshes[0].pos.x = sinf(app->timer->time) * 2.0f;
 		//app->meshes[0].pos.y = sinf(app->timer->time) * 2.0f;
 		//app->meshes[0].pos.z = sinf(app->timer->time) * 2.0f;
 
@@ -125,9 +125,9 @@ int		main(int argv, char**argc)
 	init_app(app);
 
 	/* TODO: Count or read number of vertexes & triangles from meshes */
-	int cube_vrs = 8;
-	int cube_trs = 12;
-	read_obj("../cube.obj", &app->meshes[0], cube_vrs, cube_trs);
+	int cube_vrs = 3644;
+	int cube_trs = 6319;
+	read_obj("../teapot.obj", &app->meshes[0], cube_vrs, cube_trs);
 
 	//app->triangles = new_triangle_list(cube_trs * 10);
 	//app->triangles_head = app->triangles;

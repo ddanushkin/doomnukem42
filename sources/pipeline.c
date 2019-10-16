@@ -44,7 +44,7 @@ void	check_triangles(t_app *app, int mesh_id)
 	t_triangle	*tr;
 	int			t_idx;
 	t_mesh		*mesh;
-	t_triangle	list[100];
+	t_triangle	list[10000];
 	int			list_index = 0;
 
 	mesh = &app->meshes[mesh_id];

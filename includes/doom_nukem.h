@@ -203,6 +203,8 @@ typedef struct	s_app
 	t_mesh			*meshes;
 	t_tr_list		*triangles;
 	t_tr_list		*triangles_head;
+	double 			depth;
+	double			z_buf[SCREEN_W * SCREEN_H];
 }				t_app;
 
 void		clip_triangle(t_tr_list **tr_lst);
@@ -245,7 +247,7 @@ void		set_triangle(t_triangle *t, t_vector *v0, t_vector *v1, t_vector *v2);
 
 void		set_color(t_color *color, int r, int g, int b);
 
-void		set_pixel(SDL_Surface *s, int x, int y, t_color *c);
+void		set_pixel(SDL_Surface *surface, int x, int y, t_color *c, t_app *app);
 void		draw_line(t_app *app, t_vector *start, t_vector *end, t_color color);
 
 void		check_triangle(t_app *app, t_triangle *tr);
