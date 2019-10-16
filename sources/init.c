@@ -45,20 +45,14 @@ void	init_camera(t_camera *camera)
 void	init_app(t_app *app)
 {
 	init_sdl(app->sdl);
-
 	app->inputs->keyboard = SDL_GetKeyboardState(NULL);
-
-	/* Set mouse sensitivity */
-	app->inputs->mouse.sens = 2.5f;
-
+	app->inputs->mouse.sens = 0.5f;
 	app->timer->curr = 0;
 	app->timer->delta = 0;
 	app->timer->fps = 0;
 	app->timer->delta = 0.0f;
 	app->timer->time = 0.0f;
-
 	ft_memset(app->z_buf, 120, sizeof(double) * SCREEN_H * SCREEN_W);
-
 	init_camera(app->camera);
 	init_projection_mat(app);
 }
