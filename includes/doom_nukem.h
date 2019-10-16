@@ -186,11 +186,11 @@ typedef struct		s_tr_list
 	struct s_tr_list	*next;
 }					t_tr_list;
 
-typedef struct	s_clip_plane
+typedef struct	s_plane
 {
-	t_vector		v0;
-	t_vector		v1;
-}				t_clip_plane;
+	t_vector		p;
+	t_vector		n;
+}				t_plane;
 
 typedef struct	s_app
 {
@@ -205,7 +205,7 @@ typedef struct	s_app
 	t_tr_list		*triangles_head;
 }				t_app;
 
-void	clip_triangle1(t_app *app, t_tr_list **tr_lst);
+void		clip_triangle(t_tr_list **tr_lst);
 
 void		debug_mouse(t_app *app, char *event, int key_code);
 void		debug_keyboard(char *event, int key_code);
@@ -246,8 +246,7 @@ void		set_triangle(t_triangle *t, t_vector *v0, t_vector *v1, t_vector *v2);
 void		set_color(t_color *color, int r, int g, int b);
 
 void		set_pixel(SDL_Surface *s, int x, int y, t_color *c);
-void		draw_line(t_app *app, t_vector start, t_vector end, t_color *c);
-void		draw_line_2(t_app *app, t_vector *start, t_vector *end, t_color color);
+void		draw_line(t_app *app, t_vector *start, t_vector *end, t_color color);
 
 void		check_triangle(t_app *app, t_triangle *tr);
 void		render_triangle(t_app *app, t_triangle tr);

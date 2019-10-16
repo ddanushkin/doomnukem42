@@ -45,7 +45,7 @@ void	check_triangles(t_app *app, int mesh_id)
 	int			t_idx;
 	t_mesh		*mesh;
 	t_triangle	list[100];
-	int list_index = 0;
+	int			list_index = 0;
 
 	mesh = &app->meshes[mesh_id];
 	t_idx = 0;
@@ -57,13 +57,9 @@ void	check_triangles(t_app *app, int mesh_id)
 		{
 			list[list_index] = *tr;
 			list_index++;
-			//app->triangles->tr = *tr;
-			//app->triangles->last = 0;
-			//app->triangles = app->triangles->next;
 		}
 		t_idx++;
 	}
-	//app->triangles->last = 1;
 	list_index--;
 	while (list_index >= 0)
 	{

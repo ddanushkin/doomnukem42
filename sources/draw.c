@@ -121,9 +121,9 @@ void	draw_outline(t_app *app, t_triangle triangle)
 	clr.g = 255;
 	clr.b = 255;
 
-	draw_line_2(app, &triangle.v[1], &triangle.v[0], clr);
-	draw_line_2(app, &triangle.v[2], &triangle.v[0], clr);
-	draw_line_2(app, &triangle.v[1], &triangle.v[2], clr);
+	draw_line(app, &triangle.v[1], &triangle.v[0], clr);
+	draw_line(app, &triangle.v[2], &triangle.v[0], clr);
+	draw_line(app, &triangle.v[1], &triangle.v[2], clr);
 }
 
 void	check_triangle(t_app *app, t_triangle *tr)
@@ -145,24 +145,23 @@ void	render_triangle(t_app *app, t_triangle tr)
 	t_tr_list	*tr_lst;
 	t_tr_list	*tmp_next;
 
+	project_triangle(&tr, &app->projection_mat);
+	scale_triangle(&tr);
+	tr.v[0] = vector_mul_by(tr.v[0], -1);
+	tr.v[0].z *= -1;
+	tr.v[1] = vector_mul_by(tr.v[1], -1);
+	tr.v[1].z *= -1;
+	tr.v[2] = vector_mul_by(tr.v[2], -1);
+	tr.v[2].z *= -1;
+	offset_triangle(&tr, app);
+
 	tr_lst = (t_tr_list *)malloc(sizeof(t_tr_list));
 	tr_lst->tr = tr;
 	tr_lst->next = NULL;
-	clip_triangle1(app, &tr_lst);
+	clip_triangle(&tr_lst);
 	while (tr_lst != NULL)
 	{
-		project_triangle(&tr_lst->tr, &app->projection_mat);
-		scale_triangle(&tr_lst->tr);
-
-		tr.v[0].x *= -1.0f;
-		tr.v[1].x *= -1.0f;
-		tr.v[2].x *= -1.0f;
-		tr.v[0].y *= -1.0f;
-		tr.v[1].y *= -1.0f;
-		tr.v[2].y *= -1.0f;
-
-		offset_triangle(&tr_lst->tr, app);
-//		fill_triangle(app, tr_lst->tr);
+		fill_triangle(app, tr_lst->tr);
 		draw_outline(app, tr_lst->tr);
 		tmp_next = tr_lst->next;
 		free(tr_lst);
@@ -186,6 +185,6 @@ void	draw_cross(t_app *app, float size, int r, int g, int b)
 	cross_hl_e = new_vector(app->sdl->half_width + size, app->sdl->half_height, 0.0f);
 	cross_vl_s = new_vector(app->sdl->half_width, app->sdl->half_height - size, 0.0f);
 	cross_vl_e = new_vector(app->sdl->half_width, app->sdl->half_height + size, 0.0f);
-	draw_line(app, cross_hl_s, cross_hl_e, &cross_color);
-	draw_line(app, cross_vl_s, cross_vl_e, &cross_color);
+	draw_line(app, &cross_hl_s, &cross_hl_e, cross_color);
+	draw_line(app, &cross_vl_s, &cross_vl_e, cross_color);
 }

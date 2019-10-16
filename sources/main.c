@@ -12,7 +12,6 @@ void	start_the_game(t_app *app)
 {
 	/* Set meshes to center */
 	app->meshes[0].pos = new_vector(-0.5f, -0.5f, -0.5f);
-
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	while (1)
 	{
@@ -65,12 +64,12 @@ void	start_the_game(t_app *app)
 		app->camera->view_mat = matrix_inverse(app->camera->view_mat);
 
 		/* Animate meshes[0] rotation */
-		//app->meshes[0].rot.x += 1.0f * app->timer->delta;
+		app->meshes[0].rot.x += 1.0f * app->timer->delta;
 		//app->meshes[0].rot.y += 1.0f * app->timer->delta;
 		//app->meshes[0].rot.z += 1.0f * app->timer->delta;
 
 		/* Animate meshes[0] position */
-		//app->meshes[0].pos.x = sinf(app->timer->time) * 2.0f;
+		app->meshes[0].pos.x = sinf(app->timer->time) * 2.0f;
 		//app->meshes[0].pos.y = sinf(app->timer->time) * 2.0f;
 		//app->meshes[0].pos.z = sinf(app->timer->time) * 2.0f;
 
