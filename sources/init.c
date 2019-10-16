@@ -51,8 +51,8 @@ void	init_app(t_app *app)
 	/* Set mouse sensitivity */
 	app->inputs->mouse.sens = 2.5f;
 
-	app->timer->current_ticks = 0;
-	app->timer->delta_ticks = 0;
+	app->timer->curr = 0;
+	app->timer->delta = 0;
 	app->timer->fps = 0;
 	app->timer->delta = 0.0f;
 	app->timer->time = 0.0f;

@@ -149,11 +149,11 @@ typedef struct	s_world
 
 typedef struct	s_timer
 {
-	clock_t current_ticks;
-	clock_t delta_ticks;
-	clock_t fps;
-	float	delta;
-	float 	time;
+	Uint64		curr;
+	Uint64		prev;
+	Uint64		fps;
+	double		delta;
+	double		time;
 }				t_timer;
 
 typedef struct		s_inputs

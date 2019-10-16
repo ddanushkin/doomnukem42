@@ -2,35 +2,17 @@
 
 void	get_ticks(t_timer *timer)
 {
-	timer->current_ticks = clock();
+	timer->curr = SDL_GetPerformanceCounter();
 }
 
 void	get_delta_time(t_timer *timer)
 {
-	if(!PRINT_DEBUG)
-	{
-		timer->delta_ticks = clock() - timer->current_ticks;
-		timer->delta = (float)timer->delta_ticks / CPS;
-		timer->time += timer->delta;
-		if(timer->delta > 0)
-			timer->fps = 1.0f / timer->delta;
-	}
-	while (PRINT_DEBUG)
-	{
-		timer->delta_ticks = clock() - timer->current_ticks;
-		timer->delta = (float)timer->delta_ticks / CPS;
-		timer->time += timer->delta;
-		if(timer->delta > 0)
-		{
-			timer->fps = 1.0f / timer->delta;
-			if ((int)timer->fps <= 30)
-				break ;
-			if ((int)timer->fps > 30)
-				continue ;
-		}
-		else
-			break;
-	}
+	timer->delta = (SDL_GetPerformanceCounter() - timer->curr)
+				   * 1000.0 / (double)SDL_GetPerformanceFrequency();
+	timer->delta *= 0.001;
+	timer->time += timer->delta;
+	if(timer->delta > 0.0)
+		timer->fps = 1.0 / timer->delta;
 }
 
 void	show_fps(t_app *app)
