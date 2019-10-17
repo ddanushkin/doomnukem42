@@ -131,7 +131,7 @@ int		clip_clip_triangle(t_plane plane, t_tr_list **list)
 		tr_new_1.v[0] = in_point[0];
 		tr_new_1.v[1] = vector_inter_plan(plane, in_point[0], out_point[0]);
 		tr_new_1.v[2] = vector_inter_plan(plane, in_point[0], out_point[1]);
-		tr_new_1.color = new_color(255, 0, 0);
+		tr_new_1.color = new_color(128, 128, 128);
 		push_back(list, tr_new_1);
 		return (1);
 	}
@@ -146,8 +146,8 @@ int		clip_clip_triangle(t_plane plane, t_tr_list **list)
 		tr_new_2.v[0] = in_point[1];
 		tr_new_2.v[1] = tr_new_1.v[2];
 		tr_new_2.v[2] = vector_inter_plan(plane, in_point[1], out_point[0]);
-		tr_new_1.color = new_color(0, 0, 255);
-		tr_new_2.color = new_color(0, 255, 0);
+		tr_new_1.color = new_color(128, 128, 128);
+		tr_new_2.color = new_color(128, 128, 128);
 		push_back(list, tr_new_1);
 		push_back(list, tr_new_2);
 		return (2);
@@ -179,11 +179,8 @@ void	clip_triangle(t_tr_list **tr_lst)
 	set_clip_planes(&cp[0]);
 	while (p < 4)
 	{
-		while (new_tr > 0)
-		{
-			new_tr--;
+		while (new_tr-- > 0)
 			clip_clip_triangle(cp[p], tr_lst);
-		}
 		new_tr = size_lst(*tr_lst);
 		p++;
 	}

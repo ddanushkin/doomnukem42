@@ -84,15 +84,9 @@ void	calc_light(t_triangle *tr, t_vector normal)
 	tr->color.g = (int)((float)tr->color.g * light_dp);
 	tr->color.b = (int)((float)tr->color.b * light_dp);
 
-	//Test: Dark grey is minimal color
 	tr->color.r = CLAMP(tr->color.r, 10, 255);
 	tr->color.g = CLAMP(tr->color.g, 10, 255);
 	tr->color.b = CLAMP(tr->color.b, 10, 255);
-
-//	tr->color.r = CLAMP(tr->color.r, 0, 255);
-//	tr->color.g = CLAMP(tr->color.g, 0, 255);
-//	tr->color.b = CLAMP(tr->color.b, 0, 255);
-
 }
 
 t_vector	calc_normal(t_triangle tr)
@@ -170,7 +164,7 @@ void	render_triangle(t_app *app, t_triangle tr)
 	while (tr_lst != NULL)
 	{
 		fill_triangle(app, tr_lst->tr);
-		draw_outline(app, tr_lst->tr);
+		//draw_outline(app, tr_lst->tr);
 		tmp_next = tr_lst->next;
 		free(tr_lst);
 		tr_lst = tmp_next;

@@ -25,21 +25,37 @@ void	get_triangle(t_mesh *mesh, char *line)
 	ft_delarr(data);
 }
 
-void	read_obj(char *path, t_mesh *mesh, int vrs, int trs)
+void	set_counts(int fd, t_mesh *mesh)
+{
+	char	*line;
+	char 	**data;
+	int 	vrs;
+	int 	trs;
+
+	ft_gnl(fd, &line);
+	data = ft_strsplit(line, ' ');
+	vrs = ft_atoi(data[0]);
+	trs = ft_atoi(data[1]);
+	mesh->v_orig = (t_vector *)malloc(sizeof(t_vector) * vrs);
+	mesh->v_buff = (t_vector *)malloc(sizeof(t_vector) * vrs);
+	mesh->t = (t_triangle *)malloc(sizeof(t_triangle) * trs);
+	ft_strdel(&line);
+}
+
+void	read_obj(char *path, t_mesh *mesh)
 {
 	int		fd;
 	char	*line;
 
 	fd = open(path, O_RDONLY);
-
 	if (fd < 3)
 	{
 		ft_putstr("error: obj file not found\n");
 		exit(0);
 	}
-	mesh->v_orig = (t_vector *)malloc(sizeof(t_vector) * vrs);
-	mesh->v_buff = (t_vector *)malloc(sizeof(t_vector) * vrs);
-	mesh->t = (t_triangle *)malloc(sizeof(t_triangle) * trs);
+	set_counts(fd, mesh);
+	mesh->rot = new_vector(0.0f, 0.0f, 0.0f);
+	mesh->pos = new_vector(0.0f, 0.0f, 0.0f);
 	mesh->v_count = 0;
 	mesh->t_count = 0;
 	while(ft_gnl(fd, &line))

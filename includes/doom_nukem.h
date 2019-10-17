@@ -11,17 +11,11 @@
 
 # define	SCREEN_W 1280
 # define	SCREEN_H 720
-# define	WIN_TITLE "DOOM-NUKEM"
+# define	WIN_TITLE "DOOM-NUKEM - FPS: "
 
 # define	COLOR_KEY_R 255
 # define	COLOR_KEY_G 0
 # define	COLOR_KEY_B 255
-
-# ifdef		_WIN64
-#  define	CPS 1000.0f
-# elif		__APPLE__
-#  define	CPS 1000000.0f
-# endif
 
 # define MIN(a,b) (((a)<(b))?(a):(b))
 # define MAX(a,b) (((a)>(b))?(a):(b))
@@ -29,6 +23,8 @@
 # define SIGN(x) ((x < 0) ? -1 : 1);
 # define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
 # define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+
+# define RESOURCES_MD5 "4bcb8a97799bb093b8a8a613fc39f18f"
 
 typedef struct	s_color
 {
@@ -150,7 +146,6 @@ typedef struct	s_world
 typedef struct	s_timer
 {
 	Uint64		curr;
-	Uint64		prev;
 	Uint64		fps;
 	double		delta;
 	double		time;
@@ -302,5 +297,5 @@ float		vector_length(t_vector v);
 t_vector	vector_cross_product(t_vector v1, t_vector v2);
 float		vector_dot_product(t_vector v1, t_vector v2);
 
-void		read_obj(char *path, t_mesh *mesh, int vrs, int trs);
+void		read_obj(char *path, t_mesh *mesh);
 #endif

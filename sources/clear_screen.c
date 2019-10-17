@@ -20,7 +20,7 @@ void	*image_clear(void *b, int c, size_t len)
 	t_image_chunk zero;
 
 	if (len >= 1024)
-		image_chunk(&zero, 0, 1024);
+		image_chunk(&zero, c, 1024);
 	dst_big = b;
 	while (len >= 1024)
 	{
