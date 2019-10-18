@@ -1,8 +1,8 @@
 #include "doom_nukem.h"
 
-t_vector	new_vector(float x, float y, float z)
+t_v3d	new_vector(float x, float y, float z)
 {
-	t_vector	v;
+	t_v3d	v;
 
 	v.x = x;
 	v.y = y;
@@ -11,9 +11,9 @@ t_vector	new_vector(float x, float y, float z)
 	return (v);
 }
 
-t_vector	vector_sum(t_vector vector1, t_vector vector2)
+t_v3d	vector_sum(t_v3d vector1, t_v3d vector2)
 {
-	t_vector result;
+	t_v3d result;
 
 	result.x = vector1.x + vector2.x;
 	result.y = vector1.y + vector2.y;
@@ -22,9 +22,9 @@ t_vector	vector_sum(t_vector vector1, t_vector vector2)
 	return result;
 }
 
-t_vector vector_sub(t_vector vector1, t_vector vector2)
+t_v3d vector_sub(t_v3d vector1, t_v3d vector2)
 {
-	t_vector result;
+	t_v3d result;
 
 	result.x = vector1.x - vector2.x;
 	result.y = vector1.y - vector2.y;
@@ -33,9 +33,9 @@ t_vector vector_sub(t_vector vector1, t_vector vector2)
 	return result;
 }
 
-t_vector vector_mul_by(t_vector v, float k)
+t_v3d vector_mul_by(t_v3d v, float k)
 {
-	t_vector result;
+	t_v3d result;
 
 	result.x = v.x * k;
 	result.y = v.y * k;
@@ -44,9 +44,9 @@ t_vector vector_mul_by(t_vector v, float k)
 	return result;
 }
 
-t_vector vector_div_by(t_vector v, float k)
+t_v3d vector_div_by(t_v3d v, float k)
 {
-	t_vector result;
+	t_v3d result;
 
 	result.x = v.x / k;
 	result.y = v.y / k;

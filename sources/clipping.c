@@ -5,7 +5,7 @@ void	set_clip_planes(t_plane *p)
 	p[0].p = new_vector(0, 0, 0);
 	p[0].n = new_vector(0, 1, 0);
 
-	p[1].p = new_vector(0, SCREEN_H - 100.0, 0);
+	p[1].p = new_vector(0, SCREEN_H - 1.0, 0);
 	p[1].n = new_vector(0, -1, 0);
 
 	p[2].p = new_vector(0, 0, 0);
@@ -27,14 +27,14 @@ void	pop_front(t_tr_list **list)
 	(*list) = tmp;
 }
 
-double		dist(t_vector vert, t_plane plane)
+double		dist(t_v3d vert, t_plane plane)
 {
-	t_vector	temp;
+	t_v3d	temp;
 	double		r;
 
 	temp = vector_normalise(vert);
 	double p = vector_dot_product(plane.n, plane.p);
-	if (plane.n.y < 0 && vert.y > SCREEN_H - 100)
+	if (plane.n.y < 0 && vert.y > SCREEN_H - 1)
 		p *= -1;
 	if (plane.n.x < 0 && vert.x > SCREEN_W - 1)
 		p *= -1;
@@ -42,15 +42,15 @@ double		dist(t_vector vert, t_plane plane)
 	return (r);
 }
 
-t_vector	vector_inter_plan(t_plane plane, t_vector line_start, t_vector line_end)
+t_v3d	vector_inter_plan(t_plane plane, t_v3d line_start, t_v3d line_end)
 {
 	plane.n = vector_normalise(plane.n);
 	double d = -vector_dot_product(plane.n, plane.p);
 	double ad = vector_dot_product(line_start, plane.n);
 	double bd = vector_dot_product(line_end, plane.n);
 	double t = (-d - ad) / (bd - ad);
-	t_vector line_s_to_end = vector_sub(line_end, line_start);
-	t_vector line_to_inter = vector_mul_by(line_s_to_end, t);
+	t_v3d line_s_to_end = vector_sub(line_end, line_start);
+	t_v3d line_to_inter = vector_mul_by(line_s_to_end, t);
 	return (vector_sum(line_start, line_to_inter));
 }
 
@@ -89,70 +89,67 @@ void	push_back(t_tr_list **tr_lst, t_triangle to_add)
 	last->next = write_lst_elem(to_add);
 }
 
-int		clip_clip_triangle(t_plane plane, t_tr_list **list)
+void		clip_add_tr_1(t_tr_list **list, t_io *io, t_plane *plane)
 {
-	double		d0, d1, d2;
-	t_vector in_point[3];
-	t_vector out_point[3];
-	int		in_point_count;
-	int		out_point_count;
-	t_triangle tr;
+	t_triangle	tr_new_1;
+
+	tr_new_1.v[0] = io->in[0];
+	tr_new_1.v[1] = vector_inter_plan(*plane, io->in[0], io->out[0]);
+	tr_new_1.v[2] = vector_inter_plan(*plane, io->in[0], io->out[1]);
+	tr_new_1.color = new_color(128, 128, 128);
+	push_back(list, tr_new_1);
+}
+
+void		clip_add_tr_2(t_tr_list **list, t_io *io, t_plane *plane)
+{
+	t_triangle	tr_new_1;
+	t_triangle	tr_new_2;
+
+	tr_new_1.v[0] = io->in[0];
+	tr_new_1.v[1] = io->in[1];
+	tr_new_1.v[2] = vector_inter_plan(*plane, io->in[0], io->out[0]);
+	tr_new_1.color = new_color(128, 128, 128);
+	push_back(list, tr_new_1);
+	tr_new_2.v[0] = io->in[1];
+	tr_new_2.v[1] = tr_new_1.v[2];
+	tr_new_2.v[2] = vector_inter_plan(*plane, io->in[1], io->out[0]);
+	tr_new_2.color = new_color(128, 128, 128);
+	push_back(list, tr_new_2);
+}
+
+void		clip_clip_triangle(t_plane plane, t_tr_list **list)
+{
+	double		d0;
+	double		d1;
+	double		d2;
+	t_io		io;
+	t_triangle	tr;
 
 	tr = (*list)->tr;
 	pop_front(list);
-	in_point_count = 0;
-	out_point_count = 0;
+	io.ins = 0;
+	io.outs = 0;
 	d0 = dist(tr.v[0], plane);
 	d1 = dist(tr.v[1], plane);
 	d2 = dist(tr.v[2], plane);
 	if (d0 >= 0)
-		in_point[in_point_count++] = tr.v[0];
+		io.in[io.ins++] = tr.v[0];
 	else
-		out_point[out_point_count++] = tr.v[0];
+		io.out[io.outs++] = tr.v[0];
 	if (d1 >= 0)
-		in_point[in_point_count++] = tr.v[1];
+		io.in[io.ins++] = tr.v[1];
 	else
-		out_point[out_point_count++] = tr.v[1];
+		io.out[io.outs++] = tr.v[1];
 	if (d2 >= 0)
-		in_point[in_point_count++] = tr.v[2];
+		io.in[io.ins++] = tr.v[2];
 	else
-		out_point[out_point_count++] = tr.v[2];
-	if (in_point_count == 0)
-		return (0);
-	if (in_point_count == 3)
-	{
+		io.out[io.outs++] = tr.v[2];
+	if (io.ins == 3)
 		push_back(list, tr);
-		return (1);
-	}
-	if (in_point_count == 1 && out_point_count == 2)
-	{
-		t_triangle tr_new_1;
-
-		tr_new_1.v[0] = in_point[0];
-		tr_new_1.v[1] = vector_inter_plan(plane, in_point[0], out_point[0]);
-		tr_new_1.v[2] = vector_inter_plan(plane, in_point[0], out_point[1]);
-		tr_new_1.color = new_color(128, 128, 128);
-		push_back(list, tr_new_1);
-		return (1);
-	}
-	if (in_point_count == 2 && out_point_count == 1)
-	{
-		t_triangle tr_new_1;
-		t_triangle tr_new_2;
-
-		tr_new_1.v[0] = in_point[0];
-		tr_new_1.v[1] = in_point[1];
-		tr_new_1.v[2] = vector_inter_plan(plane, in_point[0], out_point[0]);
-		tr_new_2.v[0] = in_point[1];
-		tr_new_2.v[1] = tr_new_1.v[2];
-		tr_new_2.v[2] = vector_inter_plan(plane, in_point[1], out_point[0]);
-		tr_new_1.color = new_color(128, 128, 128);
-		tr_new_2.color = new_color(128, 128, 128);
-		push_back(list, tr_new_1);
-		push_back(list, tr_new_2);
-		return (2);
-	}
-	return 0;
+	if (io.ins == 1 && io.outs == 2)
+		clip_add_tr_1(list, &io, &plane);
+	if (io.ins == 2 && io.outs == 1)
+		clip_add_tr_2(list, &io, &plane);
 }
 
 int		size_lst(t_tr_list *temp)

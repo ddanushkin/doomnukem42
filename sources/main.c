@@ -76,6 +76,11 @@ void	start_the_game(t_app *app)
 		while (i < 2)
 		{
 			app->meshes[i].pos = new_vector(-0.5f, -0.5f, -0.5f);
+			if (i == 1)
+			{
+				app->meshes[i].rot.x += 1.0f * app->timer->delta;
+				app->meshes[i].pos.x = sinf(app->timer->time) * 2.0f;
+			}
 			app->meshes[i].rot_mat_x = rotation_mat_x(app->meshes[i].rot.x);
 			app->meshes[i].rot_mat_y = rotation_mat_y(app->meshes[i].rot.y);
 			app->meshes[i].rot_mat_z = rotation_mat_z(app->meshes[i].rot.z);

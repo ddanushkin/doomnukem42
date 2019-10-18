@@ -58,7 +58,7 @@ void	scale_triangle(t_triangle *tr)
 
 void	offset_triangle(t_triangle *tr, t_app *app)
 {
-	t_vector offset_view;
+	t_v3d offset_view;
 
 	offset_view = new_vector(1.0f, 1.0f, 0.0f);
 	tr->v[0] = vector_sum(tr->v[0], offset_view);
@@ -72,9 +72,9 @@ void	offset_triangle(t_triangle *tr, t_app *app)
 	tr->v[2].y *= app->sdl->half_height;
 }
 
-void	calc_light(t_triangle *tr, t_vector normal)
+void	calc_light(t_triangle *tr, t_v3d normal)
 {
-	t_vector	light_dir;
+	t_v3d	light_dir;
 	float		light_dp;
 
 	set_vector(&light_dir, 0.0f, 0.0f, -1.0f);
@@ -89,11 +89,11 @@ void	calc_light(t_triangle *tr, t_vector normal)
 	tr->color.b = CLAMP(tr->color.b, 10, 255);
 }
 
-t_vector	calc_normal(t_triangle tr)
+t_v3d	calc_normal(t_triangle tr)
 {
-	t_vector line1;
-	t_vector line2;
-	t_vector normal;
+	t_v3d line1;
+	t_v3d line2;
+	t_v3d normal;
 
 	line1.x = tr.v[1].x - tr.v[0].x;
 	line1.y = tr.v[1].y - tr.v[0].y;
@@ -122,8 +122,8 @@ void	draw_outline(t_app *app, t_triangle triangle)
 
 void	check_triangle(t_app *app, t_triangle *tr)
 {
-	t_vector	normal;
-	t_vector	camera_ray;
+	t_v3d	normal;
+	t_v3d	camera_ray;
 
 	normal = calc_normal(*tr);
 	camera_ray = vector_sub(tr->v[0], app->camera->pos);
@@ -173,10 +173,10 @@ void	render_triangle(t_app *app, t_triangle tr)
 
 void	draw_cross(t_app *app, float size, int r, int g, int b)
 {
-	t_vector	cross_hl_s;
-	t_vector	cross_hl_e;
-	t_vector	cross_vl_s;
-	t_vector	cross_vl_e;
+	t_v3d	cross_hl_s;
+	t_v3d	cross_hl_e;
+	t_v3d	cross_vl_s;
+	t_v3d	cross_vl_e;
 	t_color		cross_color;
 
 	if (size <= 0.0f)

@@ -36,8 +36,8 @@ void	set_counts(int fd, t_mesh *mesh)
 	data = ft_strsplit(line, ' ');
 	vrs = ft_atoi(data[0]);
 	trs = ft_atoi(data[1]);
-	mesh->v_orig = (t_vector *)malloc(sizeof(t_vector) * vrs);
-	mesh->v_buff = (t_vector *)malloc(sizeof(t_vector) * vrs);
+	mesh->v_orig = (t_v3d *)malloc(sizeof(t_v3d) * vrs);
+	mesh->v_buff = (t_v3d *)malloc(sizeof(t_v3d) * vrs);
 	mesh->t = (t_triangle *)malloc(sizeof(t_triangle) * trs);
 	ft_strdel(&line);
 }

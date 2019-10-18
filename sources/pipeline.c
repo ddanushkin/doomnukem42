@@ -4,7 +4,7 @@ void	transform_vertices(t_app *app, int mesh_id)
 {
 	int			i;
 	t_mesh		*mesh;
-	t_vector	v;
+	t_v3d	v;
 
 	mesh = &app->meshes[mesh_id];
 	i = 0;
@@ -23,7 +23,7 @@ void	assemble_triangles(t_app *app, int mesh_id)
 	int			i;
 	t_triangle	*t;
 	t_mesh		mesh;
-	t_vector	*vertexes;
+	t_v3d	*vertexes;
 
 	i = 0;
 	mesh = app->meshes[mesh_id];

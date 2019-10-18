@@ -2,14 +2,14 @@
 
 t_list	*new_vertex_elem()
 {
-	t_vector	v;
+	t_v3d	v;
 
 	v = new_vector(0.0f, 0.0f, 0.0f);
 	printf("!\n");
-	return (ft_lstnew(&v, sizeof(t_vector)));
+	return (ft_lstnew(&v, sizeof(t_v3d)));
 }
 
-t_triangle	new_triangle(t_vector v0, t_vector v1, t_vector v2)
+t_triangle	new_triangle(t_v3d v0, t_v3d v1, t_v3d v2)
 {
 	t_triangle	t;
 	t_color		c;
@@ -25,7 +25,7 @@ t_triangle	new_triangle(t_vector v0, t_vector v1, t_vector v2)
 
 t_tr_list	*new_triangle_elem()
 {
-	t_vector	v;
+	t_v3d	v;
 	t_tr_list	*elem;
 
 	v = new_vector(0.0f, 0.0f, 0.0f);

@@ -33,7 +33,7 @@ static	void	init_sdl(t_sdl *sdl)
 
 void	init_camera(t_camera *camera)
 {
-	camera->fov = 78.0f;
+	camera->fov = 30.0f;
 	camera->z_far = 1000.0f;
 	camera->z_near = 0.1f;
 	camera->asp_ratio = (float)SCREEN_H / (float)SCREEN_W;

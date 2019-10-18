@@ -12,7 +12,7 @@ t_mat4x4	matrix_identity()
 	return (mat);
 }
 
-t_mat4x4	init_translation_mat(t_vector trans_v)
+t_mat4x4	init_translation_mat(t_v3d trans_v)
 {
 	t_mat4x4	mat;
 
@@ -49,12 +49,12 @@ t_mat4x4	matrix_inverse(t_mat4x4 m)
 	return (mat);
 }
 
-t_mat4x4	matrix_look_at(t_vector from, t_vector to)
+t_mat4x4	matrix_look_at(t_v3d from, t_v3d to)
 {
-	t_vector	forward;
-	t_vector	right;
-	t_vector	up;
-	t_vector	tmp;
+	t_v3d	forward;
+	t_v3d	right;
+	t_v3d	up;
+	t_v3d	tmp;
 	t_mat4x4	mat;
 
 	tmp = new_vector(0.0f, 1.0f, 0.0f);
@@ -86,10 +86,10 @@ t_mat4x4	matrix_look_at(t_vector from, t_vector to)
 	mat.m[3][3] = 1.0f;
 	return (mat);
 
-//	t_vector	forward;
-//	t_vector	right;
-//	t_vector	up;
-//	t_vector	tmp;
+//	t_v3d	forward;
+//	t_v3d	right;
+//	t_v3d	up;
+//	t_v3d	tmp;
 //	t_mat4x4	mat;
 //
 //	tmp = new_vector(0.0f, 1.0f, 0.0f);
@@ -165,9 +165,9 @@ t_mat4x4	matrix_subtraction(t_mat4x4 m1, t_mat4x4 m2)
 
 }
 
-t_vector	matrix_multiply_vector(t_mat4x4 m, t_vector v)
+t_v3d	matrix_multiply_vector(t_mat4x4 m, t_v3d v)
 {
-	t_vector r;
+	t_v3d r;
 	
 	r.x = v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0] + v.w * m.m[3][0];
 	r.y = v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1] + v.w * m.m[3][1];

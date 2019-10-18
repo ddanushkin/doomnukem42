@@ -43,38 +43,47 @@ typedef struct	s_mat4x4
 	float m[4][4];
 }				t_mat4x4;
 
-typedef struct	s_vector_i
-{
-	int			x;
-	int			y;
-	int			z;
-}				t_vector_i;
-
-typedef struct	s_vector
+typedef struct	s_v3d
 {
 	float		x;
 	float		y;
 	float		z;
 	float 		w;
-}				t_vector;
+}				t_v3d;
+
+typedef struct	s_v2d
+{
+	float		u;
+	float		v;
+	float		w;
+}				t_v2d;
+
+typedef struct	s_io
+{
+	t_v3d		in[3];
+	t_v3d		out[3];
+	int 		ins;
+	int 		outs;
+}				t_io;
 
 typedef struct	s_triangle
 {
 	int			i[3];
-	t_vector	v[3];
+	t_v3d		v[3];
+	t_v2d		t[3];
 	t_color		color;
 	int 		visible;
 }				t_triangle;
 
 typedef struct	s_mesh
 {
-	t_vector	*v_orig;
-	t_vector	*v_buff;
+	t_v3d	*v_orig;
+	t_v3d	*v_buff;
 	t_triangle	*t;
 	int 		v_count;
 	int 		t_count;
-	t_vector	pos;
-	t_vector	rot;
+	t_v3d	pos;
+	t_v3d	rot;
 	t_mat4x4	rot_mat_x;
 	t_mat4x4	rot_mat_y;
 	t_mat4x4	rot_mat_z;
@@ -84,9 +93,9 @@ typedef struct	s_mesh
 
 typedef struct	s_line
 {
-	t_vector	cur;
-	t_vector	dir;
-	t_vector	inc;
+	t_v3d	cur;
+	t_v3d	dir;
+	t_v3d	inc;
 	t_color		color;
 }				t_line;
 
@@ -121,21 +130,21 @@ typedef struct	s_camera
 	float 		fov;
 	float 		for_rad;
 	float 		asp_ratio;
-	t_vector	pos;
-	t_vector	rot;
+	t_v3d	pos;
+	t_v3d	rot;
 	t_mat4x4	rot_mat_x;
 	t_mat4x4	rot_mat_y;
 	t_mat4x4	rot_mat_z;
-	t_vector	target;
-	t_vector	dir;
+	t_v3d	target;
+	t_v3d	dir;
 	t_mat4x4	rot_mat;
 	t_mat4x4	view_mat;
 }				t_camera;
 
 typedef struct	s_world
 {
-	t_vector	rot;
-	t_vector	trans;
+	t_v3d	rot;
+	t_v3d	trans;
 	t_mat4x4	rot_mat_x;
 	t_mat4x4	rot_mat_y;
 	t_mat4x4	rot_mat_z;
@@ -183,8 +192,8 @@ typedef struct		s_tr_list
 
 typedef struct	s_plane
 {
-	t_vector		p;
-	t_vector		n;
+	t_v3d		p;
+	t_v3d		n;
 }				t_plane;
 
 typedef struct	s_app
@@ -232,18 +241,18 @@ void		project_triangle(t_triangle *tr, t_mat4x4 *proj_mat);
 void		translate_triangle(t_triangle *tr, t_app *app);
 void		offset_triangle(t_triangle *tr, t_app *app);
 
-void		set_vector(t_vector *v, float x, float y, float z);
+void		set_vector(t_v3d *v, float x, float y, float z);
 
 t_mat4x4	rotation_mat_z(float angle);
 t_mat4x4	rotation_mat_x(float angle);
 t_mat4x4	rotation_mat_y(float angle);
 
-void		set_triangle(t_triangle *t, t_vector *v0, t_vector *v1, t_vector *v2);
+void		set_triangle(t_triangle *t, t_v3d *v0, t_v3d *v1, t_v3d *v2);
 
 void		set_color(t_color *color, int r, int g, int b);
 
 void		set_pixel(SDL_Surface *surface, int x, int y, t_color *c, t_app *app);
-void		draw_line(t_app *app, t_vector *start, t_vector *end, t_color color);
+void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color);
 
 void		check_triangle(t_app *app, t_triangle *tr);
 void		render_triangle(t_app *app, t_triangle tr);
@@ -269,33 +278,33 @@ void		quit_properly(t_app *app);
 int			event_handling(t_app *app);
 
 t_tr_list	*new_triangle_list(int len);
-t_triangle	new_triangle(t_vector v0, t_vector v1, t_vector v2);
+t_triangle	new_triangle(t_v3d v0, t_v3d v1, t_v3d v2);
 
 void		mouse_update(t_app *app);
 
 t_mat4x4	matrix_subtraction(t_mat4x4 m1, t_mat4x4 m2);
 t_mat4x4	matrix_summary(t_mat4x4 m1, t_mat4x4 m2);
 t_mat4x4	matrix_multiply_matrix(t_mat4x4 m1, t_mat4x4 m2);
-t_vector	matrix_multiply_vector(t_mat4x4 m, t_vector v);
-t_mat4x4	matrix_look_at(t_vector from, t_vector to);
+t_v3d	matrix_multiply_vector(t_mat4x4 m, t_v3d v);
+t_mat4x4	matrix_look_at(t_v3d from, t_v3d to);
 t_mat4x4	matrix_inverse(t_mat4x4 m);
 t_mat4x4	matrix_identity();
-t_mat4x4	init_translation_mat(t_vector trans_v);
+t_mat4x4	init_translation_mat(t_v3d trans_v);
 
 void		transform_vertices(t_app *app, int mesh_id);
 void		assemble_triangles(t_app *app, int mesh_id);
 void		check_triangles(t_app *app, int mesh_id);
 void		draw_triangles(t_app *app);
 
-t_vector	new_vector(float x, float y, float z);
-t_vector	vector_sum(t_vector vector1, t_vector vector2);
-t_vector	vector_sub(t_vector vector1, t_vector vector2);
-t_vector	vector_mul_by(t_vector v, float k);
-t_vector	vector_div_by(t_vector v, float k);
-t_vector	vector_normalise(t_vector v);
-float		vector_length(t_vector v);
-t_vector	vector_cross_product(t_vector v1, t_vector v2);
-float		vector_dot_product(t_vector v1, t_vector v2);
+t_v3d	new_vector(float x, float y, float z);
+t_v3d	vector_sum(t_v3d vector1, t_v3d vector2);
+t_v3d	vector_sub(t_v3d vector1, t_v3d vector2);
+t_v3d	vector_mul_by(t_v3d v, float k);
+t_v3d	vector_div_by(t_v3d v, float k);
+t_v3d	vector_normalise(t_v3d v);
+float		vector_length(t_v3d v);
+t_v3d	vector_cross_product(t_v3d v1, t_v3d v2);
+float		vector_dot_product(t_v3d v1, t_v3d v2);
 
 void		read_obj(char *path, t_mesh *mesh);
 #endif

@@ -83,11 +83,11 @@ void	fill_flat_top(t_app *app, t_triangle *t)
 void	sort_triangle_by_y(t_triangle *in)
 {
 	if (in->v[1].y < in->v[0].y)
-		SWAP(in->v[0], in->v[1], t_vector);
+		SWAP(in->v[0], in->v[1], t_v3d);
 	if (in->v[2].y < in->v[1].y)
-		SWAP(in->v[1], in->v[2], t_vector);
+		SWAP(in->v[1], in->v[2], t_v3d);
 	if (in->v[1].y < in->v[0].y)
-		SWAP(in->v[0], in->v[1], t_vector);
+		SWAP(in->v[0], in->v[1], t_v3d);
 }
 
 void	fill_triangle(t_app *app, t_triangle t)
@@ -97,19 +97,19 @@ void	fill_triangle(t_app *app, t_triangle t)
 	if (t.v[0].y == t.v[1].y)
 	{
 		if (t.v[1].x < t.v[0].x)
-			SWAP(t.v[0], t.v[1], t_vector);
+			SWAP(t.v[0], t.v[1], t_v3d);
 		fill_flat_top(app, &t);
 	}
 	else if (t.v[1].y == t.v[2].y)
 	{
 		if (t.v[2].x < t.v[1].x)
-			SWAP(t.v[1], t.v[2], t_vector);
+			SWAP(t.v[1], t.v[2], t_v3d);
 		fill_flat_bot(app, &t);
 	}
 	else
 	{
 		float		split_alpha;
-		t_vector	v_tmp;
+		t_v3d	v_tmp;
 		t_triangle	tmp_triangle;
 
 		split_alpha =

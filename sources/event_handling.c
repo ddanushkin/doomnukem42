@@ -20,8 +20,8 @@ int		event_handling(t_app *app)
 	if (key[SDL_SCANCODE_SPACE])
 		app->camera->pos.y += 5.0f * app->timer->delta;
 
-	t_vector	forward = vector_mul_by(app->camera->dir, 5.0f * app->timer->delta);
-	t_vector	right = new_vector(forward.z, 0.0f, -forward.x);
+	t_v3d	forward = vector_mul_by(app->camera->dir, 5.0f * app->timer->delta);
+	t_v3d	right = new_vector(forward.z, 0.0f, -forward.x);
 
 	/* MOVE FORWARD/BACKWARD */
 	if (key[SDL_SCANCODE_W])

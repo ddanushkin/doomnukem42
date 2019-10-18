@@ -44,7 +44,7 @@ static void	dy_dom(t_app *app, t_line *l)
 	}
 }
 
-void		draw_line(t_app *app, t_vector *start, t_vector *end, t_color color)
+void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color)
 {
 	t_line line;
 
