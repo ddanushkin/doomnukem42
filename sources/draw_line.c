@@ -54,8 +54,8 @@ void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color)
 	line.dir.y = end->y - start->y;
 	line.inc.x = (line.dir.x > 0) ? 1 : -1;
 	line.inc.y = (line.dir.y > 0) ? 1 : -1;
-	line.dir.x = fabsf(line.dir.x);
-	line.dir.y = fabsf(line.dir.y);
+	line.dir.x = fabs(line.dir.x);
+	line.dir.y = fabs(line.dir.y);
 	line.color = color;
 	app->depth = start->z;
 	if (line.dir.x > line.dir.y)

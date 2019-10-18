@@ -15,7 +15,7 @@
 
 # define	COLOR_KEY_R 255
 # define	COLOR_KEY_G 0
-# define	COLOR_KEY_B 255
+# define	COLOR_KEY_B 254
 
 # define MIN(a,b) (((a)<(b))?(a):(b))
 # define MAX(a,b) (((a)>(b))?(a):(b))
@@ -24,7 +24,7 @@
 # define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
 # define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
-# define RESOURCES_MD5 "4bcb8a97799bb093b8a8a613fc39f18f"
+# define RESOURCES_MD5 "92e21b66507aebb010adb353fc83badb"
 
 typedef struct	s_color
 {
@@ -40,50 +40,59 @@ typedef struct	s_image_chunk
 
 typedef struct	s_mat4x4
 {
-	float m[4][4];
+	double m[4][4];
 }				t_mat4x4;
 
 typedef struct	s_v3d
 {
-	float		x;
-	float		y;
-	float		z;
-	float 		w;
+	double		x;
+	double		y;
+	double		z;
+	double 		w;
 }				t_v3d;
 
 typedef struct	s_v2d
 {
-	float		u;
-	float		v;
-	float		w;
+	double		u;
+	double		v;
+	double		w;
 }				t_v2d;
 
 typedef struct	s_io
 {
-	t_v3d		in[3];
-	t_v3d		out[3];
-	int 		ins;
-	int 		outs;
+	t_v3d		vin[3];
+	t_v3d		vout[3];
+	t_v2d		tin[3];
+	t_v2d		tout[3];
+	int 		vins;
+	int 		vouts;
 }				t_io;
 
 typedef struct	s_triangle
 {
-	int			i[3];
+	int			iv[3];
+	int			it[3];
+	int			in[3];
 	t_v3d		v[3];
 	t_v2d		t[3];
+	t_v3d		n[3];
 	t_color		color;
 	int 		visible;
 }				t_triangle;
 
 typedef struct	s_mesh
 {
-	t_v3d	*v_orig;
-	t_v3d	*v_buff;
-	t_triangle	*t;
+	t_v3d		*vo;
+	t_v3d		*vb;
+	t_v2d		*tx;
+	t_triangle	*tr;
+	t_v3d		*nr;
 	int 		v_count;
-	int 		t_count;
-	t_v3d	pos;
-	t_v3d	rot;
+	int 		tx_count;
+	int 		tr_count;
+	int 		nr_count;
+	t_v3d		pos;
+	t_v3d		rot;
 	t_mat4x4	rot_mat_x;
 	t_mat4x4	rot_mat_y;
 	t_mat4x4	rot_mat_z;
@@ -93,58 +102,46 @@ typedef struct	s_mesh
 
 typedef struct	s_line
 {
-	t_v3d	cur;
-	t_v3d	dir;
-	t_v3d	inc;
+	t_v3d		cur;
+	t_v3d		dir;
+	t_v3d		inc;
 	t_color		color;
 }				t_line;
 
-typedef struct	s_kb_keys_state
-{
-	int			up[300];
-	int 		down[300];
-}				t_kb_keys_state;
-
-typedef struct	s_ms_keys_state
-{
-	int			up[10];
-	int 		down[10];
-}				t_ms_keys_state;
-
 typedef struct	s_mouse_state
 {
-	int 			x;
-	int 			y;
-	int 			left;
-	int 			right;
-	int 			middle;
-	int 			scroll_u;
-	int 			scroll_d;
-	float 			sens;
+	int 		x;
+	int 		y;
+	int 		left;
+	int 		right;
+	int 		middle;
+	int 		scroll_u;
+	int 		scroll_d;
+	double 		sens;
 }				t_mouse_state;
 
 typedef struct	s_camera
 {
-	float 		z_near;
-	float 		z_far;
-	float 		fov;
-	float 		for_rad;
-	float 		asp_ratio;
-	t_v3d	pos;
-	t_v3d	rot;
+	double 		z_near;
+	double 		z_far;
+	double 		fov;
+	double 		for_rad;
+	double 		asp_ratio;
+	t_v3d		pos;
+	t_v3d		rot;
 	t_mat4x4	rot_mat_x;
 	t_mat4x4	rot_mat_y;
 	t_mat4x4	rot_mat_z;
-	t_v3d	target;
-	t_v3d	dir;
+	t_v3d		target;
+	t_v3d		dir;
 	t_mat4x4	rot_mat;
 	t_mat4x4	view_mat;
 }				t_camera;
 
 typedef struct	s_world
 {
-	t_v3d	rot;
-	t_v3d	trans;
+	t_v3d		rot;
+	t_v3d		trans;
 	t_mat4x4	rot_mat_x;
 	t_mat4x4	rot_mat_y;
 	t_mat4x4	rot_mat_z;
@@ -166,7 +163,7 @@ typedef struct		s_inputs
 	t_mouse_state	mouse;
 	int				left_pressed;
 	int				right_pressed;
-	float			sensitivity;
+	double			sensitivity;
 	int				x;
 	int				y;
 	int				zoom;
@@ -177,8 +174,8 @@ typedef struct		s_sdl
 	SDL_Event		event;
 	SDL_Window		*window;
 	SDL_Surface		*surface;
-	float			half_height;
-	float			half_width;
+	double			half_height;
+	double			half_width;
 	int				height;
 	int				width;
 }					t_sdl;
@@ -186,7 +183,6 @@ typedef struct		s_sdl
 typedef struct		s_tr_list
 {
 	t_triangle			tr;
-	int 				last;
 	struct s_tr_list	*next;
 }					t_tr_list;
 
@@ -198,20 +194,18 @@ typedef struct	s_plane
 
 typedef struct	s_app
 {
-	t_timer			*timer;
-	t_camera		*camera;
-	t_world			*world;
-	t_mat4x4		projection_mat;
-	t_sdl			*sdl;
-	t_inputs		*inputs;
-	t_mesh			*meshes;
-	t_tr_list		*triangles;
-	t_tr_list		*triangles_head;
-	double 			depth;
-	double			z_buf[SCREEN_W * SCREEN_H];
+	t_timer		*timer;
+	t_camera	*camera;
+	t_world		*world;
+	t_mat4x4	projection_mat;
+	t_sdl		*sdl;
+	t_inputs	*inputs;
+	t_mesh		*meshes;
+	double 		depth;
+	double		z_buf[SCREEN_W * SCREEN_H];
 }				t_app;
 
-void		clip_triangle(t_tr_list **tr_lst);
+void		clip_triangles(t_tr_list **tr_lst);
 
 void		debug_mouse(t_app *app, char *event, int key_code);
 void		debug_keyboard(char *event, int key_code);
@@ -241,11 +235,11 @@ void		project_triangle(t_triangle *tr, t_mat4x4 *proj_mat);
 void		translate_triangle(t_triangle *tr, t_app *app);
 void		offset_triangle(t_triangle *tr, t_app *app);
 
-void		set_vector(t_v3d *v, float x, float y, float z);
+void		set_vector(t_v3d *v, double x, double y, double z);
 
-t_mat4x4	rotation_mat_z(float angle);
-t_mat4x4	rotation_mat_x(float angle);
-t_mat4x4	rotation_mat_y(float angle);
+t_mat4x4	rotation_mat_z(double angle);
+t_mat4x4	rotation_mat_x(double angle);
+t_mat4x4	rotation_mat_y(double angle);
 
 void		set_triangle(t_triangle *t, t_v3d *v0, t_v3d *v1, t_v3d *v2);
 
@@ -260,13 +254,13 @@ void		fill_triangle(t_app *app, t_triangle t);
 
 void		show_fps_sdl(t_timer *timer);
 
-void		make_cube(t_mesh *m, float size);
+void		make_cube(t_mesh *m, double size);
 
 void		get_ticks(t_timer *timer);
 void		get_delta_time(t_timer *timer);
 void		show_fps(t_app *app);
 
-void		draw_cross(t_app *app, float size, int r, int g, int b);
+void		draw_cross(t_app *app, double size, int r, int g, int b);
 
 void		get_color(SDL_Surface *surface, int x, int y, t_color *c);
 t_color		new_color(int r, int g, int b);
@@ -296,15 +290,15 @@ void		assemble_triangles(t_app *app, int mesh_id);
 void		check_triangles(t_app *app, int mesh_id);
 void		draw_triangles(t_app *app);
 
-t_v3d	new_vector(float x, float y, float z);
+t_v3d	new_vector(double x, double y, double z);
 t_v3d	vector_sum(t_v3d vector1, t_v3d vector2);
 t_v3d	vector_sub(t_v3d vector1, t_v3d vector2);
-t_v3d	vector_mul_by(t_v3d v, float k);
-t_v3d	vector_div_by(t_v3d v, float k);
+t_v3d	vector_mul_by(t_v3d v, double k);
+t_v3d	vector_div_by(t_v3d v, double k);
 t_v3d	vector_normalise(t_v3d v);
-float		vector_length(t_v3d v);
+double		vector_length(t_v3d v);
 t_v3d	vector_cross_product(t_v3d v1, t_v3d v2);
-float		vector_dot_product(t_v3d v1, t_v3d v2);
+double		vector_dot_product(t_v3d v1, t_v3d v2);
 
 void		read_obj(char *path, t_mesh *mesh);
 #endif

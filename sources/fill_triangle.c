@@ -2,8 +2,8 @@
 
 void	fill_flat_bot(t_app *app, t_triangle *t)
 {
-	float	m0;
-	float	m1;
+	double	m0;
+	double	m1;
 
 	m0 = (t->v[1].x - t->v[0].x) / (t->v[1].y - t->v[0].y);
 	m1 = (t->v[2].x - t->v[0].x) / (t->v[2].y - t->v[0].y);
@@ -13,22 +13,22 @@ void	fill_flat_bot(t_app *app, t_triangle *t)
 	int		y;
 	int		x;
 
-	y_start = (int)ceilf(t->v[0].y - 0.5f);
-	y_end = (int)ceilf(t->v[2].y - 0.5f);
+	y_start = (int)ceilf(t->v[0].y - 0.5);
+	y_end = (int)ceilf(t->v[2].y - 0.5);
 
 	y = y_start;
 	while (y < y_end)
 	{
 		int 	x_start;
 		int 	x_end;
-		float	px0;
-		float	px1;
+		double	px0;
+		double	px1;
 
-		px0 = m0 * ((float)y + 0.5f - t->v[0].y) + t->v[0].x;
-		px1 = m1 * ((float)y + 0.5f - t->v[0].y) + t->v[0].x;
+		px0 = m0 * ((double)y + 0.5 - t->v[0].y) + t->v[0].x;
+		px1 = m1 * ((double)y + 0.5 - t->v[0].y) + t->v[0].x;
 
-		x_start = (int)ceilf(px0 - 0.5f);
-		x_end = (int)ceilf(px1 - 0.5f);
+		x_start = (int)ceil(px0 - 0.5);
+		x_end = (int)ceil(px1 - 0.5);
 
 		x = x_start;
 		while (x < x_end)
@@ -42,8 +42,8 @@ void	fill_flat_bot(t_app *app, t_triangle *t)
 
 void	fill_flat_top(t_app *app, t_triangle *t)
 {
-	float	m0;
-	float	m1;
+	double	m0;
+	double	m1;
 
 	m0 = (t->v[2].x - t->v[0].x) / (t->v[2].y - t->v[0].y);
 	m1 = (t->v[2].x - t->v[1].x) / (t->v[2].y - t->v[1].y);
@@ -53,22 +53,22 @@ void	fill_flat_top(t_app *app, t_triangle *t)
 	int		y;
 	int		x;
 
-	y_start = (int)ceilf(t->v[0].y - 0.5f);
-	y_end = (int)ceilf(t->v[2].y - 0.5f);
+	y_start = (int)ceil(t->v[0].y - 0.5);
+	y_end = (int)ceil(t->v[2].y - 0.5);
 
 	y = y_start;
 	while (y < y_end)
 	{
 		int 	x_start;
 		int 	x_end;
-		float	px0;
-		float	px1;
+		double	px0;
+		double	px1;
 
-		px0 = m0 * ((float)y + 0.5f - t->v[0].y) + t->v[0].x;
-		px1 = m1 * ((float)y + 0.5f - t->v[1].y) + t->v[1].x;
+		px0 = m0 * ((double)y + 0.5 - t->v[0].y) + t->v[0].x;
+		px1 = m1 * ((double)y + 0.5 - t->v[1].y) + t->v[1].x;
 
-		x_start = (int)ceilf(px0 - 0.5f);
-		x_end = (int)ceilf(px1 - 0.5f);
+		x_start = (int)ceil(px0 - 0.5);
+		x_end = (int)ceil(px1 - 0.5);
 
 		x = x_start;
 		while (x < x_end)
@@ -108,7 +108,7 @@ void	fill_triangle(t_app *app, t_triangle t)
 	}
 	else
 	{
-		float		split_alpha;
+		double		split_alpha;
 		t_v3d	v_tmp;
 		t_triangle	tmp_triangle;
 
@@ -116,9 +116,9 @@ void	fill_triangle(t_app *app, t_triangle t)
 			(t.v[1].y - t.v[0].y) /
 			(t.v[2].y - t.v[0].y);
 
-		float vx;
-		float vy;
-		float vz;
+		double vx;
+		double vy;
+		double vz;
 
 		vx = t.v[0].x + (t.v[2].x - t.v[0].x) * split_alpha;
 		vy = t.v[0].y + (t.v[2].y - t.v[0].y) * split_alpha;

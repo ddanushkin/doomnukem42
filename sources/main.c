@@ -8,14 +8,31 @@ void	clear_screen(t_app *app)
 	image_clear(app->sdl->surface->pixels, 200, len);
 }
 
+
+static void capFrameRate(t_app *app, long *then, double *remainder)
+{
+	long wait, frameTime;
+
+	wait = 16.0 + *remainder;
+	*remainder -= (int)*remainder;
+	frameTime = SDL_GetTicks() - *then;
+	wait -= frameTime;
+	if (wait < 1)
+		wait = 1;
+	SDL_Delay(wait);
+	*remainder += 0.667;
+	*then = SDL_GetTicks();
+	app->timer->delta = 0.01;
+}
+
 void	start_the_game(t_app *app)
 {
 	/* Set meshes to center */
 	SDL_SetRelativeMouseMode(SDL_TRUE);
+
 	while (1)
 	{
 		get_ticks(app->timer);
-
 		clear_screen(app);
 
 		mouse_update(app);
@@ -24,9 +41,9 @@ void	start_the_game(t_app *app)
 			break;
 
 		/* Animate world rotation */
-		//app->world.rot.x += 1.0f * app->timer->delta;
-		//app->world.rot.y += 1.0f * app->timer->delta;
-		//app->world.rot.z += 1.0f * app->timer->delta;
+		//app->world.rot.x += 1.0 * app->timer->delta;
+		//app->world.rot.y += 1.0 * app->timer->delta;
+		//app->world.rot.z += 1.0 * app->timer->delta;
 
 		/* Create world rotation matrices */
 		app->world->rot_mat_x = rotation_mat_x(app->world->rot.x);
@@ -34,7 +51,7 @@ void	start_the_game(t_app *app)
 		app->world->rot_mat_z = rotation_mat_z(app->world->rot.z);
 
 		/* Create world translation matrix */
-		app->world->trans = new_vector(0.0f, 0.0f, 5.0f);
+		app->world->trans = new_vector(0.0, 0.0, 5.0);
 		app->world->trans_mat = init_translation_mat(app->world->trans);
 
 		/* Create world matrix */
@@ -56,31 +73,31 @@ void	start_the_game(t_app *app)
 		app->camera->rot_mat = matrix_multiply_matrix(app->camera->rot_mat, app->camera->rot_mat_z);
 
 		/* Create camera view matrix */
-		app->camera->target = new_vector(0.0f, 0.0f, 1.0f);
+		app->camera->target = new_vector(0.0, 0.0, 1.0);
 		app->camera->dir = matrix_multiply_vector(app->camera->rot_mat, app->camera->target);
 		app->camera->target = vector_sum(app->camera->pos, app->camera->dir);
 		app->camera->view_mat = matrix_look_at(app->camera->pos, app->camera->target);
 		app->camera->view_mat = matrix_inverse(app->camera->view_mat);
 
 		/* Animate meshes[0] rotation */
-		//app->meshes[0].rot.x += 1.0f * app->timer->delta;
-		//app->meshes[0].rot.y += 1.0f * app->timer->delta;
-		//app->meshes[0].rot.z += 1.0f * app->timer->delta;
+		//app->meshes[0].rot.x += 1.0 * app->timer->delta;
+		//app->meshes[0].rot.y += 1.0 * app->timer->delta;
+		//app->meshes[0].rot.z += 1.0 * app->timer->delta;
 
 		/* Animate meshes[0] position */
-		//app->meshes[0].pos.x = sinf(app->timer->time) * 2.0f;
-		//app->meshes[0].pos.y = sinf(app->timer->time) * 2.0f;
-		//app->meshes[0].pos.z = sinf(app->timer->time) * 2.0f;
+		//app->meshes[0].pos.x = sin(app->timer->time) * 2.0;
+		//app->meshes[0].pos.y = sin(app->timer->time) * 2.0;
+		//app->meshes[0].pos.z = sin(app->timer->time) * 2.0;
 
 		int i = 0;
 		while (i < 2)
 		{
-			app->meshes[i].pos = new_vector(-0.5f, -0.5f, -0.5f);
-			if (i == 1)
-			{
-				app->meshes[i].rot.x += 1.0f * app->timer->delta;
-				app->meshes[i].pos.x = sinf(app->timer->time) * 2.0f;
-			}
+			app->meshes[i].pos = new_vector(-0.5, -0.5, -0.5);
+//			if (i == 0)
+//			{
+//				app->meshes[i].rot.x += 1.0 * app->timer->delta;
+//				app->meshes[i].pos.x = sin(app->timer->time) * 2.0;
+//			}
 			app->meshes[i].rot_mat_x = rotation_mat_x(app->meshes[i].rot.x);
 			app->meshes[i].rot_mat_y = rotation_mat_y(app->meshes[i].rot.y);
 			app->meshes[i].rot_mat_z = rotation_mat_z(app->meshes[i].rot.z);
@@ -95,8 +112,7 @@ void	start_the_game(t_app *app)
 			check_triangles(app, i);
 			i++;
 		}
-
-		draw_cross(app, 7.0f, 255, 0, 200);
+		draw_cross(app, 7.0, 255, 0, 200);
 		SDL_UpdateWindowSurface(app->sdl->window);
 		get_delta_time(app->timer);
 	}
@@ -116,6 +132,7 @@ int	check_resources(void)
 	hash[32] = '\0';
 	read(fd, hash, 32);
 	close(fd);
+	printf("%s\n", hash);
 	return (ft_strequ(hash, RESOURCES_MD5));
 }
 
@@ -141,8 +158,8 @@ int		main(int argv, char**argc)
 
 	init_app(app);
 
-	read_obj("resources/plane.obj", &app->meshes[0]);
-	read_obj("resources/cube.obj", &app->meshes[1]);
+	read_obj("resources/cube.obj", &app->meshes[0]);
+	read_obj("resources/plane.obj", &app->meshes[1]);
 	start_the_game(app);
 	quit_properly(app);
 	return (0);
