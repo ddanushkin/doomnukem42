@@ -1,13 +1,6 @@
 #include "doom_nukem.h"
 
-void	set_color(t_color *color, int r, int g, int b)
-{
-	color->r = r;
-	color->g = g;
-	color->b = b;
-}
-
-t_color	new_color(int r, int g, int b)
+t_color	color_new(int r, int g, int b)
 {
 	t_color c;
 
@@ -15,4 +8,12 @@ t_color	new_color(int r, int g, int b)
 	c.g = g;
 	c.b = b;
 	return (c);
+}
+
+t_color	color_sub(t_color color, int k)
+{
+	color.r -= k;
+	color.g -= k;
+	color.b -= k;
+	return (color);
 }

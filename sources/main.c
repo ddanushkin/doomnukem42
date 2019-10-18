@@ -27,9 +27,9 @@ static void capFrameRate(t_app *app, long *then, double *remainder)
 
 void	start_the_game(t_app *app)
 {
-	/* Set meshes to center */
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
+	app->camera->pos = new_vector(0.0, 25.0, -120.0);
 	while (1)
 	{
 		get_ticks(app->timer);
@@ -93,11 +93,11 @@ void	start_the_game(t_app *app)
 		while (i < 2)
 		{
 			app->meshes[i].pos = new_vector(-0.5, -0.5, -0.5);
-//			if (i == 0)
-//			{
-//				app->meshes[i].rot.x += 1.0 * app->timer->delta;
-//				app->meshes[i].pos.x = sin(app->timer->time) * 2.0;
-//			}
+			if (i == 0)
+			{
+				app->meshes[i].rot.x += 1.0 * app->timer->delta;
+				app->meshes[i].pos.x = sin(app->timer->time) * 2.0;
+			}
 			app->meshes[i].rot_mat_x = rotation_mat_x(app->meshes[i].rot.x);
 			app->meshes[i].rot_mat_y = rotation_mat_y(app->meshes[i].rot.y);
 			app->meshes[i].rot_mat_z = rotation_mat_z(app->meshes[i].rot.z);
@@ -140,11 +140,11 @@ int		main(int argv, char**argc)
 {
 	t_app	*app;
 
-	if (!check_resources())
-	{
-		ft_putendl("bad resources!");
-		//exit(0);
-	}
+	//if (!check_resources())
+	//{
+	//	ft_putendl("bad resources!");
+	//	//exit(0);
+	//}
 	app = (t_app *)malloc(sizeof(t_app));
 	app->sdl = (t_sdl *)malloc(sizeof(t_sdl));
 	app->inputs = (t_inputs *)malloc(sizeof(t_inputs));
@@ -157,9 +157,8 @@ int		main(int argv, char**argc)
 	app->meshes = (t_mesh *)malloc(sizeof(t_mesh) * number_of_meshes);
 
 	init_app(app);
-
-	read_obj("resources/cube.obj", &app->meshes[0]);
-	read_obj("resources/plane.obj", &app->meshes[1]);
+	obj_reader("resources/plane.obj", &app->meshes[0]);
+	obj_reader("resources/cube.obj", &app->meshes[1]);
 	start_the_game(app);
 	quit_properly(app);
 	return (0);

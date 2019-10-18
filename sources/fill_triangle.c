@@ -109,7 +109,7 @@ void	fill_triangle(t_app *app, t_triangle t)
 	else
 	{
 		double		split_alpha;
-		t_v3d	v_tmp;
+		t_v3d		v_tmp;
 		t_triangle	tmp_triangle;
 
 		split_alpha =

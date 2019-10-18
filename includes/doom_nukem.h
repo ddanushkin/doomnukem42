@@ -5,7 +5,6 @@
 # include <math.h>
 # include <pthread.h>
 # include "stdio.h"
-# include <time.h>
 # include <SDL.h>
 # define PRINT_DEBUG 0
 
@@ -16,6 +15,8 @@
 # define	COLOR_KEY_R 255
 # define	COLOR_KEY_G 0
 # define	COLOR_KEY_B 254
+
+# define	OUTLINE_COLOR new_color(0, 0, 0)
 
 # define MIN(a,b) (((a)<(b))?(a):(b))
 # define MAX(a,b) (((a)>(b))?(a):(b))
@@ -263,7 +264,8 @@ void		show_fps(t_app *app);
 void		draw_cross(t_app *app, double size, int r, int g, int b);
 
 void		get_color(SDL_Surface *surface, int x, int y, t_color *c);
-t_color		new_color(int r, int g, int b);
+t_color		color_new(int r, int g, int b);
+t_color		color_sub(t_color color, int k);
 
 int 		out_of_borders(int x, int y);
 int 		color_key(t_color *c);
@@ -288,7 +290,6 @@ t_mat4x4	init_translation_mat(t_v3d trans_v);
 void		transform_vertices(t_app *app, int mesh_id);
 void		assemble_triangles(t_app *app, int mesh_id);
 void		check_triangles(t_app *app, int mesh_id);
-void		draw_triangles(t_app *app);
 
 t_v3d	new_vector(double x, double y, double z);
 t_v3d	vector_sum(t_v3d vector1, t_v3d vector2);
@@ -300,5 +301,7 @@ double		vector_length(t_v3d v);
 t_v3d	vector_cross_product(t_v3d v1, t_v3d v2);
 double		vector_dot_product(t_v3d v1, t_v3d v2);
 
-void		read_obj(char *path, t_mesh *mesh);
+void		obj_reader_load(char *path, t_mesh *mesh);
+void		obj_reader_count(char *path, t_mesh *mesh);
+void		obj_reader(char *path, t_mesh *mesh);
 #endif

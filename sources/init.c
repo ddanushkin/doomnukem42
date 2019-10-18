@@ -52,7 +52,6 @@ void	init_app(t_app *app)
 	app->timer->fps = 0;
 	app->timer->delta = 0.0;
 	app->timer->time = 0.0;
-	ft_memset(app->z_buf, 120, sizeof(double) * SCREEN_H * SCREEN_W);
 	init_camera(app->camera);
 	init_projection_mat(app);
 }

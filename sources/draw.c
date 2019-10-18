@@ -72,52 +72,40 @@ void	offset_triangle(t_triangle *tr, t_app *app)
 	tr->v[2].y *= app->sdl->half_height;
 }
 
-void	calc_light(t_triangle *tr, t_v3d normal)
+void	calc_light(t_app *app, t_triangle *tr, t_v3d normal)
 {
 	t_v3d	light_dir;
-	double		light_dp;
+	double	light_dp;
 
-	set_vector(&light_dir, 0.0, 0.0, -1.0);
+	set_vector(&light_dir, 0.0, 1.0, -1.0);
 	light_dir = vector_normalise(light_dir);
-	light_dp = vector_dot_product(normal, light_dir);
+	light_dp = MAX(0.1, vector_dot_product(normal, light_dir));
 	tr->color.r = (int)((double)tr->color.r * light_dp);
 	tr->color.g = (int)((double)tr->color.g * light_dp);
 	tr->color.b = (int)((double)tr->color.b * light_dp);
-
-	tr->color.r = CLAMP(tr->color.r, 10, 255);
-	tr->color.g = CLAMP(tr->color.g, 10, 255);
-	tr->color.b = CLAMP(tr->color.b, 10, 255);
+	tr->color.r = CLAMP(tr->color.r, 0, 255);
+	tr->color.g = CLAMP(tr->color.g, 0, 255);
+	tr->color.b = CLAMP(tr->color.b, 0, 255);
 }
 
 t_v3d	calc_normal(t_triangle tr)
 {
-	t_v3d line1;
-	t_v3d line2;
-	t_v3d normal;
+	t_v3d	tmp_v1;
+	t_v3d	tmp_v2;
 
-	line1.x = tr.v[1].x - tr.v[0].x;
-	line1.y = tr.v[1].y - tr.v[0].y;
-	line1.z = tr.v[1].z - tr.v[0].z;
-	line2.x = tr.v[2].x - tr.v[0].x;
-	line2.y = tr.v[2].y - tr.v[0].y;
-	line2.z = tr.v[2].z - tr.v[0].z;
-	normal.x = line1.y * line2.z - line1.z * line2.y;
-	normal.y = line1.z * line2.x - line1.x * line2.z;
-	normal.z = line1.x * line2.y - line1.y * line2.x;
-	return (vector_normalise(normal));
+	tmp_v1 = vector_sub(tr.v[1], tr.v[0]);
+	tmp_v2 = vector_sub(tr.v[2], tr.v[0]);
+	return (vector_normalise(vector_cross_product(tmp_v1, tmp_v2)));
 }
 
 void	draw_outline(t_app *app, t_triangle triangle)
 {
-	t_color		clr;
+	t_color c;
 
-	clr.r = 255;
-	clr.g = 0;
-	clr.b = 255;
-
-	draw_line(app, &triangle.v[1], &triangle.v[0], clr);
-	draw_line(app, &triangle.v[2], &triangle.v[0], clr);
-	draw_line(app, &triangle.v[1], &triangle.v[2], clr);
+	c = color_sub(triangle.color, 10);
+	draw_line(app, &triangle.v[1], &triangle.v[0], c);
+	draw_line(app, &triangle.v[2], &triangle.v[0], c);
+	draw_line(app, &triangle.v[1], &triangle.v[2], c);
 }
 
 void	check_triangle(t_app *app, t_triangle *tr)
@@ -129,7 +117,7 @@ void	check_triangle(t_app *app, t_triangle *tr)
 	camera_ray = vector_sub(tr->v[0], app->camera->pos);
 	if (vector_dot_product(normal, camera_ray) < 0.0)
 	{
-		calc_light(tr, normal);
+		calc_light(app, tr, normal);
 		tr->visible = 1;
 	}
 }
@@ -139,6 +127,9 @@ void	render_triangle(t_app *app, t_triangle tr)
 	t_tr_list	*tr_lst;
 	t_tr_list	*tmp_next;
 
+	tr.v[0] = matrix_multiply_vector(app->camera->view_mat, tr.v[0]);
+	tr.v[1] = matrix_multiply_vector(app->camera->view_mat, tr.v[1]);
+	tr.v[2] = matrix_multiply_vector(app->camera->view_mat, tr.v[2]);
 	if (tr.v[0].z < 0.1 && tr.v[1].z < 0.1 && tr.v[2].z < 0.1)
 		return;
 	if (tr.v[0].z < 0.1)
@@ -163,6 +154,7 @@ void	render_triangle(t_app *app, t_triangle tr)
 	clip_triangles(&tr_lst);
 	while (tr_lst != NULL)
 	{
+		tr_lst->tr.color = tr.color;
 		fill_triangle(app, tr_lst->tr);
 		draw_outline(app, tr_lst->tr);
 		tmp_next = tr_lst->next;
@@ -182,7 +174,7 @@ void	draw_cross(t_app *app, double size, int r, int g, int b)
 	if (size <= 0.0)
 		size = 5.0;
 
-	set_color(&cross_color, r, g, b);
+	cross_color = color_new(r, g, b);
 	cross_hl_s = new_vector(app->sdl->half_width - size, app->sdl->half_height, 0.0);
 	cross_hl_e = new_vector(app->sdl->half_width + size, app->sdl->half_height, 0.0);
 	cross_vl_s = new_vector(app->sdl->half_width, app->sdl->half_height - size, 0.0);

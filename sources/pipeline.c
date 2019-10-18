@@ -12,7 +12,6 @@ void	transform_vertices(t_app *app, int mesh_id)
 	{
 		v = matrix_multiply_vector(mesh->transform, mesh->vo[i]);
 		v = matrix_multiply_vector(app->world->mat, v);
-		v = matrix_multiply_vector(app->camera->view_mat, v);
 		mesh->vb[i] = v;
 		i++;
 	}
@@ -26,8 +25,8 @@ void	triangle_fill_data(t_triangle *tr, t_v3d *vr, t_v2d *tx, t_v3d *nr)
 	while (j < 3)
 	{
 		tr->v[j] = vr[tr->iv[j]];
-		//tr->t[j] = tx[tr->it[j]];
-		//tr->n[j] = nr[tr->in[j]];
+		tr->t[j] = tx[tr->it[j]];
+		tr->n[j] = nr[tr->in[j]];
 		j++;
 	}
 }
@@ -48,7 +47,7 @@ void	assemble_triangles(t_app *app, int mesh_id)
 	while (i < mesh->tr_count)
 	{
 		triangle_fill_data(&mesh->tr[i], vertexes, texels, normals);
-		mesh->tr[i].color = new_color(128, 128, 128);
+		mesh->tr[i].color = color_new(128, 128, 128);
 		i++;
 	}
 }
