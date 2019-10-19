@@ -10,7 +10,7 @@
 
 # define	SCREEN_W 1280
 # define	SCREEN_H 720
-# define	WIN_TITLE "DOOM-NUKEM - FPS: "
+# define	WIN_TITLE "DOOM-NUKEM"
 
 # define	COLOR_KEY_R 255
 # define	COLOR_KEY_G 0
@@ -27,11 +27,19 @@
 
 # define RESOURCES_MD5 "92e21b66507aebb010adb353fc83badb"
 
+# define STATUS_OK 0
+# define STATUS_FILE_NOT_FOUND 1
+# define STATUS_BAD_RESOURCES 2
+
+# define MSG_OK "OK."
+# define MSG_FILE_NOT_FOUND "FILE NOT FOUND: "
+# define MSG_BAD_RESOURCES "BAD RESOURCES!"
+
 typedef struct	s_color
 {
-	int			r;
-	int			g;
-	int			b;
+	uint8_t		r;
+	uint8_t		g;
+	uint8_t		b;
 }				t_color;
 
 typedef struct	s_image_chunk
@@ -193,6 +201,32 @@ typedef struct	s_plane
 	t_v3d		n;
 }				t_plane;
 
+typedef struct	s_bmp_header
+{
+	uint16_t	type;
+	uint32_t	size;
+	uint16_t	reserved1;
+	uint16_t	reserved2;
+	uint32_t	offset;
+	uint32_t	dib_header_size;
+	int32_t		width_px;
+	int32_t		height_px;
+	uint16_t	num_planes;
+	uint16_t	bits_per_pixel;
+	uint32_t	compression;
+	uint32_t	image_size_bytes;
+	int32_t		x_resolution_ppm;
+	int32_t		y_resolution_ppm;
+	uint32_t	num_colors;
+	uint32_t	important_colors;
+}				t_bmp_header;
+
+typedef struct	s_sprite
+{
+	t_bmp_header	header;
+	uint8_t			*pixels;
+}				t_sprite;
+
 typedef struct	s_app
 {
 	t_timer		*timer;
@@ -202,11 +236,14 @@ typedef struct	s_app
 	t_sdl		*sdl;
 	t_inputs	*inputs;
 	t_mesh		*meshes;
+	t_sprite	*sprites;
 	double 		depth;
 	double		z_buf[SCREEN_W * SCREEN_H];
 }				t_app;
 
 void		clip_triangles(t_tr_list **tr_lst);
+
+void		exit_with_status(int status, char *fnf_path);
 
 void		debug_mouse(t_app *app, char *event, int key_code);
 void		debug_keyboard(char *event, int key_code);
@@ -245,8 +282,8 @@ t_mat4x4	rotation_mat_y(double angle);
 void		set_triangle(t_triangle *t, t_v3d *v0, t_v3d *v1, t_v3d *v2);
 
 void		set_color(t_color *color, int r, int g, int b);
-
-void		set_pixel(SDL_Surface *surface, int x, int y, t_color *c, t_app *app);
+void		set_pixel_uint32(SDL_Surface *surface, int x, int y, Uint32 c);
+void		set_pixel(SDL_Surface *surface, int x, int y, t_color *c);
 void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color);
 
 void		check_triangle(t_app *app, t_triangle *tr);

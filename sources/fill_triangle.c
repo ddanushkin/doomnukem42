@@ -33,7 +33,11 @@ void	fill_flat_bot(t_app *app, t_triangle *t)
 		x = x_start;
 		while (x < x_end)
 		{
-			set_pixel(app->sdl->surface, x, y, &t->color, app);
+			uint32_t color;
+
+			color = t->color.r << 16 | t->color.g << 8 | t->color.b;
+			set_pixel(app->sdl->surface, x, y, &t->color);
+			set_pixel_uint32(app->sdl->surface, x, y, color);
 			x++;
 		}
 		y++;
@@ -73,7 +77,7 @@ void	fill_flat_top(t_app *app, t_triangle *t)
 		x = x_start;
 		while (x < x_end)
 		{
-			set_pixel(app->sdl->surface, x, y, &t->color, app);
+			set_pixel(app->sdl->surface, x, y, &t->color);
 			x++;
 		}
 		y++;

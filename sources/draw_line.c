@@ -16,7 +16,7 @@ static void	dx_dom(t_app *app, t_line *l)
 			stack -= l->dir.x;
 			l->cur.y += l->inc.y;
 		}
-		set_pixel(app->sdl->surface, l->cur.x, l->cur.y, &l->color, app);
+		set_pixel(app->sdl->surface, l->cur.x, l->cur.y, &l->color);
 	}
 }
 
@@ -40,7 +40,7 @@ static void	dy_dom(t_app *app, t_line *l)
 			|| (l->inc.x < 0 && l->cur.x < 0) || (l->inc.y < 0 && l->cur.y < 0)
 			|| (l->inc.y > 0 && l->cur.y >= SCREEN_H))
 			break ;
-		set_pixel(app->sdl->surface, l->cur.x, l->cur.y, &l->color, app);
+		set_pixel(app->sdl->surface, l->cur.x, l->cur.y, &l->color);
 	}
 }
 

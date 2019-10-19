@@ -18,22 +18,23 @@ int 	color_key(t_color *c)
 	return (0);
 }
 
-void	set_pixel(SDL_Surface *surface, int x, int y, t_color *c, t_app *app)
+void	set_pixel(SDL_Surface *surface, int x, int y, t_color *c)
 {
-	int		offset;
-
+	int				offset;
+	unsigned char	*pixels;
 	if (out_of_borders(x, y) || color_key(c))
 		return ;
-	int		index_z;
-
-	index_z = y * SCREEN_W + x;
-	offset = 4 * (y * surface -> w + x);
-//	if (app->z_buf[index_z] > app->depth)
-//	{
-//		app->z_buf[index_z] = app->depth;
-		unsigned char *pixels = (unsigned char *) surface->pixels;
+	offset = 4 * (y * surface->w + x);
+		pixels = (unsigned char *)surface->pixels;
 		pixels[offset] = c->b;
 		pixels[offset + 1] = c->g;
 		pixels[offset + 2] = c->r;
-//	}
+}
+
+void	set_pixel_uint32(SDL_Surface *surface, int x, int y, Uint32 c)
+{
+	Uint32 *pixel;
+
+	pixel = (Uint32 *)((Uint8 *)(surface->pixels + (y * surface->w + x) * 4));
+	*pixel = c;
 }

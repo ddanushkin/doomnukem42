@@ -94,10 +94,7 @@ void	obj_reader_count(char *path, t_mesh *mesh)
 
 	fd = open(path, O_RDONLY);
 	if (fd < 3)
-	{
-		ft_putstr("error: obj file not found\n");
-		exit(0);
-	}
+		exit_with_status(STATUS_FILE_NOT_FOUND, path);
 	reset_counts(mesh);
 	while(ft_gnl(fd, &line))
 	{
@@ -123,10 +120,7 @@ void	obj_reader_load(char *path, t_mesh *mesh)
 
 	fd = open(path, O_RDONLY);
 	if (fd < 3)
-	{
-		ft_putstr("error: obj file not found\n");
-		exit(0);
-	}
+		exit_with_status(STATUS_FILE_NOT_FOUND, path);
 	mesh->rot = new_vector(0.0, 0.0, 0.0);
 	mesh->pos = new_vector(0.0, 0.0, 0.0);
 	while(ft_gnl(fd, &line))
