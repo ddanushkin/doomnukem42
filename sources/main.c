@@ -25,22 +25,9 @@ static void capFrameRate(t_app *app, long *then, double *remainder)
 	app->timer->delta = 0.01;
 }
 
-t_color	sprite_get_color(t_sprite *s, int x, int y)
-{
-	size_t	offset;
-	t_color	c;
-
-	offset = 3 * (y * s->header.width_px + x);
-	c.r = s->pixels[offset];
-	c.g = s->pixels[offset + 1];
-	c.b = s->pixels[offset + 2];
-	return (c);
-}
-
 void	start_the_game(t_app *app)
 {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-
 	app->camera->pos = new_vector(0.0, 25.0, -120.0);
 	while (1)
 	{
@@ -49,26 +36,6 @@ void	start_the_game(t_app *app)
 		if (!event_handling(app))
 			break;
 		clear_screen(app);
-
-		int		x;
-		int		y;
-		t_color	c;
-
-		x = 0;
-		while (x < app->sprites->header.width_px)
-		{
-			y = 0;
-			while (y < app->sprites->header.height_px)
-			{
-				//T_COLOR TO UNIT32: t_color.r << 16 | t_color.g << 8 | t_color.b;
-				c = sprite_get_color(&app->sprites[0], x, y);
-				set_pixel(app->sdl->surface, x, y, &c);
-				y++;
-			}
-			x++;
-		}
-		SDL_UpdateWindowSurface(app->sdl->window);
-		continue;
 
 		/* Animate world rotation */
 		//app->world.rot.x += 1.0 * app->timer->delta;
@@ -142,6 +109,7 @@ void	start_the_game(t_app *app)
 			check_triangles(app, i);
 			i++;
 		}
+		sprite_draw(app->sdl->surface, &app->sprites[0], 0, 0, 64 * sin(app->timer->time) * 10, 64 * sin(app->timer->time * 0.5) * 10);
 		draw_cross(app, 7.0, 255, 0, 200);
 		SDL_UpdateWindowSurface(app->sdl->window);
 		get_delta_time(app->timer);
@@ -166,99 +134,6 @@ int	check_resources(void)
 	return (ft_strequ(hash, RESOURCES_MD5));
 }
 
-void	bpm_read_pixels(int fd, t_bmp_header h, t_sprite *sprite)
-{
-	size_t	len;
-	uint8_t	*tmp_read;
-	size_t	i;
-	size_t	j;
-
-	len = h.width_px * h.height_px * 3;
-	sprite->header = h;
-	sprite->pixels = (uint8_t *)malloc(len * sizeof(uint8_t));
-	tmp_read = (uint8_t *)malloc(len * sizeof(uint8_t));
-	read(fd, tmp_read, len * sizeof(uint8_t));
-	i = 0;
-	j = len - 1;
-	while (i < len)
-		sprite->pixels[i++] = tmp_read[j--];
-	free(tmp_read);
-
-	int	row;
-
-	row = 0;
-	while (row < h.height_px)
-	{
-		int x_start;
-		int x_end;
-		int end_half;
-
-		x_start = row * h.width_px * 3;
-		x_end = x_start + h.width_px * 3 - 1;
-		end_half = (x_end - x_start) / 2;
-		while (x_start < x_start + end_half)
-		{
-			t_color sc;
-			t_color ec;
-
-			sc = color_new(
-					sprite->pixels[x_start],
-					sprite->pixels[x_start + 1],
-					sprite->pixels[x_start + 2]);
-			ec = color_new(
-					sprite->pixels[x_end - 2],
-					sprite->pixels[x_end - 1],
-					sprite->pixels[x_end]);
-			sprite->pixels[x_start] = ec.r;
-			sprite->pixels[x_start + 1] = ec.g;
-			sprite->pixels[x_start + 2] = ec.b;
-			sprite->pixels[x_end - 2] = sc.r;
-			sprite->pixels[x_end - 1] = sc.g;
-			sprite->pixels[x_end] = sc.b;
-			x_start += 3;
-			end_half -= 3;
-		}
-		row++;
-	}
-}
-
-t_bmp_header	bmp_read_header(int fd)
-{
-	t_bmp_header	h;
-
-	ft_memset(&h, 0, sizeof(h));
-	read(fd, &(h.type), sizeof(h.type));
-	read(fd, &(h.size), sizeof(h.size));
-	read(fd, &(h.reserved1), sizeof(h.reserved1));
-	read(fd, &(h.reserved2), sizeof(h.reserved2));
-	read(fd, &(h.offset), sizeof(h.offset));
-	read(fd, &(h.dib_header_size), sizeof(h.dib_header_size));
-	read(fd, &(h.width_px), sizeof(h.width_px));
-	read(fd, &(h.height_px), sizeof(h.height_px));
-	read(fd, &(h.num_planes), sizeof(h.num_planes));
-	read(fd, &(h.bits_per_pixel), sizeof(h.bits_per_pixel));
-	read(fd, &(h.compression), sizeof(h.compression));
-	read(fd, &(h.image_size_bytes), sizeof(h.image_size_bytes));
-	read(fd, &(h.x_resolution_ppm), sizeof(h.x_resolution_ppm));
-	read(fd, &(h.y_resolution_ppm), sizeof(h.y_resolution_ppm));
-	read(fd, &(h.num_colors), sizeof(h.num_colors));
-	read(fd, &(h.important_colors), sizeof(h.important_colors));
-	return (h);
-}
-
-void	bmp_load(char *path, t_sprite *sprite)
-{
-	int				fd;
-
-	t_bmp_header	header;
-	fd = open(path, O_RDONLY);
-	if (fd < 3)
-		exit_with_status(STATUS_FILE_NOT_FOUND, path);
-	header = bmp_read_header(fd);
-	bpm_read_pixels(fd, header, sprite);
-	close(fd);
-}
-
 int		main(int argv, char**argc)
 {
 	t_app	*app;
@@ -277,8 +152,8 @@ int		main(int argv, char**argc)
 	/* TODO: Set number of meshes */
 	int number_of_meshes = 2;
 	app->meshes = (t_mesh *)malloc(sizeof(t_mesh) * number_of_meshes);
-	obj_reader("resources/plane.obj", &app->meshes[0]);
-	obj_reader("resources/cube.obj", &app->meshes[1]);
+	obj_load("resources/plane.obj", &app->meshes[0]);
+	obj_load("resources/cube.obj", &app->meshes[1]);
 
 	/* TODO: Set number of meshes */
 	int number_of_sprites = 1;

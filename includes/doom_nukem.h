@@ -282,9 +282,11 @@ t_mat4x4	rotation_mat_y(double angle);
 void		set_triangle(t_triangle *t, t_v3d *v0, t_v3d *v1, t_v3d *v2);
 
 void		set_color(t_color *color, int r, int g, int b);
+t_color		sprite_get_color_by_uv(t_sprite *s, double u, double v);
 void		set_pixel_uint32(SDL_Surface *surface, int x, int y, Uint32 c);
 void		set_pixel(SDL_Surface *surface, int x, int y, t_color *c);
 void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color);
+void	sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_x, int size_y);
 
 void		check_triangle(t_app *app, t_triangle *tr);
 void		render_triangle(t_app *app, t_triangle tr);
@@ -338,7 +340,7 @@ double		vector_length(t_v3d v);
 t_v3d	vector_cross_product(t_v3d v1, t_v3d v2);
 double		vector_dot_product(t_v3d v1, t_v3d v2);
 
-void		obj_reader_load(char *path, t_mesh *mesh);
-void		obj_reader_count(char *path, t_mesh *mesh);
-void		obj_reader(char *path, t_mesh *mesh);
+void		bmp_load(char *path, t_sprite *sprite);
+void		obj_load(char *path, t_mesh *mesh);
+
 #endif

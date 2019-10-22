@@ -113,7 +113,7 @@ void	obj_reader_count(char *path, t_mesh *mesh)
 	reset_counts(mesh);
 }
 
-void	obj_reader_load(char *path, t_mesh *mesh)
+void	obj_read(char *path, t_mesh *mesh)
 {
 	int		fd;
 	char	*line;
@@ -138,8 +138,8 @@ void	obj_reader_load(char *path, t_mesh *mesh)
 	ft_strdel(&line);
 }
 
-void	obj_reader(char *path, t_mesh *mesh)
+void	obj_load(char *path, t_mesh *mesh)
 {
 	obj_reader_count(path, mesh);
-	obj_reader_load(path, mesh);
+	obj_read(path, mesh);
 }

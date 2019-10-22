@@ -38,3 +38,51 @@ void	set_pixel_uint32(SDL_Surface *surface, int x, int y, Uint32 c)
 	pixel = (Uint32 *)((Uint8 *)(surface->pixels + (y * surface->w + x) * 4));
 	*pixel = c;
 }
+
+t_color	sprite_get_color(t_sprite *s, int x, int y)
+{
+	size_t	offset;
+	t_color	c;
+
+	offset = 3 * (y * s->header.width_px + x);
+	c.r = s->pixels[offset];
+	c.g = s->pixels[offset + 1];
+	c.b = s->pixels[offset + 2];
+	return (c);
+}
+
+t_color	sprite_get_color_by_uv(t_sprite *s, double u, double v)
+{
+	t_bmp_header	*h;
+	int				x;
+	int				y;
+
+	h = &s->header;
+	x = (h->width_px - 1) * u;
+	y = (h->height_px - 1) * v;
+	return (sprite_get_color(s, x, y));
+}
+
+void	sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_x, int size_y)
+{
+	int		i;
+	int		j;
+	t_color	c;
+
+	i = 0;
+	size_x = abs(size_x);
+	size_y = abs(size_y);
+	while (i < size_x)
+	{
+		j = 0;
+		while (j < size_y)
+		{
+			double u = (double)i / (double)size_x;
+			double v = (double)j / (double)size_y;
+			c = sprite_get_color_by_uv(sprite, u, v);
+			set_pixel(screen, i + x, j + y, &c);
+			j++;
+		}
+		i++;
+	}
+}
