@@ -28,12 +28,14 @@ void		choose_dist(double dist, t_io *io, t_triangle *tr, int index)
 	if (dist >= 0)
 	{
 		io->vin[io->vins] = tr->v[index];
-		io->tin[io->vins++] = tr->t[index];
+		io->tin[io->vins] = tr->t[index];
+		io->vins++;
 	}
 	else
 	{
 		io->vout[io->vouts] = tr->v[index];
-		io->tout[io->vouts++] = tr->t[index];
+		io->tout[io->vouts] = tr->t[index];
+		io->vouts++;
 	}
 }
 
@@ -115,12 +117,14 @@ void		clip_add_tr_1(t_tr_list **list, t_io *io, t_plane *plane)
 	double		t;
 
 	tr_new_1.v[0] = io->vin[0];
-	tr_new_1.v[1] = vector_inter_plan(*plane, io->vin[0], io->vout[0], &t);
-	tr_new_1.v[2] = vector_inter_plan(*plane, io->vin[0], io->vout[1], &t);
 	tr_new_1.t[0] = io->tin[0];
+
+	tr_new_1.v[1] = vector_inter_plan(*plane, io->vin[0], io->vout[0], &t);
 	tr_new_1.t[1].u = t * (io->tout[0].u - io->tin[0].u) + io->tin[0].u;
 	tr_new_1.t[1].v = t * (io->tout[0].v - io->tin[0].v) + io->tin[0].v;
 	tr_new_1.t[1].w = t * (io->tout[0].w - io->tin[0].w) + io->tin[0].w;
+
+	tr_new_1.v[2] = vector_inter_plan(*plane, io->vin[0], io->vout[1], &t);
 	tr_new_1.t[2].u = t * (io->tout[1].u - io->tin[0].u) + io->tin[0].u;
 	tr_new_1.t[2].v = t * (io->tout[1].v - io->tin[0].v) + io->tin[0].v;
 	tr_new_1.t[2].w = t * (io->tout[1].w - io->tin[0].w) + io->tin[0].w;
@@ -135,20 +139,20 @@ void		clip_add_tr_2(t_tr_list **list, t_io *io, t_plane *plane)
 	double		t;
 
 	tr_new_1.v[0] = io->vin[0];
-	tr_new_1.v[1] = io->vin[1];
-	tr_new_1.v[2] = vector_inter_plan(*plane, io->vin[0], io->vout[0], &t);
 	tr_new_1.t[0] = io->tin[0];
+	tr_new_1.v[1] = io->vin[1];
 	tr_new_1.t[1] = io->tin[1];
+	tr_new_1.v[2] = vector_inter_plan(*plane, io->vin[0], io->vout[0], &t);
 	tr_new_1.t[2].u = t * (io->tout[0].u - io->tin[0].u) + io->tin[0].u;
 	tr_new_1.t[2].v = t * (io->tout[0].v - io->tin[0].v) + io->tin[0].v;
 	tr_new_1.t[2].w = t * (io->tout[0].w - io->tin[0].w) + io->tin[0].w;
 	tr_new_1.color = color_new(128, 128, 128);
 	push_back(list, tr_new_1);
 	tr_new_2.v[0] = io->vin[1];
-	tr_new_2.v[1] = tr_new_1.v[2];
-	tr_new_2.v[2] = vector_inter_plan(*plane, io->vin[1], io->vout[0], &t);
 	tr_new_2.t[0] = io->tin[1];
+	tr_new_2.v[1] = tr_new_1.v[2];
 	tr_new_2.t[1] = tr_new_1.t[2];
+	tr_new_2.v[2] = vector_inter_plan(*plane, io->vin[1], io->vout[0], &t);
 	tr_new_2.t[2].u = t * (io->tout[0].u - io->tin[1].u) + io->tin[1].u;
 	tr_new_2.t[2].v = t * (io->tout[0].v - io->tin[1].v) + io->tin[1].v;
 	tr_new_2.t[2].w = t * (io->tout[0].w - io->tin[1].w) + io->tin[1].w;

@@ -122,6 +122,167 @@ void	check_triangle(t_app *app, t_triangle *tr)
 	}
 }
 
+void TexturedTriangle(
+		t_app *app,
+		int x1, int y1, double u1, double v1, double w1,
+		int x2, int y2, double u2, double v2, double w2,
+		int x3, int y3, double u3, double v3, double w3)
+{
+	if (y2 < y1)
+	{
+		SWAP(y1, y2, int);
+		SWAP(x1, x2, int);
+		SWAP(u1, u2, double);
+		SWAP(v1, v2, double);
+		SWAP(w1, w2, double);
+	}
+
+	if (y3 < y1)
+	{
+		SWAP(y1, y3, int);
+		SWAP(x1, x3, int);
+		SWAP(u1, u3, double);
+		SWAP(v1, v3, double);
+		SWAP(w1, w3, double);
+	}
+
+	if (y3 < y2)
+	{
+		SWAP(y2, y3, int);
+		SWAP(x2, x3, int);
+		SWAP(u2, u3, double);
+		SWAP(v2, v3, double);
+		SWAP(w2, w3, double);
+	}
+
+	int dy1 = y2 - y1;
+	int dx1 = x2 - x1;
+	double dv1 = v2 - v1;
+	double du1 = u2 - u1;
+	double dw1 = w2 - w1;
+
+	int dy2 = y3 - y1;
+	int dx2 = x3 - x1;
+	double dv2 = v3 - v1;
+	double du2 = u3 - u1;
+	double dw2 = w3 - w1;
+
+	double tex_u, tex_v, tex_w;
+
+	double dax_step = 0, dbx_step = 0,
+			du1_step = 0, dv1_step = 0,
+			du2_step = 0, dv2_step = 0,
+			dw1_step=0, dw2_step=0;
+
+	if (dy1) dax_step = dx1 / (double)abs(dy1);
+	if (dy2) dbx_step = dx2 / (double)abs(dy2);
+
+	if (dy1) du1_step = du1 / (double)abs(dy1);
+	if (dy1) dv1_step = dv1 / (double)abs(dy1);
+	if (dy1) dw1_step = dw1 / (double)abs(dy1);
+
+	if (dy2) du2_step = du2 / (double)abs(dy2);
+	if (dy2) dv2_step = dv2 / (double)abs(dy2);
+	if (dy2) dw2_step = dw2 / (double)abs(dy2);
+
+	if (dy1)
+	{
+		for (int i = y1; i <= y2; i++)
+		{
+			int ax = x1 + (double)(i - y1) * dax_step;
+			int bx = x1 + (double)(i - y1) * dbx_step;
+
+			double tex_su = u1 + (double)(i - y1) * du1_step;
+			double tex_sv = v1 + (double)(i - y1) * dv1_step;
+			double tex_sw = w1 + (double)(i - y1) * dw1_step;
+
+			double tex_eu = u1 + (double)(i - y1) * du2_step;
+			double tex_ev = v1 + (double)(i - y1) * dv2_step;
+			double tex_ew = w1 + (double)(i - y1) * dw2_step;
+
+			if (ax > bx)
+			{
+				SWAP(ax, bx, int);
+				SWAP(tex_su, tex_eu, double);
+				SWAP(tex_sv, tex_ev, double);
+				SWAP(tex_sw, tex_ew, double);
+			}
+
+			double tstep = 1.0 / ((double)(bx - ax));
+			double t = 0.0;
+
+			for (int j = ax; j < bx; j++)
+			{
+				tex_u = (1.0 - t) * tex_su + t * tex_eu;
+				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
+				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
+				if (tex_w > app->z_buf[i*SCREEN_W + j])
+				{
+					set_pixel(app->sdl->surface, j, i, sprite_get_color_by_uv(&app->sprites[0], tex_u, tex_v));
+					app->z_buf[i*SCREEN_W + j] = tex_w;
+				}
+				t += tstep;
+			}
+
+		}
+	}
+
+	dy1 = y3 - y2;
+	dx1 = x3 - x2;
+	dv1 = v3 - v2;
+	du1 = u3 - u2;
+	dw1 = w3 - w2;
+
+	if (dy1) dax_step = dx1 / (double)abs(dy1);
+	if (dy2) dbx_step = dx2 / (double)abs(dy2);
+
+	du1_step = 0, dv1_step = 0;
+	if (dy1) du1_step = du1 / (double)abs(dy1);
+	if (dy1) dv1_step = dv1 / (double)abs(dy1);
+	if (dy1) dw1_step = dw1 / (double)abs(dy1);
+
+	if (dy1)
+	{
+		for (int i = y2; i <= y3; i++)
+		{
+			int ax = x2 + (double)(i - y2) * dax_step;
+			int bx = x1 + (double)(i - y1) * dbx_step;
+
+			double tex_su = u2 + (double)(i - y2) * du1_step;
+			double tex_sv = v2 + (double)(i - y2) * dv1_step;
+			double tex_sw = w2 + (double)(i - y2) * dw1_step;
+
+			double tex_eu = u1 + (double)(i - y1) * du2_step;
+			double tex_ev = v1 + (double)(i - y1) * dv2_step;
+			double tex_ew = w1 + (double)(i - y1) * dw2_step;
+
+			if (ax > bx)
+			{
+				SWAP(ax, bx, int);
+				SWAP(tex_su, tex_eu, double);
+				SWAP(tex_sv, tex_ev, double);
+				SWAP(tex_sw, tex_ew, double);
+			}
+
+			double tstep = 1.0 / ((double)(bx - ax));
+			double t = 0.0;
+
+			for (int j = ax; j < bx; j++)
+			{
+				tex_u = (1.0 - t) * tex_su + t * tex_eu;
+				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
+				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
+				if (tex_w > app->z_buf[i * SCREEN_W + j])
+				{
+					set_pixel(app->sdl->surface, j, i, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
+					app->z_buf[i * SCREEN_W + j] = tex_w;
+				}
+				t += tstep;
+			}
+		}
+	}
+}
+
 void	render_triangle(t_app *app, t_triangle tr)
 {
 	t_tr_list	*tr_lst;
@@ -139,6 +300,19 @@ void	render_triangle(t_app *app, t_triangle tr)
 	if (tr.v[2].z < 0.1)
 		tr.v[2].z = 0.1;
 	project_triangle(&tr, &app->projection_mat);
+
+	tr.t[0].u = tr.t[0].u / tr.v[0].w;
+	tr.t[0].v = tr.t[0].v / tr.v[0].w;
+	tr.t[0].w = 1.0 / tr.v[0].w;
+
+	tr.t[1].u = tr.t[1].u / tr.v[1].w;
+	tr.t[1].v = tr.t[1].v / tr.v[1].w;
+	tr.t[1].w = 1.0 / tr.v[1].w;
+
+	tr.t[2].u = tr.t[2].u / tr.v[2].w;
+	tr.t[2].v = tr.t[2].v / tr.v[2].w;
+	tr.t[2].w = 1.0 / tr.v[2].w;
+
 	scale_triangle(&tr);
 	tr.v[0] = vector_mul_by(tr.v[0], -1);
 	tr.v[0].z *= -1;
@@ -155,7 +329,11 @@ void	render_triangle(t_app *app, t_triangle tr)
 	while (tr_lst != NULL)
 	{
 		tr_lst->tr.color = tr.color;
-		fill_triangle(app, tr_lst->tr);
+		TexturedTriangle(app,
+						 tr_lst->tr.v[0].x, tr_lst->tr.v[0].y, tr_lst->tr.t[0].u, tr_lst->tr.t[0].v, tr_lst->tr.t[0].w,
+						 tr_lst->tr.v[1].x, tr_lst->tr.v[1].y, tr_lst->tr.t[1].u, tr_lst->tr.t[1].v, tr_lst->tr.t[1].w,
+						 tr_lst->tr.v[2].x, tr_lst->tr.v[2].y, tr_lst->tr.t[2].u, tr_lst->tr.t[2].v, tr_lst->tr.t[2].w);
+		//fill_triangle(app, tr_lst->tr);
 		draw_outline(app, tr_lst->tr);
 		tmp_next = tr_lst->next;
 		free(tr_lst);

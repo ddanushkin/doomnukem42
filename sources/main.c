@@ -3,11 +3,16 @@
 void	clear_screen(t_app *app)
 {
 	int len;
-
 	len = app->sdl->width * app->sdl->height * 4;
 	image_clear(app->sdl->surface->pixels, 200, len);
 }
 
+void	clear_z_buffer(t_app *app)
+{
+	int len;
+	len = app->sdl->width * app->sdl->height;
+	image_clear(app->z_buf, 0, len);
+}
 
 static void capFrameRate(t_app *app, long *then, double *remainder)
 {
@@ -36,7 +41,7 @@ void	start_the_game(t_app *app)
 		if (!event_handling(app))
 			break;
 		clear_screen(app);
-
+		clear_z_buffer(app);
 		/* Animate world rotation */
 		//app->world.rot.x += 1.0 * app->timer->delta;
 		//app->world.rot.y += 1.0 * app->timer->delta;
@@ -87,14 +92,9 @@ void	start_the_game(t_app *app)
 		//app->meshes[0].pos.z = sin(app->timer->time) * 2.0;
 
 		int i = 0;
-		while (i < 2)
+		while (i < 1)
 		{
 			app->meshes[i].pos = new_vector(-0.5, -0.5, -0.5);
-			if (i == 0)
-			{
-				app->meshes[i].rot.x += 1.0 * app->timer->delta;
-				app->meshes[i].pos.x = sin(app->timer->time) * 2.0;
-			}
 			app->meshes[i].rot_mat_x = rotation_mat_x(app->meshes[i].rot.x);
 			app->meshes[i].rot_mat_y = rotation_mat_y(app->meshes[i].rot.y);
 			app->meshes[i].rot_mat_z = rotation_mat_z(app->meshes[i].rot.z);
@@ -109,7 +109,6 @@ void	start_the_game(t_app *app)
 			check_triangles(app, i);
 			i++;
 		}
-		sprite_draw(app->sdl->surface, &app->sprites[0], 0, 0, 64 * sin(app->timer->time) * 10, 64 * sin(app->timer->time * 0.5) * 10);
 		draw_cross(app, 7.0, 255, 0, 200);
 		SDL_UpdateWindowSurface(app->sdl->window);
 		get_delta_time(app->timer);
@@ -146,7 +145,7 @@ int		main(int argv, char**argc)
 	app->timer = (t_timer *)malloc(sizeof(t_timer));
 	app->world = (t_world *)malloc(sizeof(t_world));
 	app->camera = (t_camera *)malloc(sizeof(t_camera));
-
+	app->z_buf = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
 	init_app(app);
 
 	/* TODO: Set number of meshes */

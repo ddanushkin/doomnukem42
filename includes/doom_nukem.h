@@ -95,11 +95,9 @@ typedef struct	s_mesh
 	t_v3d		*vb;
 	t_v2d		*tx;
 	t_triangle	*tr;
-	t_v3d		*nr;
 	int 		v_count;
 	int 		tx_count;
 	int 		tr_count;
-	int 		nr_count;
 	t_v3d		pos;
 	t_v3d		rot;
 	t_mat4x4	rot_mat_x;
@@ -237,8 +235,7 @@ typedef struct	s_app
 	t_inputs	*inputs;
 	t_mesh		*meshes;
 	t_sprite	*sprites;
-	double 		depth;
-	double		z_buf[SCREEN_W * SCREEN_H];
+	double		*z_buf;
 }				t_app;
 
 void		clip_triangles(t_tr_list **tr_lst);
@@ -284,9 +281,9 @@ void		set_triangle(t_triangle *t, t_v3d *v0, t_v3d *v1, t_v3d *v2);
 void		set_color(t_color *color, int r, int g, int b);
 t_color		sprite_get_color_by_uv(t_sprite *s, double u, double v);
 void		set_pixel_uint32(SDL_Surface *surface, int x, int y, Uint32 c);
-void		set_pixel(SDL_Surface *surface, int x, int y, t_color *c);
+void		set_pixel(SDL_Surface *surface, int x, int y, t_color c);
 void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color);
-void	sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_x, int size_y);
+void		sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_x, int size_y);
 
 void		check_triangle(t_app *app, t_triangle *tr);
 void		render_triangle(t_app *app, t_triangle tr);
@@ -302,12 +299,12 @@ void		show_fps(t_app *app);
 
 void		draw_cross(t_app *app, double size, int r, int g, int b);
 
-void		get_color(SDL_Surface *surface, int x, int y, t_color *c);
+void		get_color(SDL_Surface *surface, int x, int y, t_color c);
 t_color		color_new(int r, int g, int b);
 t_color		color_sub(t_color color, int k);
 
 int 		out_of_borders(int x, int y);
-int 		color_key(t_color *c);
+int 		color_key(t_color c);
 void		quit_properly(t_app *app);
 
 int			event_handling(t_app *app);
@@ -320,7 +317,7 @@ void		mouse_update(t_app *app);
 t_mat4x4	matrix_subtraction(t_mat4x4 m1, t_mat4x4 m2);
 t_mat4x4	matrix_summary(t_mat4x4 m1, t_mat4x4 m2);
 t_mat4x4	matrix_multiply_matrix(t_mat4x4 m1, t_mat4x4 m2);
-t_v3d	matrix_multiply_vector(t_mat4x4 m, t_v3d v);
+t_v3d		matrix_multiply_vector(t_mat4x4 m, t_v3d v);
 t_mat4x4	matrix_look_at(t_v3d from, t_v3d to);
 t_mat4x4	matrix_inverse(t_mat4x4 m);
 t_mat4x4	matrix_identity();
@@ -330,14 +327,14 @@ void		transform_vertices(t_app *app, int mesh_id);
 void		assemble_triangles(t_app *app, int mesh_id);
 void		check_triangles(t_app *app, int mesh_id);
 
-t_v3d	new_vector(double x, double y, double z);
-t_v3d	vector_sum(t_v3d vector1, t_v3d vector2);
-t_v3d	vector_sub(t_v3d vector1, t_v3d vector2);
-t_v3d	vector_mul_by(t_v3d v, double k);
-t_v3d	vector_div_by(t_v3d v, double k);
-t_v3d	vector_normalise(t_v3d v);
+t_v3d		new_vector(double x, double y, double z);
+t_v3d		vector_sum(t_v3d vector1, t_v3d vector2);
+t_v3d		vector_sub(t_v3d vector1, t_v3d vector2);
+t_v3d		vector_mul_by(t_v3d v, double k);
+t_v3d		vector_div_by(t_v3d v, double k);
+t_v3d		vector_normalise(t_v3d v);
 double		vector_length(t_v3d v);
-t_v3d	vector_cross_product(t_v3d v1, t_v3d v2);
+t_v3d		vector_cross_product(t_v3d v1, t_v3d v2);
 double		vector_dot_product(t_v3d v1, t_v3d v2);
 
 void		bmp_load(char *path, t_sprite *sprite);
