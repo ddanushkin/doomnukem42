@@ -115,7 +115,7 @@ void	check_triangle(t_app *app, t_triangle *tr)
 
 	normal = calc_normal(*tr);
 	camera_ray = vector_sub(tr->v[0], app->camera->pos);
-	if (vector_dot_product(normal, camera_ray) < 0.0)
+	if (vector_dot_product(normal, camera_ray) > 0.0)
 	{
 		calc_light(app, tr, normal);
 		tr->visible = 1;
@@ -217,7 +217,7 @@ void TexturedTriangle(
 				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
 				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
 				/* TODO: Fix DepthBuffer (app->z_buf) check */
-				if (1)
+				if (tex_w > app->z_buf[i * SCREEN_W + j])
 				{
 					set_pixel(app->sdl->surface, j, i, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
 					app->z_buf[i * SCREEN_W + j] = tex_w;
@@ -274,7 +274,7 @@ void TexturedTriangle(
 				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
 				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
 				/* TODO: Fix DepthBuffer (app->z_buf) check */
-				if (1)
+				if (tex_w > app->z_buf[i * SCREEN_W + j])
 				{
 					set_pixel(app->sdl->surface, j, i, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
 					app->z_buf[i * SCREEN_W + j] = tex_w;
@@ -340,7 +340,7 @@ void	render_triangle(t_app *app, t_triangle tr)
 						 tr_lst->tr.v[1].x, tr_lst->tr.v[1].y, tr_lst->tr.t[1].u, tr_lst->tr.t[1].v, tr_lst->tr.t[1].w,
 						 tr_lst->tr.v[2].x, tr_lst->tr.v[2].y, tr_lst->tr.t[2].u, tr_lst->tr.t[2].v, tr_lst->tr.t[2].w);
 		//fill_triangle(app, tr_lst->tr);
-		draw_outline(app, tr_lst->tr);
+		//draw_outline(app, tr_lst->tr);
 		tmp_next = tr_lst->next;
 		free(tr_lst);
 		tr_lst = tmp_next;
