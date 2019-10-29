@@ -22,7 +22,7 @@ void	set_pixel(SDL_Surface *surface, int x, int y, t_color c)
 {
 	int				offset;
 	unsigned char	*pixels;
-	if (out_of_borders(x, y) || color_key(c))
+	if (out_of_borders(x, y))
 		return ;
 	offset = 4 * (y * surface->w + x);
 	pixels = (unsigned char *)surface->pixels;
@@ -53,13 +53,17 @@ t_color	sprite_get_color(t_sprite *s, int x, int y)
 
 t_color	sprite_get_color_by_uv(t_sprite *s, double u, double v)
 {
-	t_bmp_header	*h;
+	t_bmp_header	*header;
 	int				x;
 	int				y;
+	int 			h;
+	int 			w;
 
-	h = &s->header;
-	x = (h->width_px - 1) * fabs(u);
-	y = (h->height_px - 1) * fabs(v);
+	header = &s->header;
+	h = header->height_px - 1;
+	w = header->width_px - 1;
+	x = (int)(w * u) % w;
+	y = (int)(h * v) % h;
 	return (sprite_get_color(s, x, y));
 }
 

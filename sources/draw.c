@@ -172,7 +172,7 @@ void TexturedTriangle(
 	double dax_step = 0, dbx_step = 0,
 			du1_step = 0, dv1_step = 0,
 			du2_step = 0, dv2_step = 0,
-			dw1_step=0, dw2_step=0;
+			dw1_step = 0, dw2_step = 0;
 
 	if (dy1) dax_step = dx1 / (double)abs(dy1);
 	if (dy2) dbx_step = dx2 / (double)abs(dy2);
@@ -208,7 +208,7 @@ void TexturedTriangle(
 				SWAP(tex_sw, tex_ew, double);
 			}
 
-			double tstep = 1.0 / ((double)(bx - ax));
+			double tstep = 1.0 / (bx - ax);
 			double t = 0.0;
 
 			for (int j = ax; j < bx; j++)
@@ -216,10 +216,11 @@ void TexturedTriangle(
 				tex_u = (1.0 - t) * tex_su + t * tex_eu;
 				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
 				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
-				if (tex_w > app->z_buf[i*SCREEN_W + j])
+				/* TODO: Fix DepthBuffer (app->z_buf) check */
+				if (1)
 				{
-					set_pixel(app->sdl->surface, j, i, sprite_get_color_by_uv(&app->sprites[0], tex_u, tex_v));
-					app->z_buf[i*SCREEN_W + j] = tex_w;
+					set_pixel(app->sdl->surface, j, i, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
+					app->z_buf[i * SCREEN_W + j] = tex_w;
 				}
 				t += tstep;
 			}
@@ -264,7 +265,7 @@ void TexturedTriangle(
 				SWAP(tex_sw, tex_ew, double);
 			}
 
-			double tstep = 1.0 / ((double)(bx - ax));
+			double tstep = 1.0 / (bx - ax);
 			double t = 0.0;
 
 			for (int j = ax; j < bx; j++)
@@ -272,7 +273,8 @@ void TexturedTriangle(
 				tex_u = (1.0 - t) * tex_su + t * tex_eu;
 				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
 				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
-				if (tex_w > app->z_buf[i * SCREEN_W + j])
+				/* TODO: Fix DepthBuffer (app->z_buf) check */
+				if (1)
 				{
 					set_pixel(app->sdl->surface, j, i, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
 					app->z_buf[i * SCREEN_W + j] = tex_w;
@@ -299,32 +301,36 @@ void	render_triangle(t_app *app, t_triangle tr)
 		tr.v[1].z = 0.1;
 	if (tr.v[2].z < 0.1)
 		tr.v[2].z = 0.1;
+
 	project_triangle(&tr, &app->projection_mat);
 
-	tr.t[0].u = tr.t[0].u / tr.v[0].w;
-	tr.t[0].v = tr.t[0].v / tr.v[0].w;
+	tr.t[0].u /= tr.v[0].w;
+	tr.t[0].v /= tr.v[0].w;
 	tr.t[0].w = 1.0 / tr.v[0].w;
 
-	tr.t[1].u = tr.t[1].u / tr.v[1].w;
-	tr.t[1].v = tr.t[1].v / tr.v[1].w;
+	tr.t[1].u /= tr.v[1].w;
+	tr.t[1].v /= tr.v[1].w;
 	tr.t[1].w = 1.0 / tr.v[1].w;
 
-	tr.t[2].u = tr.t[2].u / tr.v[2].w;
-	tr.t[2].v = tr.t[2].v / tr.v[2].w;
+	tr.t[2].u /= tr.v[2].w;
+	tr.t[2].v /= tr.v[2].w;
 	tr.t[2].w = 1.0 / tr.v[2].w;
 
 	scale_triangle(&tr);
+
 	tr.v[0] = vector_mul_by(tr.v[0], -1);
 	tr.v[0].z *= -1;
 	tr.v[1] = vector_mul_by(tr.v[1], -1);
 	tr.v[1].z *= -1;
 	tr.v[2] = vector_mul_by(tr.v[2], -1);
 	tr.v[2].z *= -1;
+
 	offset_triangle(&tr, app);
 
 	tr_lst = (t_tr_list *)malloc(sizeof(t_tr_list));
 	tr_lst->tr = tr;
 	tr_lst->next = NULL;
+
 	clip_triangles(&tr_lst);
 	while (tr_lst != NULL)
 	{
