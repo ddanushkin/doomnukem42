@@ -72,20 +72,9 @@ void	offset_triangle(t_triangle *tr, t_app *app)
 	tr->v[2].y *= app->sdl->half_height;
 }
 
-void	calc_light(t_app *app, t_triangle *tr, t_v3d normal)
+void	calc_light(t_triangle *tr, t_v3d normal)
 {
-	t_v3d	light_dir;
-	double	light_dp;
-
-	set_vector(&light_dir, 0.0, 1.0, -1.0);
-	light_dir = vector_normalise(light_dir);
-	light_dp = MAX(0.1, vector_dot_product(normal, light_dir));
-	tr->color.r = (int)((double)tr->color.r * light_dp);
-	tr->color.g = (int)((double)tr->color.g * light_dp);
-	tr->color.b = (int)((double)tr->color.b * light_dp);
-	tr->color.r = CLAMP(tr->color.r, 0, 255);
-	tr->color.g = CLAMP(tr->color.g, 0, 255);
-	tr->color.b = CLAMP(tr->color.b, 0, 255);
+	tr->light_dp = MAX(0.2, vector_dot_product(normal, vector_normalise(new_vector(0.0, 0.0, 1.0))));
 }
 
 t_v3d	calc_normal(t_triangle tr)
@@ -117,13 +106,13 @@ void	check_triangle(t_app *app, t_triangle *tr)
 	camera_ray = vector_sub(tr->v[0], app->camera->pos);
 	if (vector_dot_product(normal, camera_ray) > 0.0)
 	{
-		calc_light(app, tr, normal);
+		calc_light(tr, normal);
 		tr->visible = 1;
 	}
 }
 
 void TexturedTriangle(
-		t_app *app,
+		t_app *app, t_triangle *tr,
 		int x1, int y1, double u1, double v1, double w1,
 		int x2, int y2, double u2, double v2, double w2,
 		int x3, int y3, double u3, double v3, double w3)
@@ -219,7 +208,13 @@ void TexturedTriangle(
 				/* TODO: Fix DepthBuffer (app->z_buf) check */
 				if (tex_w > app->z_buf[i * SCREEN_W + j])
 				{
-					set_pixel(app->sdl->surface, j, i, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
+					t_color c;
+
+					c = sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w);
+					c.r = (int)(c.r * tr->light_dp);
+					c.g = (int)(c.g * tr->light_dp);
+					c.b = (int)(c.b * tr->light_dp);
+					set_pixel(app->sdl->surface, j, i, c);
 					app->z_buf[i * SCREEN_W + j] = tex_w;
 				}
 				t += tstep;
@@ -276,7 +271,13 @@ void TexturedTriangle(
 				/* TODO: Fix DepthBuffer (app->z_buf) check */
 				if (tex_w > app->z_buf[i * SCREEN_W + j])
 				{
-					set_pixel(app->sdl->surface, j, i, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
+					t_color c;
+
+					c = sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w);
+					c.r = (int)(c.r * tr->light_dp);
+					c.g = (int)(c.g * tr->light_dp);
+					c.b = (int)(c.b * tr->light_dp);
+					set_pixel(app->sdl->surface, j, i, c);
 					app->z_buf[i * SCREEN_W + j] = tex_w;
 				}
 				t += tstep;
@@ -335,7 +336,8 @@ void	render_triangle(t_app *app, t_triangle tr)
 	while (tr_lst != NULL)
 	{
 		tr_lst->tr.color = tr.color;
-		TexturedTriangle(app,
+		tr_lst->tr.light_dp = tr.light_dp;
+		TexturedTriangle(app, &tr_lst->tr,
 						 tr_lst->tr.v[0].x, tr_lst->tr.v[0].y, tr_lst->tr.t[0].u, tr_lst->tr.t[0].v, tr_lst->tr.t[0].w,
 						 tr_lst->tr.v[1].x, tr_lst->tr.v[1].y, tr_lst->tr.t[1].u, tr_lst->tr.t[1].v, tr_lst->tr.t[1].w,
 						 tr_lst->tr.v[2].x, tr_lst->tr.v[2].y, tr_lst->tr.t[2].u, tr_lst->tr.t[2].v, tr_lst->tr.t[2].w);

@@ -86,6 +86,7 @@ typedef struct	s_triangle
 	t_v2d		t[3];
 	t_v3d		n[3];
 	t_color		color;
+	double 		light_dp;
 	int 		visible;
 }				t_triangle;
 

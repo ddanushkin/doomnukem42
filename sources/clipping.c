@@ -111,53 +111,58 @@ void		push_back(t_tr_list **tr_lst, t_triangle to_add)
 	last->next = write_lst_elem(to_add);
 }
 
-void		clip_add_tr_1(t_tr_list **list, t_io *io, t_plane *plane)
+void		clip_add_one_tr(t_tr_list **list, t_io *io, t_plane *plane)
 {
-	t_triangle	tr_new_1;
+	t_triangle	tr_oen;
 	double		t;
 
-	tr_new_1.v[0] = io->vin[0];
-	tr_new_1.t[0] = io->tin[0];
+	tr_oen.v[0] = io->vin[0];
+	tr_oen.t[0] = io->tin[0];
 
-	tr_new_1.v[1] = vector_inter_plan(*plane, io->vin[0], io->vout[0], &t);
-	tr_new_1.t[1].u = t * (io->tout[0].u - io->tin[0].u) + io->tin[0].u;
-	tr_new_1.t[1].v = t * (io->tout[0].v - io->tin[0].v) + io->tin[0].v;
-	tr_new_1.t[1].w = t * (io->tout[0].w - io->tin[0].w) + io->tin[0].w;
+	tr_oen.v[1] = vector_inter_plan(*plane, io->vin[0], io->vout[0], &t);
+	tr_oen.t[1].u = t * (io->tout[0].u - io->tin[0].u) + io->tin[0].u;
+	tr_oen.t[1].v = t * (io->tout[0].v - io->tin[0].v) + io->tin[0].v;
+	tr_oen.t[1].w = t * (io->tout[0].w - io->tin[0].w) + io->tin[0].w;
 
-	tr_new_1.v[2] = vector_inter_plan(*plane, io->vin[0], io->vout[1], &t);
-	tr_new_1.t[2].u = t * (io->tout[1].u - io->tin[0].u) + io->tin[0].u;
-	tr_new_1.t[2].v = t * (io->tout[1].v - io->tin[0].v) + io->tin[0].v;
-	tr_new_1.t[2].w = t * (io->tout[1].w - io->tin[0].w) + io->tin[0].w;
-	tr_new_1.color = color_new(128, 128, 128);
-	push_back(list, tr_new_1);
+	tr_oen.v[2] = vector_inter_plan(*plane, io->vin[0], io->vout[1], &t);
+	tr_oen.t[2].u = t * (io->tout[1].u - io->tin[0].u) + io->tin[0].u;
+	tr_oen.t[2].v = t * (io->tout[1].v - io->tin[0].v) + io->tin[0].v;
+	tr_oen.t[2].w = t * (io->tout[1].w - io->tin[0].w) + io->tin[0].w;
+	tr_oen.color = color_new(128, 128, 128);
+	push_back(list, tr_oen);
 }
 
-void		clip_add_tr_2(t_tr_list **list, t_io *io, t_plane *plane)
+void		clip_add_two_tr(t_tr_list **list, t_io *io, t_plane *plane)
 {
-	t_triangle	tr_new_1;
-	t_triangle	tr_new_2;
+	t_triangle	tr_one;
+	t_triangle	tr_two;
 	double		t;
 
-	tr_new_1.v[0] = io->vin[0];
-	tr_new_1.t[0] = io->tin[0];
-	tr_new_1.v[1] = io->vin[1];
-	tr_new_1.t[1] = io->tin[1];
-	tr_new_1.v[2] = vector_inter_plan(*plane, io->vin[0], io->vout[0], &t);
-	tr_new_1.t[2].u = t * (io->tout[0].u - io->tin[0].u) + io->tin[0].u;
-	tr_new_1.t[2].v = t * (io->tout[0].v - io->tin[0].v) + io->tin[0].v;
-	tr_new_1.t[2].w = t * (io->tout[0].w - io->tin[0].w) + io->tin[0].w;
-	tr_new_1.color = color_new(128, 128, 128);
-	push_back(list, tr_new_1);
-	tr_new_2.v[0] = io->vin[1];
-	tr_new_2.t[0] = io->tin[1];
-	tr_new_2.v[1] = tr_new_1.v[2];
-	tr_new_2.t[1] = tr_new_1.t[2];
-	tr_new_2.v[2] = vector_inter_plan(*plane, io->vin[1], io->vout[0], &t);
-	tr_new_2.t[2].u = t * (io->tout[0].u - io->tin[1].u) + io->tin[1].u;
-	tr_new_2.t[2].v = t * (io->tout[0].v - io->tin[1].v) + io->tin[1].v;
-	tr_new_2.t[2].w = t * (io->tout[0].w - io->tin[1].w) + io->tin[1].w;
-	tr_new_2.color = color_new(128, 128, 128);
-	push_back(list, tr_new_2);
+	tr_one.v[0] = io->vin[0];
+	tr_one.t[0] = io->tin[0];
+
+	tr_one.v[1] = io->vin[1];
+	tr_one.t[1] = io->tin[1];
+
+	tr_one.v[2] = vector_inter_plan(*plane, io->vin[0], io->vout[0], &t);
+	tr_one.t[2].u = t * (io->tout[0].u - io->tin[0].u) + io->tin[0].u;
+	tr_one.t[2].v = t * (io->tout[0].v - io->tin[0].v) + io->tin[0].v;
+	tr_one.t[2].w = t * (io->tout[0].w - io->tin[0].w) + io->tin[0].w;
+	tr_one.color = color_new(128, 128, 128);
+	push_back(list, tr_one);
+
+	tr_two.v[0] = io->vin[1];
+	tr_two.t[0] = io->tin[1];
+
+	tr_two.v[1] = tr_one.v[2];
+	tr_two.t[1] = tr_one.t[2];
+
+	tr_two.v[2] = vector_inter_plan(*plane, io->vin[1], io->vout[0], &t);
+	tr_two.t[2].u = t * (io->tout[0].u - io->tin[1].u) + io->tin[1].u;
+	tr_two.t[2].v = t * (io->tout[0].v - io->tin[1].v) + io->tin[1].v;
+	tr_two.t[2].w = t * (io->tout[0].w - io->tin[1].w) + io->tin[1].w;
+	tr_two.color = color_new(128, 128, 128);
+	push_back(list, tr_two);
 }
 
 void		clip_choose_push(t_tr_list **list, t_io *io, t_plane *plane,
@@ -166,9 +171,9 @@ void		clip_choose_push(t_tr_list **list, t_io *io, t_plane *plane,
 	if (io->vins == 3)
 		push_back(list, *tr);
 	if (io->vins == 1 && io->vouts == 2)
-		clip_add_tr_1(list, io, plane);
+		clip_add_one_tr(list, io, plane);
 	if (io->vins == 2 && io->vouts == 1)
-		clip_add_tr_2(list, io, plane);
+		clip_add_two_tr(list, io, plane);
 }
 
 int			size_lst(t_tr_list *temp)

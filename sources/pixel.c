@@ -62,8 +62,8 @@ t_color	sprite_get_color_by_uv(t_sprite *s, double u, double v)
 	header = &s->header;
 	h = header->height_px - 1;
 	w = header->width_px - 1;
-	x = (int)(w * u) % w;
-	y = (int)(h * v) % h;
+	x = (int)(w * fabs(u)) % w;
+	y = (int)(h * fabs(v)) % h;
 	return (sprite_get_color(s, x, y));
 }
 

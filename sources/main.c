@@ -118,6 +118,7 @@ void	start_the_game(t_app *app)
 			i++;
 		}
 		draw_cross(app, 7.0, 255, 0, 200);
+		sprite_draw(app->sdl->surface, &app->sprites[0], 0, 0, 127, 127);
 		SDL_UpdateWindowSurface(app->sdl->window);
 		get_delta_time(app->timer);
 	}
@@ -165,7 +166,7 @@ int		main(int argv, char**argc)
 	/* TODO: Set number of meshes */
 	int number_of_sprites = 1;
 	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * number_of_sprites);
-	bmp_load("resources/FLAG.bmp", &app->sprites[0]);
+	bmp_load("resources/2.bmp", &app->sprites[0]);
 
 	start_the_game(app);
 	quit_properly(app);
