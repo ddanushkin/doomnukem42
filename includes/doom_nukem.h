@@ -10,6 +10,8 @@
 
 # define	SCREEN_W 1280
 # define	SCREEN_H 720
+# define	REAL_W 320
+# define	REAL_H 180
 # define	WIN_TITLE "DOOM-NUKEM"
 
 # define	COLOR_KEY_R 255
@@ -118,8 +120,8 @@ typedef struct	s_line
 
 typedef struct	s_mouse_state
 {
-	int 		x;
-	int 		y;
+	double 		x;
+	double 		y;
 	int 		left;
 	int 		right;
 	int 		middle;
@@ -223,7 +225,7 @@ typedef struct	s_bmp_header
 typedef struct	s_sprite
 {
 	t_bmp_header	header;
-	uint8_t			*pixels;
+	uint32_t		*pixels;
 }				t_sprite;
 
 typedef struct	s_app
@@ -280,8 +282,8 @@ t_mat4x4	rotation_mat_y(double angle);
 void		set_triangle(t_triangle *t, t_v3d *v0, t_v3d *v1, t_v3d *v2);
 
 void		set_color(t_color *color, int r, int g, int b);
-t_color		sprite_get_color_by_uv(t_sprite *s, double u, double v);
-void		set_pixel_uint32(SDL_Surface *surface, int x, int y, Uint32 c);
+uint32_t	sprite_get_color_by_uv(t_sprite *s, double u, double v);
+void		set_pixel_uint32(SDL_Surface *surface, int offset, Uint32 c);
 void		set_pixel(SDL_Surface *surface, int x, int y, t_color c);
 void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color);
 void		sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_x, int size_y);

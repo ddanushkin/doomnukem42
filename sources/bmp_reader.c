@@ -41,21 +41,11 @@ void			sprite_reverse(t_sprite *sprite, t_bmp_header h)
 void			bpm_read_pixels(int fd, t_bmp_header h, t_sprite *sprite)
 {
 	size_t	len;
-	uint8_t	*tmp_read;
-	size_t	i;
-	size_t	j;
 
-	len = h.width_px * h.height_px * 3;
+	len = h.width_px * h.height_px;
 	sprite->header = h;
-	sprite->pixels = (uint8_t *)malloc(len * sizeof(uint8_t));
-	tmp_read = (uint8_t *)malloc(len * sizeof(uint8_t));
-	read(fd, tmp_read, len * sizeof(uint8_t));
-	i = 0;
-	j = len - 1;
-	while (i < len)
-		sprite->pixels[i++] = tmp_read[j--];
-	free(tmp_read);
-	sprite_reverse(sprite, h);
+	sprite->pixels = (uint32_t *)malloc(len * sizeof(uint32_t));
+	read(fd, sprite->pixels, len * sizeof(uint32_t));
 }
 
 t_bmp_header	bmp_read_header(int fd)

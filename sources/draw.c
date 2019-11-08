@@ -200,23 +200,19 @@ void TexturedTriangle(
 			double tstep = 1.0 / (bx - ax);
 			double t = 0.0;
 
+			int offset = i * SCREEN_W + ax;
 			for (int j = ax; j < bx; j++)
 			{
 				tex_u = (1.0 - t) * tex_su + t * tex_eu;
 				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
 				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
 				/* TODO: Fix DepthBuffer (app->z_buf) check */
-				if (tex_w > app->z_buf[i * SCREEN_W + j])
+				if (tex_w > app->z_buf[offset])
 				{
-					t_color c;
-
-					c = sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w);
-					c.r = (int)(c.r * tr->light_dp);
-					c.g = (int)(c.g * tr->light_dp);
-					c.b = (int)(c.b * tr->light_dp);
-					set_pixel(app->sdl->surface, j, i, c);
-					app->z_buf[i * SCREEN_W + j] = tex_w;
+					set_pixel_uint32(app->sdl->surface, offset, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
+					app->z_buf[offset] = tex_w;
 				}
+				offset++;
 				t += tstep;
 			}
 
@@ -263,23 +259,19 @@ void TexturedTriangle(
 			double tstep = 1.0 / (bx - ax);
 			double t = 0.0;
 
+			int offset = i * SCREEN_W + ax;
 			for (int j = ax; j < bx; j++)
 			{
 				tex_u = (1.0 - t) * tex_su + t * tex_eu;
 				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
 				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
 				/* TODO: Fix DepthBuffer (app->z_buf) check */
-				if (tex_w > app->z_buf[i * SCREEN_W + j])
+				if (tex_w > app->z_buf[offset])
 				{
-					t_color c;
-
-					c = sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w);
-					c.r = (int)(c.r * tr->light_dp);
-					c.g = (int)(c.g * tr->light_dp);
-					c.b = (int)(c.b * tr->light_dp);
-					set_pixel(app->sdl->surface, j, i, c);
-					app->z_buf[i * SCREEN_W + j] = tex_w;
+					set_pixel_uint32(app->sdl->surface, offset, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
+					app->z_buf[offset] = tex_w;
 				}
+				offset++;
 				t += tstep;
 			}
 		}

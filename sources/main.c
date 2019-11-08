@@ -3,7 +3,7 @@
 void	clear_screen(t_app *app)
 {
 	int len;
-	len = app->sdl->width * app->sdl->height * 4;
+	len = SCREEN_W * SCREEN_H * 4;
 	image_clear(app->sdl->surface->pixels, 200, len);
 }
 
@@ -13,7 +13,7 @@ void	clear_z_buffer(t_app *app)
 	int len;
 
 	i = 0;
-	len = app->sdl->width * app->sdl->height;
+	len = SCREEN_W * SCREEN_H;
 	while (i < len)
 	{
 		app->z_buf[i] = 0;
@@ -118,7 +118,6 @@ void	start_the_game(t_app *app)
 			i++;
 		}
 		draw_cross(app, 7.0, 255, 0, 200);
-		sprite_draw(app->sdl->surface, &app->sprites[0], 0, 0, 127, 127);
 		SDL_UpdateWindowSurface(app->sdl->window);
 		get_delta_time(app->timer);
 	}
@@ -166,7 +165,7 @@ int		main(int argv, char**argc)
 	/* TODO: Set number of meshes */
 	int number_of_sprites = 1;
 	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * number_of_sprites);
-	bmp_load("resources/2.bmp", &app->sprites[0]);
+	bmp_load("resources/FLAG.bmp", &app->sprites[0]);
 
 	start_the_game(app);
 	quit_properly(app);

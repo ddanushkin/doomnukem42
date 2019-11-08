@@ -16,8 +16,6 @@ void	init_projection_mat(t_app *app)
 
 static	void	init_sdl(t_sdl *sdl)
 {
-	SDL_DisplayMode mode;
-
 	sdl->width = SCREEN_W;
 	sdl->half_width = (double)sdl->width * 0.5;
 	sdl->height = SCREEN_H;
@@ -30,11 +28,6 @@ static	void	init_sdl(t_sdl *sdl)
 			sdl->width,
 			sdl->height,
 			0);
-	mode.h = sdl->height;
-	mode.w = sdl->width;
-	mode.format = SDL_PIXELFORMAT_RGB888;
-	mode.refresh_rate = 60;
-	SDL_SetWindowDisplayMode(sdl->window, &mode);
 	sdl->surface = SDL_GetWindowSurface(sdl->window);
 }
 
