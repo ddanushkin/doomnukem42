@@ -40,7 +40,7 @@ static void capFrameRate(t_app *app, long *then, double *remainder)
 void	start_the_game(t_app *app)
 {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	app->camera->pos = new_vector(0.0, 0.0, 0);
+	app->camera->pos = new_vector(0.0, 0.0, 3.46);
 	while (1)
 	{
 		get_ticks(app->timer);
@@ -102,7 +102,7 @@ void	start_the_game(t_app *app)
 		while (i < 1)
 		{
 			app->meshes[i].pos = new_vector(-0.5, -0.5, -0.5);
-			app->meshes[i].rot.y += 1.0 * app->timer->delta;
+			//app->meshes[i].rot.y += 1.0 * app->timer->delta;
 			app->meshes[i].rot_mat_x = rotation_mat_x(app->meshes[i].rot.x);
 			app->meshes[i].rot_mat_y = rotation_mat_y(app->meshes[i].rot.y);
 			app->meshes[i].rot_mat_z = rotation_mat_z(app->meshes[i].rot.z);
@@ -145,6 +145,8 @@ int		main(int argv, char**argc)
 {
 	t_app	*app;
 
+	int a = 2;
+
 	//if (!check_resources())
 	//	exit_with_status(STATUS_BAD_RESOURCES, NULL);
 	app = (t_app *)malloc(sizeof(t_app));
@@ -165,7 +167,7 @@ int		main(int argv, char**argc)
 	/* TODO: Set number of meshes */
 	int number_of_sprites = 1;
 	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * number_of_sprites);
-	bmp_load("resources/FLAG.bmp", &app->sprites[0]);
+	bmp_load("resources/3.bmp", &app->sprites[0]);
 
 	start_the_game(app);
 	quit_properly(app);

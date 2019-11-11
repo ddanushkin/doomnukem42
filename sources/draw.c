@@ -206,11 +206,14 @@ void TexturedTriangle(
 				tex_u = (1.0 - t) * tex_su + t * tex_eu;
 				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
 				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
-				/* TODO: Fix DepthBuffer (app->z_buf) check */
 				if (tex_w > app->z_buf[offset])
 				{
-					set_pixel_uint32(app->sdl->surface, offset, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
 					app->z_buf[offset] = tex_w;
+					tex_w = 1.0 / tex_w * 255.0;
+					set_pixel_uint32(
+							app->sdl->surface,
+							offset,
+							app->sprites[0].pixels[((int)(tex_v * tex_w) << 8) + (int)(tex_u * tex_w)]);
 				}
 				offset++;
 				t += tstep;
@@ -265,11 +268,14 @@ void TexturedTriangle(
 				tex_u = (1.0 - t) * tex_su + t * tex_eu;
 				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
 				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
-				/* TODO: Fix DepthBuffer (app->z_buf) check */
 				if (tex_w > app->z_buf[offset])
 				{
-					set_pixel_uint32(app->sdl->surface, offset, sprite_get_color_by_uv(&app->sprites[0], tex_u / tex_w, tex_v / tex_w));
 					app->z_buf[offset] = tex_w;
+					tex_w = 1.0 / tex_w * 255.0;
+					set_pixel_uint32(
+							app->sdl->surface,
+							offset,
+							app->sprites[0].pixels[((int)(tex_v * tex_w) << 8) + (int)(tex_u * tex_w)]);
 				}
 				offset++;
 				t += tstep;

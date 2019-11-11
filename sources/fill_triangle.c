@@ -13,8 +13,8 @@ void	fill_flat_bot(t_app *app, t_triangle *t)
 	int		y;
 	int		x;
 
-	y_start = (int)ceilf(t->v[0].y - 0.5);
-	y_end = (int)ceilf(t->v[2].y - 0.5);
+	y_start = ceil(t->v[0].y - 0.5);
+	y_end = ceil(t->v[2].y - 0.5);
 
 	y = y_start;
 	while (y < y_end)
@@ -27,8 +27,8 @@ void	fill_flat_bot(t_app *app, t_triangle *t)
 		px0 = m0 * ((double)y + 0.5 - t->v[0].y) + t->v[0].x;
 		px1 = m1 * ((double)y + 0.5 - t->v[0].y) + t->v[0].x;
 
-		x_start = (int)ceil(px0 - 0.5);
-		x_end = (int)ceil(px1 - 0.5);
+		x_start = ceil(px0 - 0.5);
+		x_end = ceil(px1 - 0.5);
 
 		x = x_start;
 		while (x < x_end)
@@ -53,8 +53,8 @@ void	fill_flat_top(t_app *app, t_triangle *t)
 	int		y;
 	int		x;
 
-	y_start = (int)ceil(t->v[0].y - 0.5);
-	y_end = (int)ceil(t->v[2].y - 0.5);
+	y_start = ceil(t->v[0].y - 0.5);
+	y_end = ceil(t->v[2].y - 0.5);
 
 	y = y_start;
 	while (y < y_end)
@@ -67,8 +67,8 @@ void	fill_flat_top(t_app *app, t_triangle *t)
 		px0 = m0 * ((double)y + 0.5 - t->v[0].y) + t->v[0].x;
 		px1 = m1 * ((double)y + 0.5 - t->v[1].y) + t->v[1].x;
 
-		x_start = (int)ceil(px0 - 0.5);
-		x_end = (int)ceil(px1 - 0.5);
+		x_start = ceil(px0 - 0.5);
+		x_end = ceil(px1 - 0.5);
 
 		x = x_start;
 		while (x < x_end)
@@ -80,14 +80,23 @@ void	fill_flat_top(t_app *app, t_triangle *t)
 	}
 }
 
-void	sort_triangle_by_y(t_triangle *in)
+void	sort_triangle_by_y(t_triangle *tr)
 {
-	if (in->v[1].y < in->v[0].y)
-		SWAP(in->v[0], in->v[1], t_v3d);
-	if (in->v[2].y < in->v[1].y)
-		SWAP(in->v[1], in->v[2], t_v3d);
-	if (in->v[1].y < in->v[0].y)
-		SWAP(in->v[0], in->v[1], t_v3d);
+	if (tr->v[1].y < tr->v[0].y)
+	{
+		SWAP(tr->v[0], tr->v[1], t_v3d);
+		SWAP(tr->t[0], tr->t[1], t_v2d);
+	}
+	if (tr->v[2].y < tr->v[1].y)
+	{
+		SWAP(tr->v[1], tr->v[2], t_v3d);
+		SWAP(tr->t[1], tr->t[2], t_v2d);
+	}
+	if (tr->v[1].y < tr->v[0].y)
+	{
+		SWAP(tr->v[0], tr->v[1], t_v3d);
+		SWAP(tr->t[0], tr->t[1], t_v2d);
+	}
 }
 
 void	fill_triangle(t_app *app, t_triangle t)

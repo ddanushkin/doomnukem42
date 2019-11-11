@@ -8,10 +8,10 @@
 # include <SDL.h>
 # define PRINT_DEBUG 0
 
-# define	SCREEN_W 1280
-# define	SCREEN_H 720
+# define	SCREEN_W 640
+# define	SCREEN_H 480
 # define	REAL_W 320
-# define	REAL_H 180
+# define	REAL_H 180r
 # define	WIN_TITLE "DOOM-NUKEM"
 
 # define	COLOR_KEY_R 255
