@@ -8,10 +8,10 @@
 # include <SDL.h>
 # define PRINT_DEBUG 0
 
-# define	SCREEN_W 640
-# define	SCREEN_H 480
+# define	SCREEN_W 1280
+# define	SCREEN_H 720
 # define	REAL_W 320
-# define	REAL_H 180r
+# define	REAL_H 180
 # define	WIN_TITLE "DOOM-NUKEM"
 
 # define	COLOR_KEY_R 255
@@ -79,6 +79,32 @@ typedef struct	s_io
 	int 		vouts;
 }				t_io;
 
+typedef struct	s_bmp_header
+{
+	uint16_t	type;
+	uint32_t	size;
+	uint16_t	reserved1;
+	uint16_t	reserved2;
+	uint32_t	offset;
+	uint32_t	dib_header_size;
+	int32_t		width_px;
+	int32_t		height_px;
+	uint16_t	num_planes;
+	uint16_t	bits_per_pixel;
+	uint32_t	compression;
+	uint32_t	image_size_bytes;
+	int32_t		x_resolution_ppm;
+	int32_t		y_resolution_ppm;
+	uint32_t	num_colors;
+	uint32_t	important_colors;
+}				t_bmp_header;
+
+typedef struct	s_sprite
+{
+	t_bmp_header	header;
+	uint32_t		*pixels;
+}				t_sprite;
+
 typedef struct	s_triangle
 {
 	int			iv[3];
@@ -91,6 +117,23 @@ typedef struct	s_triangle
 	double 		light_dp;
 	int 		visible;
 }				t_triangle;
+
+typedef struct	s_tex_v
+{
+	int			x;
+	int			y;
+	int			z;
+	double		u;
+	double		v;
+	double		w;
+	t_sprite	*s;
+}				t_tex_v;
+
+typedef struct	s_tex_tr
+{
+	t_tex_v		v[3];
+	t_sprite	*s;
+}				t_tex_tr;
 
 typedef struct	s_mesh
 {
@@ -201,32 +244,6 @@ typedef struct	s_plane
 	t_v3d		p;
 	t_v3d		n;
 }				t_plane;
-
-typedef struct	s_bmp_header
-{
-	uint16_t	type;
-	uint32_t	size;
-	uint16_t	reserved1;
-	uint16_t	reserved2;
-	uint32_t	offset;
-	uint32_t	dib_header_size;
-	int32_t		width_px;
-	int32_t		height_px;
-	uint16_t	num_planes;
-	uint16_t	bits_per_pixel;
-	uint32_t	compression;
-	uint32_t	image_size_bytes;
-	int32_t		x_resolution_ppm;
-	int32_t		y_resolution_ppm;
-	uint32_t	num_colors;
-	uint32_t	important_colors;
-}				t_bmp_header;
-
-typedef struct	s_sprite
-{
-	t_bmp_header	header;
-	uint32_t		*pixels;
-}				t_sprite;
 
 typedef struct	s_app
 {

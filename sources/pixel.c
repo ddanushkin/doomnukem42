@@ -2,9 +2,9 @@
 
 int 	out_of_borders(int x, int y)
 {
-	if (x < 0 || x > REAL_W - 1)
+	if (x < 0 || x > SCREEN_H - 1)
 		return (1);
-	if (y < 0 || y > REAL_H - 1)
+	if (y < 0 || y > SCREEN_H - 1)
 		return (1);
 	return (0);
 }
