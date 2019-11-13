@@ -11,9 +11,6 @@ int		event_handling(t_app *app)
 	if (key[SDL_SCANCODE_ESCAPE])
 		return(0);
 
-	if (key[SDL_SCANCODE_R])
-		show_fps(app);
-
 	/* CHANGE HEIGHT */
 	if (key[SDL_SCANCODE_LSHIFT])
 		app->camera->pos.y -= 5.0 * app->timer->delta;

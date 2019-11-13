@@ -10,8 +10,6 @@
 
 # define	SCREEN_W 1280
 # define	SCREEN_H 720
-# define	REAL_W 320
-# define	REAL_H 180
 # define	WIN_TITLE "DOOM-NUKEM"
 
 # define	COLOR_KEY_R 255

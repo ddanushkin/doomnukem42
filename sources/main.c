@@ -102,7 +102,7 @@ void	start_the_game(t_app *app)
 		while (i < 1)
 		{
 			app->meshes[i].pos = new_vector(-0.5, -0.5, -0.5);
-			//app->meshes[i].rot.y += 1.0 * app->timer->delta;
+			app->meshes[i].rot.y += 1.0 * app->timer->delta;
 			app->meshes[i].rot_mat_x = rotation_mat_x(app->meshes[i].rot.x);
 			app->meshes[i].rot_mat_y = rotation_mat_y(app->meshes[i].rot.y);
 			app->meshes[i].rot_mat_z = rotation_mat_z(app->meshes[i].rot.z);
@@ -120,6 +120,8 @@ void	start_the_game(t_app *app)
 		draw_cross(app, 7.0, 255, 0, 200);
 		SDL_UpdateWindowSurface(app->sdl->window);
 		get_delta_time(app->timer);
+		if (app->inputs->keyboard[SDL_SCANCODE_R])
+			show_fps(app);
 	}
 	SDL_Quit();
 	SDL_DestroyWindow(app->sdl->window);
@@ -144,8 +146,6 @@ int	check_resources(void)
 int		main(int argv, char**argc)
 {
 	t_app	*app;
-
-	int a = 2;
 
 	//if (!check_resources())
 	//	exit_with_status(STATUS_BAD_RESOURCES, NULL);

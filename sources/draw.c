@@ -120,50 +120,60 @@ void TexturedTriangle(t_app *app, t_tex_tr *tr)
 	if (tr->v[2].y < tr->v[1].y)
 		SWAP(tr->v[1], tr->v[2], t_tex_v);
 
-	int dy1 = tr->v[1].y - tr->v[0].y;
-	int dx1 = tr->v[1].x - tr->v[0].x;
-	double dv1 = tr->v[1].v - tr->v[0].v;
-	double du1 = tr->v[1].u - tr->v[0].u;
-	double dw1 = tr->v[1].w - tr->v[0].w;
+	t_tex_v dv1;
+	double	dv1_abs_y;
+	dv1.x = tr->v[1].x - tr->v[0].x;
+	dv1.y = tr->v[1].y - tr->v[0].y;
+	dv1.u = tr->v[1].u - tr->v[0].u;
+	dv1.v = tr->v[1].v - tr->v[0].v;
+	dv1.w = tr->v[1].w - tr->v[0].w;
+	dv1_abs_y = 1.0 / (double)abs(dv1.y);
 
-	int dy2 = tr->v[2].y - tr->v[0].y;
-	int dx2 = tr->v[2].x - tr->v[0].x;
-	double dv2 = tr->v[2].v - tr->v[0].v;
-	double du2 = tr->v[2].u - tr->v[0].u;
-	double dw2 = tr->v[2].w - tr->v[0].w;
+	t_tex_v dv2;
+	double	dv2_abs_y;
+	dv2.x = tr->v[2].x - tr->v[0].x;
+	dv2.y = tr->v[2].y - tr->v[0].y;
+	dv2.u = tr->v[2].u - tr->v[0].u;
+	dv2.v = tr->v[2].v - tr->v[0].v;
+	dv2.w = tr->v[2].w - tr->v[0].w;
+	dv2_abs_y = 1.0 / (double)abs(dv2.y);
 
-	double tex_u, tex_v, tex_w;
+	double dax_step = 0;
+	double dbx_step = 0;
 
-	double dax_step = 0, dbx_step = 0,
-			du1_step = 0, dv1_step = 0,
-			du2_step = 0, dv2_step = 0,
-			dw1_step = 0, dw2_step = 0;
-	
-	if (dy1) dax_step = dx1 / (double)abs(dy1);
-	if (dy2) dbx_step = dx2 / (double)abs(dy2);
+	double du1_step = 0;
+	double dv1_step = 0;
+	double dw1_step = 0;
 
-	if (dy1) du1_step = du1 / (double)abs(dy1);
-	if (dy1) dv1_step = dv1 / (double)abs(dy1);
-	if (dy1) dw1_step = dw1 / (double)abs(dy1);
+	double du2_step = 0;
+	double dv2_step = 0;
+	double dw2_step = 0;
 
-	if (dy2) du2_step = du2 / (double)abs(dy2);
-	if (dy2) dv2_step = dv2 / (double)abs(dy2);
-	if (dy2) dw2_step = dw2 / (double)abs(dy2);
-
-	if (dy1)
+	if (dv2.y)
 	{
+		dbx_step = dv2.x * dv2_abs_y;
+		du2_step = dv2.u * dv2_abs_y;
+		dv2_step = dv2.v * dv2_abs_y;
+		dw2_step = dv2.w * dv2_abs_y;
+	}
+
+	if (dv1.y)
+	{
+		dax_step = dv1.x * dv1_abs_y;
+		du1_step = dv1.u * dv1_abs_y;
+		dv1_step = dv1.v * dv1_abs_y;
+		dw1_step = dv1.w * dv1_abs_y;
 		for (int i = tr->v[0].y; i <= tr->v[1].y; i++)
 		{
-			int ax = tr->v[0].x + (double)(i - tr->v[0].y) * dax_step;
-			int bx = tr->v[0].x + (double)(i - tr->v[0].y) * dbx_step;
-
-			double tex_su = tr->v[0].u + (double)(i - tr->v[0].y) * du1_step;
-			double tex_sv = tr->v[0].v + (double)(i - tr->v[0].y) * dv1_step;
-			double tex_sw = tr->v[0].w + (double)(i - tr->v[0].y) * dw1_step;
-
-			double tex_eu = tr->v[0].u + (double)(i - tr->v[0].y) * du2_step;
-			double tex_ev = tr->v[0].v + (double)(i - tr->v[0].y) * dv2_step;
-			double tex_ew = tr->v[0].w + (double)(i - tr->v[0].y) * dw2_step;
+			double i_minus_v0y = (double)(i - tr->v[0].y);
+			int ax = tr->v[0].x + i_minus_v0y * dax_step;
+			int bx = tr->v[0].x + i_minus_v0y * dbx_step;
+			double tex_su = tr->v[0].u + i_minus_v0y * du1_step;
+			double tex_sv = tr->v[0].v + i_minus_v0y * dv1_step;
+			double tex_sw = tr->v[0].w + i_minus_v0y * dw1_step;
+			double tex_eu = tr->v[0].u + i_minus_v0y * du2_step;
+			double tex_ev = tr->v[0].v + i_minus_v0y * dv2_step;
+			double tex_ew = tr->v[0].w + i_minus_v0y * dw2_step;
 
 			if (ax > bx)
 			{
@@ -179,6 +189,7 @@ void TexturedTriangle(t_app *app, t_tex_tr *tr)
 			int offset = i * SCREEN_W + ax;
 			for (int j = ax; j < bx; j++)
 			{
+				double tex_u, tex_v, tex_w;
 				tex_u = (1.0 - t) * tex_su + t * tex_eu;
 				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
 				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
@@ -198,34 +209,34 @@ void TexturedTriangle(t_app *app, t_tex_tr *tr)
 		}
 	}
 
-	dy1 = tr->v[2].y - tr->v[1].y;
-	dx1 = tr->v[2].x - tr->v[1].x;
-	dv1 = tr->v[2].v - tr->v[1].v;
-	du1 = tr->v[2].u - tr->v[1].u;
-	dw1 = tr->v[2].w - tr->v[1].w;
+	dv1.x = tr->v[2].x - tr->v[1].x;
+	dv1.y = tr->v[2].y - tr->v[1].y;
+	dv1.u = tr->v[2].u - tr->v[1].u;
+	dv1.v = tr->v[2].v - tr->v[1].v;
+	dv1.w = tr->v[2].w - tr->v[1].w;
+	dv1_abs_y = 1 / (double)abs(dv1.y);
 
-	if (dy1) dax_step = dx1 / (double)abs(dy1);
-	if (dy2) dbx_step = dx2 / (double)abs(dy2);
+	if (dv2.y)
+		dbx_step = dv2.x * dv2_abs_y;
 
-	du1_step = 0, dv1_step = 0;
-	if (dy1) du1_step = du1 / (double)abs(dy1);
-	if (dy1) dv1_step = dv1 / (double)abs(dy1);
-	if (dy1) dw1_step = dw1 / (double)abs(dy1);
-
-	if (dy1)
+	if (dv1.y)
 	{
+		dax_step = dv1.x * dv1_abs_y;
+		du1_step = dv1.u * dv1_abs_y;
+		dv1_step = dv1.v * dv1_abs_y;
+		dw1_step = dv1.w * dv1_abs_y;
 		for (int i = tr->v[1].y; i <= tr->v[2].y; i++)
 		{
+			double i_minus_v0y = (double)(i - tr->v[0].y);
+			double i_minus_v1y = (double)(i - tr->v[1].y);
 			int ax = tr->v[1].x + (double)(i - tr->v[1].y) * dax_step;
-			int bx = tr->v[0].x + (double)(i - tr->v[0].y) * dbx_step;
-
-			double tex_su = tr->v[1].u + (double)(i - tr->v[1].y) * du1_step;
-			double tex_sv = tr->v[1].v + (double)(i - tr->v[1].y) * dv1_step;
-			double tex_sw = tr->v[1].w + (double)(i - tr->v[1].y) * dw1_step;
-
-			double tex_eu = tr->v[0].u + (double)(i - tr->v[0].y) * du2_step;
-			double tex_ev = tr->v[0].v + (double)(i - tr->v[0].y) * dv2_step;
-			double tex_ew = tr->v[0].w + (double)(i - tr->v[0].y) * dw2_step;
+			int bx = tr->v[0].x + i_minus_v0y * dbx_step;
+			double tex_su = tr->v[1].u + i_minus_v1y * du1_step;
+			double tex_sv = tr->v[1].v + i_minus_v1y * dv1_step;
+			double tex_sw = tr->v[1].w + i_minus_v1y * dw1_step;
+			double tex_eu = tr->v[0].u + i_minus_v0y * du2_step;
+			double tex_ev = tr->v[0].v + i_minus_v0y * dv2_step;
+			double tex_ew = tr->v[0].w + i_minus_v0y * dw2_step;
 
 			if (ax > bx)
 			{
@@ -241,6 +252,7 @@ void TexturedTriangle(t_app *app, t_tex_tr *tr)
 			int offset = i * SCREEN_W + ax;
 			for (int j = ax; j < bx; j++)
 			{
+				double tex_u, tex_v, tex_w;
 				tex_u = (1.0 - t) * tex_su + t * tex_eu;
 				tex_v = (1.0 - t) * tex_sv + t * tex_ev;
 				tex_w = (1.0 - t) * tex_sw + t * tex_ew;
