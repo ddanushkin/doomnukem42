@@ -251,6 +251,9 @@ void	render_pipeline(t_app *app, t_v3d vert1, t_v3d vert2, t_v3d vert3)
 	max.tex_x = tex_x3;
 	max.tex_y = tex_y3;
 
+	if (triangle_area_times_two(&min, &max, &mid) >= 0.0)
+		return;
+
 	if (max.y < mid.y)
 		SWAP(mid, max, t_v3d);
 	if (mid.y < min.y)
