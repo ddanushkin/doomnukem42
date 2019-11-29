@@ -323,6 +323,9 @@ void	start_the_game(t_app *app)
 		vert3.z = 0.0;
 		vert3.w = 1.0;
 
+		//TODO: Camera movement
+		//TODO: Clipping
+
 		render_pipeline(app, vert1, vert2, vert3);
 
 		vert3.x = -1.0;

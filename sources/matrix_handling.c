@@ -36,10 +36,10 @@ t_mat4x4	matrix_screen_space()
 	half_width = (double)SCREEN_W * 0.5;
 	half_height = (double)SCREEN_H * 0.5;
 	ft_bzero(&mat, sizeof(t_mat4x4));
-	mat.m[0][0] = half_width;
+	mat.m[0][0] = half_width - 0.5;
 	mat.m[0][3] = half_width;
 	mat.m[1][1] = -half_height;
-	mat.m[1][3] = half_height;
+	mat.m[1][3] = half_height - 0.5;
 	mat.m[2][2] = 1.0;
 	mat.m[3][3] = 1.0;
 	return (mat);
