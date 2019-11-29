@@ -5,7 +5,7 @@ void	clear_screen(t_app *app)
 	image_clear(app->sdl->surface->pixels, 0, app->sdl->pixels_len);
 }
 
-void	clear_z_buffer(t_app *app)
+void	clear_depth_buffer(t_app *app)
 {
 	int i;
 	int len;
@@ -14,7 +14,7 @@ void	clear_z_buffer(t_app *app)
 	len = SCREEN_W * SCREEN_H;
 	while (i < len)
 	{
-		app->z_buf[i] = -INFINITY;
+		app->depth_buffer[i] = INFINITY;
 		i++;
 	}
 }
@@ -40,30 +40,31 @@ double 		gradient_calc_y_step(double coords[3], t_v3d min, t_v3d mid, t_v3d max,
 
 t_gradient	gradient_new(t_v3d min, t_v3d mid, t_v3d max)
 {
-	t_gradient	gradient;
+	t_gradient	g;
 
-	gradient.one_over_dx  = 1.0 / ((mid.x - max.x) * (min.y - max.y) - (min.x - max.x) * (mid.y - max.y));
-	gradient.one_over_dy = -gradient.one_over_dx;
-
-	gradient.z[0] = 1.0 / min.w;
-	gradient.z[1] = 1.0 / mid.w;
-	gradient.z[2] = 1.0 / max.w;
-
-	gradient.x[0] = min.tex_x * gradient.z[0];
-	gradient.x[1] = mid.tex_x * gradient.z[1];
-	gradient.x[2] = max.tex_x * gradient.z[2];
-
-	gradient.y[0] = min.tex_y * gradient.z[0];
-	gradient.y[1] = mid.tex_y * gradient.z[1];
-	gradient.y[2] = max.tex_y * gradient.z[2];
-
-	gradient.x_x_step = gradient_calc_x_step(gradient.x, min, mid, max, gradient.one_over_dx);
-	gradient.x_y_step = gradient_calc_y_step(gradient.x, min, mid, max, gradient.one_over_dy);
-	gradient.y_x_step = gradient_calc_x_step(gradient.y, min, mid, max, gradient.one_over_dx);
-	gradient.y_y_step = gradient_calc_y_step(gradient.y, min, mid, max, gradient.one_over_dy);
-	gradient.z_x_step = gradient_calc_x_step(gradient.z, min, mid, max, gradient.one_over_dx);
-	gradient.z_y_step = gradient_calc_y_step(gradient.z, min, mid, max, gradient.one_over_dy);
-	return (gradient);
+	g.z[0] = 1.0 / min.w;
+	g.z[1] = 1.0 / mid.w;
+	g.z[2] = 1.0 / max.w;
+	g.x[0] = min.tex_x * g.z[0];
+	g.x[1] = mid.tex_x * g.z[1];
+	g.x[2] = max.tex_x * g.z[2];
+	g.y[0] = min.tex_y * g.z[0];
+	g.y[1] = mid.tex_y * g.z[1];
+	g.y[2] = max.tex_y * g.z[2];
+	g.depth[0] = min.z;
+	g.depth[1] = mid.z;
+	g.depth[2] = max.z;
+	g.one_over_dx  = 1.0 / ((mid.x - max.x) * (min.y - max.y) - (min.x - max.x) * (mid.y - max.y));
+	g.one_over_dy = -g.one_over_dx;
+	g.x_x_step = gradient_calc_x_step(g.x, min, mid, max, g.one_over_dx);
+	g.x_y_step = gradient_calc_y_step(g.x, min, mid, max, g.one_over_dy);
+	g.y_x_step = gradient_calc_x_step(g.y, min, mid, max, g.one_over_dx);
+	g.y_y_step = gradient_calc_y_step(g.y, min, mid, max, g.one_over_dy);
+	g.z_x_step = gradient_calc_x_step(g.z, min, mid, max, g.one_over_dx);
+	g.z_y_step = gradient_calc_y_step(g.z, min, mid, max, g.one_over_dy);
+	g.depth_x_step = gradient_calc_x_step(g.depth, min, mid, max, g.one_over_dx);
+	g.depth_y_step = gradient_calc_y_step(g.depth, min, mid, max, g.one_over_dy);
+	return (g);
 }
 
 t_edge	edge_new(t_gradient	g, t_v3d min, t_v3d max, int index)
@@ -93,6 +94,9 @@ t_edge	edge_new(t_gradient	g, t_v3d min, t_v3d max, int index)
 
 	edge.tex_z = g.z[index] + g.z_x_step * x_pre_step + g.z_y_step * y_pre_step;
 	edge.tex_z_step = g.z_y_step + g.z_x_step * edge.x_step;
+
+	edge.depth = g.depth[index] + g.depth_x_step * x_pre_step + g.depth_y_step * y_pre_step;
+	edge.depth_step = g.depth_y_step + g.depth_x_step * edge.x_step;
 	return (edge);
 }
 
@@ -102,9 +106,10 @@ void	edge_step(t_edge *edge)
 	edge->tex_x += edge->tex_x_step;
 	edge->tex_y += edge->tex_y_step;
 	edge->tex_z += edge->tex_z_step;
+	edge->depth += edge->depth_step;
 }
 
-void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y, Uint32 c)
+void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 {
 	int x;
 	int x_min;
@@ -119,28 +124,35 @@ void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y, Uint32 c)
 	double	x_x_step = (right->tex_x - left->tex_x) / x_dist;
 	double	y_x_step = (right->tex_y - left->tex_y) / x_dist;
 	double	z_x_step = (right->tex_z - left->tex_z) / x_dist;
+	double 	depth_step = (right->depth - left->depth) / x_dist;
 	double	tex_x = left->tex_x + x_x_step * x_pre_step;
 	double	tex_y = left->tex_y + y_x_step * x_pre_step;
 	double	tex_z = left->tex_z + z_x_step * x_pre_step;
+	double	depth = left->depth + depth_step * x_pre_step;
 
 	x = x_min;
 	offset = y * SCREEN_W + x;
 	while (x < x_max)
 	{
-		double z = 1.0 / tex_z * 255.5;
-		int img_x = (int)(tex_x * z);
-		int img_y = (int)(tex_y * z);
+		if (depth < app->depth_buffer[offset])
+		{
+			double z = 1.0 / tex_z * 255.5;
+			int img_x = (int)(tex_x * z);
+			int img_y = (int)(tex_y * z);
 
-		set_pixel_uint32(app->sdl->surface, offset, sprite_get_color(&app->sprites[0], img_x, img_y));
+			app->depth_buffer[offset] = depth;
+			set_pixel_uint32(app->sdl->surface, offset, sprite_get_color(&app->sprites[0], img_x, img_y));
+		}
 		tex_x += x_x_step;
 		tex_y += y_x_step;
 		tex_z += z_x_step;
+		depth += depth_step;
 		x++;
 		offset++;
 	}
 }
 
-void	scan_edges(t_app *app, t_edge *a, t_edge *b, int handedness, Uint32 c)
+void	scan_edges(t_app *app, t_edge *a, t_edge *b, int handedness)
 {
 	t_edge	*left;
 	t_edge	*right;
@@ -157,7 +169,7 @@ void	scan_edges(t_app *app, t_edge *a, t_edge *b, int handedness, Uint32 c)
 	y = y_start;
 	while (y < y_end)
 	{
-		draw_scanline(app, left, right, y, c);
+		draw_scanline(app, left, right, y);
 		edge_step(left);
 		edge_step(right);
 		y++;
@@ -175,8 +187,8 @@ void	scan_triangle(t_app *app, t_v3d min, t_v3d mid, t_v3d max, int handedness)
 	top_to_bottom = edge_new(gradient, min, max, 0);
 	top_to_middle = edge_new(gradient, min, mid, 0);
 	middle_to_bottom = edge_new(gradient, mid, max, 1);
-	scan_edges(app, &top_to_bottom, &top_to_middle, handedness, 0x00FF0000);
-	scan_edges(app, &top_to_bottom, &middle_to_bottom, handedness, 0x0000FF00);
+	scan_edges(app, &top_to_bottom, &top_to_middle, handedness);
+	scan_edges(app, &top_to_bottom, &middle_to_bottom, handedness);
 }
 
 double	triangle_area_times_two(t_v3d *a, t_v3d *b, t_v3d *c)
@@ -281,7 +293,7 @@ void	start_the_game(t_app *app)
 	{
 		get_ticks(app->timer);
 		clear_screen(app);
-		clear_z_buffer(app);
+		clear_depth_buffer(app);
 		mouse_update(app);
 		if (!event_handling(app))
 			break;
@@ -360,7 +372,7 @@ int		main(int argv, char**argc)
 	app->timer = (t_timer *)malloc(sizeof(t_timer));
 	app->world = (t_world *)malloc(sizeof(t_world));
 	app->camera = (t_camera *)malloc(sizeof(t_camera));
-	app->z_buf = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
+	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
 	init_app(app);
 
 	/* TODO: Set number of meshes */

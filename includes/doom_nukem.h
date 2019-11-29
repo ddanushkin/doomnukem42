@@ -119,6 +119,8 @@ typedef struct	s_edge
 	double		tex_y_step;
 	double		tex_z;
 	double		tex_z_step;
+	double		depth;
+	double		depth_step;
 }				t_edge;
 
 typedef struct	s_gradient
@@ -126,6 +128,7 @@ typedef struct	s_gradient
 	double		x[3];
 	double		y[3];
 	double		z[3];
+	double		depth[3];
 	double		x_x_step;
 	double		x_y_step;
 	double		y_x_step;
@@ -134,6 +137,8 @@ typedef struct	s_gradient
 	double		z_y_step;
 	double		one_over_dx;
 	double		one_over_dy;
+	double 		depth_x_step;
+	double 		depth_y_step;
 }				t_gradient;
 
 typedef struct	s_triangle
@@ -287,7 +292,7 @@ typedef struct	s_app
 	t_inputs	*inputs;
 	t_mesh		*meshes;
 	t_sprite	*sprites;
-	double		*z_buf;
+	double		*depth_buffer;
 }				t_app;
 
 void		clip_triangles(t_tr_list **tr_lst);
