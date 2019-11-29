@@ -15,7 +15,7 @@ double 		vector_length(t_v3d v)
 t_v3d	vector_normalise(t_v3d v)
 {
 	t_v3d	result;
-	double		length;
+	double	length;
 
 	length = vector_length(v);
 	result.x = v.x / length;

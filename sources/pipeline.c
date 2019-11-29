@@ -17,17 +17,15 @@ void	transform_vertices(t_app *app, int mesh_id)
 	}
 }
 
-void	triangle_fill_data(t_triangle *tr, t_v3d *vr, t_v2d *tx)
+int	triangle_fill_data(t_triangle *tr, t_v3d *vr, t_v2d *tx)
 {
-	int		j;
-
-	j = 0;
-	while (j < 3)
-	{
-		tr->v[j] = vr[tr->iv[j]];
-		tr->t[j] = tx[tr->it[j]];
-		j++;
-	}
+	tr->v[0] = vr[tr->iv[0]];
+	tr->t[0] = tx[tr->it[0]];
+	tr->v[1] = vr[tr->iv[1]];
+	tr->t[1] = tx[tr->it[1]];
+	tr->v[2] = vr[tr->iv[2]];
+	tr->t[2] = tx[tr->it[2]];
+	return (1);
 }
 
 void	assemble_triangles(t_app *app, int mesh_id)

@@ -101,7 +101,7 @@ void	check_triangle(t_app *app, t_triangle *tr)
 {
 	t_v3d	normal;
 	t_v3d	camera_ray;
-
+	tr->visible = 0;
 	normal = calc_normal(*tr);
 	camera_ray = vector_sub(tr->v[0], app->camera->pos);
 	if (vector_dot_product(normal, camera_ray) > 0.0)
@@ -197,15 +197,15 @@ void TexturedTriangle(t_app *app, t_tex_tr *tr)
 				{
 					app->z_buf[offset] = tex_w;
 					tex_w = 1.0 / tex_w * 255.0;
+					int index = (((int)(tex_v * tex_w) << 8) + (int)(tex_u * tex_w)) % 65536;
 					set_pixel_uint32(
 							app->sdl->surface,
 							offset,
-							app->sprites[0].pixels[((int)(tex_v * tex_w) << 8) + (int)(tex_u * tex_w)]);
+							app->sprites[0].pixels[index]);
 				}
 				offset++;
 				t += tstep;
 			}
-
 		}
 	}
 
@@ -260,10 +260,11 @@ void TexturedTriangle(t_app *app, t_tex_tr *tr)
 				{
 					app->z_buf[offset] = tex_w;
 					tex_w = 1.0 / tex_w * 255.0;
+					int index = (((int)(tex_v * tex_w) << 8) + (int)(tex_u * tex_w)) % 65536;
 					set_pixel_uint32(
 							app->sdl->surface,
 							offset,
-							app->sprites[0].pixels[((int)(tex_v * tex_w) << 8) + (int)(tex_u * tex_w)]);
+							app->sprites[0].pixels[index]);
 				}
 				offset++;
 				t += tstep;
@@ -280,7 +281,8 @@ void	render_triangle(t_app *app, t_triangle tr)
 	tr.v[0] = matrix_multiply_vector(app->camera->view_mat, tr.v[0]);
 	tr.v[1] = matrix_multiply_vector(app->camera->view_mat, tr.v[1]);
 	tr.v[2] = matrix_multiply_vector(app->camera->view_mat, tr.v[2]);
-	if (tr.v[0].z < 0.1 && tr.v[1].z < 0.1 && tr.v[2].z < 0.1)
+
+	if (tr.v[0].z < app->camera->z_near && tr.v[1].z < app->camera->z_near && tr.v[2].z < app->camera->z_near)
 		return;
 	if (tr.v[0].z < 0.1)
 		tr.v[0].z = 0.1;

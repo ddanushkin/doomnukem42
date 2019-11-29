@@ -29,6 +29,7 @@ static	void	init_sdl(t_sdl *sdl)
 			sdl->height,
 			0);
 	sdl->surface = SDL_GetWindowSurface(sdl->window);
+	sdl->pixels_len = SCREEN_W * SCREEN_H * 4;
 }
 
 void	init_camera(t_camera *camera)

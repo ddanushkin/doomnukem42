@@ -6,7 +6,9 @@
 # include <pthread.h>
 # include "stdio.h"
 # include <SDL.h>
-# define PRINT_DEBUG 0
+# include <SDL_ttf.h>
+
+# define	PRINT_DEBUG 0
 
 # define	SCREEN_W 1280
 # define	SCREEN_H 720
@@ -58,6 +60,8 @@ typedef struct	s_v3d
 	double		y;
 	double		z;
 	double 		w;
+	double		tex_x;
+	double		tex_y;
 }				t_v3d;
 
 typedef struct	s_v2d
@@ -102,6 +106,35 @@ typedef struct	s_sprite
 	t_bmp_header	header;
 	uint32_t		*pixels;
 }				t_sprite;
+
+typedef struct	s_edge
+{
+	double		x;
+	double		x_step;
+	int 		y_start;
+	int 		y_end;
+	double		tex_x;
+	double		tex_x_step;
+	double		tex_y;
+	double		tex_y_step;
+	double		tex_z;
+	double		tex_z_step;
+}				t_edge;
+
+typedef struct	s_gradient
+{
+	double		x[3];
+	double		y[3];
+	double		z[3];
+	double		x_x_step;
+	double		x_y_step;
+	double		y_x_step;
+	double		y_y_step;
+	double		z_x_step;
+	double		z_y_step;
+	double		one_over_dx;
+	double		one_over_dy;
+}				t_gradient;
 
 typedef struct	s_triangle
 {
@@ -225,6 +258,7 @@ typedef struct		s_sdl
 	SDL_Event		event;
 	SDL_Window		*window;
 	SDL_Surface		*surface;
+	int 			pixels_len;
 	double			half_height;
 	double			half_width;
 	int				height;
@@ -293,11 +327,13 @@ void		set_vector(t_v3d *v, double x, double y, double z);
 t_mat4x4	rotation_mat_z(double angle);
 t_mat4x4	rotation_mat_x(double angle);
 t_mat4x4	rotation_mat_y(double angle);
+t_mat4x4	matrix_rotation(double x, double y, double z);
 
 void		set_triangle(t_triangle *t, t_v3d *v0, t_v3d *v1, t_v3d *v2);
 
 void		set_color(t_color *color, int r, int g, int b);
 uint32_t	sprite_get_color_by_uv(t_sprite *s, double u, double v);
+uint32_t	sprite_get_color(t_sprite *s, int x, int y);
 void		set_pixel_uint32(SDL_Surface *surface, int offset, Uint32 c);
 void		set_pixel(SDL_Surface *surface, int x, int y, t_color c);
 void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color);
@@ -331,6 +367,12 @@ t_tr_list	*new_triangle_list(int len);
 t_triangle	new_triangle(t_v3d v0, t_v3d v1, t_v3d v2);
 
 void		mouse_update(t_app *app);
+
+t_mat4x4	matrix_screen_space();
+t_mat4x4	matrix_perspective(double fov, double aps_ratio, double z_near, double z_far);
+t_mat4x4	matrix_translation(double x, double y, double z);
+t_mat4x4	matrix_multiply(t_mat4x4 m1, t_mat4x4 m2);
+t_v3d		matrix_transform(t_mat4x4 mat, t_v3d v);
 
 t_mat4x4	matrix_subtraction(t_mat4x4 m1, t_mat4x4 m2);
 t_mat4x4	matrix_summary(t_mat4x4 m1, t_mat4x4 m2);
