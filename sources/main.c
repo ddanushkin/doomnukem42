@@ -33,7 +33,7 @@ void	start_the_game(t_app *app)
 	SDL_Color font_color = {255, 255, 255};
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	app->camera->pos = new_vector(0.0, 0.0, -2.3);
+	app->camera->pos = new_vector(0.0, 0.0, -2.5);
 	app->screen_length = SCREEN_W * SCREEN_H;
 	app->screen_length_x_4 = app->screen_length * 4;
 	while (1)
@@ -48,16 +48,11 @@ void	start_the_game(t_app *app)
 		int i = 0;
 		while (i < 1)
 		{
-			app->meshes[i].pos = new_vector(-0.5, -0.5, -0.5);
-			//app->meshes[i].rot.y += 1.0 * app->timer->delta;
-			app->meshes[i].rot_mat_x = rotation_mat_x(app->meshes[i].rot.x);
-			app->meshes[i].rot_mat_y = rotation_mat_y(app->meshes[i].rot.y);
-			app->meshes[i].rot_mat_z = rotation_mat_z(app->meshes[i].rot.z);
+			app->meshes[i].pos = new_vector(-0.5, -0.5, 0);
+			app->meshes[i].rot.y += 1.0 * app->timer->delta;
 			app->meshes[i].trans_mat = init_translation_mat(app->meshes[i].pos);
-			app->meshes[i].transform = matrix_multiply_matrix(matrix_identity(), app->meshes[i].rot_mat_x);
-			app->meshes[i].transform = matrix_multiply_matrix(app->meshes[i].transform, app->meshes[i].rot_mat_y);
-			app->meshes[i].transform = matrix_multiply_matrix(app->meshes[i].transform, app->meshes[i].rot_mat_z);
-			app->meshes[i].transform = matrix_multiply_matrix(app->meshes[i].transform, app->meshes[i].trans_mat);
+			app->meshes[i].rot_mat = init_rotation_matrix(app->meshes[i].rot);
+			app->meshes[i].transform = matrix_multiply_matrix(app->meshes[i].rot_mat, app->meshes[i].trans_mat);
 			transform_vertices(app, i);
 			assemble_triangles(app, i);
 			check_triangles(app, i);

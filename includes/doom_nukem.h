@@ -59,6 +59,8 @@ typedef struct	s_v3d
 	double		y;
 	double		z;
 	double 		w;
+	double		tex_x;
+	double		tex_y;
 }				t_v3d;
 
 typedef struct	s_v2d
@@ -145,9 +147,7 @@ typedef struct	s_mesh
 	int 		tr_count;
 	t_v3d		pos;
 	t_v3d		rot;
-	t_mat4x4	rot_mat_x;
-	t_mat4x4	rot_mat_y;
-	t_mat4x4	rot_mat_z;
+	t_mat4x4	rot_mat;
 	t_mat4x4	trans_mat;
 	t_mat4x4	transform;
 }				t_mesh;
@@ -320,6 +320,7 @@ void		show_fps(t_app *app);
 
 void		draw_cross(t_app *app, double size, int r, int g, int b);
 
+uint32_t	sprite_get_color(t_sprite *s, int x, int y);
 void		get_color(SDL_Surface *surface, int x, int y, t_color c);
 t_color		color_new(int r, int g, int b);
 t_color		color_sub(t_color color, int k);
