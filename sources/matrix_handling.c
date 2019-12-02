@@ -151,11 +151,12 @@ t_mat4x4	matrix_rotation_x(double angle)
 
 t_mat4x4	matrix_rotation(double x, double y, double z)
 {
-	return (matrix_multiply(
-			matrix_rotation_z(z),
-			matrix_multiply(
-					matrix_rotation_y(y),
-					matrix_rotation_x(x))));
+	t_mat4x4 rot;
+
+	rot = matrix_multiply(matrix_identity(), matrix_rotation_x(x));
+	rot = matrix_multiply(rot, matrix_rotation_y(y));
+	rot = matrix_multiply(rot, matrix_rotation_z(z));
+	return (rot);
 }
 
 t_mat4x4	matrix_inverse(t_mat4x4 m)

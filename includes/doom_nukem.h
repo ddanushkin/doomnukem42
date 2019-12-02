@@ -218,13 +218,11 @@ typedef struct	s_camera
 	double 		asp_ratio;
 	t_v3d		pos;
 	t_v3d		rot;
-	t_mat4x4	rot_mat_x;
-	t_mat4x4	rot_mat_y;
-	t_mat4x4	rot_mat_z;
 	t_v3d		target;
-	t_v3d		dir;
-	t_mat4x4	rot_mat;
-	t_mat4x4	view_mat;
+	t_mat4x4	view;
+	t_mat4x4	projection;
+	t_mat4x4	translation;
+	t_mat4x4	view_projection;
 }				t_camera;
 
 typedef struct	s_world
@@ -294,6 +292,8 @@ typedef struct	s_app
 	t_sprite	*sprites;
 	double		*depth_buffer;
 }				t_app;
+
+t_mat4x4 FPSViewRH(t_camera *camera);
 
 void		clip_triangles(t_tr_list **tr_lst);
 
