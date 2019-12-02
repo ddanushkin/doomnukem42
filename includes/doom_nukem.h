@@ -6,6 +6,7 @@
 # include <pthread.h>
 # include "stdio.h"
 # include <SDL.h>
+# include <SDL_ttf.h>
 # define PRINT_DEBUG 0
 
 # define	SCREEN_W 1280
@@ -254,6 +255,8 @@ typedef struct	s_app
 	t_mesh		*meshes;
 	t_sprite	*sprites;
 	double		*z_buf;
+	int 		screen_length;
+	int 		screen_length_x_4;
 }				t_app;
 
 void		clip_triangles(t_tr_list **tr_lst);
@@ -340,6 +343,7 @@ t_mat4x4	matrix_look_at(t_v3d from, t_v3d to);
 t_mat4x4	matrix_inverse(t_mat4x4 m);
 t_mat4x4	matrix_identity();
 t_mat4x4	init_translation_mat(t_v3d trans_v);
+t_mat4x4	init_rotation_matrix(t_v3d rot);
 
 void		transform_vertices(t_app *app, int mesh_id);
 void		assemble_triangles(t_app *app, int mesh_id);

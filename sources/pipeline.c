@@ -4,15 +4,12 @@ void	transform_vertices(t_app *app, int mesh_id)
 {
 	int			i;
 	t_mesh		*mesh;
-	t_v3d	v;
 
 	mesh = &app->meshes[mesh_id];
 	i = 0;
 	while (i < mesh->v_count)
 	{
-		v = matrix_multiply_vector(mesh->transform, mesh->vo[i]);
-		v = matrix_multiply_vector(app->world->mat, v);
-		mesh->vb[i] = v;
+		mesh->vb[i] = matrix_multiply_vector(mesh->transform, mesh->vo[i]);
 		i++;
 	}
 }

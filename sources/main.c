@@ -2,45 +2,40 @@
 
 void	clear_screen(t_app *app)
 {
-	int len;
-	len = SCREEN_W * SCREEN_H * 4;
-	image_clear(app->sdl->surface->pixels, 200, len);
+	image_clear(app->sdl->surface->pixels, 0, app->screen_length_x_4);
 }
 
 void	clear_z_buffer(t_app *app)
 {
 	int i;
-	int len;
 
 	i = 0;
-	len = SCREEN_W * SCREEN_H;
-	while (i < len)
+	while (i < app->screen_length)
 	{
 		app->z_buf[i] = 0;
 		i++;
 	}
 }
 
-static void capFrameRate(t_app *app, long *then, double *remainder)
+void	update_fps_data(t_app *app, TTF_Font *font_ptr, SDL_Color font_color)
 {
-	long wait, frameTime;
-
-	wait = 16.0 + *remainder;
-	*remainder -= (int)*remainder;
-	frameTime = SDL_GetTicks() - *then;
-	wait -= frameTime;
-	if (wait < 1)
-		wait = 1;
-	SDL_Delay(wait);
-	*remainder += 0.667;
-	*then = SDL_GetTicks();
-	app->timer->delta = 0.01;
+	char fps_text[50];
+	itoa(app->timer->fps, fps_text, 10);
+	SDL_Surface *font_surface = TTF_RenderText_Solid(font_ptr, fps_text, font_color);
+	SDL_BlitSurface(font_surface, NULL, app->sdl->surface, NULL);
+	SDL_FreeSurface(font_surface);
 }
 
 void	start_the_game(t_app *app)
 {
+	TTF_Init();
+	TTF_Font *font_ptr = TTF_OpenFont("resources/calibrib.ttf", 16);
+	SDL_Color font_color = {255, 255, 255};
+
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	app->camera->pos = new_vector(0.0, 0.0, 3.46);
+	app->camera->pos = new_vector(0.0, 0.0, -2.3);
+	app->screen_length = SCREEN_W * SCREEN_H;
+	app->screen_length_x_4 = app->screen_length * 4;
 	while (1)
 	{
 		get_ticks(app->timer);
@@ -49,66 +44,17 @@ void	start_the_game(t_app *app)
 		mouse_update(app);
 		if (!event_handling(app))
 			break;
-		/* Animate world rotation */
-		//app->world.rot.x += 1.0 * app->timer->delta;
-		//app->world.rot.y += 1.0 * app->timer->delta;
-		//app->world.rot.z += 1.0 * app->timer->delta;
-
-		/* Create world rotation matrices */
-		app->world->rot_mat_x = rotation_mat_x(app->world->rot.x);
-		app->world->rot_mat_y = rotation_mat_y(app->world->rot.y);
-		app->world->rot_mat_z = rotation_mat_z(app->world->rot.z);
-
-		/* Create world translation matrix */
-		app->world->trans = new_vector(0.0, 0.0, 5.0);
-		app->world->trans_mat = init_translation_mat(app->world->trans);
-
-		/* Create world matrix */
-		app->world->mat = matrix_identity();
-		app->world->mat = matrix_multiply_matrix(app->world->mat, app->world->rot_mat_x);
-		app->world->mat = matrix_multiply_matrix(app->world->mat, app->world->rot_mat_y);
-		app->world->mat = matrix_multiply_matrix(app->world->mat, app->world->rot_mat_z);
-		app->world->mat = matrix_multiply_matrix(app->world->mat, app->world->trans_mat);
-
-		/* Create camera rotation matrices */
-		app->camera->rot_mat_x = rotation_mat_x(app->camera->rot.x);
-		app->camera->rot_mat_y = rotation_mat_y(app->camera->rot.y);
-		app->camera->rot_mat_z = rotation_mat_z(app->camera->rot.z);
-
-		/* Create camera rotation matrix */
-		app->camera->rot_mat = matrix_identity();
-		app->camera->rot_mat = matrix_multiply_matrix(app->camera->rot_mat, app->camera->rot_mat_x);
-		app->camera->rot_mat = matrix_multiply_matrix(app->camera->rot_mat, app->camera->rot_mat_y);
-		app->camera->rot_mat = matrix_multiply_matrix(app->camera->rot_mat, app->camera->rot_mat_z);
-
-		/* Create camera view matrix */
-		app->camera->target = new_vector(0.0, 0.0, 1.0);
-		app->camera->dir = matrix_multiply_vector(app->camera->rot_mat, app->camera->target);
-		app->camera->target = vector_sum(app->camera->pos, app->camera->dir);
-		app->camera->view_mat = matrix_look_at(app->camera->pos, app->camera->target);
-		app->camera->view_mat = matrix_inverse(app->camera->view_mat);
-
-		/* Animate meshes[0] rotation */
-		//app->meshes[0].rot.x += 1.0 * app->timer->delta;
-		//app->meshes[0].rot.y += 1.0 * app->timer->delta;
-		//app->meshes[0].rot.z += 1.0 * app->timer->delta;
-
-		/* Animate meshes[0] position */
-		//app->meshes[0].pos.x = sin(app->timer->time) * 2.0;
-		//app->meshes[0].pos.y = sin(app->timer->time) * 2.0;
-		//app->meshes[0].pos.z = sin(app->timer->time) * 2.0;
 
 		int i = 0;
 		while (i < 1)
 		{
 			app->meshes[i].pos = new_vector(-0.5, -0.5, -0.5);
-			app->meshes[i].rot.y += 1.0 * app->timer->delta;
+			//app->meshes[i].rot.y += 1.0 * app->timer->delta;
 			app->meshes[i].rot_mat_x = rotation_mat_x(app->meshes[i].rot.x);
 			app->meshes[i].rot_mat_y = rotation_mat_y(app->meshes[i].rot.y);
 			app->meshes[i].rot_mat_z = rotation_mat_z(app->meshes[i].rot.z);
 			app->meshes[i].trans_mat = init_translation_mat(app->meshes[i].pos);
-			app->meshes[i].transform = matrix_identity();
-			app->meshes[i].transform = matrix_multiply_matrix(app->meshes[i].transform, app->meshes[i].rot_mat_x);
+			app->meshes[i].transform = matrix_multiply_matrix(matrix_identity(), app->meshes[i].rot_mat_x);
 			app->meshes[i].transform = matrix_multiply_matrix(app->meshes[i].transform, app->meshes[i].rot_mat_y);
 			app->meshes[i].transform = matrix_multiply_matrix(app->meshes[i].transform, app->meshes[i].rot_mat_z);
 			app->meshes[i].transform = matrix_multiply_matrix(app->meshes[i].transform, app->meshes[i].trans_mat);
@@ -118,11 +64,11 @@ void	start_the_game(t_app *app)
 			i++;
 		}
 		draw_cross(app, 7.0, 255, 0, 200);
-		SDL_UpdateWindowSurface(app->sdl->window);
 		get_delta_time(app->timer);
-		if (app->inputs->keyboard[SDL_SCANCODE_R])
-			show_fps(app);
+		update_fps_data(app, font_ptr, font_color);
+		SDL_UpdateWindowSurface(app->sdl->window);
 	}
+	TTF_CloseFont(font_ptr);
 	SDL_Quit();
 	SDL_DestroyWindow(app->sdl->window);
 }
@@ -167,7 +113,7 @@ int		main(int argv, char**argc)
 	/* TODO: Set number of meshes */
 	int number_of_sprites = 1;
 	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * number_of_sprites);
-	bmp_load("resources/3.bmp", &app->sprites[0]);
+	bmp_load("resources/2.bmp", &app->sprites[0]);
 
 	start_the_game(app);
 	quit_properly(app);

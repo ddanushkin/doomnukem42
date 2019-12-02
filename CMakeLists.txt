@@ -15,13 +15,19 @@ if(MSVC OR MSYS OR MINGW)
     message("-- WINDOWS --")
     set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-    include_directories("sdl2/win32/include/SDL2/")
-    link_directories(sdl2/win32/lib/)
+    include_directories("sdl2/main/include/SDL2/")
+    link_directories(sdl2/main/lib/)
+    include_directories("sdl2/ttf/include/SDL2/")
+    link_directories(sdl2/ttf/lib/)
     add_executable(${EXECUTABLE_NAME} ${PROJ_SOURCES} ${LIBFT_SOURCES})
-    target_link_libraries(${EXECUTABLE_NAME} "-lmingw32 -lSDL2main -lSDL2")
+    target_link_libraries(${EXECUTABLE_NAME} "-lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf")
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${PROJECT_SOURCE_DIR}/sdl2/win32/bin/"
+            "${PROJECT_SOURCE_DIR}/sdl2/main/bin/"
+            $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
+    add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${PROJECT_SOURCE_DIR}/sdl2/ttf/bin/"
             $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
 endif()
 

@@ -11,14 +11,24 @@ int		event_handling(t_app *app)
 	if (key[SDL_SCANCODE_ESCAPE])
 		return(0);
 
-	/* CHANGE HEIGHT */
-	if (key[SDL_SCANCODE_LSHIFT])
-		app->camera->pos.y -= 5.0 * app->timer->delta;
-	if (key[SDL_SCANCODE_SPACE])
-		app->camera->pos.y += 5.0 * app->timer->delta;
+	/* ROTATE CAMERA */
+	if (app->inputs->mouse.x)
+		app->camera->rot.y += app->inputs->mouse.x * app->inputs->mouse.sens * app->timer->delta * 0.5  * 0.5;
+	if (app->inputs->mouse.y)
+		app->camera->rot.x -= app->inputs->mouse.y * app->inputs->mouse.sens * app->timer->delta * 0.5 * 0.5;
 
-	t_v3d	forward = vector_mul_by(app->camera->dir, 15.0 * app->timer->delta);
-	t_v3d	right = new_vector(forward.z, 0.0, -forward.x);
+	/* Create camera view matrix */
+	app->camera->rot_mat = init_rotation_matrix(app->camera->rot);
+	app->camera->dir = matrix_multiply_vector(app->camera->rot_mat, new_vector(0.0, 0.0, 1.0));
+	app->camera->target = vector_sum(app->camera->pos, app->camera->dir);
+	app->camera->view_mat = matrix_inverse(matrix_look_at(app->camera->pos, app->camera->target));
+
+	t_v3d	forward;
+	t_v3d	right;
+
+	forward = vector_mul_by(app->camera->dir, 2.0 * app->timer->delta);
+	forward.y = 0;
+	right = new_vector(forward.z, 0.0, -forward.x);
 
 	/* MOVE FORWARD/BACKWARD */
 	if (key[SDL_SCANCODE_W])
@@ -35,6 +45,5 @@ int		event_handling(t_app *app)
 		app->camera->rot.y += app->inputs->mouse.x * app->inputs->mouse.sens * app->timer->delta;
 	if (app->inputs->mouse.y)
 		app->camera->rot.x -= app->inputs->mouse.y * app->inputs->mouse.sens * app->timer->delta;
-	app->camera->rot.x = CLAMP(app->camera->rot.x, -1.5, 1.5);
 	return (1);
 }

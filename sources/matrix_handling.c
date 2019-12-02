@@ -23,6 +23,15 @@ t_mat4x4	init_translation_mat(t_v3d trans_v)
 	return (mat);
 }
 
+t_mat4x4	init_rotation_matrix(t_v3d rot)
+{
+		return (matrix_multiply_matrix(
+				rotation_mat_z(rot.z),
+				matrix_multiply_matrix(
+						rotation_mat_x(-rot.x),
+						rotation_mat_y(rot.y))));
+}
+
 t_mat4x4	matrix_inverse(t_mat4x4 m)
 {
 	t_mat4x4	mat;
