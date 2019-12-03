@@ -218,8 +218,10 @@ typedef struct	s_camera
 	double 		asp_ratio;
 	t_v3d		pos;
 	t_v3d		rot;
+	t_v3d		dir;
 	t_v3d		target;
 	t_mat4x4	view;
+	t_mat4x4	rotation;
 	t_mat4x4	projection;
 	t_mat4x4	translation;
 	t_mat4x4	view_projection;
@@ -293,7 +295,17 @@ typedef struct	s_app
 	double		*depth_buffer;
 }				t_app;
 
-t_mat4x4 FPSViewRH(t_camera *camera);
+t_v3d		quat_axis_angle(t_v3d axis, double angle);
+t_mat4x4	quat_to_rotation_matrix(t_v3d q);
+t_v3d		quat_conjugate(t_v3d q);
+t_v3d		get_forward(t_v3d q);
+t_v3d		get_right(t_v3d q);
+t_v3d		get_back(t_v3d q);
+t_v3d		get_left(t_v3d q);
+t_v3d		quat_rotate(t_v3d cur, t_v3d rotation);
+t_v3d		quat_mul_vec(t_v3d q, t_v3d r);
+t_v3d		quat_mul_quat(t_v3d q, t_v3d r);
+t_v3d		quat_normalized(t_v3d q);
 
 void		clip_triangles(t_tr_list **tr_lst);
 

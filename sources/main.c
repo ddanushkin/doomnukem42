@@ -222,7 +222,7 @@ void	render_pipeline(t_app *app, t_v3d vert1, t_v3d vert2, t_v3d vert3, t_mat4x4
 	double	tex_y3 = vert3.tex_y;
 
 	t_mat4x4	translation_mat;
-	translation_mat = matrix_translation(sin(app->timer->time), 0, 10);
+	translation_mat = matrix_translation(0, 0, 10);
 
 	t_mat4x4	rotation_mat;
 	rotation_mat = matrix_rotation(0.0, 0.0, 0.0);
@@ -257,8 +257,8 @@ void	render_pipeline(t_app *app, t_v3d vert1, t_v3d vert2, t_v3d vert3, t_mat4x4
 	max.tex_y = tex_y3;
 
 	/* Triangle is facing camera check */
-	//if (triangle_area_times_two(&min, &max, &mid) >= 0.0)
-	//	return;
+//	if (triangle_area_times_two(&min, &max, &mid) >= 0.0)
+//		return;
 
 	if (max.y < mid.y)
 		SWAP(mid, max, t_v3d);
@@ -275,49 +275,6 @@ void	render_pipeline(t_app *app, t_v3d vert1, t_v3d vert2, t_v3d vert3, t_mat4x4
 			triangle_area_times_two(&min, &max, &mid) >= 0.0);
 }
 
-t_mat4x4 FPSViewRH(t_camera *camera)
-{
-//	t_mat4x4	rotation;
-	t_v3d		x_axis;
-	t_v3d		y_axis;
-	t_v3d		z_axis;
-	t_mat4x4	view;
-
-//	rotation = matrix_rotation(camera->rot.x, camera->rot.y, 0);
-//	camera->target = vector_sum(camera->pos, matrix_multiply_vector(rotation, new_vector(0.0, 0.0, 1.0)));
-
-	double cos_yaw = cos(camera->rot.y);
-	double sin_yaw = sin(camera->rot.y);
-	double cos_pitch = cos(camera->rot.x);
-	double sin_pitch = sin(camera->rot.x);
-
-	x_axis = new_vector(cos_yaw, 0.0, -sin_yaw);
-	y_axis = new_vector(sin_yaw * sin_pitch, cos_pitch, cos_yaw * sin_pitch);
-	z_axis = new_vector(sin_yaw * cos_pitch, -sin_pitch, cos_pitch * cos_yaw);
-
-//	z_axis = vector_normalise(vector_sub(camera->target, camera->pos));
-//	x_axis = vector_normalise(vector_cross_product(new_vector(0.0, 1.0, 0.0), z_axis));
-//	y_axis = vector_cross_product(z_axis, x_axis);
-
-	view.m[0][0] = x_axis.x;
-	view.m[0][1] = y_axis.x;
-	view.m[0][2] = z_axis.x;
-	view.m[0][3] = 0.0;
-	view.m[1][0] = x_axis.y;
-	view.m[1][1] = y_axis.y;
-	view.m[1][2] = z_axis.y;
-	view.m[1][3] = 0.0;
-	view.m[2][0] = x_axis.z;
-	view.m[2][1] = y_axis.z;
-	view.m[2][2] = z_axis.z;
-	view.m[2][3] = 0.0;
-	view.m[3][0] = -vector_dot_product(x_axis, camera->pos);
-	view.m[3][1] = -vector_dot_product(y_axis, camera->pos);
-	view.m[3][2] = -vector_dot_product(z_axis, camera->pos);
-	view.m[3][3] = 1.0;
-	return view;
-}
-
 void	start_the_game(t_app *app)
 {
 	TTF_Init();
@@ -326,7 +283,7 @@ void	start_the_game(t_app *app)
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	app->camera->pos = new_vector(0.0, 0.0, 3.46);
-
+	app->camera->rot = new_vector(0.0, 0.0, 0.0);
 	app->camera->projection = matrix_perspective(
 			1.22173,
 			(double)SCREEN_W / (double)SCREEN_H,
@@ -366,7 +323,6 @@ void	start_the_game(t_app *app)
 		vert3.z = 0.0;
 		vert3.w = 1.0;
 
-		//TODO: Camera movement
 		//TODO: Clipping
 
 		render_pipeline(app, vert1, vert2, vert3, app->camera->view_projection);
