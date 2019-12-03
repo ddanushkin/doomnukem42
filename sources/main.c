@@ -256,9 +256,9 @@ void	render_pipeline(t_app *app, t_v3d vert1, t_v3d vert2, t_v3d vert3, t_mat4x4
 	max.tex_x = tex_x3;
 	max.tex_y = tex_y3;
 
-	/* Triangle is facing camera check */
-//	if (triangle_area_times_two(&min, &max, &mid) >= 0.0)
-//		return;
+//	/* Triangle is facing camera check */
+	if (triangle_area_times_two(&min, &max, &mid) >= 0.0)
+		return;
 
 	if (max.y < mid.y)
 		SWAP(mid, max, t_v3d);
@@ -334,7 +334,7 @@ void	start_the_game(t_app *app)
 		vert3.z = 0.0;
 		vert3.w = 1.0;
 
-		render_pipeline(app, vert1, vert2, vert3, app->camera->view_projection);
+		render_pipeline(app, vert1, vert3, vert2, app->camera->view_projection);
 
 		draw_cross(app, 7.0, 255, 0, 200);
 		get_delta_time(app->timer);
