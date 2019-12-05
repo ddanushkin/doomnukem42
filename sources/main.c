@@ -207,6 +207,16 @@ t_v3d vertex_perspective_divide(t_v3d v)
 	return (new_v);
 }
 
+int		inside_view_frustum(t_v3d v)
+{
+//	TODO: fix z check
+//	return (fabs(v.x) <= fabs(v.w) &&
+//			fabs(v.y) <= fabs(v.w) &&
+//			fabs(v.z) <= fabs(v.w));
+	return (fabs(v.x) <= fabs(v.w) &&
+			fabs(v.y) <= fabs(v.w));
+}
+
 void	render_pipeline(t_app *app, t_v3d vert1, t_v3d vert2, t_v3d vert3, t_mat4x4 view_projection)
 {
 	t_v3d v1 = new_vector(vert1.x, vert1.y, vert1.z);
@@ -234,45 +244,52 @@ void	render_pipeline(t_app *app, t_v3d vert1, t_v3d vert2, t_v3d vert3, t_mat4x4
 	v2 = matrix_transform(transform_mat, v2);
 	v3 = matrix_transform(transform_mat, v3);
 
-	t_mat4x4	screen_space_mat;
-	screen_space_mat = matrix_screen_space();
+	//	If all triangle points inside view frustum, then fill_triangle.
+	//	Else clip_triangle and fill_triangle
 
-	v1 = matrix_transform(screen_space_mat, v1);
-	v2 = matrix_transform(screen_space_mat, v2);
-	v3 = matrix_transform(screen_space_mat, v3);
+	if (inside_view_frustum(v1) && inside_view_frustum(v2) && inside_view_frustum(v3))
+	{
+		//TODO: Put to fill_triangle function
+		t_mat4x4	screen_space_mat;
+		screen_space_mat = matrix_screen_space();
 
-	t_v3d min;
-	t_v3d mid;
-	t_v3d max;
+		v1 = matrix_transform(screen_space_mat, v1);
+		v2 = matrix_transform(screen_space_mat, v2);
+		v3 = matrix_transform(screen_space_mat, v3);
 
-	min = vertex_perspective_divide(v1);
-	mid = vertex_perspective_divide(v2);
-	max = vertex_perspective_divide(v3);
+		t_v3d min;
+		t_v3d mid;
+		t_v3d max;
 
-	min.tex_x = tex_x1;
-	min.tex_y = tex_y1;
-	mid.tex_x = tex_x2;
-	mid.tex_y = tex_y2;
-	max.tex_x = tex_x3;
-	max.tex_y = tex_y3;
+		min = vertex_perspective_divide(v1);
+		mid = vertex_perspective_divide(v2);
+		max = vertex_perspective_divide(v3);
 
-//	/* Triangle is facing camera check */
-	if (triangle_area_times_two(&min, &max, &mid) >= 0.0)
-		return;
+		min.tex_x = tex_x1;
+		min.tex_y = tex_y1;
+		mid.tex_x = tex_x2;
+		mid.tex_y = tex_y2;
+		max.tex_x = tex_x3;
+		max.tex_y = tex_y3;
 
-	if (max.y < mid.y)
-		SWAP(mid, max, t_v3d);
-	if (mid.y < min.y)
-		SWAP(min, mid, t_v3d);
-	if (max.y < mid.y)
-		SWAP(mid, max, t_v3d);
+		/* Triangle is facing camera check */
+		if (triangle_area_times_two(&min, &max, &mid) >= 0.0)
+			return;
 
-	scan_triangle(
-			app,
-			min,
-			mid,
-			max,
-			triangle_area_times_two(&min, &max, &mid) >= 0.0);
+		if (max.y < mid.y)
+			SWAP(mid, max, t_v3d);
+		if (mid.y < min.y)
+			SWAP(min, mid, t_v3d);
+		if (max.y < mid.y)
+			SWAP(mid, max, t_v3d);
+
+		scan_triangle(
+				app,
+				min,
+				mid,
+				max,
+				triangle_area_times_two(&min, &max, &mid) >= 0.0);
+	}
 }
 
 void	start_the_game(t_app *app)
@@ -295,7 +312,7 @@ void	start_the_game(t_app *app)
 		clear_screen(app);
 		clear_depth_buffer(app);
 		mouse_update(app);
-		if (!event_handling(app))
+		if (!event_handling(app, app->timer->delta))
 			break;
 
 		t_v3d vert1;

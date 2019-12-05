@@ -378,7 +378,7 @@ int 		out_of_borders(int x, int y);
 int 		color_key(t_color c);
 void		quit_properly(t_app *app);
 
-int			event_handling(t_app *app);
+int			event_handling(t_app *app, double delta_time);
 
 t_tr_list	*new_triangle_list(int len);
 t_triangle	new_triangle(t_v3d v0, t_v3d v1, t_v3d v2);
