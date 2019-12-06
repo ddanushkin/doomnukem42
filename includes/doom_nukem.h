@@ -358,7 +358,6 @@ void		sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_
 
 void		check_triangle(t_app *app, t_triangle *tr);
 void		render_triangle(t_app *app, t_triangle tr);
-void		fill_triangle(t_app *app, t_triangle t);
 
 void		show_fps_sdl(t_timer *timer);
 

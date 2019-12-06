@@ -65,6 +65,8 @@ t_v3d	matrix_transform(t_mat4x4 mat, t_v3d v)
 	new_v.y = mat.m[1][0] * v.x + mat.m[1][1] * v.y + mat.m[1][2] * v.z + mat.m[1][3] * v.w;
 	new_v.z = mat.m[2][0] * v.x + mat.m[2][1] * v.y + mat.m[2][2] * v.z + mat.m[2][3] * v.w;
 	new_v.w = mat.m[3][0] * v.x + mat.m[3][1] * v.y + mat.m[3][2] * v.z + mat.m[3][3] * v.w;
+	new_v.tex_x = v.tex_x;
+	new_v.tex_y = v.tex_y;
 	return (new_v);
 }
 

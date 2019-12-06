@@ -99,7 +99,7 @@ void	sort_triangle_by_y(t_triangle *tr)
 	}
 }
 
-void	fill_triangle(t_app *app, t_triangle t)
+void	fill_triangle_old(t_app *app, t_triangle t)
 {
 	sort_triangle_by_y(&t);
 
