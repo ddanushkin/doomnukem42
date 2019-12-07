@@ -282,11 +282,12 @@ typedef struct		s_vr_list
 	struct s_vr_list	*next;
 }					t_vr_list;
 
-typedef struct	s_vr_clip_data
+typedef struct	s_clip_data
 {
-	double value;
-	double w;
-}				t_vr_clip_data;
+	t_v3d		v;
+	Uint8		is_inside;
+	double 		value;
+}				t_clip_data;
 
 typedef struct	s_plane
 {
@@ -307,25 +308,7 @@ typedef struct	s_app
 	double		*depth_buffer;
 }				t_app;
 
-t_v3d		quat_axis_angle(t_v3d axis, double angle);
-t_mat4x4	quat_to_rotation_matrix(t_v3d q);
-t_v3d		quat_conjugate(t_v3d q);
-t_v3d		get_forward(t_v3d q);
-t_v3d		get_right(t_v3d q);
-t_v3d		get_back(t_v3d q);
-t_v3d		get_left(t_v3d q);
-t_v3d		quat_rotate(t_v3d cur, t_v3d rotation);
-t_v3d		quat_mul_vec(t_v3d q, t_v3d r);
-t_v3d		quat_mul_quat(t_v3d q, t_v3d r);
-t_v3d		quat_normalized(t_v3d q);
-
-void		clip_triangles(t_tr_list **tr_lst);
-
 void		exit_with_status(int status, char *fnf_path);
-
-void		debug_mouse(t_app *app, char *event, int key_code);
-void		debug_keyboard(char *event, int key_code);
-void		do_input(t_app *app);
 
 void		*image_clear(void *b, int c, size_t len);
 
@@ -333,51 +316,19 @@ void 		app_close(t_app *app);
 
 void		init_app(t_app *app);
 
-void		update_inputs(t_app *app);
-
-int 		keyboard_event_down(int key_code, t_app *app);
-int 		keyboard_event_up(int key_code, t_app *app);
-
-int 		mouse_event_down(int key_code, int x, int y, t_app *app);
-int 		mouse_event_up(int key_code, int x, int y, t_app *app);
-int 		mouse_event_move(int x, int y, t_app *app);
-
-int			window_event_close(t_app *app);
-int			window_event_expose(t_app *app);
-
-void		reset_inputs_states(t_app *app);
-
-void		project_triangle(t_triangle *tr, t_mat4x4 *proj_mat);
-void		translate_triangle(t_triangle *tr, t_app *app);
-void		offset_triangle(t_triangle *tr, t_app *app);
-
 void		set_vector(t_v3d *v, double x, double y, double z);
 
-t_mat4x4	rotation_mat_z(double angle);
-t_mat4x4	rotation_mat_x(double angle);
-t_mat4x4	rotation_mat_y(double angle);
 t_mat4x4	matrix_rotation(double x, double y, double z);
 
-void		set_triangle(t_triangle *t, t_v3d *v0, t_v3d *v1, t_v3d *v2);
-
 void		set_color(t_color *color, int r, int g, int b);
-uint32_t	sprite_get_color_by_uv(t_sprite *s, double u, double v);
 uint32_t	sprite_get_color(t_sprite *s, int x, int y);
 void		set_pixel_uint32(SDL_Surface *surface, int offset, Uint32 c);
 void		set_pixel(SDL_Surface *surface, int x, int y, t_color c);
 void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color);
 void		sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_x, int size_y);
 
-void		check_triangle(t_app *app, t_triangle *tr);
-void		render_triangle(t_app *app, t_triangle tr);
-
-void		show_fps_sdl(t_timer *timer);
-
-void		make_cube(t_mesh *m, double size);
-
 void		get_ticks(t_timer *timer);
 void		get_delta_time(t_timer *timer);
-void		show_fps(t_app *app);
 
 void		draw_cross(t_app *app, double size, int r, int g, int b);
 
@@ -389,10 +340,7 @@ int 		out_of_borders(int x, int y);
 int 		color_key(t_color c);
 void		quit_properly(t_app *app);
 
-int			event_handling(t_app *app, double delta_time);
-
-t_tr_list	*new_triangle_list(int len);
-t_triangle	new_triangle(t_v3d v0, t_v3d v1, t_v3d v2);
+int			event_handling(t_app *app);
 
 void		mouse_update(t_app *app);
 
@@ -410,10 +358,6 @@ t_mat4x4	matrix_look_at(t_v3d from, t_v3d to);
 t_mat4x4	matrix_inverse(t_mat4x4 m);
 t_mat4x4	matrix_identity();
 t_mat4x4	init_translation_mat(t_v3d trans_v);
-
-void		transform_vertices(t_app *app, int mesh_id);
-void		assemble_triangles(t_app *app, int mesh_id);
-void		check_triangles(t_app *app, int mesh_id);
 
 t_v3d		new_vector(double x, double y, double z);
 t_v3d		vector_sum(t_v3d vector1, t_v3d vector2);

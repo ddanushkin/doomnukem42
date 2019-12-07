@@ -3,8 +3,8 @@
 void		mouse_update(t_app *app)
 {
 	Uint32	mouse_state;
-	int x;
-	int y;
+	int		x;
+	int		y;
 
 	mouse_state = SDL_GetRelativeMouseState(&x, &y);
 	if (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT))

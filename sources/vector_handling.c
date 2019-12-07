@@ -22,17 +22,6 @@ t_v3d	vector_sum(t_v3d vector1, t_v3d vector2)
 	return result;
 }
 
-t_v3d	vector_add(t_v3d vector1, t_v3d vector2)
-{
-	t_v3d result;
-
-	result.x = vector1.x + vector2.x;
-	result.y = vector1.y + vector2.y;
-	result.z = vector1.z + vector2.z;
-	result.w = 1.0;
-	return result;
-}
-
 t_v3d vector_sub(t_v3d vector1, t_v3d vector2)
 {
 	t_v3d result;

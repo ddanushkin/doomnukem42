@@ -40,39 +40,3 @@ uint32_t	sprite_get_color(t_sprite *s, int x, int y)
 {
 	return (s->pixels[y * s->header.width_px + x]);
 }
-
-uint32_t	sprite_get_color_by_uv(t_sprite *s, double u, double v)
-{
-	t_bmp_header	*header;
-	int 			h;
-	int 			w;
-
-	header = &s->header;
-	h = header->height_px - 1;
-	w = header->width_px - 1;
-	return (sprite_get_color(s, w * u, h * v));
-}
-
-//void	sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_x, int size_y)
-//{
-//	int		i;
-//	int		j;
-//	t_color	c;
-//
-//	i = 0;
-//	size_x = abs(size_x);
-//	size_y = abs(size_y);
-//	while (i < size_x)
-//	{
-//		j = 0;
-//		while (j < size_y)
-//		{
-//			double u = (double)i / (double)size_x;
-//			double v = (double)j / (double)size_y;
-//			c = sprite_get_color_by_uv(sprite, u, v);
-//			set_pixel(screen, i + x, j + y, c);
-//			j++;
-//		}
-//		i++;
-//	}
-//}

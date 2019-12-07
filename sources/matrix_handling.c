@@ -249,39 +249,6 @@ t_mat4x4	matrix_multiply(t_mat4x4 m1, t_mat4x4 m2)
 	return (result);
 }
 
-t_mat4x4	matrix_summary(t_mat4x4 m1, t_mat4x4 m2)
-{
-	t_mat4x4	result;
-	int 		i;
-	int 		j;
-
-	i = -1;
-	while (++i < 4)
-	{
-		j = -1;
-		while (++j < 4)
-			result.m[i][j] = m1.m[i][j] + m2.m[i][j];
-	}
-	return (result);
-}
-
-t_mat4x4	matrix_subtraction(t_mat4x4 m1, t_mat4x4 m2)
-{
-	t_mat4x4	result;
-	int 		i;
-	int 		j;
-
-	i = -1;
-	while (++i < 4)
-	{
-		j = -1;
-		while (++j < 4)
-			result.m[i][j] = m1.m[i][j] - m2.m[i][j];
-	}
-	return (result);
-
-}
-
 t_v3d	matrix_multiply_vector(t_mat4x4 m, t_v3d v)
 {
 	t_v3d r;
