@@ -116,8 +116,8 @@ void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 	int x_end;
 	int offset;
 
-	x_start = MAX((int)ceil(left->x), 0);
-	x_end = MIN((int)ceil(right->x), SCREEN_W - 1);
+	x_start = (int)ceil(left->x);
+	x_end = (int)ceil(right->x);
 
 	double	x_pre_step = x_start - left->x;
 	double	x_dist = right->x - left->x;
@@ -164,8 +164,8 @@ void	scan_edges(t_app *app, t_edge *a, t_edge *b, int handedness)
 	right = b;
 	if (handedness)
 		SWAP(left, right, t_edge *);
-	y_start = MAX(b->y_start, 0);
-	y_end = MIN(b->y_end, SCREEN_H - 1);
+	y_start = b->y_start;
+	y_end = b->y_end;
 	y = y_start;
 	while (y < y_end)
 	{
@@ -211,12 +211,9 @@ t_v3d vertex_perspective_divide(t_v3d v)
 
 int		inside_view_frustum(t_v3d v)
 {
-//	TODO: fix z check
-//	return (fabs(v.x) <= fabs(v.w) &&
-//			fabs(v.y) <= fabs(v.w) &&
-//			fabs(v.z) <= fabs(v.w));
 	return (fabs(v.x) <= fabs(v.w) &&
-			fabs(v.y) <= fabs(v.w));
+			fabs(v.y) <= fabs(v.w) &&
+			fabs(v.z) <= fabs(v.w));
 }
 
 void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
@@ -249,14 +246,215 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 			v1,
 			v2,
 			v3,
-			triangle_area_times_two(&v1, &v3, &v2) >= 0.0);}
+			triangle_area_times_two(&v1, &v3, &v2) >= 0.0);
+}
 
+t_vr_list *vr_list_add(t_vr_list **list, t_v3d v)
+{
+	t_vr_list	*head;
+
+	if ((*list) == NULL)
+	{
+		(*list) = (t_vr_list *)malloc(sizeof(t_vr_list));
+		(*list)->v = v;
+		(*list)->next = NULL;
+	}
+	else
+	{
+		head = *list;
+		while ((*list)->next)
+			(*list) = (*list)->next;
+		(*list)->next = (t_vr_list *)malloc(sizeof(t_vr_list));
+		(*list) = (*list)->next;
+		(*list)->v = v;
+		(*list)->next = NULL;
+		*list = head;
+	}
+}
+
+void 	vr_list_free(t_vr_list **list)
+{
+	t_vr_list *tmp;
+
+	while ((*list) != NULL)
+	{
+		tmp = (*list);
+		(*list) = (*list)->next;
+		free(tmp);
+	}
+	(*list) = NULL;
+}
+
+t_vr_list	*vr_list_last(t_vr_list *head)
+{
+	if (head == NULL)
+		return (NULL);
+	while (head->next)
+		head = head->next;
+	return (head);
+}
+
+t_v3d	lerp(t_v3d start, t_v3d end, double amount)
+{
+	t_v3d result;
+
+	result.x = (end.x - start.x) * amount + start.x;
+	result.y = (end.y - start.y) * amount + start.y;
+	result.z = (end.z - start.z) * amount + start.z;
+	result.w = (end.w - start.w) * amount + start.w;
+	result.tex_x = (end.tex_x - start.tex_x) * amount + start.tex_x;
+	result.tex_y = (end.tex_y - start.tex_y) * amount + start.tex_y;
+	return (result);
+}
+
+void 	clip_x(t_vr_list **start_list, double factor, t_vr_list **end_list)
+{
+	t_vr_list	*cursor;
+	t_v3d		prev_vr;
+	int			prev_inside;
+	double 		prev_x;
+	t_v3d		curr_vr;
+	int			curr_inside;
+	double 		curr_x;
+	double 		amount;
+	double		tmp;
+
+	cursor = (*start_list);
+	prev_vr = vr_list_last(*start_list)->v;
+	prev_x = prev_vr.x * factor;
+	prev_inside = prev_x <= prev_vr.w;
+	while (cursor)
+	{
+		curr_vr = cursor->v;
+		curr_x = curr_vr.x * factor;
+		curr_inside = curr_x <= curr_vr.w;
+		if (curr_inside ^ prev_inside)
+		{
+			tmp = prev_vr.w - prev_x;
+			amount = (tmp) / ((tmp) - (curr_vr.w - curr_x));
+			vr_list_add(end_list, lerp(prev_vr, curr_vr, amount));
+		}
+		if (curr_inside)
+			vr_list_add(end_list, curr_vr);
+		prev_vr = curr_vr;
+		prev_x = curr_x;
+		prev_inside = curr_inside;
+		cursor = cursor->next;
+	}
+}
+
+void 	clip_y(t_vr_list **start_list, double factor, t_vr_list **end_list)
+{
+	t_vr_list	*cursor;
+	t_v3d		prev_vr;
+	int			prev_inside;
+	double 		prev_y;
+	t_v3d		curr_vr;
+	int			curr_inside;
+	double 		curr_y;
+	double 		amount;
+	double		tmp;
+
+	cursor = (*start_list);
+	prev_vr = vr_list_last(*start_list)->v;
+	prev_y = prev_vr.y * factor;
+	prev_inside = prev_y <= prev_vr.w;
+	while (cursor)
+	{
+		curr_vr = cursor->v;
+		curr_y = curr_vr.y * factor;
+		curr_inside = curr_y <= curr_vr.w;
+		if (curr_inside ^ prev_inside)
+		{
+			tmp = prev_vr.w - prev_y;
+			amount = (tmp) / ((tmp) - (curr_vr.w - curr_y));
+			vr_list_add(end_list, lerp(prev_vr, curr_vr, amount));
+		}
+		if (curr_inside)
+			vr_list_add(end_list, curr_vr);
+		prev_vr = curr_vr;
+		prev_y = curr_y;
+		prev_inside = curr_inside;
+		cursor = cursor->next;
+	}
+}
+
+void 	clip_z(t_vr_list **start_list, double factor, t_vr_list **end_list)
+{
+	t_vr_list	*cursor;
+	t_v3d		prev_vr;
+	int			prev_inside;
+	double 		prev_z;
+	t_v3d		curr_vr;
+	int			curr_inside;
+	double 		curr_z;
+	double 		amount;
+	double		tmp;
+
+	cursor = (*start_list);
+	prev_vr = vr_list_last(*start_list)->v;
+	prev_z = prev_vr.z * factor;
+	prev_inside = prev_z <= prev_vr.w;
+	while (cursor)
+	{
+		curr_vr = cursor->v;
+		curr_z = curr_vr.z * factor;
+		curr_inside = curr_z <= curr_vr.w;
+		if (curr_inside ^ prev_inside)
+		{
+			tmp = prev_vr.w - prev_z;
+			amount = (tmp) / ((tmp) - (curr_vr.w - curr_z));
+			vr_list_add(end_list, lerp(prev_vr, curr_vr, amount));
+		}
+		if (curr_inside)
+			vr_list_add(end_list, curr_vr);
+		prev_vr = curr_vr;
+		prev_z = curr_z;
+		prev_inside = curr_inside;
+		cursor = cursor->next;
+	}
+}
+
+int 	clip_triangle_x_axis(t_vr_list **start_list, t_vr_list **end_list)
+{
+	clip_x(start_list, 1.0, end_list);
+	vr_list_free(start_list);
+	if ((*end_list) == NULL)
+		return (0);
+	clip_x(end_list, -1.0, start_list);
+	vr_list_free(end_list);
+	return ((*start_list) != NULL);
+}
+
+int 	clip_triangle_y_axis(t_vr_list **start_list, t_vr_list **end_list)
+{
+	clip_y(start_list, 1.0, end_list);
+	vr_list_free(start_list);
+	if ((*end_list) == NULL)
+		return (0);
+	clip_y(end_list, -1.0, start_list);
+	vr_list_free(end_list);
+	return ((*start_list) != NULL);
+}
+
+int 	clip_triangle_z_axis(t_vr_list **start_list, t_vr_list **end_list)
+{
+	clip_z(start_list, 1.0, end_list);
+	vr_list_free(start_list);
+	if ((*end_list) == NULL)
+		return (0);
+	clip_z(end_list, -1.0, start_list);
+	vr_list_free(end_list);
+	return ((*start_list) != NULL);
+}
 
 void	render_pipeline(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3, t_mat4x4 view_projection)
 {
 	t_mat4x4	translation_mat;
 	t_mat4x4	rotation_mat;
 	t_mat4x4	transform_mat;
+	t_vr_list	*start_list;
+	t_vr_list	*end_list;
 
 	//Mesh move, rotate
 	translation_mat = matrix_translation(0, 0, 10);
@@ -274,8 +472,31 @@ void	render_pipeline(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3, t_mat4x4 view_pro
 	}
 	else
 	{
-		//Clipping
-		fill_triangle(app, v1, v2, v3);
+		//TODO: Refactor!
+		t_v3d		root;
+		t_vr_list	*node;
+
+		start_list = NULL;
+		end_list = NULL;
+		vr_list_add(&start_list, v1);
+		vr_list_add(&start_list, v2);
+		vr_list_add(&start_list, v3);
+		if (clip_triangle_x_axis(&start_list, &end_list) &&
+			clip_triangle_y_axis(&start_list, &end_list) &&
+			clip_triangle_z_axis(&start_list, &end_list))
+		{
+			root = start_list->v;
+			node = start_list;
+			start_list = start_list->next;
+			free(node);
+			while (start_list->next)
+			{
+				node = start_list;
+				fill_triangle(app, root, node->v, node->next->v);
+				start_list = start_list->next;
+				free(node);
+			}
+		}
 	}
 
 }
@@ -292,7 +513,7 @@ void	start_the_game(t_app *app)
 	app->camera->projection = matrix_perspective(
 			1.22173,
 			(double)SCREEN_W / (double)SCREEN_H,
-			0.1,
+			0.05,
 			1000.0);
 	while (1)
 	{
@@ -327,8 +548,6 @@ void	start_the_game(t_app *app)
 		vert3.tex_y = 0.0;
 		vert3.z = 0.0;
 		vert3.w = 1.0;
-
-		//TODO: Clipping
 
 		render_pipeline(app, vert1, vert2, vert3, app->camera->view_projection);
 
@@ -365,6 +584,13 @@ int	check_resources(void)
 	close(fd);
 	printf("%s\n", hash);
 	return (ft_strequ(hash, RESOURCES_MD5));
+}
+
+void 	test(struct s_v3d v)
+{
+	printf("v.x -> %f\n", v.x);
+	printf("v.y -> %f\n", v.y);
+	printf("v.z -> %f\n\n", v.z);
 }
 
 int		main(int argv, char**argc)

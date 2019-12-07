@@ -10,8 +10,8 @@
 
 # define	PRINT_DEBUG 0
 
-# define	SCREEN_W 1280
-# define	SCREEN_H 720
+# define	SCREEN_W 640
+# define	SCREEN_H 480
 # define	WIN_TITLE "DOOM-NUKEM"
 
 # define	COLOR_KEY_R 255
@@ -275,6 +275,18 @@ typedef struct		s_tr_list
 	t_triangle			tr;
 	struct s_tr_list	*next;
 }					t_tr_list;
+
+typedef struct		s_vr_list
+{
+	t_v3d				v;
+	struct s_vr_list	*next;
+}					t_vr_list;
+
+typedef struct	s_vr_clip_data
+{
+	double value;
+	double w;
+}				t_vr_clip_data;
 
 typedef struct	s_plane
 {
