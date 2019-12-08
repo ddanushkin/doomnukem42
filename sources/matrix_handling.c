@@ -53,7 +53,6 @@ t_mat4x4	matrix_translation(double x, double y, double z)
 	mat.m[0][3] = x;
 	mat.m[1][3] = y;
 	mat.m[2][3] = z;
-	mat.m[3][3] = 1.0;
 	return (mat);
 }
 
@@ -221,7 +220,7 @@ t_mat4x4	matrix_look_at(t_v3d from, t_v3d to)
 	mat.m[3][0] = from.x;
 	mat.m[3][1] = from.y;
 	mat.m[3][2] = from.z;
-	mat.m[3][3] = 1.0;
+	mat.m[3][3] = 0.0;
 	return (mat);
 }
 

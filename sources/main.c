@@ -373,14 +373,14 @@ void 	clip_fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	}
 }
 
-void	render_pipeline(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3, t_mat4x4 view_projection)
+void	render_pipeline(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3, t_mat4x4 view_projection, double move_x, double move_y)
 {
 	t_mat4x4	translation_mat;
 	t_mat4x4	rotation_mat;
 	t_mat4x4	transform_mat;
 
 	//Mesh move, rotate
-	translation_mat = matrix_translation(0, 0, 10);
+	translation_mat = matrix_translation(move_x, move_y, 0);
 	rotation_mat = matrix_rotation(0.0, 0.0, 0.0);
 	transform_mat = matrix_multiply(view_projection, matrix_multiply(translation_mat, rotation_mat));
 	v1 = matrix_transform(transform_mat, v1);
@@ -394,6 +394,45 @@ void	render_pipeline(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3, t_mat4x4 view_pro
 	clip_fill_triangle(app, v1, v2, v3);
 }
 
+void 	render_square(t_app *app, double index_x, double index_y)
+{
+	t_v3d vert1;
+	t_v3d vert2;
+	t_v3d vert3;
+
+	vert1.x = -1.0;
+	vert1.y = -1.0;
+	vert1.z = 0.0;
+	vert1.w = 1.0;
+	vert1.tex_x = 0.0;
+	vert1.tex_y = 0.0;
+
+	vert2.x = 1.0;
+	vert2.y = 1.0;
+	vert2.z = 0.0;
+	vert2.w = 1.0;
+	vert2.tex_x = 1.0;
+	vert2.tex_y = 1.0;
+
+	vert3.x = 1.0;
+	vert3.y = -1.0;
+	vert3.z = 0.0;
+	vert3.w = 1.0;
+	vert3.tex_x = 1.0;
+	vert3.tex_y = 0.0;
+
+	render_pipeline(app, vert1, vert2, vert3, app->camera->view_projection, index_x * 2, index_y * 2);
+
+	vert3.x = -1.0;
+	vert3.y = 1.0;
+	vert3.z = 0.0;
+	vert3.w = 1.0;
+	vert3.tex_x = 0.0;
+	vert3.tex_y = 1.0;
+
+	render_pipeline(app, vert1, vert3, vert2, app->camera->view_projection, index_x * 2, index_y * 2);
+}
+
 void	start_the_game(t_app *app)
 {
 	TTF_Init();
@@ -401,7 +440,7 @@ void	start_the_game(t_app *app)
 	SDL_Color font_color = {255, 255, 255};
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	app->camera->pos = new_vector(0.0, 0.0, 3.46);
+	app->camera->pos = new_vector(0.0, 0.0, -10);
 	app->camera->rot = new_vector(0.0, 0.0, 0.0);
 	app->camera->projection = matrix_perspective(
 			1.22173,
@@ -417,41 +456,20 @@ void	start_the_game(t_app *app)
 		if (!event_handling(app))
 			break;
 
-		t_v3d vert1;
-		t_v3d vert2;
-		t_v3d vert3;
+		int x;
+		int y;
 
-		vert1.x = -1.0;
-		vert1.y = -1.0;
-		vert1.tex_x = 0.0;
-		vert1.tex_y = 0.0;
-		vert1.z = 0.0;
-		vert1.w = 1.0;
-
-		vert2.x = 1.0;
-		vert2.y = 1.0;
-		vert2.tex_x = 1.0;
-		vert2.tex_y = 1.0;
-		vert2.z = 0.0;
-		vert2.w = 1.0;
-
-		vert3.x = 1.0;
-		vert3.y = -1.0;
-		vert3.tex_x = 1.0;
-		vert3.tex_y = 0.0;
-		vert3.z = 0.0;
-		vert3.w = 1.0;
-
-		render_pipeline(app, vert1, vert2, vert3, app->camera->view_projection);
-
-		vert3.x = -1.0;
-		vert3.y = 1.0;
-		vert3.tex_x = 0.0;
-		vert3.tex_y = 1.0;
-		vert3.z = 0.0;
-		vert3.w = 1.0;
-
-		render_pipeline(app, vert1, vert3, vert2, app->camera->view_projection);
+		x = 0;
+		while (x < 100)
+		{
+			y = 0;
+			while (y < 10)
+			{
+				render_square(app, x, y);
+				y++;
+			}
+			x++;
+		}
 
 		draw_cross(app, 7.0, 255, 0, 200);
 		get_delta_time(app->timer);
