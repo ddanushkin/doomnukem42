@@ -209,11 +209,30 @@ t_v3d vertex_perspective_divide(t_v3d v)
 	return (new_v);
 }
 
-int		inside_view_frustum(t_v3d v)
+int		inside_view(t_v3d v1, t_v3d v2, t_v3d v3)
 {
-	return (fabs(v.x) <= fabs(v.w) &&
-			fabs(v.y) <= fabs(v.w) &&
-			fabs(v.z) <= fabs(v.w));
+	return (fabs(v1.x) <= fabs(v1.w) &&
+			fabs(v1.y) <= fabs(v1.w) &&
+			fabs(v1.z) <= fabs(v1.w) &&
+			fabs(v2.x) <= fabs(v2.w) &&
+			fabs(v2.y) <= fabs(v2.w) &&
+			fabs(v2.z) <= fabs(v2.w) &&
+			fabs(v3.x) <= fabs(v3.w) &&
+			fabs(v3.y) <= fabs(v3.w) &&
+			fabs(v3.z) <= fabs(v3.w));
+}
+
+int		outside_view(t_v3d v1, t_v3d v2, t_v3d v3)
+{
+	return (fabs(v1.x) > fabs(v1.w) &&
+			fabs(v1.y) > fabs(v1.w) &&
+			fabs(v1.z) > fabs(v1.w) &&
+			fabs(v2.x) > fabs(v2.w) &&
+			fabs(v2.y) > fabs(v2.w) &&
+			fabs(v2.z) > fabs(v2.w) &&
+			fabs(v3.x) > fabs(v3.w) &&
+			fabs(v3.y) > fabs(v3.w) &&
+			fabs(v3.z) > fabs(v3.w));
 }
 
 void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
@@ -373,24 +392,30 @@ void 	clip_fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	}
 }
 
+t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection, double move_x, double move_y)
+{
+	return (matrix_multiply(
+			view_projection,
+			matrix_multiply(
+				matrix_translation(move_x, move_y, 0),
+				matrix_rotation(0.0, 0.0, 0.0))));
+}
+
 void	render_pipeline(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3, t_mat4x4 view_projection, double move_x, double move_y)
 {
-	t_mat4x4	translation_mat;
-	t_mat4x4	rotation_mat;
 	t_mat4x4	transform_mat;
 
-	//Mesh move, rotate
-	translation_mat = matrix_translation(move_x, move_y, 0);
-	rotation_mat = matrix_rotation(0.0, 0.0, 0.0);
-	transform_mat = matrix_multiply(view_projection, matrix_multiply(translation_mat, rotation_mat));
+	transform_mat = get_transform_matrix(view_projection, move_x, move_y);
 	v1 = matrix_transform(transform_mat, v1);
 	v2 = matrix_transform(transform_mat, v2);
 	v3 = matrix_transform(transform_mat, v3);
-	if (inside_view_frustum(v1) && inside_view_frustum(v2) && inside_view_frustum(v3))
+	if (inside_view(v1, v2, v3))
 	{
 		fill_triangle(app, v1, v2, v3);
 		return;
 	}
+	if (outside_view(v1, v2, v3))
+		return;
 	clip_fill_triangle(app, v1, v2, v3);
 }
 
@@ -442,8 +467,9 @@ void	start_the_game(t_app *app)
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	app->camera->pos = new_vector(0.0, 0.0, -10);
 	app->camera->rot = new_vector(0.0, 0.0, 0.0);
+	app->camera->fov = TO_RAD(90.0);
 	app->camera->projection = matrix_perspective(
-			1.22173,
+			app->camera->fov,
 			(double)SCREEN_W / (double)SCREEN_H,
 			0.05,
 			1000.0);
@@ -470,7 +496,6 @@ void	start_the_game(t_app *app)
 			}
 			x++;
 		}
-
 		draw_cross(app, 7.0, 255, 0, 200);
 		get_delta_time(app->timer);
 		update_fps_data(app, font_ptr, font_color);
