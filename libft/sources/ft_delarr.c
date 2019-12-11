@@ -24,5 +24,5 @@ void	ft_delarr(char **array)
 		free(array[i]);
 		i++;
 	}
-	//free(array);
+	free(array);
 }

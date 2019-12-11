@@ -26,6 +26,7 @@
 # define SIGN(x) ((x < 0) ? -1 : 1);
 # define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
 # define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+# define TO_RAD(a) (a * M_PI / 180.0)
 
 # define RESOURCES_MD5 "92e21b66507aebb010adb353fc83badb"
 

@@ -21,11 +21,12 @@ void	clear_depth_buffer(t_app *app)
 
 void	update_fps_data(t_app *app, TTF_Font *font_ptr, SDL_Color font_color)
 {
-	char fps_text[50];
-	itoa(app->timer->fps, fps_text, 10);
+	char *fps_text;
+	fps_text = ft_itoa(app->timer->fps);
 	SDL_Surface *font_surface = TTF_RenderText_Solid(font_ptr, fps_text, font_color);
 	SDL_BlitSurface(font_surface, NULL, app->sdl->surface, NULL);
 	SDL_FreeSurface(font_surface);
+	ft_strdel(&fps_text);
 }
 
 double 		gradient_calc_x_step(double coords[3], t_v3d min, t_v3d mid, t_v3d max, double one_over_dx)
@@ -75,8 +76,8 @@ t_edge	edge_new(t_gradient	g, t_v3d min, t_v3d max, int index)
 	double		y_pre_step;
 	double		x_pre_step;
 
-	edge.y_start = (int)ceil(min.y);
-	edge.y_end = (int)ceil(max.y);
+	edge.y_start = (int)(min.y + 1);
+	edge.y_end = (int)(max.y + 1);
 
 	y_dist = max.y - min.y;
 	x_dist = max.x - min.x;
@@ -111,13 +112,12 @@ void	edge_step(t_edge *edge)
 
 void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 {
-	int x;
-	int x_start;
-	int x_end;
-	int offset;
+	int		x_start;
+	int		x_end;
+	int		offset;
 
-	x_start = (int)ceil(left->x);
-	x_end = (int)ceil(right->x);
+	x_start = (int)(left->x + 1);
+	x_end = (int)(right->x + 1);
 
 	double	x_pre_step = x_start - left->x;
 	double	x_dist = right->x - left->x;
@@ -130,13 +130,12 @@ void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 	double	tex_z = left->tex_z + z_x_step * x_pre_step;
 	double	depth = left->depth + depth_step * x_pre_step;
 
-	x = x_start;
-	offset = y * SCREEN_W + x;
-	while (x < x_end)
+	offset = y * SCREEN_W + x_start;
+	while (x_start < x_end)
 	{
 		if (depth < app->depth_buffer[offset])
 		{
-			double z = 1.0 / tex_z * 255.5;
+			double z = 1.0 / tex_z * 256;
 			int img_x = (int)(tex_x * z);
 			int img_y = (int)(tex_y * z);
 
@@ -147,7 +146,7 @@ void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 		tex_y += y_x_step;
 		tex_z += z_x_step;
 		depth += depth_step;
-		x++;
+		x_start++;
 		offset++;
 	}
 }
@@ -257,7 +256,7 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	scan_triangle(app, v1, v2, v3, triangle_area(&v1, &v3, &v2) >= 0.0);
 }
 
-t_vr_list *vr_list_add(t_vr_list **list, t_v3d v)
+void	vr_list_add(t_vr_list **list, t_v3d v)
 {
 	t_vr_list	*head;
 
@@ -389,6 +388,7 @@ void 	clip_fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 			start_list = start_list->next;
 			free(node);
 		}
+		free(start_list);
 	}
 }
 
