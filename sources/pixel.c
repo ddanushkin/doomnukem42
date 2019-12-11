@@ -36,7 +36,7 @@ void	set_pixel_uint32(SDL_Surface *surface, int offset, Uint32 c)
 	((Uint32 *)surface->pixels)[offset] = c;
 }
 
-uint32_t	sprite_get_color(t_sprite *s, int x, int y)
+uint32_t	sprite_get_color(t_sprite *s, u_int offset)
 {
-	return (s->pixels[y * s->header.width_px + x]);
+	return (s->pixels[offset]);
 }

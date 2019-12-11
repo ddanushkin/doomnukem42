@@ -29,7 +29,6 @@ static	void	init_sdl(t_sdl *sdl)
 			sdl->height,
 			0);
 	sdl->surface = SDL_GetWindowSurface(sdl->window);
-	sdl->pixels_len = SCREEN_W * SCREEN_H * 4;
 }
 
 void	init_camera(t_camera *camera)
@@ -41,6 +40,24 @@ void	init_camera(t_camera *camera)
 	camera->for_rad = 1.0 / tanf(camera->fov * 0.5 / 180.0 * 3.14159);
 	set_vector(&camera->pos, 0.0, 0.0, 0.0);
 	set_vector(&camera->rot, 0.0, 0.0, 0.0);
+}
+
+void	prepare_chunks(t_app *app)
+{
+	int		i;
+	double	*depth_chunk;
+	Uint32	*screen_chunk;
+
+	i = 0;
+	depth_chunk = (double *)&app->depth_chunk;
+	screen_chunk = (Uint32 *)&app->screen_chunk;
+	while (i++ < SCREEN_W)
+	{
+		*depth_chunk++ = 100000.0;
+		*screen_chunk++ = 0;
+	}
+	app->depth_chunk_array = (t_depth_chunk *)app->depth_buffer;
+	app->screen_chunk_array = (t_screen_chunk *)app->sdl->surface->pixels;
 }
 
 void	init_app(t_app *app)
@@ -55,4 +72,5 @@ void	init_app(t_app *app)
 	app->timer->time = 0.0;
 	init_camera(app->camera);
 	init_projection_mat(app);
+	prepare_chunks(app);
 }

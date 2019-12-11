@@ -50,6 +50,16 @@ typedef struct	s_image_chunk
 	unsigned char z[1024];
 }				t_image_chunk;
 
+typedef struct	s_depth_chunk
+{
+	double		z[SCREEN_W];
+}				t_depth_chunk;
+
+typedef struct	s_screen_chunk
+{
+	Uint32		z[SCREEN_W];
+}				t_screen_chunk;
+
 typedef struct	s_mat4x4
 {
 	double m[4][4];
@@ -264,7 +274,6 @@ typedef struct		s_sdl
 	SDL_Event		event;
 	SDL_Window		*window;
 	SDL_Surface		*surface;
-	int 			pixels_len;
 	double			half_height;
 	double			half_width;
 	int				height;
@@ -300,13 +309,16 @@ typedef struct	s_app
 {
 	t_timer		*timer;
 	t_camera	*camera;
-	t_world		*world;
 	t_mat4x4	projection_mat;
 	t_sdl		*sdl;
 	t_inputs	*inputs;
 	t_mesh		*meshes;
 	t_sprite	*sprites;
 	double		*depth_buffer;
+	t_depth_chunk	depth_chunk;
+	t_depth_chunk	*depth_chunk_array;
+	t_screen_chunk	screen_chunk;
+	t_screen_chunk	*screen_chunk_array;
 }				t_app;
 
 void		exit_with_status(int status, char *fnf_path);
@@ -322,7 +334,7 @@ void		set_vector(t_v3d *v, double x, double y, double z);
 t_mat4x4	matrix_rotation(double x, double y, double z);
 
 void		set_color(t_color *color, int r, int g, int b);
-uint32_t	sprite_get_color(t_sprite *s, int x, int y);
+uint32_t	sprite_get_color(t_sprite *s, u_int offset);
 void		set_pixel_uint32(SDL_Surface *surface, int offset, Uint32 c);
 void		set_pixel(SDL_Surface *surface, int x, int y, t_color c);
 void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color);

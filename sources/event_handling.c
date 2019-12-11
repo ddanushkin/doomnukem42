@@ -139,7 +139,7 @@ void 	update_camera(t_camera *camera)
 {
 	camera->rotation = qt_to_rot_mat(qt_conjugate(camera->rot));
 	camera->translation = matrix_translation(-camera->pos.x, -camera->pos.y, -camera->pos.z);
-	camera->view_projection = matrix_multiply(camera->projection,matrix_multiply(camera->rotation, camera->translation));
+	camera->view_projection = matrix_multiply(camera->projection, matrix_multiply(camera->rotation, camera->translation));
 }
 
 void	process_inputs(t_app *app, double delta_time)

@@ -152,76 +152,11 @@ t_mat4x4	matrix_rotation_x(double angle)
 
 t_mat4x4	matrix_rotation(double x, double y, double z)
 {
-	t_mat4x4 rot;
-
-	rot = matrix_multiply(matrix_identity(), matrix_rotation_x(x));
-	rot = matrix_multiply(rot, matrix_rotation_y(y));
-	rot = matrix_multiply(rot, matrix_rotation_z(z));
-	return (rot);
-}
-
-t_mat4x4	matrix_inverse(t_mat4x4 m)
-{
-	t_mat4x4	mat;
-
-	mat.m[0][0] = m.m[0][0];
-	mat.m[0][1] = m.m[1][0];
-	mat.m[0][2] = m.m[2][0];
-	mat.m[0][3] = 0.0;
-	mat.m[1][0] = m.m[0][1];
-	mat.m[1][1] = m.m[1][1];
-	mat.m[1][2] = m.m[2][1];
-	mat.m[1][3] = 0.0;
-	mat.m[2][0] = m.m[0][2];
-	mat.m[2][1] = m.m[1][2];
-	mat.m[2][2] = m.m[2][2];
-	mat.m[2][3] = 0.0;
-	mat.m[3][0] = -(m.m[3][0] * mat.m[0][0] + m.m[3][1] *
-					mat.m[1][0] + m.m[3][2] * mat.m[2][0]);
-	mat.m[3][1] = -(m.m[3][0] * mat.m[0][1] + m.m[3][1] *
-					mat.m[1][1] + m.m[3][2] * mat.m[2][1]);
-	mat.m[3][2] = -(m.m[3][0] * mat.m[0][2] + m.m[3][1] *
-					mat.m[1][2] + m.m[3][2] * mat.m[2][2]);
-	mat.m[3][3] = 1.0;
-	return (mat);
-}
-
-t_mat4x4	matrix_look_at(t_v3d from, t_v3d to)
-{
-	t_v3d	forward;
-	t_v3d	right;
-	t_v3d	up;
-	t_v3d	tmp;
-	t_mat4x4	mat;
-
-	tmp = new_vector(0.0, 1.0, 0.0);
-
-	forward = vector_sub(to, from);
-	forward = vector_normalise(forward);
-
-	up = vector_mul_by(forward, vector_dot_product(tmp, forward));
-	up = vector_sub(tmp, up);
-	up = vector_normalise(up);
-
-	right = vector_cross_product(up, forward);
-
-	mat.m[0][0] = right.x;
-	mat.m[0][1] = right.y;
-	mat.m[0][2] = right.z;
-	mat.m[0][3] = 0.0;
-	mat.m[1][0] = up.x;
-	mat.m[1][1] = up.y;
-	mat.m[1][2] = up.z;
-	mat.m[1][3] = 0.0;
-	mat.m[2][0] = forward.x;
-	mat.m[2][1] = forward.y;
-	mat.m[2][2] = forward.z;
-	mat.m[2][3] = 0.0;
-	mat.m[3][0] = from.x;
-	mat.m[3][1] = from.y;
-	mat.m[3][2] = from.z;
-	mat.m[3][3] = 0.0;
-	return (mat);
+	return (matrix_multiply(
+			matrix_rotation_x(x),
+			matrix_multiply(
+					matrix_rotation_y(y),
+					matrix_rotation_z(z))));
 }
 
 t_mat4x4	matrix_multiply(t_mat4x4 m1, t_mat4x4 m2)

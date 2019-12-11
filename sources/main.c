@@ -1,27 +1,29 @@
 #include "doom_nukem.h"
 
-void	clear_screen(t_app *app)
+void	reset_screen(register t_app *app)
 {
-	image_clear(app->sdl->surface->pixels, 0, app->sdl->pixels_len);
-}
+	int						i;
+	register t_depth_chunk	*depth_buffer;
+	register t_depth_chunk	depth_chunk;
+	register t_screen_chunk	*screen_buffer;
+	register t_screen_chunk	screen_chunk;
 
-void	clear_depth_buffer(t_app *app)
-{
-	int i;
-	int len;
-
+	depth_buffer = app->depth_chunk_array;
+	depth_chunk = app->depth_chunk;
+	screen_buffer = app->screen_chunk_array;
+	screen_chunk = app->screen_chunk;
 	i = 0;
-	len = SCREEN_W * SCREEN_H;
-	while (i < len)
+	while (i++ < SCREEN_H)
 	{
-		app->depth_buffer[i] = INFINITY;
-		i++;
+		*depth_buffer++ = depth_chunk;
+		*screen_buffer++ = screen_chunk;
 	}
 }
 
 void	update_fps_data(t_app *app, TTF_Font *font_ptr, SDL_Color font_color)
 {
-	char *fps_text;
+	char	*fps_text;
+
 	fps_text = ft_itoa(app->timer->fps);
 	SDL_Surface *font_surface = TTF_RenderText_Solid(font_ptr, fps_text, font_color);
 	SDL_BlitSurface(font_surface, NULL, app->sdl->surface, NULL);
@@ -136,11 +138,14 @@ void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 		if (depth < app->depth_buffer[offset])
 		{
 			double z = 1.0 / tex_z * 256;
-			int img_x = (int)(tex_x * z);
-			int img_y = (int)(tex_y * z);
 
+			u_int img_x = (int)(tex_x * z);
+			u_int img_y = (int)(tex_y * z);
 			app->depth_buffer[offset] = depth;
-			set_pixel_uint32(app->sdl->surface, offset, sprite_get_color(&app->sprites[0], img_x, img_y));
+			set_pixel_uint32(
+					app->sdl->surface,
+					offset,
+					app->sprites[0].pixels[(img_y << 8u) + img_x]);
 		}
 		tex_x += x_x_step;
 		tex_y += y_x_step;
@@ -476,8 +481,7 @@ void	start_the_game(t_app *app)
 	while (1)
 	{
 		get_ticks(app->timer);
-		clear_screen(app);
-		clear_depth_buffer(app);
+		reset_screen(app);
 		mouse_update(app);
 		if (!event_handling(app))
 			break;
@@ -539,7 +543,6 @@ int		main(int argv, char**argc)
 	app->sdl = (t_sdl *)malloc(sizeof(t_sdl));
 	app->inputs = (t_inputs *)malloc(sizeof(t_inputs));
 	app->timer = (t_timer *)malloc(sizeof(t_timer));
-	app->world = (t_world *)malloc(sizeof(t_world));
 	app->camera = (t_camera *)malloc(sizeof(t_camera));
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
 	init_app(app);

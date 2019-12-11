@@ -11,6 +11,14 @@ set(CMAKE_C_STANDARD 99)
 include_directories("includes")
 include_directories("libft/includes")
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+
 if(MSVC OR MSYS OR MINGW)
     message("-- WINDOWS --")
     set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
