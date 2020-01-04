@@ -10,8 +10,8 @@
 
 # define	PRINT_DEBUG 0
 
-# define	SCREEN_W 1280
-# define	SCREEN_H 720
+# define	SCREEN_W 640
+# define	SCREEN_H 480
 # define	WIN_TITLE "DOOM-NUKEM"
 
 # define	COLOR_KEY_R 255
@@ -205,18 +205,20 @@ typedef struct	s_line
 	t_v3d		cur;
 	t_v3d		dir;
 	t_v3d		inc;
-	t_color		color;
+	uint32_t 	color;
 }				t_line;
 
 typedef struct	s_mouse_state
 {
-	double 		x;
-	double 		y;
+	int 		x;
+	int 		y;
 	int 		left;
 	int 		right;
 	int 		middle;
 	int 		scroll_u;
 	int 		scroll_d;
+	int 		x_dir;
+	int 		y_dir;
 	double 		sens;
 }				t_mouse_state;
 
@@ -236,6 +238,8 @@ typedef struct	s_camera
 	t_mat4x4	projection;
 	t_mat4x4	translation;
 	t_mat4x4	view_projection;
+	t_mat4x4	transform;
+	t_mat4x4	screen_space;
 }				t_camera;
 
 typedef struct	s_world
@@ -255,6 +259,7 @@ typedef struct	s_timer
 	Uint64		fps;
 	double		delta;
 	double		time;
+	Uint64		frame;
 }				t_timer;
 
 typedef struct		s_inputs
@@ -299,6 +304,14 @@ typedef struct	s_clip_data
 	double 		value;
 }				t_clip_data;
 
+typedef struct	s_wall
+{
+	Uint8 		is_null;
+	t_v3d		v[4];
+	Uint8 		v_count;
+	t_sprite	*tex;
+}				t_wall;
+
 typedef struct	s_plane
 {
 	t_v3d		p;
@@ -319,7 +332,14 @@ typedef struct	s_app
 	t_depth_chunk	*depth_chunk_array;
 	t_screen_chunk	screen_chunk;
 	t_screen_chunk	*screen_chunk_array;
+	TTF_Font	*font;
+	int 		tr_hitted;
 }				t_app;
+
+void	process_inputs(t_app *app, double delta_time);
+void 	update_camera(t_camera *camera);
+
+t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection);
 
 void		exit_with_status(int status, char *fnf_path);
 
@@ -334,16 +354,16 @@ void		set_vector(t_v3d *v, double x, double y, double z);
 t_mat4x4	matrix_rotation(double x, double y, double z);
 
 void		set_color(t_color *color, int r, int g, int b);
-uint32_t	sprite_get_color(t_sprite *s, u_int offset);
+uint32_t	sprite_get_color(t_sprite *s, int offset);
 void		set_pixel_uint32(SDL_Surface *surface, int offset, Uint32 c);
 void		set_pixel(SDL_Surface *surface, int x, int y, t_color c);
-void		draw_line(t_app *app, t_v3d *start, t_v3d *end, t_color color);
+void		draw_line(t_app *app, t_v3d *start, t_v3d *end, uint32_t color);
 void		sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_x, int size_y);
 
 void		get_ticks(t_timer *timer);
 void		get_delta_time(t_timer *timer);
 
-void		draw_cross(t_app *app, double size, int r, int g, int b);
+void		draw_cross(t_app *app, int x, int y, double size, Uint32 color);
 
 void		get_color(SDL_Surface *surface, int x, int y, t_color c);
 t_color		color_new(int r, int g, int b);

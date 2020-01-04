@@ -20,14 +20,30 @@ void	reset_screen(register t_app *app)
 	}
 }
 
-void	update_fps_data(t_app *app, TTF_Font *font_ptr, SDL_Color font_color)
+void 	print_to_screen(t_app *app, int x, int y, char *text)
+{
+	SDL_Color	*font_color;
+	SDL_Surface	*font_surface;
+	SDL_Rect	rect;
+	Uint32 		c;
+
+	c = 0xffffff;
+	font_color = (SDL_Color *)(&c);
+	font_surface = TTF_RenderText_Solid(app->font, text, *font_color);
+	rect.x = x;
+	rect.y = y;
+	rect.w = font_surface->w;
+	rect.h = font_surface->h;
+	SDL_BlitSurface(font_surface, &font_surface->clip_rect, app->sdl->surface, &rect);
+	SDL_FreeSurface(font_surface);
+}
+
+void	update_fps_text(t_app *app)
 {
 	char	*fps_text;
 
 	fps_text = ft_itoa(app->timer->fps);
-	SDL_Surface *font_surface = TTF_RenderText_Solid(font_ptr, fps_text, font_color);
-	SDL_BlitSurface(font_surface, NULL, app->sdl->surface, NULL);
-	SDL_FreeSurface(font_surface);
+	print_to_screen(app, 0, 0, fps_text);
 	ft_strdel(&fps_text);
 }
 
@@ -118,8 +134,8 @@ void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 	int		x_end;
 	int		offset;
 
-	x_start = (int)(left->x + 1);
-	x_end = (int)(right->x + 1);
+	x_start = (int)(left->x);
+	x_end = (int)(right->x);
 
 	double	x_pre_step = x_start - left->x;
 	double	x_dist = right->x - left->x;
@@ -137,15 +153,23 @@ void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 	{
 		if (depth < app->depth_buffer[offset])
 		{
-			double z = 1.0 / tex_z * 256;
+			double scale = 1.0;
+			double z = 1.0 / tex_z * scale * 256;
+			uint8_t *color;
+			uint32_t c;
 
-			u_int img_x = (int)(tex_x * z);
-			u_int img_y = (int)(tex_y * z);
+			Uint32 img_x = (Uint32)(tex_x * z) % 256;
+			Uint32 img_y = (Uint32)(tex_y * z) % 256;
+			c = app->sprites[0].pixels[((img_y << 8u) + img_x)];
+			if (app->tr_hitted)
+			{
+				color = (uint8_t *)&c;
+				color[0] = color[0] / 2;
+				color[1] = color[1] / 2;
+				color[2] = color[2] / 2;
+			}
 			app->depth_buffer[offset] = depth;
-			set_pixel_uint32(
-					app->sdl->surface,
-					offset,
-					app->sprites[0].pixels[(img_y << 8u) + img_x]);
+			set_pixel_uint32(app->sdl->surface, offset, c);
 		}
 		tex_x += x_x_step;
 		tex_y += y_x_step;
@@ -200,17 +224,11 @@ double	triangle_area(t_v3d *a, t_v3d *b, t_v3d *c)
 	return ((b->x - a->x) * (c->y - a->y) - (c->x - a->x) * (b->y - a->y));
 }
 
-t_v3d vertex_perspective_divide(t_v3d v)
+void vertex_perspective_divide(t_v3d *v)
 {
-	t_v3d new_v;
-
-	new_v.x = v.x / v.w;
-	new_v.y = v.y / v.w;
-	new_v.z = v.z / v.w;
-	new_v.w = v.w;
-	new_v.tex_x = v.tex_x;
-	new_v.tex_y = v.tex_y;
-	return (new_v);
+	v->x /= v->w;
+	v->y /= v->w;
+	v->z /= v->w;
 }
 
 int		inside_view(t_v3d v1, t_v3d v2, t_v3d v3)
@@ -241,15 +259,12 @@ int		outside_view(t_v3d v1, t_v3d v2, t_v3d v3)
 
 void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 {
-	t_mat4x4	screen_space_mat;
-
-	screen_space_mat = matrix_screen_space();
-	v1 = matrix_transform(screen_space_mat, v1);
-	v2 = matrix_transform(screen_space_mat, v2);
-	v3 = matrix_transform(screen_space_mat, v3);
-	v1 = vertex_perspective_divide(v1);
-	v2 = vertex_perspective_divide(v2);
-	v3 = vertex_perspective_divide(v3);
+	v1 = matrix_transform(app->camera->screen_space, v1);
+	v2 = matrix_transform(app->camera->screen_space, v2);
+	v3 = matrix_transform(app->camera->screen_space, v3);
+	vertex_perspective_divide(&v1);
+	vertex_perspective_divide(&v2);
+	vertex_perspective_divide(&v3);
 	if (triangle_area(&v1, &v3, &v2) >= 0.0)
 		return;
 	if (v3.y < v2.y)
@@ -259,6 +274,12 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
 	scan_triangle(app, v1, v2, v3, triangle_area(&v1, &v3, &v2) >= 0.0);
+//	if (app->tr_hitted)
+//	{
+//		draw_line(app, &v1, &v2, 0xffffff);
+//		draw_line(app, &v2, &v3, 0xffffff);
+//		draw_line(app, &v3, &v1, 0xffffff);
+//	}
 }
 
 void	vr_list_add(t_vr_list **list, t_v3d v)
@@ -397,23 +418,54 @@ void 	clip_fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	}
 }
 
-t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection, double move_x, double move_y)
+t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection)
 {
 	return (matrix_multiply(
 			view_projection,
 			matrix_multiply(
-				matrix_translation(move_x, move_y, 0),
+				matrix_translation(0, 0, 0),
 				matrix_rotation(0.0, 0.0, 0.0))));
 }
 
-void	render_pipeline(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3, t_mat4x4 view_projection, double move_x, double move_y)
+int		ray_triangle_intersect(t_camera *camera, t_v3d v0, t_v3d v1, t_v3d v2)
 {
-	t_mat4x4	transform_mat;
+	t_v3d	v0v1;
+	t_v3d	v0v2;
+	t_v3d	qvec;
+	t_v3d	tvec;
+	t_v3d	pvec;
+	double	u;
+	double	v;
+	double	t;
+	double	det;
+	double	invDet;
 
-	transform_mat = get_transform_matrix(view_projection, move_x, move_y);
-	v1 = matrix_transform(transform_mat, v1);
-	v2 = matrix_transform(transform_mat, v2);
-	v3 = matrix_transform(transform_mat, v3);
+	v0v1 = vector_sub(v1, v0);
+	v0v2 = vector_sub(v2, v0);
+	pvec = vector_cross_product(camera->dir, v0v2);
+	det = vector_dot_product(v0v1, pvec);
+	if (det < 0.0)
+		return 0;
+	if (fabs(det) < 0.0)
+		return 0;
+	invDet = 1 / det;
+	tvec = vector_sub(camera->pos, v0);
+	u = vector_dot_product(tvec, pvec) * invDet;
+	if (u < 0.0 || u > 1.0)
+		return 0;
+	qvec = vector_cross_product(tvec, v0v1);
+	v = vector_dot_product(camera->dir, qvec) * invDet;
+	if (v < 0.0 || u + v > 1.0)
+		return 0;
+	t = vector_dot_product(v0v2, qvec) * invDet;
+	return 1;
+}
+
+void	render_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
+{
+	v1 = matrix_transform(app->camera->transform, v1);
+	v2 = matrix_transform(app->camera->transform, v2);
+	v3 = matrix_transform(app->camera->transform, v3);
 	if (inside_view(v1, v2, v3))
 	{
 		fill_triangle(app, v1, v2, v3);
@@ -424,51 +476,57 @@ void	render_pipeline(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3, t_mat4x4 view_pro
 	clip_fill_triangle(app, v1, v2, v3);
 }
 
-void 	render_square(t_app *app, double index_x, double index_y)
+void 	render_wall(t_app *app, t_wall *w)
 {
-	t_v3d vert1;
-	t_v3d vert2;
-	t_v3d vert3;
+	app->tr_hitted = 0;
+	if (w->is_null || w->v_count != 4)
+		return ;
+	if (ray_triangle_intersect(app->camera, w->v[0], w->v[1], w->v[2]))
+		app->tr_hitted = 1;
+	if (ray_triangle_intersect(app->camera, w->v[0], w->v[3], w->v[1]))
+		app->tr_hitted = 1;
+	render_triangle(app, w->v[0], w->v[1], w->v[2]);
+	render_triangle(app, w->v[0], w->v[3], w->v[1]);
+	if (app->tr_hitted)
+		print_to_screen(app, SCREEN_W * 0.5, SCREEN_H * 0.5 - 15, "WALL");
+}
 
-	vert1.x = -1.0;
-	vert1.y = -1.0;
-	vert1.z = 0.0;
-	vert1.w = 1.0;
-	vert1.tex_x = 0.0;
-	vert1.tex_y = 0.0;
+void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color)
+{
+	int	len;
+	int	i;
+	int start_x;
+	int start_y;
 
-	vert2.x = 1.0;
-	vert2.y = 1.0;
-	vert2.z = 0.0;
-	vert2.w = 1.0;
-	vert2.tex_x = 1.0;
-	vert2.tex_y = 1.0;
+	if (size <= 0)
+		return ;
+	i = 0;
+	len = (int)(64.0 / size);
+	len = CLAMP(len, 2, 64);
+	start_x = x - (int)(len * 0.5);
+	start_y = y - (int)(len * 0.5);
+	while (i < len)
+	{
+		set_pixel_uint32(app->sdl->surface, (start_y + i) * SCREEN_W + x, color);
+		set_pixel_uint32(app->sdl->surface, y * SCREEN_W + (start_x + i), color);
+		i++;
+	}
+}
 
-	vert3.x = 1.0;
-	vert3.y = -1.0;
-	vert3.z = 0.0;
-	vert3.w = 1.0;
-	vert3.tex_x = 1.0;
-	vert3.tex_y = 0.0;
+double	vector_dist(t_v3d v1, t_v3d v2)
+{
+	double	dx;
+	double	dy;
+	double	dz;
 
-	render_pipeline(app, vert1, vert2, vert3, app->camera->view_projection, index_x * 2, index_y * 2);
-
-	vert3.x = -1.0;
-	vert3.y = 1.0;
-	vert3.z = 0.0;
-	vert3.w = 1.0;
-	vert3.tex_x = 0.0;
-	vert3.tex_y = 1.0;
-
-	render_pipeline(app, vert1, vert3, vert2, app->camera->view_projection, index_x * 2, index_y * 2);
+	dx = v2.x - v1.x;
+	dy = v2.y - v1.y;
+	dz = v2.z - v1.z;
+	return sqrt((dx * dx) + (dy * dy) + (dz * dz));
 }
 
 void	start_the_game(t_app *app)
 {
-	TTF_Init();
-	TTF_Font *font_ptr = TTF_OpenFont("resources/calibrib.ttf", 16);
-	SDL_Color font_color = {255, 255, 255};
-
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	app->camera->pos = new_vector(0.0, 0.0, -10);
 	app->camera->rot = new_vector(0.0, 0.0, 0.0);
@@ -478,34 +536,80 @@ void	start_the_game(t_app *app)
 			(double)SCREEN_W / (double)SCREEN_H,
 			0.05,
 			1000.0);
+
+	t_wall	wall;
+	wall.is_null = 1;
+	wall.v_count = 0;
+	wall.v[0] = new_vector(0, 0, 0);
+	wall.v[1] = wall.v[0];
+	wall.v[2] = wall.v[0];
+	wall.v[3] = wall.v[0];
+
+	app->timer->curr = SDL_GetPerformanceCounter();
 	while (1)
 	{
-		get_ticks(app->timer);
-		reset_screen(app);
-		mouse_update(app);
 		if (!event_handling(app))
 			break;
-
-		int x;
-		int y;
-
-		x = 0;
-		while (x < 100)
-		{
-			y = 0;
-			while (y < 10)
-			{
-				render_square(app, x, y);
-				y++;
-			}
-			x++;
-		}
-		draw_cross(app, 7.0, 255, 0, 200);
 		get_delta_time(app->timer);
-		update_fps_data(app, font_ptr, font_color);
+		if (app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
+			break ;
+		process_inputs(app, app->timer->delta);
+		update_camera(app->camera);
+		reset_screen(app);
+
+		wall.v[0].x = -1.0;
+		wall.v[0].y = -1.0;
+		wall.v[0].z = 0.0;
+		wall.v[0].w = 1.0;
+		wall.v[0].tex_x = 0.0;
+		wall.v[0].tex_y = 0.0;
+
+		wall.v[1].x = 1.0;
+		wall.v[1].y = 1.0;
+		wall.v[1].z = 0.0;
+		wall.v[1].w = 1.0;
+		wall.v[1].tex_x = 1.0;
+		wall.v[1].tex_y = 1.0;
+
+		wall.v[2].x = 1.0;
+		wall.v[2].y = -1.0;
+		wall.v[2].z = 0.0;
+		wall.v[2].w = 1.0;
+		wall.v[2].tex_x = 1.0;
+		wall.v[2].tex_y = 0.0;
+
+		wall.v[3].x = -1.0;
+		wall.v[3].y = 1.0;
+		wall.v[3].z = 0.0;
+		wall.v[3].w = 1.0;
+		wall.v[3].tex_x = 0.0;
+		wall.v[3].tex_y = 1.0;
+
+		wall.is_null = 0;
+		wall.v_count = 4;
+
+//		for (int i = 0; i < 4; i++)
+//		{
+//			t_v3d tmp = wall.v[i];
+//			tmp = matrix_transform(app->camera->transform, tmp);
+//			double dist = vector_dist(app->camera->pos, tmp);
+//			if (fabs(tmp.x) <= fabs(tmp.w) &&
+//				fabs(tmp.y) <= fabs(tmp.w) &&
+//				fabs(tmp.z) <= fabs(tmp.w))
+//			{
+//				tmp = matrix_transform(app->camera->screen_space, tmp);
+//				vertex_perspective_divide(&tmp);
+//				draw_cross(app, (int)tmp.x, (int)tmp.y, dist, 0xff0000);
+//			}
+//		}
+
+		render_wall(app, &wall);
+		draw_cross(app, (int)app->sdl->half_width, (int)app->sdl->half_height, 8, 0xffffff);
+		update_fps_text(app);
 		SDL_UpdateWindowSurface(app->sdl->window);
 	}
-	TTF_CloseFont(font_ptr);
+	TTF_CloseFont(app->font);
+	TTF_Quit();
 	SDL_Quit();
 	SDL_DestroyWindow(app->sdl->window);
 }
@@ -526,13 +630,6 @@ int	check_resources(void)
 	return (ft_strequ(hash, RESOURCES_MD5));
 }
 
-void 	test(struct s_v3d v)
-{
-	printf("v.x -> %f\n", v.x);
-	printf("v.y -> %f\n", v.y);
-	printf("v.z -> %f\n\n", v.z);
-}
-
 int		main(int argv, char**argc)
 {
 	t_app	*app;
@@ -550,8 +647,8 @@ int		main(int argv, char**argc)
 	/* TODO: Set number of meshes */
 	int number_of_meshes = 2;
 	app->meshes = (t_mesh *)malloc(sizeof(t_mesh) * number_of_meshes);
-	obj_load("resources/plane.obj", &app->meshes[0]);
-	obj_load("resources/cube.obj", &app->meshes[1]);
+	//obj_load("resources/plane.obj", &app->meshes[0]);
+	//obj_load("resources/cube.obj", &app->meshes[1]);
 
 	/* TODO: Set number of meshes */
 	int number_of_sprites = 1;

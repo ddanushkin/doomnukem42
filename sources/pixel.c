@@ -33,10 +33,12 @@ void	set_pixel(SDL_Surface *surface, int x, int y, t_color c)
 
 void	set_pixel_uint32(SDL_Surface *surface, int offset, Uint32 c)
 {
+	if (offset < 0 || offset >= SCREEN_W * SCREEN_H)
+		return ;
 	((Uint32 *)surface->pixels)[offset] = c;
 }
 
-uint32_t	sprite_get_color(t_sprite *s, u_int offset)
+uint32_t	sprite_get_color(t_sprite *s, int offset)
 {
 	return (s->pixels[offset]);
 }

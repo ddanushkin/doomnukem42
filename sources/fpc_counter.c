@@ -1,32 +1,14 @@
 #include "doom_nukem.h"
 
-void capFrameRate(t_app *app, long *then, double *remainder)
-{
-	long wait, frameTime;
-
-	wait = 16.0 + *remainder;
-	*remainder -= (int)*remainder;
-	frameTime = SDL_GetTicks() - *then;
-	wait -= frameTime;
-	if (wait < 1)
-		wait = 1;
-	SDL_Delay(wait);
-	*remainder += 0.667;
-	*then = SDL_GetTicks();
-	app->timer->delta = 0.01;
-}
-
-void	get_ticks(t_timer *timer)
-{
-	timer->curr = SDL_GetPerformanceCounter();
-}
-
 void	get_delta_time(t_timer *timer)
 {
-	timer->delta = (SDL_GetPerformanceCounter() - timer->curr)
-				   * 1000.0 / (double)SDL_GetPerformanceFrequency();
-	timer->delta *= 0.001;
+	double new_time;
+
+	timer->frame++;
+	new_time = SDL_GetPerformanceCounter();
+	timer->delta  = (new_time - timer->curr) / (double)SDL_GetPerformanceFrequency();
+	timer->curr = new_time;
 	timer->time += timer->delta;
-	if(timer->delta > 0.0)
+	if(fmod(timer->time, 0.25) >= 0.24)
 		timer->fps = 1.0 / timer->delta;
 }

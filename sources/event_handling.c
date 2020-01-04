@@ -139,7 +139,12 @@ void 	update_camera(t_camera *camera)
 {
 	camera->rotation = qt_to_rot_mat(qt_conjugate(camera->rot));
 	camera->translation = matrix_translation(-camera->pos.x, -camera->pos.y, -camera->pos.z);
-	camera->view_projection = matrix_multiply(camera->projection, matrix_multiply(camera->rotation, camera->translation));
+	camera->view = matrix_multiply(camera->rotation, camera->translation);
+	camera->view_projection = matrix_multiply(camera->projection, camera->view);
+	camera->transform = get_transform_matrix(camera->view_projection);
+	camera->dir.x = camera->view.m[2][0];
+	camera->dir.y = camera->view.m[2][1];
+	camera->dir.z = camera->view.m[2][2];
 }
 
 void	process_inputs(t_app *app, double delta_time)
@@ -150,16 +155,20 @@ void	process_inputs(t_app *app, double delta_time)
 	t_v3d			right;
 	t_camera		*camera;
 
+	double			mouse_speed = 1.2123 * delta_time;
+
 	camera = app->camera;
 	key = app->inputs->keyboard;
 	mouse = &app->inputs->mouse;
+	if (mouse->x && mouse->y)
+		mouse_speed = mouse_speed / 1.414;
 	if (mouse->x)
-		rotate(camera, new_vector(0.0, 1.0, 0.0), mouse->x * mouse->sens * delta_time * 0.5);
+		rotate(camera, new_vector(0.0, 1.0, 0.0), mouse->x * mouse_speed);
 	forward = get_forward(camera->rot);
 	forward.y = 0.0;
 	right = get_right(camera->rot);
 	if (mouse->y)
-		rotate(camera, right, mouse->y * mouse->sens * delta_time * 0.5);
+		rotate(camera, right, mouse->y * mouse_speed);
 	if (key[SDL_SCANCODE_W])
 		move(camera, forward, 5.0 * delta_time);
 	if (key[SDL_SCANCODE_S])
@@ -168,16 +177,27 @@ void	process_inputs(t_app *app, double delta_time)
 		move(camera, right, -5.0 * delta_time);
 	if (key[SDL_SCANCODE_D])
 		move(camera, right, 5.0 * delta_time);
+	if (key[SDL_SCANCODE_MINUS])
+		camera->fov -= 0.001;
+	if (key[SDL_SCANCODE_EQUALS])
+		camera->fov += 0.001;
 }
 
 int		event_handling(t_app *app)
 {
-	SDL_PollEvent(&app->sdl->event);
-	if (app->sdl->event.type == SDL_QUIT)
-		return(0);
-	if (app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
-		return(0);
-	process_inputs(app, app->timer->delta);
-	update_camera(app->camera);
+	SDL_Event e;
+
+	app->inputs->mouse.x = 0;
+	app->inputs->mouse.y = 0;
+	while (SDL_PollEvent(&e))
+	{
+		if (e.type == SDL_QUIT)
+			return(0);
+		else if(e.type == SDL_MOUSEMOTION)
+		{
+			app->inputs->mouse.x = e.motion.xrel;
+			app->inputs->mouse.y = e.motion.yrel;
+		}
+	}
 	return (1);
 }

@@ -19,6 +19,6 @@ void		mouse_update(t_app *app)
 		app->inputs->mouse.middle = 1;
 	else
 		app->inputs->mouse.middle = 0;
-	app->inputs->mouse.x = (double)x / (double)SCREEN_W * 1000.0;
-	app->inputs->mouse.y = (double)y / (double)SCREEN_H * 1000.0;
+	app->inputs->mouse.x = (double)x;
+	app->inputs->mouse.y = (double)y;
 }

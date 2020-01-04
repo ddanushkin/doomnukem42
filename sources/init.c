@@ -21,6 +21,7 @@ static	void	init_sdl(t_sdl *sdl)
 	sdl->height = SCREEN_H;
 	sdl->half_height = (double)sdl->height * 0.5;
 	SDL_Init(SDL_INIT_VIDEO);
+	TTF_Init();
 	sdl->window = SDL_CreateWindow(
 			WIN_TITLE,
 			SDL_WINDOWPOS_CENTERED,
@@ -40,6 +41,8 @@ void	init_camera(t_camera *camera)
 	camera->for_rad = 1.0 / tanf(camera->fov * 0.5 / 180.0 * 3.14159);
 	set_vector(&camera->pos, 0.0, 0.0, 0.0);
 	set_vector(&camera->rot, 0.0, 0.0, 0.0);
+
+	camera->screen_space = matrix_screen_space();
 }
 
 void	prepare_chunks(t_app *app)
@@ -70,7 +73,9 @@ void	init_app(t_app *app)
 	app->timer->fps = 0;
 	app->timer->delta = 0.0;
 	app->timer->time = 0.0;
+	app->timer->frame = 0;
 	init_camera(app->camera);
 	init_projection_mat(app);
 	prepare_chunks(app);
+	app->font = TTF_OpenFont("resources/calibrib.ttf", 14);
 }
