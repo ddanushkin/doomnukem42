@@ -155,19 +155,19 @@ void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 		{
 			double scale = 1.0;
 			double z = 1.0 / tex_z * scale * 256;
-			uint8_t *color;
 			uint32_t c;
 
 			Uint32 img_x = (Uint32)(tex_x * z) % 256;
 			Uint32 img_y = (Uint32)(tex_y * z) % 256;
 			c = app->sprites[0].pixels[((img_y << 8u) + img_x)];
-			if (app->tr_hitted)
-			{
-				color = (uint8_t *)&c;
-				color[0] = color[0] / 2;
-				color[1] = color[1] / 2;
-				color[2] = color[2] / 2;
-			}
+			//			uint8_t *color;
+//			if (app->tr_hitted)
+//			{
+//				color = (uint8_t *)&c;
+//				color[0] = color[0] / 2;
+//				color[1] = color[1] / 2;
+//				color[2] = color[2] / 2;
+//			}
 			app->depth_buffer[offset] = depth;
 			set_pixel_uint32(app->sdl->surface, offset, c);
 		}
@@ -265,8 +265,8 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	vertex_perspective_divide(&v1);
 	vertex_perspective_divide(&v2);
 	vertex_perspective_divide(&v3);
-	if (triangle_area(&v1, &v3, &v2) >= 0.0)
-		return;
+//	if (triangle_area(&v1, &v3, &v2) >= 0.0)
+//		return;
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
 	if (v2.y < v1.y)
@@ -274,12 +274,6 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
 	scan_triangle(app, v1, v2, v3, triangle_area(&v1, &v3, &v2) >= 0.0);
-//	if (app->tr_hitted)
-//	{
-//		draw_line(app, &v1, &v2, 0xffffff);
-//		draw_line(app, &v2, &v3, 0xffffff);
-//		draw_line(app, &v3, &v1, 0xffffff);
-//	}
 }
 
 void	vr_list_add(t_vr_list **list, t_v3d v)
@@ -427,7 +421,19 @@ t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection)
 				matrix_rotation(0.0, 0.0, 0.0))));
 }
 
-int		ray_triangle_intersect(t_camera *camera, t_v3d v0, t_v3d v1, t_v3d v2)
+double	vector_dist(t_v3d v1, t_v3d v2)
+{
+	double	dx;
+	double	dy;
+	double	dz;
+
+	dx = v2.x - v1.x;
+	dy = v2.y - v1.y;
+	dz = v2.z - v1.z;
+	return (dx * dx) + (dy * dy) + (dz * dz);
+}
+
+void	ray_intersect(t_app *app, t_camera *camera, t_point *inter, t_wall *w)
 {
 	t_v3d	v0v1;
 	t_v3d	v0v2;
@@ -440,25 +446,30 @@ int		ray_triangle_intersect(t_camera *camera, t_v3d v0, t_v3d v1, t_v3d v2)
 	double	det;
 	double	invDet;
 
-	v0v1 = vector_sub(v1, v0);
-	v0v2 = vector_sub(v2, v0);
+	v0v1 = vector_sub(w->v[inter->dist_1.index], w->v[inter->dist_0.index]);
+	v0v2 = vector_sub(w->v[inter->dist_2.index], w->v[inter->dist_0.index]);
 	pvec = vector_cross_product(camera->dir, v0v2);
 	det = vector_dot_product(v0v1, pvec);
-	if (det < 0.0)
-		return 0;
 	if (fabs(det) < 0.0)
-		return 0;
+		return ;
 	invDet = 1 / det;
-	tvec = vector_sub(camera->pos, v0);
+	tvec = vector_sub(camera->pos, w->v[inter->dist_0.index]);
 	u = vector_dot_product(tvec, pvec) * invDet;
 	if (u < 0.0 || u > 1.0)
-		return 0;
+		return ;
 	qvec = vector_cross_product(tvec, v0v1);
 	v = vector_dot_product(camera->dir, qvec) * invDet;
 	if (v < 0.0 || u + v > 1.0)
-		return 0;
+		return ;
 	t = vector_dot_product(v0v2, qvec) * invDet;
-	return 1;
+	inter->p = vector_sum(camera->pos, vector_mul_by(camera->dir, t));
+	if (t < app->hit_dist)
+	{
+		inter->p_dist = t;
+		app->hit_dist = t;
+		app->hit_wall = w;
+		inter->empty = 0;
+	}
 }
 
 void	render_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
@@ -478,17 +489,26 @@ void	render_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 
 void 	render_wall(t_app *app, t_wall *w)
 {
-	app->tr_hitted = 0;
-	if (w->is_null || w->v_count != 4)
-		return ;
-	if (ray_triangle_intersect(app->camera, w->v[0], w->v[1], w->v[2]))
-		app->tr_hitted = 1;
-	if (ray_triangle_intersect(app->camera, w->v[0], w->v[3], w->v[1]))
-		app->tr_hitted = 1;
+	t_point		inter;
+
+	inter.empty = 1;
 	render_triangle(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle(app, w->v[0], w->v[3], w->v[1]);
-	if (app->tr_hitted)
-		print_to_screen(app, SCREEN_W * 0.5, SCREEN_H * 0.5 - 15, "WALL");
+	if (app->editor && !app->edge_selected)
+	{
+		inter.dist_0.index = 0;
+		inter.dist_1.index = 1;
+		inter.dist_2.index = 2;
+		ray_intersect(app, app->camera, &inter, w);
+		if (inter.empty)
+		{
+			inter.dist_1.index = 3;
+			inter.dist_2.index = 1;
+			ray_intersect(app, app->camera, &inter, w);
+		}
+	}
+	if (!inter.empty)
+		app->inter = inter;
 }
 
 void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color)
@@ -505,30 +525,87 @@ void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color)
 	len = CLAMP(len, 2, 64);
 	start_x = x - (int)(len * 0.5);
 	start_y = y - (int)(len * 0.5);
-	while (i < len)
+	while (i <= len)
 	{
 		set_pixel_uint32(app->sdl->surface, (start_y + i) * SCREEN_W + x, color);
 		set_pixel_uint32(app->sdl->surface, y * SCREEN_W + (start_x + i), color);
 		i++;
 	}
+
 }
 
-double	vector_dist(t_v3d v1, t_v3d v2)
+void 	select_edge(t_app *app)
 {
-	double	dx;
-	double	dy;
-	double	dz;
+	t_wall		*w;
+	t_dist_to_v	d0;
+	t_dist_to_v	d1;
+	t_dist_to_v	d2;
 
-	dx = v2.x - v1.x;
-	dy = v2.y - v1.y;
-	dz = v2.z - v1.z;
-	return sqrt((dx * dx) + (dy * dy) + (dz * dz));
+	d0 = app->inter.dist_0;
+	d1 = app->inter.dist_1;
+	d2 = app->inter.dist_2;
+	w = app->hit_wall;
+	d0.dist = vector_dist(w->v[d0.index], app->inter.p);
+	d1.dist = vector_dist(w->v[d1.index], app->inter.p);
+	d2.dist = vector_dist(w->v[d2.index], app->inter.p);
+	if (d2.dist < d1.dist)
+		SWAP(d2, d1, t_dist_to_v);
+	if (d1.dist < d0.dist)
+		SWAP(d1, d0, t_dist_to_v);
+	if (d2.dist < d1.dist)
+		SWAP(d2, d1, t_dist_to_v);
+
+	if (w->v[d0.index].x == w->v[d1.index].x && w->v[d0.index].z == w->v[d1.index].z)
+	{
+		t_v3d	tmp;
+
+		tmp = matrix_transform(app->camera->transform, w->v[d0.index]);
+		if (fabs(tmp.x) <= fabs(tmp.w) &&
+			fabs(tmp.y) <= fabs(tmp.w) &&
+			fabs(tmp.z) <= fabs(tmp.w))
+		{
+			tmp = matrix_transform(app->camera->screen_space, tmp);
+			vertex_perspective_divide(&tmp);
+			draw_cross(app, (int)tmp.x, (int)tmp.y, app->inter.p_dist + 0.5, 0xff0000);
+		}
+
+		tmp = matrix_transform(app->camera->transform, w->v[d1.index]);
+		if (fabs(tmp.x) <= fabs(tmp.w) &&
+			fabs(tmp.y) <= fabs(tmp.w) &&
+			fabs(tmp.z) <= fabs(tmp.w))
+		{
+			tmp = matrix_transform(app->camera->screen_space, tmp);
+			vertex_perspective_divide(&tmp);
+			draw_cross(app, (int)tmp.x, (int)tmp.y, app->inter.p_dist + 0.5, 0xff0000);
+		}
+		if (app->inputs->mouse.left)
+		{
+			app->edge_selected = 1;
+			if (w->v[d0.index].y < w->v[d1.index].y)
+				SWAP(d0, d1, t_dist_to_v);
+			app->edit_wall.v[0] = w->v[d1.index];
+			app->edit_wall.v[0].tex_x = 0;
+			app->edit_wall.v[0].tex_y = 0;
+			app->edit_wall.v[1] = w->v[d0.index];
+			app->edit_wall.v[1].tex_x = 1;
+			app->edit_wall.v[1].tex_y = 1;
+			app->edit_wall.v[2] = w->v[d1.index];
+			app->edit_wall.v[2].tex_x = 1;
+			app->edit_wall.v[2].tex_y = 0;
+			app->edit_wall.v[3] = w->v[d0.index];
+			app->edit_wall.v[3].tex_x = 0;
+			app->edit_wall.v[3].tex_y = 1;
+			app->edit_wall.is_null = 0;
+			app->inputs->mouse.left = 0;
+		}
+	}
 }
+
 
 void	start_the_game(t_app *app)
 {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	app->camera->pos = new_vector(0.0, 0.0, -10);
+	app->camera->pos = new_vector(1.0, 1.0, -10);
 	app->camera->rot = new_vector(0.0, 0.0, 0.0);
 	app->camera->fov = TO_RAD(90.0);
 	app->camera->projection = matrix_perspective(
@@ -537,13 +614,36 @@ void	start_the_game(t_app *app)
 			0.05,
 			1000.0);
 
-	t_wall	wall;
-	wall.is_null = 1;
-	wall.v_count = 0;
-	wall.v[0] = new_vector(0, 0, 0);
-	wall.v[1] = wall.v[0];
-	wall.v[2] = wall.v[0];
-	wall.v[3] = wall.v[0];
+	app->walls[0].v[0].x = 0.0;
+	app->walls[0].v[0].y = 0.0;
+	app->walls[0].v[0].z = 0.0;
+	app->walls[0].v[0].w = 1.0;
+	app->walls[0].v[0].tex_x = 0.0;
+	app->walls[0].v[0].tex_y = 0.0;
+	app->walls[0].v[1].x = 2.0;
+	app->walls[0].v[1].y = 2.0;
+	app->walls[0].v[1].z = 0.0;
+	app->walls[0].v[1].w = 1.0;
+	app->walls[0].v[1].tex_x = 1.0;
+	app->walls[0].v[1].tex_y = 1.0;
+	app->walls[0].v[2].x = 2.0;
+	app->walls[0].v[2].y = 0.0;
+	app->walls[0].v[2].z = 0.0;
+	app->walls[0].v[2].w = 1.0;
+	app->walls[0].v[2].tex_x = 1.0;
+	app->walls[0].v[2].tex_y = 0.0;
+	app->walls[0].v[3].x = 0.0;
+	app->walls[0].v[3].y = 2.0;
+	app->walls[0].v[3].z = 0.0;
+	app->walls[0].v[3].w = 1.0;
+	app->walls[0].v[3].tex_x = 0.0;
+	app->walls[0].v[3].tex_y = 1.0;
+	app->walls[0].is_null = 0;
+	app->walls_count++;
+
+	app->editor = 1;
+	app->edge_selected = 0;
+	app->edit_wall.is_null = 1;
 
 	app->timer->curr = SDL_GetPerformanceCounter();
 	while (1)
@@ -557,55 +657,88 @@ void	start_the_game(t_app *app)
 		update_camera(app->camera);
 		reset_screen(app);
 
-		wall.v[0].x = -1.0;
-		wall.v[0].y = -1.0;
-		wall.v[0].z = 0.0;
-		wall.v[0].w = 1.0;
-		wall.v[0].tex_x = 0.0;
-		wall.v[0].tex_y = 0.0;
+		int i;
 
-		wall.v[1].x = 1.0;
-		wall.v[1].y = 1.0;
-		wall.v[1].z = 0.0;
-		wall.v[1].w = 1.0;
-		wall.v[1].tex_x = 1.0;
-		wall.v[1].tex_y = 1.0;
+		i = 0;
+		app->hit_dist = app->camera->z_far;
+		app->hit_wall = NULL;
+		app->inter.empty = 1;
 
-		wall.v[2].x = 1.0;
-		wall.v[2].y = -1.0;
-		wall.v[2].z = 0.0;
-		wall.v[2].w = 1.0;
-		wall.v[2].tex_x = 1.0;
-		wall.v[2].tex_y = 0.0;
+		while (i < app->walls_count)
+		{
+			render_wall(app, &app->walls[i]);
+			i++;
+		}
 
-		wall.v[3].x = -1.0;
-		wall.v[3].y = 1.0;
-		wall.v[3].z = 0.0;
-		wall.v[3].w = 1.0;
-		wall.v[3].tex_x = 0.0;
-		wall.v[3].tex_y = 1.0;
+		if (app->hit_wall && !app->edge_selected)
+		{
+			printf("!\n");
+			select_edge(app);
+		}
 
-		wall.is_null = 0;
-		wall.v_count = 4;
+		if (app->edge_selected)
+		{
+			int x = 100;
+			int z = 100;
+			t_v3d	grid_point;
+			t_v3d	tmp;
 
-//		for (int i = 0; i < 4; i++)
-//		{
-//			t_v3d tmp = wall.v[i];
-//			tmp = matrix_transform(app->camera->transform, tmp);
-//			double dist = vector_dist(app->camera->pos, tmp);
-//			if (fabs(tmp.x) <= fabs(tmp.w) &&
-//				fabs(tmp.y) <= fabs(tmp.w) &&
-//				fabs(tmp.z) <= fabs(tmp.w))
-//			{
-//				tmp = matrix_transform(app->camera->screen_space, tmp);
-//				vertex_perspective_divide(&tmp);
-//				draw_cross(app, (int)tmp.x, (int)tmp.y, dist, 0xff0000);
-//			}
-//		}
+			grid_point.y = app->edit_wall.v[2].y;
+			grid_point.x = app->edit_wall.v[2].x - (double)x;
+			grid_point.z = app->edit_wall.v[2].z - (double)z;
+			grid_point.w = app->edit_wall.v[2].w;
+			while (z > 0)
+			{
+				while (x > 0)
+				{
+					tmp = grid_point;
+					tmp = matrix_transform(app->camera->transform, tmp);
+					if (fabs(tmp.x) <= fabs(tmp.w) &&
+						fabs(tmp.y) <= fabs(tmp.w) &&
+						fabs(tmp.z) <= fabs(tmp.w))
+					{
+						tmp = matrix_transform(app->camera->screen_space, tmp);
+						vertex_perspective_divide(&tmp);
+						int offset = (int)tmp.y * SCREEN_W + (int)tmp.x;
+						if (tmp.z < app->depth_buffer[offset])
+							set_pixel_uint32(app->sdl->surface, offset, 0xffffff);
+					}
+					grid_point.x += 2.0;
+					x--;
+				}
+				x = 100;
+				grid_point.x = app->edit_wall.v[2].x - (double)x;
+				grid_point.z += 2.0;
+				z--;
+			}
+		}
 
-		render_wall(app, &wall);
+		if (app->edge_selected && !app->edit_wall.is_null)
+		{
+			t_v3d tmp;
+
+			tmp = vector_sum(app->camera->pos, vector_mul_by(get_forward(app->camera->rot), 2));
+			tmp.x = round(tmp.x / 2.0) * 2.0;
+			tmp.z = round(tmp.z / 2.0) * 2.0;
+			app->edit_wall.v[0].x = tmp.x;
+			app->edit_wall.v[0].z = tmp.z;
+			app->edit_wall.v[3].x = tmp.x;
+			app->edit_wall.v[3].z = tmp.z;
+
+			if (app->inputs->keyboard[SDL_SCANCODE_SPACE])
+			{
+				app->walls[app->walls_count] = app->edit_wall;
+				app->walls_count++;
+				app->edge_selected = 0;
+				app->edit_wall.is_null = 1;
+			}
+			else
+				render_wall(app, &app->edit_wall);
+		}
+
 		draw_cross(app, (int)app->sdl->half_width, (int)app->sdl->half_height, 8, 0xffffff);
 		update_fps_text(app);
+		mouse_update(app);
 		SDL_UpdateWindowSurface(app->sdl->window);
 	}
 	TTF_CloseFont(app->font);
@@ -655,6 +788,8 @@ int		main(int argv, char**argc)
 	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * number_of_sprites);
 	bmp_load("resources/3.bmp", &app->sprites[0]);
 
+	app->walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
+	app->walls_count = 0;
 	start_the_game(app);
 	quit_properly(app);
 	return (0);

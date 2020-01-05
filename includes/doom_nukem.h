@@ -75,6 +75,29 @@ typedef struct	s_v3d
 	double		tex_y;
 }				t_v3d;
 
+typedef struct	s_wall
+{
+	Uint8 		is_null;
+	t_v3d		v[4];
+	int			sprite_index;
+}				t_wall;
+
+typedef struct	s_dist_to_v
+{
+	double		dist;
+	int 		index;
+}				t_dist_to_v;
+
+typedef struct	s_point
+{
+	t_v3d		p;
+	double		p_dist;
+	int 		empty;
+	t_dist_to_v	dist_0;
+	t_dist_to_v	dist_1;
+	t_dist_to_v	dist_2;
+}				t_point;
+
 typedef struct	s_v2d
 {
 	double		u;
@@ -304,14 +327,6 @@ typedef struct	s_clip_data
 	double 		value;
 }				t_clip_data;
 
-typedef struct	s_wall
-{
-	Uint8 		is_null;
-	t_v3d		v[4];
-	Uint8 		v_count;
-	t_sprite	*tex;
-}				t_wall;
-
 typedef struct	s_plane
 {
 	t_v3d		p;
@@ -333,8 +348,17 @@ typedef struct	s_app
 	t_screen_chunk	screen_chunk;
 	t_screen_chunk	*screen_chunk_array;
 	TTF_Font	*font;
-	int 		tr_hitted;
+	t_wall		*hit_wall;
+	double 		hit_dist;
+	int 		editor;
+	int 		edge_selected;
+	t_wall		edit_wall;
+	t_wall		*walls;
+	int 		walls_count;
+	t_point		inter;
 }				t_app;
+
+t_v3d	get_forward(t_v3d qt);
 
 void	process_inputs(t_app *app, double delta_time);
 void 	update_camera(t_camera *camera);
