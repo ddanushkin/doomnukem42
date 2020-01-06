@@ -77,9 +77,11 @@ typedef struct	s_v3d
 
 typedef struct	s_wall
 {
-	Uint8 		is_null;
-	t_v3d		v[4];
+//	int 		v_i[4];
+//	t_v3d		*v[4];
+	t_v3d 		v[4];
 	int			sprite_index;
+	int 		selected_counter;
 }				t_wall;
 
 typedef struct	s_dist_to_v
@@ -327,11 +329,24 @@ typedef struct	s_clip_data
 	double 		value;
 }				t_clip_data;
 
-typedef struct	s_plane
+typedef struct	s_box
 {
-	t_v3d		p;
-	t_v3d		n;
-}				t_plane;
+	double 		x_min;
+	double 		z_min;
+	double 		x_max;
+	double 		z_max;
+	t_v3d		v[4];
+}				t_box;
+
+typedef struct	s_sector
+{
+	t_wall		*walls;
+	int 		walls_count;
+	double 		floor_height;
+	double 		ceil_height;
+	t_box		box;
+	int			ready;
+}				t_sector;
 
 typedef struct	s_app
 {
@@ -353,9 +368,13 @@ typedef struct	s_app
 	int 		editor;
 	int 		edge_selected;
 	t_wall		edit_wall;
-	t_wall		*walls;
-	int 		walls_count;
 	t_point		inter;
+	t_sector	*sectors;
+	int 		current_sector;
+	int 		sectors_count;
+	int			grid_id;
+	double 		grid_size;
+	double 		grid_change_timer;
 }				t_app;
 
 t_v3d	get_forward(t_v3d qt);

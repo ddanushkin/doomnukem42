@@ -177,10 +177,6 @@ void	process_inputs(t_app *app, double delta_time)
 		move(camera, right, -5.0 * delta_time);
 	if (key[SDL_SCANCODE_D])
 		move(camera, right, 5.0 * delta_time);
-	if (key[SDL_SCANCODE_MINUS])
-		camera->fov -= 0.001;
-	if (key[SDL_SCANCODE_EQUALS])
-		camera->fov += 0.001;
 }
 
 int		event_handling(t_app *app)

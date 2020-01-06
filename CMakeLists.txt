@@ -15,11 +15,11 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "-O3")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+set(CMAKE_CXX_FLAGS "-O3 -c")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -c")
+set(CMAKE_CXX_FLAGS_DEBUG "-O3 -c")
 
-if(MSVC OR MSYS OR MINGW)
+if(MSVC OR MSYS OR MINGW OR CYGWIN)
     message("-- WINDOWS --")
     set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -28,7 +28,11 @@ if(MSVC OR MSYS OR MINGW)
     include_directories("sdl2/ttf/include/SDL2/")
     link_directories(sdl2/ttf/lib/)
     add_executable(${EXECUTABLE_NAME} ${PROJ_SOURCES} ${LIBFT_SOURCES})
-    target_link_libraries(${EXECUTABLE_NAME} "-lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf")
+    if (MINGW)
+        target_link_libraries(${EXECUTABLE_NAME} "-lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf")
+    elseif(CYGWIN)
+        target_link_libraries(${EXECUTABLE_NAME} "-lcygwin -lSDL2main -lSDL2 -lSDL2_ttf")
+    endif()
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${PROJECT_SOURCE_DIR}/sdl2/main/bin/"
