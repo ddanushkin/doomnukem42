@@ -153,14 +153,14 @@ void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 	{
 		if (depth < app->depth_buffer[offset])
 		{
-			double scale = 1.0;
-			double z = 1.0 / tex_z * scale * 256;
+			double zx = 1.0 / tex_z * app->render_wall->tex_scale_x * 256;
+			double zy = 1.0 / tex_z * app->render_wall->tex_scale_y * 256;
 			uint32_t c;
 
-			Uint32 img_x = (Uint32)(tex_x * z) % 256;
-			Uint32 img_y = (Uint32)(tex_y * z) % 256;
+			Uint32 img_x = (Uint32)(tex_x * zx) % 256;
+			Uint32 img_y = (Uint32)(tex_y * zy) % 256;
 			c = app->sprites[0].pixels[((img_y << 8u) + img_x)];
-			//			uint8_t *color;
+//			uint8_t *color;
 //			if (app->tr_hitted)
 //			{
 //				color = (uint8_t *)&c;
@@ -491,6 +491,7 @@ void 	render_wall(t_app *app, t_wall *w)
 {
 	t_point		inter;
 
+	app->render_wall = w;
 	inter.empty = 1;
 	render_triangle(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle(app, w->v[0], w->v[3], w->v[1]);
@@ -553,6 +554,8 @@ void 	select_edge(t_app *app, t_wall *w, 	t_dist_to_v d0, t_dist_to_v d1)
 		app->edit_wall.v[3].tex_x = 0;
 		app->edit_wall.v[3].tex_y = 1;
 		app->edit_wall.selected_counter = 1;
+		app->edit_wall.tex_scale_x = 1.0;
+		app->edit_wall.tex_scale_y = 1.0;
 		app->inputs->mouse.left = 0;
 		app->inter.dist_0 = d0;
 		app->inter.dist_1 = d1;
@@ -734,6 +737,19 @@ void	start_the_game(t_app *app)
 		reset_screen(app);
 
 		render_map(app);
+
+		if (app->hit_wall)
+		{
+			if (app->inputs->keyboard[SDL_SCANCODE_MINUS] && app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->hit_wall->tex_scale_x > 0.25)
+				app->hit_wall->tex_scale_x -= 0.25;
+			if (app->inputs->keyboard[SDL_SCANCODE_EQUALS] && app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->hit_wall->tex_scale_x < 10.0)
+				app->hit_wall->tex_scale_x += 0.25;
+
+			if (app->inputs->keyboard[SDL_SCANCODE_MINUS] && app->inputs->keyboard[SDL_SCANCODE_LALT] && app->hit_wall->tex_scale_y > 0.25)
+				app->hit_wall->tex_scale_y -= 0.25;
+			if (app->inputs->keyboard[SDL_SCANCODE_EQUALS] && app->inputs->keyboard[SDL_SCANCODE_LALT] && app->hit_wall->tex_scale_y < 10.0)
+				app->hit_wall->tex_scale_y += 0.25;
+		}
 
 		if (app->hit_wall && !app->edge_selected)
 			show_edge(app);
@@ -925,6 +941,8 @@ int		main(int argv, char**argc)
 	app->sectors[0].walls[0].v[3].tex_x = 0.0;
 	app->sectors[0].walls[0].v[3].tex_y = 1.0;
 	app->sectors[0].walls[0].selected_counter = 0;
+	app->sectors[0].walls[0].tex_scale_x = 1.0;
+	app->sectors[0].walls[0].tex_scale_y = 1.0;
 
 	app->sectors[0].box.v[0].tex_x = 0.0;
 	app->sectors[0].box.v[0].tex_x = 0.0;

@@ -81,6 +81,8 @@ typedef struct	s_wall
 //	t_v3d		*v[4];
 	t_v3d 		v[4];
 	int			sprite_index;
+	double 		tex_scale_x;
+	double 		tex_scale_y;
 	int 		selected_counter;
 }				t_wall;
 
@@ -375,6 +377,7 @@ typedef struct	s_app
 	int			grid_id;
 	double 		grid_size;
 	double 		grid_change_timer;
+	t_wall		*render_wall;
 }				t_app;
 
 t_v3d	get_forward(t_v3d qt);
