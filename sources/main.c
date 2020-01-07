@@ -24,6 +24,7 @@ t_wall	wall_new()
 	w.scale_x = 1.0;
 	w.scale_y = 1.0;
 	w.selected_counter = 0;
+	w.sprite_index = 103;
 	return (w);
 }
 
@@ -197,17 +198,17 @@ void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 
 			Uint32 img_x = (Uint32)(tex_x * zx) % 256;
 			Uint32 img_y = (Uint32)(tex_y * zy) % 256;
-			c = app->sprites[0].pixels[((img_y << 8u) + img_x)];
+			c = app->sprites[app->render_wall->sprite_index].pixels[((img_y << 8u) + img_x)];
 //			uint8_t *color;
-//			if (app->tr_hitted)
-//			{
-//				color = (uint8_t *)&c;
-//				color[0] = color[0] / 2;
-//				color[1] = color[1] / 2;
-//				color[2] = color[2] / 2;
-//			}
-			app->depth_buffer[offset] = depth;
-			set_pixel_uint32(app->sdl->surface, offset, c);
+//			color = (uint8_t *)&c;
+//			color[0] = color[0] / 2;
+//			color[1] = color[1] / 2;
+//			color[2] = color[2] / 2;
+			if (c != TRANSPARENCY_COLOR)
+			{
+				app->depth_buffer[offset] = depth;
+				set_pixel_uint32(app->sdl->surface, offset, c);
+			}
 		}
 		tex_x += x_x_step;
 		tex_y += y_x_step;
@@ -592,6 +593,7 @@ void 	select_edge(t_app *app, t_wall *w, 	t_dist_to_v d0, t_dist_to_v d1)
 		app->edit_wall.v[2] = w->v[d1.index];
 		app->edit_wall.v[3] = w->v[d0.index];
 		app->edit_wall.selected_counter = 1;
+		app->edit_wall.sprite_index = w->sprite_index;
 		wall_reset_tex(&app->edit_wall);
 		wall_update_scale(&app->edit_wall);
 		app->inter.dist_0 = d0;
@@ -745,34 +747,45 @@ void	start_the_game(t_app *app)
 			break ;
 		process_inputs(app, app->timer->delta);
 
-		if (app->grid_switch)
+		if (app->input_g)
 		{
 			app->grid_size = app->grid_size == 2.0 ? 0.5 : 2.0;
-			app->grid_switch = 0;
+			app->input_g = 0;
 		}
 
-		if (app->hit_wall)
+		if (app->hit_wall && app->editor)
 		{
-			if (app->tex_scale_minus && app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->hit_wall->scale_x > 0.25)
+			if (app->input_minus && app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->hit_wall->scale_x > 0.25)
 			{
 				app->hit_wall->scale_x -= 0.25;
-				app->tex_scale_minus = 0;
+				app->input_minus = 0;
 			}
-			else if (app->tex_scale_plus && app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->hit_wall->scale_x < 10.0)
+			else if (app->input_plus && app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->hit_wall->scale_x < 10.0)
 			{
 				app->hit_wall->scale_x += 0.25;
-				app->tex_scale_plus = 0;
+				app->input_plus = 0;
 			}
-			else if (app->tex_scale_minus && app->inputs->keyboard[SDL_SCANCODE_LALT] && app->hit_wall->scale_y > 0.25)
+			else if (app->input_minus && app->inputs->keyboard[SDL_SCANCODE_LALT] && app->hit_wall->scale_y > 0.25)
 			{
 				app->hit_wall->scale_y -= 0.25;
-				app->tex_scale_minus = 0;
+				app->input_minus = 0;
 			}
-			else if (app->tex_scale_plus && app->inputs->keyboard[SDL_SCANCODE_LALT] && app->hit_wall->scale_y < 10.0)
+			else if (app->input_plus && app->inputs->keyboard[SDL_SCANCODE_LALT] && app->hit_wall->scale_y < 10.0)
 			{
 				app->hit_wall->scale_y += 0.25;
-				app->tex_scale_plus = 0;
+				app->input_plus = 0;
 			}
+			else if (app->input_minus && app->inputs->keyboard[SDL_SCANCODE_LSHIFT])
+			{
+				app->input_minus = 0;
+				app->hit_wall->sprite_index--;
+			}
+			else if (app->input_plus && app->inputs->keyboard[SDL_SCANCODE_LSHIFT])
+			{
+				app->input_plus = 0;
+				app->hit_wall->sprite_index++;
+			}
+			app->hit_wall->sprite_index = (app->hit_wall->sprite_index % 493 + 493) % 493;
 		}
 
 		update_camera(app->camera);
@@ -884,12 +897,14 @@ void	start_the_game(t_app *app)
 				cs->floor.v[3].z = cs->box.z_max;
 				cs->floor.scale_x = fabs(cs->floor.v[0].x - cs->floor.v[1].x) * 0.5;
 				cs->floor.scale_y = fabs(cs->floor.v[0].z - cs->floor.v[1].z) * 0.5;
+				cs->floor.sprite_index = 278;
 
 				cs->ceil = cs->floor;
 				cs->ceil.v[0].y += 2.0;
 				cs->ceil.v[1].y += 2.0;
 				cs->ceil.v[2].y += 2.0;
 				cs->ceil.v[3].y += 2.0;
+				cs->ceil.sprite_index = 399;
 
 				cs->ready = 1;
 			}
@@ -943,9 +958,20 @@ int		main(int argv, char**argc)
 	obj_load("resources/cube.obj", &app->meshes[1]);
 
 	/* TODO: Set number of meshes */
-	int number_of_sprites = 1;
-	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * number_of_sprites);
-	bmp_load("resources/3.bmp", &app->sprites[0]);
+	app->sprites_count = 0;
+	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * 493);
+	for (int i = 0; i < 493; i++)
+	{
+		char	*file_name;
+		char	file_path[100];
+		file_path[0] = '\0';
+		file_name = ft_itoa(i);
+		ft_strcat(file_path, "resources/sprites/");
+		ft_strcat(file_path, file_name);
+		ft_strdel(&file_name);
+		ft_strcat(file_path, ".bmp");
+		bmp_load(app, file_path);
+	}
 
 	app->sectors_count = 1;
 	app->sectors = (t_sector *)malloc(sizeof(t_sector) * 1000);
@@ -972,6 +998,9 @@ int		main(int argv, char**argc)
 
 	start_the_game(app);
 	quit_properly(app);
+
+
+
 	return (0);
 }
 

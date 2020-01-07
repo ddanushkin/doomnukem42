@@ -9,15 +9,6 @@ int 	out_of_borders(int x, int y)
 	return (0);
 }
 
-int 	color_key(t_color c)
-{
-	if (c.r == COLOR_KEY_R &&
-		c.g == COLOR_KEY_G &&
-		c.b == COLOR_KEY_B)
-		return (1);
-	return (0);
-}
-
 void	set_pixel(SDL_Surface *surface, int x, int y, t_color c)
 {
 	int				offset;

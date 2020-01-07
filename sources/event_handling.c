@@ -217,20 +217,20 @@ int		event_handling(t_app *app)
 		if (event == SDL_KEYDOWN)
 		{
 			if (e.key.keysym.scancode == SDL_SCANCODE_G)
-				app->grid_switch = 1;
+				app->input_g = 1;
 			if (e.key.keysym.scancode == SDL_SCANCODE_MINUS)
-				app->tex_scale_minus = 1;
+				app->input_minus = 1;
 			if (e.key.keysym.scancode == SDL_SCANCODE_EQUALS)
-				app->tex_scale_plus = 1;
+				app->input_plus = 1;
 		}
 		if (event == SDL_KEYUP)
 		{
 			if (e.key.keysym.scancode == SDL_SCANCODE_G)
-				app->grid_switch = 0;
+				app->input_g = 0;
 			if (e.key.keysym.scancode == SDL_SCANCODE_MINUS)
-				app->tex_scale_minus = 0;
+				app->input_minus = 0;
 			if (e.key.keysym.scancode == SDL_SCANCODE_EQUALS)
-				app->tex_scale_plus = 0;
+				app->input_plus = 0;
 		}
 
 	}

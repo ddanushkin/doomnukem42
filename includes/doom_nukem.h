@@ -14,7 +14,7 @@
 # define	SCREEN_H 480
 # define	WIN_TITLE "DOOM-NUKEM"
 
-# define	COLOR_KEY_R 255
+# define	TRANSPARENCY_COLOR 0xffff00ff
 # define	COLOR_KEY_G 0
 # define	COLOR_KEY_B 254
 
@@ -352,6 +352,7 @@ typedef struct	s_app
 	t_inputs	*inputs;
 	t_mesh		*meshes;
 	t_sprite	*sprites;
+	int 		sprites_count;
 	double		*depth_buffer;
 	t_depth_chunk	depth_chunk;
 	t_depth_chunk	*depth_chunk_array;
@@ -367,10 +368,11 @@ typedef struct	s_app
 	t_sector	*sectors;
 	int 		current_sector;
 	int 		sectors_count;
-	int			grid_switch;
+	int			input_g;
 	double 		grid_size;
-	double 		tex_scale_plus;
-	double 		tex_scale_minus;
+	double 		input_plus;
+	double 		input_minus;
+	int 		tex_switch;
 	t_wall		*render_wall;
 }				t_app;
 
@@ -442,7 +444,7 @@ double		vector_length(t_v3d v);
 t_v3d		vector_cross_product(t_v3d v1, t_v3d v2);
 double		vector_dot_product(t_v3d v1, t_v3d v2);
 
-void		bmp_load(char *path, t_sprite *sprite);
+void		bmp_load(t_app *app, char *path);
 void		obj_load(char *path, t_mesh *mesh);
 
 #endif

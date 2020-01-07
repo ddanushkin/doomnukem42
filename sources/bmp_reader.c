@@ -72,7 +72,7 @@ t_bmp_header	bmp_read_header(int fd)
 	return (h);
 }
 
-void	bmp_load(char *path, t_sprite *sprite)
+void	bmp_load(t_app *app, char *path)
 {
 	int				fd;
 
@@ -81,6 +81,7 @@ void	bmp_load(char *path, t_sprite *sprite)
 	if (fd < 3)
 		exit_with_status(STATUS_FILE_NOT_FOUND, path);
 	header = bmp_read_header(fd);
-	bpm_read_pixels(fd, header, sprite);
+	bpm_read_pixels(fd, header, &app->sprites[app->sprites_count]);
 	close(fd);
+	app->sprites_count++;
 }
