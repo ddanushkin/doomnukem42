@@ -81,8 +81,8 @@ typedef struct	s_wall
 //	t_v3d		*v[4];
 	t_v3d 		v[4];
 	int			sprite_index;
-	double 		tex_scale_x;
-	double 		tex_scale_y;
+	double 		scale_x;
+	double 		scale_y;
 	int 		selected_counter;
 }				t_wall;
 
@@ -242,10 +242,6 @@ typedef struct	s_mouse_state
 	int 		left;
 	int 		right;
 	int 		middle;
-	int 		scroll_u;
-	int 		scroll_d;
-	int 		x_dir;
-	int 		y_dir;
 	double 		sens;
 }				t_mouse_state;
 
@@ -293,12 +289,8 @@ typedef struct		s_inputs
 {
 	const Uint8		*keyboard;
 	t_mouse_state	mouse;
-	int				left_pressed;
-	int				right_pressed;
-	double			sensitivity;
 	int				x;
 	int				y;
-	int				zoom;
 }					t_inputs;
 
 typedef struct		s_sdl
@@ -337,12 +329,13 @@ typedef struct	s_box
 	double 		z_min;
 	double 		x_max;
 	double 		z_max;
-	t_v3d		v[4];
 }				t_box;
 
 typedef struct	s_sector
 {
 	t_wall		*walls;
+	t_wall		floor;
+	t_wall		ceil;
 	int 		walls_count;
 	double 		floor_height;
 	double 		ceil_height;
@@ -374,9 +367,10 @@ typedef struct	s_app
 	t_sector	*sectors;
 	int 		current_sector;
 	int 		sectors_count;
-	int			grid_id;
+	int			grid_switch;
 	double 		grid_size;
-	double 		grid_change_timer;
+	double 		tex_scale_plus;
+	double 		tex_scale_minus;
 	t_wall		*render_wall;
 }				t_app;
 

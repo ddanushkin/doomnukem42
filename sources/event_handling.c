@@ -181,19 +181,58 @@ void	process_inputs(t_app *app, double delta_time)
 
 int		event_handling(t_app *app)
 {
-	SDL_Event e;
+	SDL_Event	e;
+	Uint32		event;
 
 	app->inputs->mouse.x = 0;
 	app->inputs->mouse.y = 0;
 	while (SDL_PollEvent(&e))
 	{
-		if (e.type == SDL_QUIT)
+		event = e.type;
+		if (event == SDL_QUIT)
 			return(0);
-		else if(e.type == SDL_MOUSEMOTION)
+		if (event == SDL_MOUSEMOTION)
 		{
 			app->inputs->mouse.x = e.motion.xrel;
 			app->inputs->mouse.y = e.motion.yrel;
 		}
+		if (event == SDL_MOUSEBUTTONDOWN)
+		{
+			if (e.button.button == SDL_BUTTON_LEFT)
+				app->inputs->mouse.left = 1;
+			if (e.button.button == SDL_BUTTON_RIGHT)
+				app->inputs->mouse.right = 1;
+			if (e.button.button == SDL_BUTTON_MIDDLE)
+				app->inputs->mouse.middle = 1;
+		}
+		if (event == SDL_MOUSEBUTTONUP)
+		{
+			if (e.button.button == SDL_BUTTON_LEFT)
+				app->inputs->mouse.left = 0;
+			if (e.button.button == SDL_BUTTON_RIGHT)
+				app->inputs->mouse.right = 0;
+			if (e.button.button == SDL_BUTTON_MIDDLE)
+				app->inputs->mouse.middle = 0;
+		}
+		if (event == SDL_KEYDOWN)
+		{
+			if (e.key.keysym.scancode == SDL_SCANCODE_G)
+				app->grid_switch = 1;
+			if (e.key.keysym.scancode == SDL_SCANCODE_MINUS)
+				app->tex_scale_minus = 1;
+			if (e.key.keysym.scancode == SDL_SCANCODE_EQUALS)
+				app->tex_scale_plus = 1;
+		}
+		if (event == SDL_KEYUP)
+		{
+			if (e.key.keysym.scancode == SDL_SCANCODE_G)
+				app->grid_switch = 0;
+			if (e.key.keysym.scancode == SDL_SCANCODE_MINUS)
+				app->tex_scale_minus = 0;
+			if (e.key.keysym.scancode == SDL_SCANCODE_EQUALS)
+				app->tex_scale_plus = 0;
+		}
+
 	}
 	return (1);
 }
