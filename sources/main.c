@@ -77,6 +77,16 @@ void 	print_to_screen(t_app *app, int x, int y, char *text)
 	SDL_FreeSurface(font_surface);
 }
 
+void	update_walls_data(t_app *app)
+{
+	char	*fps_text;
+
+	fps_text = ft_itoa(app->triangles_counter);
+	print_to_screen(app, 0, 15, fps_text);
+	ft_strdel(&fps_text);
+	app->triangles_counter = 0;
+}
+
 void	update_fps_text(t_app *app)
 {
 	char	*fps_text;
@@ -314,6 +324,37 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
 	scan_triangle(app, v1, v2, v3, triangle_area(&v1, &v3, &v2) >= 0.0);
+	app->triangles_counter++;
+}
+
+void	polygon_add(t_polygon **poly, t_v3d v)
+{
+	t_polygon	*new;
+	t_polygon	*last;
+
+	if ((*poly) == NULL)
+	{
+		(*poly) = (t_polygon *)malloc(sizeof(t_polygon));
+		(*poly)->v = v;
+		(*poly)->is_convex = 0;
+		(*poly)->is_ear = 0;
+		(*poly)->angle = 0.0;
+		(*poly)->next = *poly;
+		(*poly)->prev = *poly;
+	}
+	else
+	{
+		last = (*poly)->prev;
+		new = (t_polygon *)malloc(sizeof(t_polygon));
+		new->v = v;
+		new->is_convex = 0;
+		new->is_ear = 0;
+		new->angle = 0.0;
+		new->next = (*poly);
+		new->prev = last;
+		last->next = new;
+		(*poly)->prev = new;
+	}
 }
 
 void	vr_list_add(t_vr_list **list, t_v3d v)
@@ -529,6 +570,54 @@ int		render_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	return 1;
 }
 
+void 	render_floor(t_app *app, t_triangle *tr, t_wall *floor)
+{
+	t_point	inter;
+	t_v3d	v0;
+	t_v3d	v1;
+	t_v3d	v2;
+
+	inter.empty = 1;
+	v0 = matrix_transform(app->camera->transform, tr->v[0]);
+	v1 = matrix_transform(app->camera->transform, tr->v[1]);
+	v2 = matrix_transform(app->camera->transform, tr->v[2]);
+	app->render_wall = floor;
+	if (render_triangle(app, v0, v1, v2) && app->editor && !app->edge_selected && app->inter.empty)
+	{
+		inter.dist_0.index = 0;
+		inter.dist_1.index = 1;
+		inter.dist_2.index = 2;
+		ray_intersect(app, app->camera, &inter, floor);
+	}
+}
+
+void 	render_ceil(t_app *app, t_triangle *tr, t_wall *ceil)
+{
+	t_point	inter;
+	t_v3d	v0;
+	t_v3d	v1;
+	t_v3d	v2;
+
+	inter.empty = 1;
+	v0 = tr->v[0];
+	v1 = tr->v[1];
+	v2 = tr->v[2];
+	v0.y += 2.0;
+	v1.y += 2.0;
+	v2.y += 2.0;
+	v0 = matrix_transform(app->camera->transform, v0);
+	v1 = matrix_transform(app->camera->transform, v1);
+	v2 = matrix_transform(app->camera->transform, v2);
+	app->render_wall = ceil;
+	if (render_triangle(app, v0, v1, v2) && app->editor && !app->edge_selected && app->inter.empty)
+	{
+		inter.dist_0.index = 0;
+		inter.dist_1.index = 1;
+		inter.dist_2.index = 2;
+		ray_intersect(app, app->camera, &inter, ceil);
+	}
+}
+
 void 	render_wall(t_app *app, t_wall *w)
 {
 	t_point	inter;
@@ -691,34 +780,239 @@ void	render_map(t_app *app)
 	int i;
 	int	j;
 	t_sector *s;
-	i = 0;
 
+	i = 0;
 	app->hit_dist = app->camera->z_far;
 	app->inter.empty = 1;
-
 	while (i < app->sectors_count)
 	{
 		j = 0;
 		s = &app->sectors[i];
 		while (j < s->walls_count)
-		{
-			render_wall(app, &s->walls[j]);
-//			printf("0\t%f\t%f\t%f\n", s->walls[j].v[0].x, s->walls[j].v[0].y, s->walls[j].v[0].z);
-//			printf("1\t%f\t%f\t%f\n", s->walls[j].v[1].x, s->walls[j].v[1].y, s->walls[j].v[1].z);
-//			printf("2\t%f\t%f\t%f\n", s->walls[j].v[2].x, s->walls[j].v[2].y, s->walls[j].v[2].z);
-//			printf("3\t%f\t%f\t%f\n", s->walls[j].v[3].x, s->walls[j].v[3].y, s->walls[j].v[3].z);
-//			printf("-------------\n");
-			j++;
-		}
+			render_wall(app, &s->walls[j++]);
 		if (s->ready)
 		{
-			render_wall(app, &s->floor);
-			render_wall(app, &s->ceil);
+			int t = 0;
+
+			while (t < s->triangles_count)
+			{
+				render_floor(app, &s->triangles[t], &s->floor);
+				render_ceil(app, &s->triangles[t], &s->ceil);
+				t++;
+			}
 		}
 		i++;
 	}
 }
 
+int 	compare_vertex(t_v3d *v1, t_v3d *v2)
+{
+	return (v1->x == v2->x && v1->y == v2->y && v1->z == v2->z);
+}
+
+
+int	find_linked_wall(t_sector *sector, t_v3d v, int skip)
+{
+	int		i;
+	i = 0;
+
+	while (i < sector->walls_count)
+	{
+		if (i != skip)
+		{
+			if(compare_vertex(&sector->walls[i].v[0], &v) ||
+				compare_vertex(&sector->walls[i].v[2], &v))
+				return i;
+		}
+		i++;
+	}
+	return (0);
+}
+
+void 	draw_polygon_line(t_app *app, t_v3d start, t_v3d end)
+{
+	t_v3d		tmp1;
+	t_v3d		tmp2;
+
+	tmp1 = matrix_transform(app->camera->transform, start);
+	tmp2 = matrix_transform(app->camera->transform, end);
+	if (fabs(tmp1.x) <= fabs(tmp1.w) &&
+		fabs(tmp1.y) <= fabs(tmp1.w) &&
+		fabs(tmp1.z) <= fabs(tmp1.w) &&
+		fabs(tmp2.x) <= fabs(tmp2.w) &&
+		fabs(tmp2.y) <= fabs(tmp2.w) &&
+		fabs(tmp2.z) <= fabs(tmp2.w))
+	{
+		tmp1 = matrix_transform(app->camera->screen_space, tmp1);
+		vertex_perspective_divide(&tmp1);
+		tmp2 = matrix_transform(app->camera->screen_space, tmp2);
+		vertex_perspective_divide(&tmp2);
+		draw_line(app, &tmp1, &tmp2, 0xffffff);
+	}
+}
+
+void 	draw_polygon(t_app *app, t_polygon *polygon)
+{
+	t_polygon	*head;
+
+	head = polygon;
+	while (polygon->next != head)
+	{
+		draw_polygon_line(app, polygon->v, polygon->next->v);
+		polygon = polygon->next;
+	}
+	draw_polygon_line(app, polygon->v, polygon->next->v);
+}
+
+void 	draw_triangles(t_app *app, t_sector *cs)
+{
+	int i;
+	t_triangle *tr;
+
+	i = 0;
+	while (i < cs->triangles_count)
+	{
+		tr = &cs->triangles[i];
+		draw_polygon_line(app, tr->v[0], tr->v[1]);
+		draw_polygon_line(app, tr->v[0], tr->v[2]);
+		draw_polygon_line(app, tr->v[1], tr->v[2]);
+		i++;
+	}
+}
+
+double	poly_cross(t_v3d v1, t_v3d v2) {
+	return (v1.x * v2.z - v1.z * v2.x);
+}
+
+double	get_orientation(t_v3d *polygon, int size)
+{
+	double		sum;
+	int			i;
+
+	i = 0;
+	sum = 0.0;
+	while (i < size)
+	{
+		sum += poly_cross(polygon[i], polygon[(i + 1) % size]);
+		i++;
+	}
+	return (sum);
+}
+
+double 	calc_tex(double min, double cur, double max)
+{
+	return ((cur - min)/(max - min));
+}
+
+void 	get_floor_poly(t_sector *cs)
+{
+	/*Create array of unique vertexes from floor polygon*/
+	int		i;
+	t_v3d	*polygon;
+	int		next_wall;
+
+	polygon = (t_v3d *)malloc(sizeof(t_v3d) * cs->walls_count);
+
+	polygon[0] = cs->walls[0].v[0];
+	polygon[1] = cs->walls[0].v[2];
+
+	cs->polygon_count = 2;
+	i = 1;
+	next_wall = 0;
+	while (i < cs->walls_count - 1)
+	{
+		next_wall = find_linked_wall(cs, polygon[i], next_wall);
+		if (next_wall != 0)
+		{
+			if (compare_vertex(&polygon[i], &cs->walls[next_wall].v[0]))
+				polygon[i + 1] = cs->walls[next_wall].v[2];
+			else if(compare_vertex(&polygon[i], &cs->walls[next_wall].v[2]))
+				polygon[i + 1] = cs->walls[next_wall].v[0];
+		}
+		cs->polygon_count++;
+		i++;
+	}
+
+	i = 0;
+	printf("polygon = [");
+	while (i < cs->polygon_count)
+	{
+		printf("{x: %f, y: %f}", polygon[i].x, polygon[i].y);
+		if (i + 1 < cs->polygon_count)
+			printf(", ");
+		i++;
+	}
+	printf("];\n");
+
+	double or = get_orientation(&polygon[0], cs->polygon_count);
+	printf("or -> %f\n", or);
+
+	if (or > 0)
+	{
+		i = 0;
+		cs->polygon = NULL;
+		while (i < cs->polygon_count)
+		{
+			polygon[i].tex_x = calc_tex(cs->box.x_min, polygon[i].x, cs->box.x_max);
+			polygon[i].tex_y = calc_tex(cs->box.z_min, polygon[i].z, cs->box.z_max);
+			polygon_add(&cs->polygon, polygon[i]);
+			i++;
+		}
+	}
+	else if (or < 0)
+	{
+		i = cs->polygon_count - 1;
+		cs->polygon = NULL;
+		while (i >= 0)
+		{
+			polygon[i].tex_x = calc_tex(cs->box.x_min, polygon[i].x, cs->box.x_max);
+			polygon[i].tex_y = calc_tex(cs->box.z_min, polygon[i].z, cs->box.z_max);
+			polygon_add(&cs->polygon, polygon[i]);
+			i--;
+		}
+	}
+	free(polygon);
+
+	/*TODO: Fix malloc size!*/
+	cs->triangles = (t_triangle *)malloc(sizeof(t_triangle) * 100);
+	cs->triangles_count = 0;
+	triangulate(cs);
+	printf("triangles -> %d\n" ,cs->triangles_count);
+}
+
+void 	get_sector_min_max(t_sector *cs)
+{
+	int i;
+
+	i = 0;
+	cs->box.x_min = cs->walls[0].v[0].x;
+	cs->box.x_max = cs->box.x_min;
+	cs->box.z_min = cs->walls[0].v[0].z;
+	cs->box.z_max = cs->box.z_min;
+	while (i < cs->walls_count)
+	{
+		t_wall w;
+
+		w = cs->walls[i];
+		if (w.v[0].x < cs->box.x_min)
+			cs->box.x_min = w.v[0].x;
+		if (w.v[0].x > cs->box.x_max)
+			cs->box.x_max = w.v[0].x;
+		if (w.v[0].z < cs->box.z_min)
+			cs->box.z_min = w.v[0].z;
+		if (w.v[0].z > cs->box.z_max)
+			cs->box.z_max = w.v[0].z;
+		if (w.v[2].x < cs->box.x_min)
+			cs->box.x_min = w.v[2].x;
+		if (w.v[2].x > cs->box.x_max)
+			cs->box.x_max = w.v[2].x;
+		if (w.v[2].z < cs->box.z_min)
+			cs->box.z_min = w.v[2].z;
+		if (w.v[2].z > cs->box.z_max)
+			cs->box.z_max = w.v[2].z;
+		i++;
+	}
+}
 
 void	start_the_game(t_app *app)
 {
@@ -737,7 +1031,7 @@ void	start_the_game(t_app *app)
 	app->grid_size = 0.5;
 
 	app->timer->curr = SDL_GetPerformanceCounter();
-
+	app->triangles_counter = 0;
 	while (1)
 	{
 		if (!event_handling(app))
@@ -836,53 +1130,20 @@ void	start_the_game(t_app *app)
 		if (app->inputs->keyboard[SDL_SCANCODE_E] && app->sectors[app->sectors_count - 1].ready)
 			app->sectors[app->sectors_count - 1].ready = 0;
 
-		if (!app->edge_selected && app->sectors[app->sectors_count - 1].walls_count >= 3 && !app->sectors[app->sectors_count - 1].ready)
+		t_sector *cs;
+		cs = &app->sectors[app->sectors_count - 1];
+
+		if (!app->edge_selected && cs->walls_count >= 3 && !cs->ready)
 		{
 			if (app->inputs->keyboard[SDL_SCANCODE_Q])
 			{
-				t_sector *cs;
-
-				cs = &app->sectors[app->sectors_count - 1];
+				get_sector_min_max(cs);
+				get_floor_poly(cs);
 
 				/*TODO: Set sector floor height*/
 				cs->floor_height = 0.0;
-
-				int		i;
-
-				i = 0;
-
-				cs->box.x_min = cs->walls[0].v[0].x;
-				cs->box.x_max = cs->box.x_min;
-				cs->box.z_min = cs->walls[0].v[0].z;
-				cs->box.z_max = cs->box.z_min;
-
-				while (i < cs->walls_count)
-				{
-					t_wall w;
-
-					w = cs->walls[i];
-
-					if (w.v[0].x < cs->box.x_min)
-						cs->box.x_min = w.v[0].x;
-					if (w.v[0].x > cs->box.x_max)
-						cs->box.x_max = w.v[0].x;
-					if (w.v[0].z < cs->box.z_min)
-						cs->box.z_min = w.v[0].z;
-					if (w.v[0].z > cs->box.z_max)
-						cs->box.z_max = w.v[0].z;
-
-					if (w.v[2].x < cs->box.x_min)
-						cs->box.x_min = w.v[2].x;
-					if (w.v[2].x > cs->box.x_max)
-						cs->box.x_max = w.v[2].x;
-					if (w.v[2].z < cs->box.z_min)
-						cs->box.z_min = w.v[2].z;
-					if (w.v[2].z > cs->box.z_max)
-						cs->box.z_max = w.v[2].z;
-					i++;
-				}
-
 				cs->floor = wall_new();
+
 				cs->floor.v[0].x = cs->box.x_min;
 				cs->floor.v[0].y = cs->floor_height;
 				cs->floor.v[0].z = cs->box.z_min;
@@ -895,23 +1156,24 @@ void	start_the_game(t_app *app)
 				cs->floor.v[3].x = cs->box.x_min;
 				cs->floor.v[3].y = cs->floor_height;
 				cs->floor.v[3].z = cs->box.z_max;
-				cs->floor.scale_x = fabs(cs->floor.v[0].x - cs->floor.v[1].x) * 0.5;
-				cs->floor.scale_y = fabs(cs->floor.v[0].z - cs->floor.v[1].z) * 0.5;
-				cs->floor.sprite_index = 278;
 
+				cs->floor.scale_x = fabs(cs->box.x_min - cs->box.x_max) * 0.5;
+				cs->floor.scale_y = fabs(cs->box.z_min - cs->box.z_max) * 0.5;
+				cs->floor.sprite_index = 278;
 				cs->ceil = cs->floor;
+
 				cs->ceil.v[0].y += 2.0;
 				cs->ceil.v[1].y += 2.0;
 				cs->ceil.v[2].y += 2.0;
 				cs->ceil.v[3].y += 2.0;
-				cs->ceil.sprite_index = 399;
 
+				cs->ceil.sprite_index = 399;
 				cs->ready = 1;
 			}
 		}
-
 		draw_cross(app, (int)app->sdl->half_width, (int)app->sdl->half_height, 8, 0xffffff);
 		update_fps_text(app);
+		update_walls_data(app);
 		//mouse_update(app);
 		SDL_UpdateWindowSurface(app->sdl->window);
 	}
@@ -998,8 +1260,6 @@ int		main(int argv, char**argc)
 
 	start_the_game(app);
 	quit_properly(app);
-
-
 
 	return (0);
 }

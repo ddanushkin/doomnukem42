@@ -35,7 +35,7 @@ static	void	init_sdl(t_sdl *sdl)
 void	init_camera(t_camera *camera)
 {
 	camera->fov = 30.0;
-	camera->z_far = 1000.0;
+	camera->z_far = 10.0;
 	camera->z_near = 0.1;
 	camera->asp_ratio = (double)SCREEN_H / (double)SCREEN_W;
 	camera->for_rad = 1.0 / tanf(camera->fov * 0.5 / 180.0 * 3.14159);

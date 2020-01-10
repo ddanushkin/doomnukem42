@@ -316,6 +316,16 @@ typedef struct		s_vr_list
 	struct s_vr_list	*next;
 }					t_vr_list;
 
+typedef struct		s_polygon
+{
+	t_v3d				v;
+	struct s_polygon	*next;
+	struct s_polygon	*prev;
+	int 				is_convex;
+	int 				is_ear;
+	double 				angle;
+}					t_polygon;
+
 typedef struct	s_clip_data
 {
 	t_v3d		v;
@@ -341,6 +351,10 @@ typedef struct	s_sector
 	double 		ceil_height;
 	t_box		box;
 	int			ready;
+	t_polygon 	*polygon;
+	int 		polygon_count;
+	t_triangle	*triangles;
+	int 		triangles_count;
 }				t_sector;
 
 typedef struct	s_app
@@ -374,9 +388,13 @@ typedef struct	s_app
 	double 		input_minus;
 	int 		tex_switch;
 	t_wall		*render_wall;
+	int 		triangles_counter;
 }				t_app;
 
 t_v3d	get_forward(t_v3d qt);
+
+void 	draw_polygon_line(t_app *app, t_v3d start, t_v3d end);
+void	triangulate(t_sector *current_sector);
 
 void	process_inputs(t_app *app, double delta_time);
 void 	update_camera(t_camera *camera);
