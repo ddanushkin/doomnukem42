@@ -9,18 +9,19 @@ void		set_vector(t_v3d *v, double x, double y, double z)
 
 double 		vector_length(t_v3d v)
 {
-	return (sqrt(vector_dot_product(v, v)));
+	return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w));
 }
 
 t_v3d	vector_normalise(t_v3d v)
 {
 	t_v3d	result;
-	double		length;
+	double	length;
 
 	length = vector_length(v);
 	result.x = v.x / length;
 	result.y = v.y / length;
 	result.z = v.z / length;
+	result.w = v.w / length;
 	return (result);
 }
 

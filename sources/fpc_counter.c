@@ -1,21 +1,14 @@
 #include "doom_nukem.h"
 
-void	get_ticks(t_timer *timer)
-{
-	timer->curr = SDL_GetPerformanceCounter();
-}
-
 void	get_delta_time(t_timer *timer)
 {
-	timer->delta = (SDL_GetPerformanceCounter() - timer->curr)
-				   * 1000.0 / (double)SDL_GetPerformanceFrequency();
-	timer->delta *= 0.001;
-	timer->time += timer->delta;
-	if(timer->delta > 0.0)
-		timer->fps = 1.0 / timer->delta;
-}
+	double new_time;
 
-void	show_fps(t_app *app)
-{
-	printf("FPS: %d\n", (int)app->timer->fps);
+	timer->frame++;
+	new_time = SDL_GetPerformanceCounter();
+	timer->delta  = (new_time - timer->curr) / (double)SDL_GetPerformanceFrequency();
+	timer->curr = new_time;
+	timer->time += timer->delta;
+	if(fmod(timer->time, 0.25) >= 0.24)
+		timer->fps = 1.0 / timer->delta;
 }
