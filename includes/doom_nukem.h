@@ -83,24 +83,7 @@ typedef struct	s_wall
 	int			sprite_index;
 	double 		scale_x;
 	double 		scale_y;
-	int 		selected_counter;
 }				t_wall;
-
-typedef struct	s_dist_to_v
-{
-	double		dist;
-	int 		index;
-}				t_dist_to_v;
-
-typedef struct	s_point
-{
-	t_v3d		p;
-	double		p_dist;
-	int 		empty;
-	t_dist_to_v	dist_0;
-	t_dist_to_v	dist_1;
-	t_dist_to_v	dist_2;
-}				t_point;
 
 typedef struct	s_v2d
 {
@@ -175,8 +158,8 @@ typedef struct	s_gradient
 	double		z_y_step;
 	double		one_over_dx;
 	double		one_over_dy;
-	double 		depth_x_step;
-	double 		depth_y_step;
+	double 		d_x_step;
+	double 		d_y_step;
 }				t_gradient;
 
 typedef struct	s_triangle
@@ -373,12 +356,13 @@ typedef struct	s_app
 	t_screen_chunk	screen_chunk;
 	t_screen_chunk	*screen_chunk_array;
 	TTF_Font	*font;
+	int 		hit;
+	int 		hit_first;
 	t_wall		*hit_wall;
+	t_v3d		hit_point;
 	double 		hit_dist;
-	int 		editor;
 	int 		edge_selected;
 	t_wall		edit_wall;
-	t_point		inter;
 	t_sector	*sectors;
 	int 		current_sector;
 	int 		sectors_count;
@@ -398,6 +382,20 @@ void	triangulate(t_sector *current_sector);
 
 void	process_inputs(t_app *app, double delta_time);
 void 	update_camera(t_camera *camera);
+
+void	wall_reset_tex(t_wall *w);
+t_wall	wall_new();
+void 	wall_update_scale(t_wall *w);
+void	update_walls_data(t_app *app);
+t_edge	edge_new(t_gradient	g, t_v3d min, t_v3d max, int index);
+void	edge_step(t_edge *edge);
+double 		gradient_calc_x_step(double coords[3], t_triangle tr, double one_over_dx);
+double 		gradient_calc_y_step(double coords[3], t_triangle tr, double one_over_dy);
+t_gradient	gradient_new(t_v3d min, t_v3d mid, t_v3d max);
+void 	draw_grid(t_app *app);
+void 	print_to_screen(t_app *app, int x, int y, char *text);
+int 	vertex_inside(t_v3d *v);
+void vertex_perspective_divide(t_v3d *v);
 
 t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection);
 

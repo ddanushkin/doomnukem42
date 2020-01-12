@@ -1,62 +1,26 @@
 #include "doom_nukem.h"
 
-void	wall_reset_tex(t_wall *w)
-{
-	w->v[0].tex_x = 0.0;
-	w->v[0].tex_y = 0.0;
-	w->v[1].tex_x = 1.0;
-	w->v[1].tex_y = 1.0;
-	w->v[2].tex_x = 1.0;
-	w->v[2].tex_y = 0.0;
-	w->v[3].tex_x = 0.0;
-	w->v[3].tex_y = 1.0;
-}
-
-t_wall	wall_new()
-{
-	t_wall	w;
-
-	w.v[0].w = 1.0;
-	w.v[1].w = 1.0;
-	w.v[2].w = 1.0;
-	w.v[3].w = 1.0;
-	wall_reset_tex(&w);
-	w.scale_x = 1.0;
-	w.scale_y = 1.0;
-	w.selected_counter = 0;
-	w.sprite_index = 103;
-	return (w);
-}
-
-void 	wall_update_scale(t_wall *w)
-{
-	double	dx;
-	double	dz;
-
-	dx = fabs(w->v[0].x - w->v[1].x);
-	dz = fabs(w->v[0].z - w->v[1].z);
-	w->scale_x = (dx + dz) * 0.5;
-	w->scale_y = fabs(w->v[0].y - w->v[1].y) * 0.5;
-}
-
-void	reset_screen(register t_app *app)
+void	reset_screen(t_app *app)
 {
 	int						i;
-	register t_depth_chunk	*depth_buffer;
-	register t_depth_chunk	depth_chunk;
-	register t_screen_chunk	*screen_buffer;
-	register t_screen_chunk	screen_chunk;
+	t_depth_chunk	*depth_buffer;
+	t_screen_chunk	*screen_buffer;
 
 	depth_buffer = app->depth_chunk_array;
-	depth_chunk = app->depth_chunk;
 	screen_buffer = app->screen_chunk_array;
-	screen_chunk = app->screen_chunk;
 	i = 0;
 	while (i++ < SCREEN_H)
 	{
-		*depth_buffer++ = depth_chunk;
-		*screen_buffer++ = screen_chunk;
+		*depth_buffer++ = app->depth_chunk;
+		*screen_buffer++ = app->screen_chunk;
 	}
+}
+
+int 	vertex_inside(t_v3d *v)
+{
+	return (fabs(v->x) <= fabs(v->w) &&
+			fabs(v->y) <= fabs(v->w) &&
+			fabs(v->z) <= fabs(v->w));
 }
 
 void 	print_to_screen(t_app *app, int x, int y, char *text)
@@ -77,16 +41,6 @@ void 	print_to_screen(t_app *app, int x, int y, char *text)
 	SDL_FreeSurface(font_surface);
 }
 
-void	update_walls_data(t_app *app)
-{
-	char	*fps_text;
-
-	fps_text = ft_itoa(app->triangles_counter);
-	print_to_screen(app, 0, 15, fps_text);
-	ft_strdel(&fps_text);
-	app->triangles_counter = 0;
-}
-
 void	update_fps_text(t_app *app)
 {
 	char	*fps_text;
@@ -96,95 +50,14 @@ void	update_fps_text(t_app *app)
 	ft_strdel(&fps_text);
 }
 
-double 		gradient_calc_x_step(double coords[3], t_v3d min, t_v3d mid, t_v3d max, double one_over_dx)
-{
-	return (((coords[1] - coords[2]) * (min.y - max.y) - (coords[0] - coords[2]) * (mid.y - max.y)) * one_over_dx);
-}
-
-double 		gradient_calc_y_step(double coords[3], t_v3d min, t_v3d mid, t_v3d max, double one_over_dy)
-{
-	return (((coords[1] - coords[2]) * (min.x - max.x) - (coords[0] - coords[2]) * (mid.x - max.x)) * one_over_dy);
-}
-
-t_gradient	gradient_new(t_v3d min, t_v3d mid, t_v3d max)
-{
-	t_gradient	g;
-
-	g.z[0] = 1.0 / min.w;
-	g.z[1] = 1.0 / mid.w;
-	g.z[2] = 1.0 / max.w;
-	g.x[0] = min.tex_x * g.z[0];
-	g.x[1] = mid.tex_x * g.z[1];
-	g.x[2] = max.tex_x * g.z[2];
-	g.y[0] = min.tex_y * g.z[0];
-	g.y[1] = mid.tex_y * g.z[1];
-	g.y[2] = max.tex_y * g.z[2];
-	g.depth[0] = min.z;
-	g.depth[1] = mid.z;
-	g.depth[2] = max.z;
-	g.one_over_dx  = 1.0 / ((mid.x - max.x) * (min.y - max.y) - (min.x - max.x) * (mid.y - max.y));
-	g.one_over_dy = -g.one_over_dx;
-	g.x_x_step = gradient_calc_x_step(g.x, min, mid, max, g.one_over_dx);
-	g.x_y_step = gradient_calc_y_step(g.x, min, mid, max, g.one_over_dy);
-	g.y_x_step = gradient_calc_x_step(g.y, min, mid, max, g.one_over_dx);
-	g.y_y_step = gradient_calc_y_step(g.y, min, mid, max, g.one_over_dy);
-	g.z_x_step = gradient_calc_x_step(g.z, min, mid, max, g.one_over_dx);
-	g.z_y_step = gradient_calc_y_step(g.z, min, mid, max, g.one_over_dy);
-	g.depth_x_step = gradient_calc_x_step(g.depth, min, mid, max, g.one_over_dx);
-	g.depth_y_step = gradient_calc_y_step(g.depth, min, mid, max, g.one_over_dy);
-	return (g);
-}
-
-t_edge	edge_new(t_gradient	g, t_v3d min, t_v3d max, int index)
-{
-	t_edge		edge;
-	double		y_dist;
-	double		x_dist;
-	double		y_pre_step;
-	double		x_pre_step;
-
-	edge.y_start = (int)(min.y + 1);
-	edge.y_end = (int)(max.y + 1);
-
-	y_dist = max.y - min.y;
-	x_dist = max.x - min.x;
-
-	y_pre_step = edge.y_start - min.y;
-	edge.x_step = x_dist / y_dist;
-	edge.x = min.x + y_pre_step * edge.x_step;
-	x_pre_step = edge.x - min.x;
-
-	edge.tex_x = g.x[index] + g.x_x_step * x_pre_step + g.x_y_step * y_pre_step;
-	edge.tex_x_step = g.x_y_step + g.x_x_step * edge.x_step;
-
-	edge.tex_y = g.y[index] + g.y_x_step * x_pre_step + g.y_y_step * y_pre_step;
-	edge.tex_y_step = g.y_y_step + g.y_x_step * edge.x_step;
-
-	edge.tex_z = g.z[index] + g.z_x_step * x_pre_step + g.z_y_step * y_pre_step;
-	edge.tex_z_step = g.z_y_step + g.z_x_step * edge.x_step;
-
-	edge.depth = g.depth[index] + g.depth_x_step * x_pre_step + g.depth_y_step * y_pre_step;
-	edge.depth_step = g.depth_y_step + g.depth_x_step * edge.x_step;
-	return (edge);
-}
-
-void	edge_step(t_edge *edge)
-{
-	edge->x += edge->x_step;
-	edge->tex_x += edge->tex_x_step;
-	edge->tex_y += edge->tex_y_step;
-	edge->tex_z += edge->tex_z_step;
-	edge->depth += edge->depth_step;
-}
-
 void	draw_scanline(t_app *app, t_edge *left, t_edge *right, int y)
 {
 	int		x_start;
 	int		x_end;
 	int		offset;
 
-	x_start = (int)(left->x);
-	x_end = (int)(right->x);
+	x_start = (int)ceil(left->x);
+	x_end = (int)ceil(right->x);
 
 	double	x_pre_step = x_start - left->x;
 	double	x_dist = right->x - left->x;
@@ -290,7 +163,6 @@ int		inside_view(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	w1 = fabs(v1.w);
 	w2 = fabs(v2.w);
 	w3 = fabs(v3.w);
-	//printf("z1 -> %f, z2 -> %f, z3 -> %f\n", v1.z, v2.z, v3.z);
 	counter = 0;
 	counter += fabs(v1.x) <= w1;
 	counter += fabs(v1.y) <= w1;
@@ -514,7 +386,7 @@ double	vector_dist(t_v3d v1, t_v3d v2)
 	return (dx * dx) + (dy * dy) + (dz * dz);
 }
 
-int		ray_intersect(t_app *app, t_camera *camera, t_point *inter, t_wall *w)
+void		ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2)
 {
 	t_v3d	v0v1;
 	t_v3d	v0v2;
@@ -527,33 +399,29 @@ int		ray_intersect(t_app *app, t_camera *camera, t_point *inter, t_wall *w)
 	double	det;
 	double	invDet;
 
-	v0v1 = vector_sub(w->v[inter->dist_1.index], w->v[inter->dist_0.index]);
-	v0v2 = vector_sub(w->v[inter->dist_2.index], w->v[inter->dist_0.index]);
-	pvec = vector_cross_product(camera->dir, v0v2);
+	v0v1 = vector_sub(v1, v0);
+	v0v2 = vector_sub(v2, v0);
+	pvec = vector_cross_product(app->camera->dir, v0v2);
 	det = vector_dot_product(v0v1, pvec);
 	if (fabs(det) < 0.0)
-		return 0;
+		return ;
 	invDet = 1 / det;
-	tvec = vector_sub(camera->pos, w->v[inter->dist_0.index]);
+	tvec = vector_sub(app->camera->pos, v0);
 	u = vector_dot_product(tvec, pvec) * invDet;
 	if (u < 0.0 || u > 1.0)
-		return 0;
+		return ;
 	qvec = vector_cross_product(tvec, v0v1);
-	v = vector_dot_product(camera->dir, qvec) * invDet;
+	v = vector_dot_product(app->camera->dir, qvec) * invDet;
 	if (v < 0.0 || u + v > 1.0)
-		return 0;
+		return ;
 	t = vector_dot_product(v0v2, qvec) * invDet;
-	inter->p = vector_sum(camera->pos, vector_mul_by(camera->dir, t));
 	if (t < app->hit_dist && t > 0.0)
 	{
-		inter->p_dist = t;
+		app->hit_point = vector_sum(app->camera->pos, vector_mul_by(app->camera->dir, t));
 		app->hit_dist = t;
-		app->hit_wall = w;
-		inter->empty = 0;
-		app->inter = *inter;
-		return 1;
+		app->hit_wall = app->render_wall;
+		app->hit = 1;
 	}
-	return 0;
 }
 
 int		render_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
@@ -572,55 +440,44 @@ int		render_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 
 void 	render_floor(t_app *app, t_triangle *tr, t_wall *floor)
 {
-	t_point	inter;
 	t_v3d	v0;
 	t_v3d	v1;
 	t_v3d	v2;
 
-	inter.empty = 1;
 	v0 = matrix_transform(app->camera->transform, tr->v[0]);
 	v1 = matrix_transform(app->camera->transform, tr->v[1]);
 	v2 = matrix_transform(app->camera->transform, tr->v[2]);
+	app->hit = 0;
 	app->render_wall = floor;
-	if (render_triangle(app, v0, v1, v2) && app->editor && !app->edge_selected && app->inter.empty)
+	if (render_triangle(app, v0, v1, v2) && !app->edge_selected)
 	{
-		inter.dist_0.index = 0;
-		inter.dist_1.index = 1;
-		inter.dist_2.index = 2;
-		ray_intersect(app, app->camera, &inter, floor);
+		ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]);
+		if (app->hit)
+			app->hit_first = 1;
 	}
 }
 
 void 	render_ceil(t_app *app, t_triangle *tr, t_wall *ceil)
 {
-	t_point	inter;
 	t_v3d	v0;
 	t_v3d	v1;
 	t_v3d	v2;
 
-	inter.empty = 1;
-	v0 = tr->v[0];
-	v1 = tr->v[1];
-	v2 = tr->v[2];
-	v0.y += 2.0;
-	v1.y += 2.0;
-	v2.y += 2.0;
-	v0 = matrix_transform(app->camera->transform, v0);
-	v1 = matrix_transform(app->camera->transform, v1);
-	v2 = matrix_transform(app->camera->transform, v2);
+	v0 = matrix_transform(app->camera->transform, tr->v[0]);
+	v1 = matrix_transform(app->camera->transform, tr->v[1]);
+	v2 = matrix_transform(app->camera->transform, tr->v[2]);
+	app->hit = 0;
 	app->render_wall = ceil;
-	if (render_triangle(app, v0, v1, v2) && app->editor && !app->edge_selected && app->inter.empty)
+	if (render_triangle(app, v0, v1, v2) && !app->edge_selected)
 	{
-		inter.dist_0.index = 0;
-		inter.dist_1.index = 1;
-		inter.dist_2.index = 2;
-		ray_intersect(app, app->camera, &inter, ceil);
+		ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]);
+		if (app->hit)
+			app->hit_first = 1;
 	}
 }
 
 void 	render_wall(t_app *app, t_wall *w)
 {
-	t_point	inter;
 	t_v3d	v0;
 	t_v3d	v1;
 	t_v3d	v2;
@@ -631,20 +488,18 @@ void 	render_wall(t_app *app, t_wall *w)
 	v2 = matrix_transform(app->camera->transform, w->v[2]);
 	v3 = matrix_transform(app->camera->transform, w->v[3]);
 	app->render_wall = w;
-	inter.empty = 1;
-	if (render_triangle(app, v0, v1, v2) && app->editor && !app->edge_selected)
+	app->hit = 0;
+	if (render_triangle(app, v0, v1, v2) && !app->edge_selected)
 	{
-		inter.dist_0.index = 0;
-		inter.dist_1.index = 1;
-		inter.dist_2.index = 2;
-		ray_intersect(app, app->camera, &inter, w);
+		ray_intersect(app, w->v[0], w->v[1], w->v[2]);
+		if (app->hit)
+			app->hit_first = 1;
 	}
-	if (render_triangle(app, v0, v3, v1) && app->editor && !app->edge_selected && inter.empty)
+	if (render_triangle(app, v0, v3, v1) && !app->edge_selected && !app->hit)
 	{
-		inter.dist_0.index = 0;
-		inter.dist_1.index = 3;
-		inter.dist_2.index = 1;
-		ray_intersect(app, app->camera, &inter, w);
+		ray_intersect(app, w->v[0], w->v[3], w->v[1]);
+		if (app->hit)
+			app->hit_first = 0;
 	}
 }
 
@@ -670,25 +525,20 @@ void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color)
 	}
 }
 
-void 	select_edge(t_app *app, t_wall *w, 	t_dist_to_v d0, t_dist_to_v d1)
+void 	select_edge(t_app *app,  t_v3d v0, t_v3d v1)
 {
-	if (app->inputs->mouse.left)
-	{
-		app->edge_selected = 1;
-		if (w->v[d0.index].y < w->v[d1.index].y)
-			SWAP(d0, d1, t_dist_to_v);
-		app->edit_wall.v[0] = w->v[d1.index];
-		app->edit_wall.v[1] = w->v[d0.index];
-		app->edit_wall.v[2] = w->v[d1.index];
-		app->edit_wall.v[3] = w->v[d0.index];
-		app->edit_wall.selected_counter = 1;
-		app->edit_wall.sprite_index = w->sprite_index;
-		wall_reset_tex(&app->edit_wall);
-		wall_update_scale(&app->edit_wall);
-		app->inter.dist_0 = d0;
-		app->inter.dist_1 = d1;
-		app->inputs->mouse.left = 0;
-	}
+	t_wall *w;
+
+	w = app->hit_wall;
+	app->edge_selected = 1;
+	app->edit_wall.v[0] = v1;
+	app->edit_wall.v[1] = v0;
+	app->edit_wall.v[2] = v1;
+	app->edit_wall.v[3] = v0;
+	app->edit_wall.sprite_index = w->sprite_index;
+	wall_reset_tex(&app->edit_wall);
+	wall_update_scale(&app->edit_wall);
+	app->inputs->mouse.left = 0;
 }
 
 void 	draw_edge(t_app *app, t_v3d edge)
@@ -696,82 +546,27 @@ void 	draw_edge(t_app *app, t_v3d edge)
 	t_v3d v;
 
 	v = matrix_transform(app->camera->transform, edge);
-	if (fabs(v.x) <= fabs(v.w) &&
-		fabs(v.y) <= fabs(v.w) &&
-		fabs(v.z) <= fabs(v.w))
+	if (vertex_inside(&v))
 	{
 		v = matrix_transform(app->camera->screen_space, v);
 		vertex_perspective_divide(&v);
-		draw_cross(app, (int)v.x, (int)v.y, app->inter.p_dist + 0.5, 0xff0000);
+		draw_cross(app, (int)v.x, (int)v.y, app->hit_dist + 0.5, 0xff0000);
 	}
 }
 
 void 	show_edge(t_app *app)
 {
-	t_wall		*w;
-	t_dist_to_v	d0;
-	t_dist_to_v	d1;
-	t_dist_to_v	d2;
+	t_v3d	v0;
+	t_v3d	v1;
 
-	d0 = app->inter.dist_0;
-	d1 = app->inter.dist_1;
-	d2 = app->inter.dist_2;
-	w = app->hit_wall;
-	d0.dist = vector_dist(w->v[d0.index], app->inter.p);
-	d1.dist = vector_dist(w->v[d1.index], app->inter.p);
-	d2.dist = vector_dist(w->v[d2.index], app->inter.p);
-	if (d2.dist < d1.dist)
-		SWAP(d2, d1, t_dist_to_v);
-	if (d1.dist < d0.dist)
-		SWAP(d1, d0, t_dist_to_v);
-	if (d2.dist < d1.dist)
-		SWAP(d2, d1, t_dist_to_v);
-	if (w->v[d0.index].x == w->v[d1.index].x && w->v[d0.index].z == w->v[d1.index].z)
+	v0 = app->hit_wall->v[app->hit_first ? 1 : 3];
+	v1 = app->hit_wall->v[app->hit_first ? 2 : 0];
+	if (v0.y != v1.y)
 	{
-		draw_edge(app, w->v[d0.index]);
-		draw_edge(app, w->v[d1.index]);
-		select_edge(app, w, d0, d1);
-	}
-}
-
-void 	draw_grid(t_app *app)
-{
-	int		x;
-	int		z;
-	int		size;
-	t_v3d	grid_point;
-	t_v3d	tmp;
-
-	size = 100;
-	x = size;
-	z = size;
-	grid_point.y = app->edit_wall.v[2].y;
-	grid_point.x = app->edit_wall.v[2].x - (double)size * 0.5 * app->grid_size;
-	grid_point.z = app->edit_wall.v[2].z - (double)size * 0.5 * app->grid_size;
-	grid_point.w = app->edit_wall.v[2].w;
-	while (z > 0)
-	{
-		while (x > 0)
-		{
-			tmp = grid_point;
-			tmp = matrix_transform(app->camera->transform, tmp);
-			if (fabs(tmp.x) <= fabs(tmp.w) &&
-				fabs(tmp.y) <= fabs(tmp.w) &&
-				fabs(tmp.z) <= fabs(tmp.w))
-			{
-				tmp = matrix_transform(app->camera->screen_space, tmp);
-				vertex_perspective_divide(&tmp);
-				int offset = (int)tmp.y * SCREEN_W + (int)tmp.x;
-				if (tmp.z < app->depth_buffer[offset])
-					set_pixel_uint32(app->sdl->surface, offset, 0xffffff);
-			}
-			grid_point.x += app->grid_size;
-			x--;
-		}
-		x = size;
-		grid_point.x = app->edit_wall.v[2].x - (double)size * 0.5 * app->grid_size;
-		grid_point.z += app->grid_size;
-		z--;
+		draw_edge(app, v0);
+		draw_edge(app, v1);
+		if (app->inputs->mouse.left)
+			select_edge(app, v0, v1);
 	}
 }
 
@@ -782,22 +577,29 @@ void	render_map(t_app *app)
 	t_sector *s;
 
 	i = 0;
-	app->hit_dist = app->camera->z_far;
-	app->inter.empty = 1;
+	app->hit_dist = 10000.0;
+	app->hit = 0;
+	app->hit_wall = NULL;
 	while (i < app->sectors_count)
 	{
 		j = 0;
 		s = &app->sectors[i];
 		while (j < s->walls_count)
 			render_wall(app, &s->walls[j++]);
-		if (s->ready)
+		if (s->ready &&s->triangles_count > 0)
 		{
-			int t = 0;
+			int			t;
+			t_triangle	ceil_triangle;
 
+			t = 0;
 			while (t < s->triangles_count)
 			{
 				render_floor(app, &s->triangles[t], &s->floor);
-				render_ceil(app, &s->triangles[t], &s->ceil);
+				ceil_triangle = s->triangles[t];
+				ceil_triangle.v[0].y += 2.0;
+				ceil_triangle.v[1].y += 2.0;
+				ceil_triangle.v[2].y += 2.0;
+				render_ceil(app, &ceil_triangle, &s->ceil);
 				t++;
 			}
 		}
@@ -836,12 +638,8 @@ void 	draw_polygon_line(t_app *app, t_v3d start, t_v3d end)
 
 	tmp1 = matrix_transform(app->camera->transform, start);
 	tmp2 = matrix_transform(app->camera->transform, end);
-	if (fabs(tmp1.x) <= fabs(tmp1.w) &&
-		fabs(tmp1.y) <= fabs(tmp1.w) &&
-		fabs(tmp1.z) <= fabs(tmp1.w) &&
-		fabs(tmp2.x) <= fabs(tmp2.w) &&
-		fabs(tmp2.y) <= fabs(tmp2.w) &&
-		fabs(tmp2.z) <= fabs(tmp2.w))
+	if (vertex_inside(&tmp1) &&
+		vertex_inside(&tmp2))
 	{
 		tmp1 = matrix_transform(app->camera->screen_space, tmp1);
 		vertex_perspective_divide(&tmp1);
@@ -906,7 +704,6 @@ double 	calc_tex(double min, double cur, double max)
 
 void 	get_floor_poly(t_sector *cs)
 {
-	/*Create array of unique vertexes from floor polygon*/
 	int		i;
 	t_v3d	*polygon;
 	int		next_wall;
@@ -933,19 +730,7 @@ void 	get_floor_poly(t_sector *cs)
 		i++;
 	}
 
-	i = 0;
-	printf("polygon = [");
-	while (i < cs->polygon_count)
-	{
-		printf("{x: %f, y: %f}", polygon[i].x, polygon[i].y);
-		if (i + 1 < cs->polygon_count)
-			printf(", ");
-		i++;
-	}
-	printf("];\n");
-
 	double or = get_orientation(&polygon[0], cs->polygon_count);
-	printf("or -> %f\n", or);
 
 	if (or > 0)
 	{
@@ -977,7 +762,6 @@ void 	get_floor_poly(t_sector *cs)
 	cs->triangles = (t_triangle *)malloc(sizeof(t_triangle) * 100);
 	cs->triangles_count = 0;
 	triangulate(cs);
-	printf("triangles -> %d\n" ,cs->triangles_count);
 }
 
 void 	get_sector_min_max(t_sector *cs)
@@ -1026,7 +810,6 @@ void	start_the_game(t_app *app)
 			0.05,
 			1000.0);
 
-	app->editor = 1;
 	app->edge_selected = 0;
 	app->grid_size = 0.5;
 
@@ -1047,7 +830,7 @@ void	start_the_game(t_app *app)
 			app->input_g = 0;
 		}
 
-		if (app->hit_wall && app->editor)
+		if (app->hit_wall)
 		{
 			if (app->input_minus && app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->hit_wall->scale_x > 0.25)
 			{
@@ -1097,10 +880,10 @@ void	start_the_game(t_app *app)
 			tmp = vector_sum(app->camera->pos, vector_mul_by(get_forward(app->camera->rot), 2));
 			tmp.x = round(tmp.x / app->grid_size) * app->grid_size;
 			tmp.z = round(tmp.z / app->grid_size) * app->grid_size;
-			app->edit_wall.v[app->inter.dist_0.index].x = tmp.x;
-			app->edit_wall.v[app->inter.dist_0.index].z = tmp.z;
-			app->edit_wall.v[app->inter.dist_1.index].x = tmp.x;
-			app->edit_wall.v[app->inter.dist_1.index].z = tmp.z;
+			app->edit_wall.v[app->hit_first ? 1 : 3].x = tmp.x;
+			app->edit_wall.v[app->hit_first ? 1 : 3].z = tmp.z;
+			app->edit_wall.v[app->hit_first ? 2 : 0].x = tmp.x;
+			app->edit_wall.v[app->hit_first ? 2 : 0].z = tmp.z;
 			wall_update_scale(&app->edit_wall);
 
 			if (app->inputs->mouse.right)
@@ -1110,13 +893,14 @@ void	start_the_game(t_app *app)
 			}
 			else if (app->inputs->mouse.left)
 			{
-				t_sector *current_sector;
+				t_sector *cs;
 
-				current_sector = &app->sectors[app->sectors_count - 1];
-				current_sector->walls[current_sector->walls_count] = app->edit_wall;
-				current_sector->walls_count++;
-				app->hit_wall->selected_counter++;
+				cs = &app->sectors[app->sectors_count - 1];
+				cs->walls[cs->walls_count] = app->edit_wall;
+				cs->walls_count++;
 				app->hit_wall = NULL;
+				app->hit = 0;
+				app->hit_dist = 10000.0;
 				app->edge_selected = 0;
 				app->inputs->mouse.left = 0;
 			}

@@ -172,21 +172,12 @@ void	triangulate(t_sector *cs)
 	t_polygon	*ear;
 	t_triangle	*tr;
 
-	printf("START:::::::::::::::\n");
-	print_polygon(cs->polygon);
-
 	update_polygon(cs->polygon);
-
-	printf("AFTER UPDATE:::::::::::::::\n");
-	print_polygon(cs->polygon);
-
 	while (polygon_size(cs->polygon) != 3)
 	{
 		ear = biggest_ear(cs->polygon);
 		prev = ear->prev;
 		next = ear->next;
-
-		/*TODO: Add triangle[prev, ear, next] to array*/
 		tr = &cs->triangles[cs->triangles_count];
 		tr->v[0] = prev->v;
 		tr->v[1] = ear->v;
@@ -195,14 +186,7 @@ void	triangulate(t_sector *cs)
 		polygon_delete(&cs->polygon, ear);
 		update_vertex(prev, cs->polygon);
 		update_vertex(next, cs->polygon);
-		printf("AFTER DELETE:::::::::::::::\n");
-		print_polygon(cs->polygon);
 	}
-
-	printf("END:::::::::::::::\n");
-	print_polygon(cs->polygon);
-
-	/*TODO: Add last 3 vrs as triangle*/
 	tr = &cs->triangles[cs->triangles_count];
 	tr->v[0] = cs->polygon->v;
 	tr->v[1] = cs->polygon->next->v;
