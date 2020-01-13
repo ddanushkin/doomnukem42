@@ -1,5 +1,33 @@
 #include "doom_nukem.h"
 
+void	polygon_add(t_polygon **poly, t_v3d v)
+{
+	t_polygon	*new;
+	t_polygon	*last;
+
+	if ((*poly) == NULL)
+	{
+		(*poly) = (t_polygon *)malloc(sizeof(t_polygon));
+		(*poly)->v = v;
+		(*poly)->is_ear = 0;
+		(*poly)->angle = 0.0;
+		(*poly)->next = *poly;
+		(*poly)->prev = *poly;
+	}
+	else
+	{
+		last = (*poly)->prev;
+		new = (t_polygon *)malloc(sizeof(t_polygon));
+		new->v = v;
+		new->is_ear = 0;
+		new->angle = 0.0;
+		new->next = (*poly);
+		new->prev = last;
+		last->next = new;
+		(*poly)->prev = new;
+	}
+}
+
 void	polygon_delete(t_polygon **p, t_polygon *del)
 {
 	t_polygon	*prev;
@@ -94,17 +122,12 @@ void	update_vertex(t_polygon *v1, t_polygon *p)
 	v1->angle = get_angle(v0->v, v1->v, v2->v);
 	if (is_convex(v0->v, v1->v, v2->v))
 	{
-		v1->is_convex = 1;
 		v1->is_ear = 1;
 		head = p;
 		while (p->next != head)
 		{
-			if (p == v0 || p == v1 || p == v2)
-			{
-				p = p->next;
-				continue;
-			}
-			if (is_inside(p->v, v0->v, v1->v, v2->v))
+			if (p != v0 && p != v1 && p != v2 &&
+				is_inside(p->v, v0->v, v1->v, v2->v))
 			{
 				v1->is_ear = 0;
 				break;
@@ -126,21 +149,6 @@ void	update_polygon(t_polygon *p)
 		update_vertex(p, head);
 		p = p->next;
 	}
-}
-
-void	print_polygon(t_polygon *p)
-{
-	t_polygon *head;
-
-	printf("... -> ");
-	head = p;
-	while (p->next != head)
-	{
-		printf("[%f, %f, %f] -> ", p->v.x, p->v.y, p->v.z);
-		p = p->next;
-	}
-	printf("[%f, %f, %f] -> ", p->v.x, p->v.y, p->v.z);
-	printf("...\n");
 }
 
 t_polygon	*biggest_ear(t_polygon *p)

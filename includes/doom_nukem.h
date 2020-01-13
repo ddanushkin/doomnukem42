@@ -92,16 +92,6 @@ typedef struct	s_v2d
 	double		w;
 }				t_v2d;
 
-typedef struct	s_io
-{
-	t_v3d		vin[3];
-	t_v3d		vout[3];
-	t_v2d		tin[3];
-	t_v2d		tout[3];
-	int 		vins;
-	int 		vouts;
-}				t_io;
-
 typedef struct	s_bmp_header
 {
 	uint16_t	type;
@@ -171,8 +161,6 @@ typedef struct	s_triangle
 	t_v2d		t[3];
 	t_v3d		n[3];
 	t_color		color;
-	double 		light_dp;
-	int 		visible;
 }				t_triangle;
 
 typedef struct	s_tex_v
@@ -186,12 +174,6 @@ typedef struct	s_tex_v
 	t_sprite	*s;
 }				t_tex_v;
 
-typedef struct	s_tex_tr
-{
-	t_tex_v		v[3];
-	t_sprite	*s;
-}				t_tex_tr;
-
 typedef struct	s_mesh
 {
 	t_v3d		*vo;
@@ -201,13 +183,6 @@ typedef struct	s_mesh
 	int 		v_count;
 	int 		tx_count;
 	int 		tr_count;
-	t_v3d		pos;
-	t_v3d		rot;
-	t_mat4x4	rot_mat_x;
-	t_mat4x4	rot_mat_y;
-	t_mat4x4	rot_mat_z;
-	t_mat4x4	trans_mat;
-	t_mat4x4	transform;
 }				t_mesh;
 
 typedef struct	s_line
@@ -238,7 +213,6 @@ typedef struct	s_camera
 	t_v3d		pos;
 	t_v3d		rot;
 	t_v3d		dir;
-	t_v3d		target;
 	t_mat4x4	view;
 	t_mat4x4	rotation;
 	t_mat4x4	projection;
@@ -248,35 +222,24 @@ typedef struct	s_camera
 	t_mat4x4	screen_space;
 }				t_camera;
 
-typedef struct	s_world
-{
-	t_v3d		rot;
-	t_v3d		trans;
-	t_mat4x4	rot_mat_x;
-	t_mat4x4	rot_mat_y;
-	t_mat4x4	rot_mat_z;
-	t_mat4x4	trans_mat;
-	t_mat4x4	mat;
-}				t_world;
-
 typedef struct	s_timer
 {
-	Uint64		curr;
+	Uint64		prev;
 	Uint64		fps;
 	double		delta;
 	double		time;
 	Uint64		frame;
 }				t_timer;
 
-typedef struct		s_inputs
+typedef struct	s_inputs
 {
 	const Uint8		*keyboard;
 	t_mouse_state	mouse;
 	int				x;
 	int				y;
-}					t_inputs;
+}				t_inputs;
 
-typedef struct		s_sdl
+typedef struct	s_sdl
 {
 	SDL_Event		event;
 	SDL_Window		*window;
@@ -285,29 +248,53 @@ typedef struct		s_sdl
 	double			half_width;
 	int				height;
 	int				width;
-}					t_sdl;
+}				t_sdl;
 
-typedef struct		s_tr_list
-{
-	t_triangle			tr;
-	struct s_tr_list	*next;
-}					t_tr_list;
-
-typedef struct		s_vr_list
+typedef struct	s_vr_list
 {
 	t_v3d				v;
 	struct s_vr_list	*next;
-}					t_vr_list;
+}				t_vr_list;
 
-typedef struct		s_polygon
+typedef struct	s_polygon
 {
 	t_v3d				v;
 	struct s_polygon	*next;
 	struct s_polygon	*prev;
-	int 				is_convex;
 	int 				is_ear;
 	double 				angle;
-}					t_polygon;
+}				t_polygon;
+
+typedef struct	s_scanline
+{
+	int			start;
+	int			end;
+	double		pre_step;
+	double		dist;
+	double		x_step;
+	double		y_step;
+	double		z_step;
+	double 		d_step;
+	double		tex_x;
+	double		tex_y;
+	double		tex_z;
+	double		depth;
+	double 		scale_x;
+	double 		scale_y;
+}				t_scanline;
+
+typedef struct 	s_intersect
+{
+	t_v3d		v0v1;
+	t_v3d		v0v2;
+	t_v3d		qvec;
+	t_v3d		tvec;
+	t_v3d		pvec;
+	double		u;
+	double		v;
+	double		t;
+	double		det;
+}				t_intersect;
 
 typedef struct	s_clip_data
 {
@@ -315,14 +302,6 @@ typedef struct	s_clip_data
 	Uint8		is_inside;
 	double 		value;
 }				t_clip_data;
-
-typedef struct	s_box
-{
-	double 		x_min;
-	double 		z_min;
-	double 		x_max;
-	double 		z_max;
-}				t_box;
 
 typedef struct	s_sector
 {
@@ -332,12 +311,14 @@ typedef struct	s_sector
 	int 		walls_count;
 	double 		floor_height;
 	double 		ceil_height;
-	t_box		box;
 	int			ready;
 	t_polygon 	*polygon;
-	int 		polygon_count;
 	t_triangle	*triangles;
 	int 		triangles_count;
+	double 		x_min;
+	double 		z_min;
+	double 		x_max;
+	double 		z_max;
 }				t_sector;
 
 typedef struct	s_app
@@ -396,6 +377,31 @@ void 	draw_grid(t_app *app);
 void 	print_to_screen(t_app *app, int x, int y, char *text);
 int 	vertex_inside(t_v3d *v);
 void vertex_perspective_divide(t_v3d *v);
+void	polygon_add(t_polygon **poly, t_v3d v);
+void	scan_triangle(t_app *app, t_v3d min, t_v3d mid, t_v3d max, int handedness);
+void	ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
+void	vr_list_add(t_vr_list **list, t_v3d v);
+void 	vr_list_free(t_vr_list **list);
+t_vr_list	*vr_list_last(t_vr_list *head);
+void 	clip_fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
+int		render_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
+void 	get_sector_min_max(t_sector *cs);
+void 	render_wall(t_app *app, t_wall *w);
+void	render_map(t_app *app);
+void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
+void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color);
+void	update_fps_text(t_app *app);
+int		find_linked_wall(t_sector *sector, t_v3d v, int skip);
+double	get_orientation(t_v3d *polygon, int size);
+int 	compare_vertex(t_v3d *v1, t_v3d *v2);
+void 	get_floor_poly(t_sector *cs);
+void 	sector_close(t_app *app);
+void	draw_new_wall(t_app *app);
+void	save_new_wall(t_app *app);
+
+void	texture_change(t_app *app);
+void	texture_scale_y_change(t_app *app);
+void	texture_scale_x_change(t_app *app);
 
 t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection);
 
@@ -420,8 +426,7 @@ void		sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_
 
 void		get_ticks(t_timer *timer);
 void		get_delta_time(t_timer *timer);
-
-void		draw_cross(t_app *app, int x, int y, double size, Uint32 color);
+void 	show_edge(t_app *app);
 
 void		get_color(SDL_Surface *surface, int x, int y, t_color c);
 t_color		color_new(int r, int g, int b);

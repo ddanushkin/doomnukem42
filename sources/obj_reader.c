@@ -101,8 +101,7 @@ void	obj_read(char *path, t_mesh *mesh)
 	fd = open(path, O_RDONLY);
 	if (fd < 3)
 		exit_with_status(STATUS_FILE_NOT_FOUND, path);
-	mesh->rot = new_vector(0.0, 0.0, 0.0);
-	mesh->pos = new_vector(0.0, 0.0, 0.0);
+
 	while(ft_gnl(fd, &line))
 	{
 		if (line[0] == 'v' && line[1] == ' ')
