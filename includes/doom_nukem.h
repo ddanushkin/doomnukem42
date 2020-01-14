@@ -83,6 +83,7 @@ typedef struct	s_wall
 	int			sprite_index;
 	double 		scale_x;
 	double 		scale_y;
+	int 		billboard;
 }				t_wall;
 
 typedef struct	s_v2d
@@ -357,6 +358,7 @@ typedef struct	s_app
 }				t_app;
 
 t_v3d	get_forward(t_v3d qt);
+t_v3d	get_right(t_v3d qt);
 
 void 	draw_polygon_line(t_app *app, t_v3d start, t_v3d end);
 void	triangulate(t_sector *current_sector);
@@ -387,6 +389,7 @@ void 	clip_fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
 int		render_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
 void 	get_sector_min_max(t_sector *cs);
 void 	render_wall(t_app *app, t_wall *w);
+void 	render_billboard(t_app *app, t_wall *w);
 void	render_map(t_app *app);
 void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
 void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color);

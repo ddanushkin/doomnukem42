@@ -2,7 +2,7 @@
 
 void	reset_screen(t_app *app)
 {
-	int						i;
+	int				i;
 	t_depth_chunk	*depth_buffer;
 	t_screen_chunk	*screen_buffer;
 
@@ -136,22 +136,23 @@ int		main(int argv, char**argc)
 	app->sectors[0].walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
 
 	app->sectors[0].walls[0] = wall_new();
-	app->sectors[0].walls[0].v[0].x = 0.0;
-	app->sectors[0].walls[0].v[0].y = 0.0;
-	app->sectors[0].walls[0].v[0].z = 0.0;
-	app->sectors[0].walls[0].v[1].x = 2.0;
-	app->sectors[0].walls[0].v[1].y = 2.0;
-	app->sectors[0].walls[0].v[1].z = 0.0;
-	app->sectors[0].walls[0].v[2].x = 2.0;
-	app->sectors[0].walls[0].v[2].y = 0.0;
-	app->sectors[0].walls[0].v[2].z = 0.0;
-	app->sectors[0].walls[0].v[3].x = 0.0;
-	app->sectors[0].walls[0].v[3].y = 2.0;
-	app->sectors[0].walls[0].v[3].z = 0.0;
+	app->sectors[0].walls[0].v[0] = new_vector(0.0, 0.0, 0.0);
+	app->sectors[0].walls[0].v[1] = new_vector(2.0, 2.0, 0.0);
+	app->sectors[0].walls[0].v[2] = new_vector(2.0, 0.0, 0.0);
+	app->sectors[0].walls[0].v[3] = new_vector(0.0, 2.0, 0.0);
+	wall_reset_tex(&app->sectors[0].walls[0]);
+	app->sectors[0].walls[0].billboard = 1;
+	app->sectors[0].walls_count++;
+
+	app->sectors[0].walls[1] = wall_new();
+	app->sectors[0].walls[1].v[0] = new_vector(2.0, 0.0, 0.0);
+	app->sectors[0].walls[1].v[1] = new_vector(4.0, 2.0, 0.0);
+	app->sectors[0].walls[1].v[2] = new_vector(4.0, 0.0, 0.0);
+	app->sectors[0].walls[1].v[3] = new_vector(2.0, 2.0, 0.0);
+	wall_reset_tex(&app->sectors[0].walls[1]);
+	app->sectors[0].walls_count++;
 
 	app->sectors[0].ready = 0;
-
-	app->sectors[0].walls_count++;
 
 	start_the_game(app);
 	quit_properly(app);

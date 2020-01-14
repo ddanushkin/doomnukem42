@@ -1,5 +1,51 @@
 #include "doom_nukem.h"
 
+void 	render_billboard(t_app *app, t_wall *w)
+{
+	t_v3d	v0;
+	t_v3d	v1;
+	t_v3d	v2;
+	t_v3d	v3;
+
+//	t_v3d	right = get_right(app->camera->rot);
+//	t_v3d	forward	= get_forward(app->camera->rot);
+//	t_v3d	up = vector_cross_product(forward, right);
+
+	t_v3d	right = new_vector(app->camera->view.m[0][0], app->camera->view.m[0][1], app->camera->view.m[0][2]);
+	//t_v3d	up = new_vector(app->camera->view.m[1][0], app->camera->view.m[1][1], app->camera->view.m[1][2]);
+	t_v3d	up = new_vector(0, 1, 0);
+
+	t_v3d	position = new_vector(1.0, 1.0, 0.0);
+	double	size = 2.0;
+
+	v0 = vector_sum(position, vector_mul_by(right, -0.5 * size));
+	v0 = vector_sum(v0, vector_mul_by(up, -0.5 * size));
+	v1 = vector_sum(position, vector_mul_by(right, 0.5 * size));
+	v1 = vector_sum(v1, vector_mul_by(up, 0.5 * size));
+	v2 = vector_sum(position, vector_mul_by(right, -0.5 * size));
+	v2 = vector_sum(v2, vector_mul_by(up, 0.5 * size));
+	v3 = vector_sum(position, vector_mul_by(right, 0.5 * size));
+	v3 = vector_sum(v3, vector_mul_by(up, -0.5 * size));
+
+	v0 = matrix_transform(app->camera->transform, v0);
+	v1 = matrix_transform(app->camera->transform, v1);
+	v2 = matrix_transform(app->camera->transform, v2);
+	v3 = matrix_transform(app->camera->transform, v3);
+
+	v0.tex_x = 0.0;
+	v0.tex_y = 0.0;
+	v1.tex_x = 1.0;
+	v1.tex_y = 1.0;
+	v2.tex_x = 1.0;
+	v2.tex_y = 0.0;
+	v3.tex_x = 0.0;
+	v3.tex_y = 1.0;
+	app->hit = 0;
+	app->render_wall = w;
+	render_triangle(app, v0, v1, v2);
+	render_triangle(app, v0, v3, v1);
+}
+
 void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 {
 	t_v3d	v0;
@@ -53,7 +99,12 @@ void 	render_sector(t_app *app, t_sector	*s)
 
 	j = 0;
 	while (j < s->walls_count)
-		render_wall(app, &s->walls[j++]);
+	{
+		if (s->walls[j].billboard)
+			render_billboard(app, &s->walls[j++]);
+		else
+			render_wall(app, &s->walls[j++]);
+	}
 	if (s->ready && s->triangles_count > 0)
 	{
 		j = 0;
