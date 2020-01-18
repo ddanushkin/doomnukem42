@@ -59,6 +59,10 @@ t_mat4x4	matrix_translation(double x, double y, double z)
 t_v3d	matrix_transform(t_mat4x4 mat, t_v3d v)
 {
 	t_v3d	new_v;
+	double	x;
+	double	y;
+	double	z;
+	double	w;
 
 	new_v.x = mat.m[0][0] * v.x + mat.m[0][1] * v.y + mat.m[0][2] * v.z + mat.m[0][3] * v.w;
 	new_v.y = mat.m[1][0] * v.x + mat.m[1][1] * v.y + mat.m[1][2] * v.z + mat.m[1][3] * v.w;
