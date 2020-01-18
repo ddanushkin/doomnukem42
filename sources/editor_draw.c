@@ -49,6 +49,7 @@ void	draw_new_wall(t_app *app)
 {
 	t_v3d tmp;
 
+	tmp.w = 1.0;
 	tmp = vector_sum(
 			app->camera->pos,
 			vector_mul_by(get_forward(app->camera->rot), 2));

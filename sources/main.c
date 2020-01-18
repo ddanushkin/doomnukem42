@@ -73,6 +73,8 @@ void	start_the_game(t_app *app)
 		update_fps_text(app);
 		update_walls_data(app);
 		SDL_UpdateWindowSurface(app->sdl->window);
+//		if (app->timer->frame == 1000)
+//			break;
 	}
 	TTF_CloseFont(app->font);
 	TTF_Quit();
@@ -100,7 +102,7 @@ int		main(int argv, char**argc)
 {
 	t_app	*app;
 
-//	getchar();
+	getchar();
 	//if (!check_resources())
 	//	exit_with_status(STATUS_BAD_RESOURCES, NULL);
 	app = (t_app *)malloc(sizeof(t_app));
@@ -144,7 +146,7 @@ int		main(int argv, char**argc)
 	app->sectors[0].walls[0].v[2] = new_vector(2.0, 0.0, 0.0);
 	app->sectors[0].walls[0].v[3] = new_vector(0.0, 2.0, 0.0);
 	wall_reset_tex(&app->sectors[0].walls[0]);
-	app->sectors[0].walls[0].billboard = 1;
+	app->sectors[0].walls[0].billboard = 0;
 	app->sectors[0].walls_count++;
 
 	app->sectors[0].walls[1] = wall_new();
@@ -157,7 +159,11 @@ int		main(int argv, char**argc)
 
 	app->sectors[0].ready = 0;
 
+	clock_t begin = clock();
 	start_the_game(app);
+	clock_t end = clock();
+	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+	printf("%f\n", time_spent);
 	quit_properly();
 	return (0);
 }
