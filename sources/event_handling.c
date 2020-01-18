@@ -142,11 +142,6 @@ void 	update_camera(t_camera *camera)
 	camera->view = matrix_multiply(camera->rotation, camera->translation);
 	camera->view_projection = matrix_multiply(camera->projection, camera->view);
 	camera->transform = get_transform_matrix(camera->view_projection);
-	printf("camera transform\n");
-	printf("[%f][%f][%f][%f]\n", camera->transform.m[0][0], camera->transform.m[0][1], camera->transform.m[0][2], camera->transform.m[0][3]);
-	printf("[%f][%f][%f][%f]\n", camera->transform.m[1][0], camera->transform.m[1][1], camera->transform.m[1][2], camera->transform.m[1][3]);
-	printf("[%f][%f][%f][%f]\n", camera->transform.m[2][0], camera->transform.m[2][1], camera->transform.m[2][2], camera->transform.m[2][3]);
-	printf("[%f][%f][%f][%f]\n\n", camera->transform.m[3][0], camera->transform.m[3][1], camera->transform.m[3][2], camera->transform.m[3][3]);
 	camera->dir.x = camera->view.m[2][0];
 	camera->dir.y = camera->view.m[2][1];
 	camera->dir.z = camera->view.m[2][2];

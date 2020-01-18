@@ -29,6 +29,7 @@ t_v3d vector_sub(t_v3d vector1, t_v3d vector2)
 	result.x = vector1.x - vector2.x;
 	result.y = vector1.y - vector2.y;
 	result.z = vector1.z - vector2.z;
+	result.w = 1.0;
 	return result;
 }
 
@@ -50,5 +51,6 @@ t_v3d vector_div_by(t_v3d v, double k)
 	result.x = v.x / k;
 	result.y = v.y / k;
 	result.z = v.z / k;
+	result.w = 1.0;
 	return result;
 }

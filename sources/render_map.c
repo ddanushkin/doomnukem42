@@ -27,28 +27,10 @@ void 	render_billboard(t_app *app, t_wall *w)
 	v3 = vector_sum(position, vector_mul_by(right, 0.5 * size));
 	v3 = vector_sum(v3, vector_mul_by(up, -0.5 * size));
 
-	printf("aright : [%f, %f, %f, %f]\n", right.x, right.y, right.z, right.w);
-	printf("av0 : [%f, %f, %f, %f, %f, %f]\n", v0.x, v0.y, v0.z, v0.w, v0.tex_x, v0.tex_y);
-	printf("av1 : [%f, %f, %f, %f, %f, %f]\n", v1.x, v1.y, v1.z, v1.w, v1.tex_x, v1.tex_y);
-	printf("av2 : [%f, %f, %f, %f, %f, %f]\n", v2.x, v2.y, v2.z, v2.w, v2.tex_x, v2.tex_y);
-	printf("av3 : [%f, %f, %f, %f, %f, %f]\n\n", v3.x, v3.y, v3.z, v3.w, v3.tex_x, v3.tex_y);
-
 	v0 = matrix_transform(app->camera->transform, v0);
 	v1 = matrix_transform(app->camera->transform, v1);
 	v2 = matrix_transform(app->camera->transform, v2);
 	v3 = matrix_transform(app->camera->transform, v3);
-
-	printf("render_billboard transform\n");
-	printf("[%f][%f][%f][%f]\n", app->camera->transform.m[0][0], app->camera->transform.m[0][1], app->camera->transform.m[0][2], app->camera->transform.m[0][3]);
-	printf("[%f][%f][%f][%f]\n", app->camera->transform.m[1][0], app->camera->transform.m[1][1], app->camera->transform.m[1][2], app->camera->transform.m[1][3]);
-	printf("[%f][%f][%f][%f]\n", app->camera->transform.m[2][0], app->camera->transform.m[2][1], app->camera->transform.m[2][2], app->camera->transform.m[2][3]);
-	printf("[%f][%f][%f][%f]\n\n", app->camera->transform.m[3][0], app->camera->transform.m[3][1], app->camera->transform.m[3][2], app->camera->transform.m[3][3]);
-
-	printf("bright : [%f, %f, %f, %f]\n", right.x, right.y, right.z, right.w);
-	printf("bv0 : [%f, %f, %f, %f, %f, %f]\n", v0.x, v0.y, v0.z, v0.w, v0.tex_x, v0.tex_y);
-	printf("bv1 : [%f, %f, %f, %f, %f, %f]\n", v1.x, v1.y, v1.z, v1.w, v1.tex_x, v1.tex_y);
-	printf("bv2 : [%f, %f, %f, %f, %f, %f]\n", v2.x, v2.y, v2.z, v2.w, v2.tex_x, v2.tex_y);
-	printf("bv3 : [%f, %f, %f, %f, %f, %f]\n\n", v3.x, v3.y, v3.z, v3.w, v3.tex_x, v3.tex_y);
 
 	v0.tex_x = 0.0;
 	v0.tex_y = 0.0;
