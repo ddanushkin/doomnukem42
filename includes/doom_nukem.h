@@ -333,10 +333,6 @@ typedef struct	s_app
 	t_sprite	*sprites;
 	int 		sprites_count;
 	double		*depth_buffer;
-	t_depth_chunk	depth_chunk;
-	t_depth_chunk	*depth_chunk_array;
-	t_screen_chunk	screen_chunk;
-	t_screen_chunk	*screen_chunk_array;
 	TTF_Font	*font;
 	int 		hit;
 	int 		hit_first;
@@ -437,7 +433,7 @@ t_color		color_sub(t_color color, int k);
 
 int 		out_of_borders(int x, int y);
 int 		color_key(t_color c);
-void		quit_properly(t_app *app);
+void		quit_properly();
 
 int			event_handling(t_app *app);
 

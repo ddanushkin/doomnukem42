@@ -2,17 +2,19 @@
 
 void	reset_screen(t_app *app)
 {
-	int				i;
-	t_depth_chunk	*depth_buffer;
-	t_screen_chunk	*screen_buffer;
+	int		i;
+	int		len;
+	Uint32	*screen;
+	double	*depth;
 
-	depth_buffer = app->depth_chunk_array;
-	screen_buffer = app->screen_chunk_array;
 	i = 0;
-	while (i++ < SCREEN_H)
+	len = SCREEN_H * SCREEN_W;
+	depth = app->depth_buffer;
+	screen = app->sdl->surface->pixels;
+	while (i < len)
 	{
-		*depth_buffer++ = app->depth_chunk;
-		*screen_buffer++ = app->screen_chunk;
+		depth[i] = 999999.0;
+		screen[i++] = 0;
 	}
 }
 
@@ -62,7 +64,7 @@ void	start_the_game(t_app *app)
 				app->edge_selected = 0;
 				app->inputs->mouse.right = 0;
 			}
-			else if (app->inputs->mouse.left)
+			if (app->edge_selected && app->inputs->mouse.left)
 				save_new_wall(app);
 		}
 		if (!app->edge_selected)
@@ -98,6 +100,7 @@ int		main(int argv, char**argc)
 {
 	t_app	*app;
 
+//	getchar();
 	//if (!check_resources())
 	//	exit_with_status(STATUS_BAD_RESOURCES, NULL);
 	app = (t_app *)malloc(sizeof(t_app));
@@ -155,8 +158,7 @@ int		main(int argv, char**argc)
 	app->sectors[0].ready = 0;
 
 	start_the_game(app);
-	quit_properly(app);
-
+	quit_properly();
 	return (0);
 }
 

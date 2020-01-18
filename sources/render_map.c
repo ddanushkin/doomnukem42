@@ -42,6 +42,11 @@ void 	render_billboard(t_app *app, t_wall *w)
 	v3.tex_y = 1.0;
 	app->hit = 0;
 	app->render_wall = w;
+	printf("right : [%f, %f, %f, %f]\n", right.x, right.y, right.z, right.w);
+	printf("v0 : [%f, %f, %f, %f, %f, %f]\n", v0.x, v0.y, v0.z, v0.w, v0.tex_x, v0.tex_y);
+	printf("v1 : [%f, %f, %f, %f, %f, %f]\n", v1.x, v1.y, v1.z, v1.w, v1.tex_x, v1.tex_y);
+	printf("v2 : [%f, %f, %f, %f, %f, %f]\n", v2.x, v2.y, v2.z, v2.w, v2.tex_x, v2.tex_y);
+	printf("v3 : [%f, %f, %f, %f, %f, %f]\n\n", v3.x, v3.y, v3.z, v3.w, v3.tex_x, v3.tex_y);
 	render_triangle(app, v0, v1, v2);
 	render_triangle(app, v0, v3, v1);
 }

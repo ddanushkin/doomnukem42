@@ -1,6 +1,6 @@
 #include "doom_nukem.h"
 
-Uint32 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *t, int offset)
+void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *t, int offset)
 {
 	Uint32	c;
 	Uint32	img_x;

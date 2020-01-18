@@ -35,7 +35,7 @@ static	void	init_sdl(t_sdl *sdl)
 void	init_camera(t_camera *camera)
 {
 	camera->fov = TO_RAD(90.0);
-	camera->z_far = 10.0;
+	camera->z_far = 1000.0;
 	camera->z_near = 0.1;
 	camera->asp_ratio = (double)SCREEN_H / (double)SCREEN_W;
 	camera->for_rad = 1.0 / tan(camera->fov * 0.5 / 180.0 * 3.14159);
@@ -47,24 +47,6 @@ void	init_camera(t_camera *camera)
 			0.05,
 			1000.0);
 	camera->screen_space = matrix_screen_space();
-}
-
-void	prepare_chunks(t_app *app)
-{
-	int		i;
-	double	*depth_chunk;
-	Uint32	*screen_chunk;
-
-	i = 0;
-	depth_chunk = (double *)&app->depth_chunk;
-	screen_chunk = (Uint32 *)&app->screen_chunk;
-	while (i++ < SCREEN_W)
-	{
-		*depth_chunk++ = 100000.0;
-		*screen_chunk++ = 0;
-	}
-	app->depth_chunk_array = (t_depth_chunk *)app->depth_buffer;
-	app->screen_chunk_array = (t_screen_chunk *)app->sdl->surface->pixels;
 }
 
 void	init_app(t_app *app)
@@ -79,10 +61,16 @@ void	init_app(t_app *app)
 	app->timer->time = 0.0;
 	app->timer->frame = 0;
 	app->edge_selected = 0;
+	app->input_g = 0;
+	app->input_minus = 0;
+	app->input_plus = 0;
+	app->inputs->mouse.left = 0;
+	app->inputs->mouse.right = 0;
+	app->inputs->mouse.middle = 0;
 	app->grid_size = 0.5;
 	app->triangles_counter = 0;
 	init_camera(app->camera);
 	init_projection_mat(app);
-	prepare_chunks(app);
+	//prepare_chunks(app);
 	app->font = TTF_OpenFont("resources/calibrib.ttf", 14);
 }

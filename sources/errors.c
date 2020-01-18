@@ -12,8 +12,8 @@ void	exit_with_status(int status, char *fnf_path)
 	exit(0);
 }
 
-void	quit_properly(t_app *app)
+void	quit_properly()
 {
-	SDL_Quit();
+//	getchar();
 	exit(0);
 }
