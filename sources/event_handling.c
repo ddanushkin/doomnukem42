@@ -163,12 +163,13 @@ void	process_inputs(t_app *app, double delta_time)
 	if (mouse->x && mouse->y)
 		mouse_speed = mouse_speed / 1.414;
 	if (mouse->x)
-		rotate(camera, new_vector(0.0, 1.0, 0.0), mouse->x * mouse_speed);
+		rotate(camera, new_vector(0.0, 1.0, 0.0), (double)mouse->x * mouse_speed);
 	forward = get_forward(camera->rot);
 	forward.y = 0.0;
 	right = get_right(camera->rot);
+	app->camera->pos_prev = app->camera->pos;
 	if (mouse->y)
-		rotate(camera, right, mouse->y * mouse_speed);
+		rotate(camera, right, (double)mouse->y * mouse_speed);
 	if (key[SDL_SCANCODE_W])
 		move(camera, forward, 5.0 * delta_time);
 	if (key[SDL_SCANCODE_S])

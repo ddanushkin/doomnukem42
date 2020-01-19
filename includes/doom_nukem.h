@@ -77,8 +77,6 @@ typedef struct	s_v3d
 
 typedef struct	s_wall
 {
-//	int 		v_i[4];
-//	t_v3d		*v[4];
 	t_v3d 		v[4];
 	int			sprite_index;
 	double 		scale_x;
@@ -212,6 +210,7 @@ typedef struct	s_camera
 	double 		for_rad;
 	double 		asp_ratio;
 	t_v3d		pos;
+	t_v3d		pos_prev;
 	t_v3d		rot;
 	t_v3d		dir;
 	t_mat4x4	view;
@@ -351,6 +350,10 @@ typedef struct	s_app
 	int 		tex_switch;
 	t_wall		*render_wall;
 	int 		triangles_counter;
+	int 		collide_x;
+	int 		collide_z;
+	t_v3d 		collide_point;
+	t_v3d		prev_pos;
 }				t_app;
 
 t_v3d	get_forward(t_v3d qt);
@@ -397,6 +400,7 @@ void 	get_floor_poly(t_sector *cs);
 void 	sector_close(t_app *app);
 void	draw_new_wall(t_app *app);
 void	save_new_wall(t_app *app);
+void 	draw_edge(t_app *app, t_v3d edge);
 
 void	texture_change(t_app *app);
 void	texture_scale_y_change(t_app *app);

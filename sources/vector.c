@@ -9,7 +9,7 @@ void		set_vector(t_v3d *v, double x, double y, double z)
 
 double 		vector_length(t_v3d v)
 {
-	return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w));
+	return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
 }
 
 t_v3d	vector_normalise(t_v3d v)
@@ -21,7 +21,7 @@ t_v3d	vector_normalise(t_v3d v)
 	result.x = v.x / length;
 	result.y = v.y / length;
 	result.z = v.z / length;
-	result.w = v.w / length;
+	result.w = 1.0;
 	return (result);
 }
 
@@ -39,5 +39,6 @@ t_v3d	vector_cross_product(t_v3d v1, t_v3d v2)
 	result.x = v1.y * v2.z - v1.z * v2.y;
 	result.y = v1.z * v2.x - v1.x * v2.z;
 	result.z = v1.x * v2.y - v1.y * v2.x;
+	result.w = 1.0;
 	return (result);
 }

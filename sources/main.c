@@ -29,6 +29,7 @@ void	start_the_game(t_app *app)
 {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	app->timer->prev = SDL_GetPerformanceCounter();
+	app->prev_pos = app->camera->pos;
 	while (1)
 	{
 		if (!event_handling(app))
@@ -36,7 +37,6 @@ void	start_the_game(t_app *app)
 		get_delta_time(app->timer);
 		if (app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
 			break ;
-		process_inputs(app, app->timer->delta);
 		if (app->hit_wall)
 		{
 			if (app->inputs->keyboard[SDL_SCANCODE_LSHIFT])
@@ -46,9 +46,25 @@ void	start_the_game(t_app *app)
 			if (app->inputs->keyboard[SDL_SCANCODE_LCTRL])
 				texture_scale_x_change(app);
 		}
-		update_camera(app->camera);
 		reset_screen(app);
+		process_inputs(app, app->timer->delta);
 		render_map(app);
+		app->prev_pos.y = app->camera->pos.y;
+		if (!app->collide_x)
+			app->prev_pos.x = app->camera->pos.x;
+		if (!app->collide_z)
+			app->prev_pos.z = app->camera->pos.z;
+		if (app->collide_x)
+		{
+			app->camera->pos.x = app->prev_pos.x;
+			app->collide_x = 0;
+		}
+		if (app->collide_z)
+		{
+			app->camera->pos.z = app->prev_pos.z;
+			app->collide_z = 0;
+		}
+		update_camera(app->camera);
 		if (app->hit_wall && !app->edge_selected)
 			show_edge(app);
 		if (app->edge_selected)
@@ -102,7 +118,7 @@ int		main(int argv, char**argc)
 {
 	t_app	*app;
 
-	getchar();
+	//getchar();
 	//if (!check_resources())
 	//	exit_with_status(STATUS_BAD_RESOURCES, NULL);
 	app = (t_app *)malloc(sizeof(t_app));
@@ -155,7 +171,7 @@ int		main(int argv, char**argc)
 	app->sectors[0].walls[1].v[2] = new_vector(4.0, 0.0, 0.0);
 	app->sectors[0].walls[1].v[3] = new_vector(2.0, 2.0, 0.0);
 	wall_reset_tex(&app->sectors[0].walls[1]);
-	app->sectors[0].walls_count++;
+//	app->sectors[0].walls_count++;
 
 	app->sectors[0].ready = 0;
 

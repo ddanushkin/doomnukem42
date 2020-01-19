@@ -65,6 +65,50 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 	}
 }
 
+int colliding_2(t_v3d pos, double radius, t_v3d v0, t_v3d v2)
+{
+	double	distX;
+	double	distZ;
+	double	distance;
+
+	distX = v0.x - pos.x;
+	distZ = v0.z - pos.z;
+	distance = sqrt((distX*distX) + (distZ*distZ));
+	if (distance <= radius)
+		return (1);
+	else
+	{
+		distX = v2.x - pos.x;
+		distZ = v2.z - pos.z;
+		distance = sqrt((distX*distX) + (distZ*distZ));
+		return (distance <= radius);
+	}
+}
+
+int is_colliding(t_v3d c0, double radius, t_v3d v0, t_v3d v1)
+{
+	double	dist;
+	double	u;
+	t_v3d	v1v0;
+	t_v3d	c0v0;
+	t_v3d	tmp;
+
+	v1v0 = vector_sub(v1, v0);
+	c0v0 = vector_sub(c0, v0);
+	u = (c0v0.x * v1v0.x + c0v0.z * v1v0.z) /
+		(v1v0.z * v1v0.z + v1v0.x * v1v0.x);
+	if (u >= 0.0 && u <= 1.0)
+	{
+		dist = (v0.x + v1v0.x * u - c0.x) * (v0.x + v1v0.x * u - c0.x) +
+				(v0.z + v1v0.z * u - c0.z) * (v0.z + v1v0.z * u - c0.z);
+	} else
+	{
+		tmp = u < 0.0 ? vector_sub(v0, c0) : vector_sub(v1, c0);
+		dist = (tmp.x * tmp.x) + (tmp.z * tmp.z);
+	}
+	return (dist < (radius * radius));
+}
+
 void 	render_wall(t_app *app, t_wall *w)
 {
 	t_v3d	v0;
@@ -72,10 +116,24 @@ void 	render_wall(t_app *app, t_wall *w)
 	t_v3d	v2;
 	t_v3d	v3;
 
+	t_v3d	pos = app->camera->pos;
+	t_v3d	prev = app->camera->pos_prev;
+
+	if (!app->collide_x)
+		app->collide_x = is_colliding(new_vector(pos.x, 0.0, prev.z), 0.24987654321, w->v[2], w->v[0]);
+	if (!app->collide_z)
+		app->collide_z = is_colliding(new_vector(prev.x, 0.0, pos.z), 0.24987654321, w->v[2], w->v[0]);
 	v0 = matrix_transform(app->camera->transform, w->v[0]);
 	v1 = matrix_transform(app->camera->transform, w->v[1]);
 	v2 = matrix_transform(app->camera->transform, w->v[2]);
 	v3 = matrix_transform(app->camera->transform, w->v[3]);
+
+//	app->collide_x = colliding(1.0, v0, v2);
+//	if (app->collide_x)
+//		printf("c!\n");
+//	if (!app->collide_z)
+//		app->collide_z = colliding(new_vector(app->camera->pos_prev.x, app->camera->pos_prev.y, app->camera->pos.z), 1.0, min, max);
+
 	app->render_wall = w;
 	app->hit = 0;
 	if (render_triangle(app, v0, v1, v2) && !app->edge_selected)
