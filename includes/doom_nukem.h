@@ -321,6 +321,13 @@ typedef struct	s_sector
 	double 		z_max;
 }				t_sector;
 
+typedef struct	s_skybox
+{
+	t_v3d		v[8];
+	int			sprite_index;
+	double 		value;
+}				t_skybox;
+
 typedef struct	s_app
 {
 	t_timer		*timer;
@@ -354,6 +361,7 @@ typedef struct	s_app
 	int 		collide_z;
 	t_v3d 		collide_point;
 	t_v3d		prev_pos;
+	t_skybox	skybox;
 }				t_app;
 
 t_v3d	get_forward(t_v3d qt);
@@ -401,6 +409,7 @@ void 	sector_close(t_app *app);
 void	draw_new_wall(t_app *app);
 void	save_new_wall(t_app *app);
 void 	draw_edge(t_app *app, t_v3d edge);
+void 	render_skybox(t_app *app, t_skybox s);
 
 void	texture_change(t_app *app);
 void	texture_scale_y_change(t_app *app);

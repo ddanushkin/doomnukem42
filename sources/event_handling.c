@@ -171,13 +171,13 @@ void	process_inputs(t_app *app, double delta_time)
 	if (mouse->y)
 		rotate(camera, right, (double)mouse->y * mouse_speed);
 	if (key[SDL_SCANCODE_W])
-		move(camera, forward, 5.0 * delta_time);
+		move(camera, forward, 4.54321 * delta_time);
 	if (key[SDL_SCANCODE_S])
-		move(camera, forward, -5.0 * delta_time);
+		move(camera, forward, -4.54321 * delta_time);
 	if (key[SDL_SCANCODE_A])
-		move(camera, right, -5.0 * delta_time);
+		move(camera, right, -4.54321 * delta_time);
 	if (key[SDL_SCANCODE_D])
-		move(camera, right, 5.0 * delta_time);
+		move(camera, right, 4.54321 * delta_time);
 }
 
 int		event_handling(t_app *app)

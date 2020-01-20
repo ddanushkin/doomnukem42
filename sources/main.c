@@ -7,6 +7,7 @@ void	reset_screen(t_app *app)
 	Uint32	*screen;
 	double	*depth;
 
+	/* TODO: Get chunk system from previous commits, if loop takes to long */
 	i = 0;
 	len = SCREEN_H * SCREEN_W;
 	depth = app->depth_buffer;
@@ -30,6 +31,7 @@ void	start_the_game(t_app *app)
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	app->timer->prev = SDL_GetPerformanceCounter();
 	app->prev_pos = app->camera->pos;
+	app->camera->pos.z += 9.5;
 	while (1)
 	{
 		if (!event_handling(app))
@@ -137,8 +139,8 @@ int		main(int argv, char**argc)
 
 	/* TODO: Set number of meshes */
 	app->sprites_count = 0;
-	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * 493);
-	for (int i = 0; i < 493; i++)
+	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * 499);
+	for (int i = 0; i < 499; i++)
 	{
 		char	*file_name;
 		char	file_path[100];
@@ -155,6 +157,15 @@ int		main(int argv, char**argc)
 	app->sectors = (t_sector *)malloc(sizeof(t_sector) * 1000);
 	app->sectors[0].walls_count = 0;
 	app->sectors[0].walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
+
+	app->skybox.v[0] = new_vector(-100.0, -100.0, 100.0);
+	app->skybox.v[1] = new_vector(100.0, 100.0, 100.0);
+	app->skybox.v[2] = new_vector(100.0, -100.0, 100.0);
+	app->skybox.v[3] = new_vector(-100.0, 100.0, 100.0);
+	app->skybox.v[4] = new_vector(-100.0, -100.0, -100.0);
+	app->skybox.v[5] = new_vector(100.0, 100.0, -100.0);
+	app->skybox.v[6] = new_vector(100.0, -100.0, -100.0);
+	app->skybox.v[7] = new_vector(-100.0, 100.0, -100.0);
 
 	app->sectors[0].walls[0] = wall_new();
 	app->sectors[0].walls[0].v[0] = new_vector(0.0, 0.0, 0.0);

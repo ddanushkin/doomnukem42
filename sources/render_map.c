@@ -65,26 +65,6 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 	}
 }
 
-int colliding_2(t_v3d pos, double radius, t_v3d v0, t_v3d v2)
-{
-	double	distX;
-	double	distZ;
-	double	distance;
-
-	distX = v0.x - pos.x;
-	distZ = v0.z - pos.z;
-	distance = sqrt((distX*distX) + (distZ*distZ));
-	if (distance <= radius)
-		return (1);
-	else
-	{
-		distX = v2.x - pos.x;
-		distZ = v2.z - pos.z;
-		distance = sqrt((distX*distX) + (distZ*distZ));
-		return (distance <= radius);
-	}
-}
-
 int is_colliding(t_v3d c0, double radius, t_v3d v0, t_v3d v1)
 {
 	double	dist;
@@ -120,9 +100,9 @@ void 	render_wall(t_app *app, t_wall *w)
 	t_v3d	prev = app->camera->pos_prev;
 
 	if (!app->collide_x)
-		app->collide_x = is_colliding(new_vector(pos.x, 0.0, prev.z), 0.24987654321, w->v[2], w->v[0]);
+		app->collide_x = is_colliding(new_vector(pos.x, 0.0, prev.z), 0.20, w->v[2], w->v[0]);
 	if (!app->collide_z)
-		app->collide_z = is_colliding(new_vector(prev.x, 0.0, pos.z), 0.24987654321, w->v[2], w->v[0]);
+		app->collide_z = is_colliding(new_vector(prev.x, 0.0, pos.z), 0.20, w->v[2], w->v[0]);
 	v0 = matrix_transform(app->camera->transform, w->v[0]);
 	v1 = matrix_transform(app->camera->transform, w->v[1]);
 	v2 = matrix_transform(app->camera->transform, w->v[2]);
@@ -189,4 +169,5 @@ void	render_map(t_app *app)
 	app->hit_wall = NULL;
 	while (i < app->sectors_count)
 		render_sector(app, &app->sectors[i++]);
+	render_skybox(app, app->skybox);
 }
