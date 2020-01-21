@@ -2,21 +2,23 @@
 
 void	reset_screen(t_app *app)
 {
-	int		i;
-	int		len;
-	Uint32	*screen;
-	double	*depth;
+	int				i;
+	int				len;
+	__int128		*screen;
+	__int128		*depth;
+	__int128		holder;
 
-	/* TODO: Get chunk system from previous commits, if loop takes to long */
+	holder = app->depth_chunk;
 	i = 0;
-	len = SCREEN_H * SCREEN_W;
-	depth = app->depth_buffer;
+	len = SCREEN_H * SCREEN_W / 4;
+	depth = (__int128	*)app->depth_buffer;
 	screen = app->sdl->surface->pixels;
 	while (i < len)
-	{
-		depth[i] = 999999.0;
 		screen[i++] = 0;
-	}
+	i = 0;
+	len *= 2;
+	while (i < len)
+		depth[i++] = holder;
 }
 
 int 	vertex_inside(t_v3d *v)
@@ -32,11 +34,11 @@ void	start_the_game(t_app *app)
 	app->timer->prev = SDL_GetPerformanceCounter();
 	app->prev_pos = app->camera->pos;
 	app->camera->pos.z += 9.5;
+	app->depth_chunk = *(__int128 *)&(t_depth_chunk){999999.0, 999999.0};
 	while (1)
 	{
 		if (!event_handling(app))
 			break;
-		get_delta_time(app->timer);
 		if (app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
 			break ;
 		if (app->hit_wall)
@@ -91,8 +93,8 @@ void	start_the_game(t_app *app)
 		update_fps_text(app);
 		update_walls_data(app);
 		SDL_UpdateWindowSurface(app->sdl->window);
-//		if (app->timer->frame == 1000)
-//			break;
+		get_delta_time(app->timer);
+		//printf("%f\n", app->timer->time / (double)app->timer->frame);
 	}
 	TTF_CloseFont(app->font);
 	TTF_Quit();
@@ -158,14 +160,15 @@ int		main(int argv, char**argc)
 	app->sectors[0].walls_count = 0;
 	app->sectors[0].walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
 
-	app->skybox.v[0] = new_vector(-100.0, -100.0, 100.0);
-	app->skybox.v[1] = new_vector(100.0, 100.0, 100.0);
-	app->skybox.v[2] = new_vector(100.0, -100.0, 100.0);
-	app->skybox.v[3] = new_vector(-100.0, 100.0, 100.0);
-	app->skybox.v[4] = new_vector(-100.0, -100.0, -100.0);
-	app->skybox.v[5] = new_vector(100.0, 100.0, -100.0);
-	app->skybox.v[6] = new_vector(100.0, -100.0, -100.0);
-	app->skybox.v[7] = new_vector(-100.0, 100.0, -100.0);
+	double size = 100.0;
+	app->skybox.v[0] = new_vector(-size, -size, size);
+	app->skybox.v[1] = new_vector(size, size, size);
+	app->skybox.v[2] = new_vector(size, -size, size);
+	app->skybox.v[3] = new_vector(-size, size, size);
+	app->skybox.v[4] = new_vector(-size, -size, -size);
+	app->skybox.v[5] = new_vector(size, size, -size);
+	app->skybox.v[6] = new_vector(size, -size, -size);
+	app->skybox.v[7] = new_vector(-size, size, -size);
 
 	app->sectors[0].walls[0] = wall_new();
 	app->sectors[0].walls[0].v[0] = new_vector(0.0, 0.0, 0.0);
@@ -190,7 +193,7 @@ int		main(int argv, char**argc)
 	start_the_game(app);
 	clock_t end = clock();
 	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-	printf("%f\n", time_spent);
+	printf("UPDATE LOOP TIME -> %f\n", time_spent);
 	quit_properly();
 	return (0);
 }

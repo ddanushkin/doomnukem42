@@ -65,7 +65,9 @@ void 	render_skybox(t_app *app, t_skybox s)
 	t_wall		w;
 	t_mat4x4	tr;
 
-	tr = get_transform_matrix(matrix_multiply(app->camera->projection, app->camera->rotation));
+	tr = get_transform_matrix(matrix_multiply(
+			app->camera->projection,
+			app->camera->rotation));
 	w = wall_new();
 	w.sprite_index = 100;
 	app->render_wall = &w;

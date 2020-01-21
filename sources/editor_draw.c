@@ -25,7 +25,7 @@ void 	draw_edge(t_app *app, t_v3d edge)
 	{
 		v = matrix_transform(app->camera->screen_space, v);
 		vertex_perspective_divide(&v);
-		draw_cross(app, (int)v.x, (int)v.y, app->hit_dist + 0.5, 0xff0000);
+		draw_cross(app, (int)v.x, (int)v.y, 5.0 * app->hit_dist, 0xff0000);
 	}
 }
 

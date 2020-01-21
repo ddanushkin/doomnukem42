@@ -169,5 +169,5 @@ void	render_map(t_app *app)
 	app->hit_wall = NULL;
 	while (i < app->sectors_count)
 		render_sector(app, &app->sectors[i++]);
-	render_skybox(app, app->skybox);
+//	render_skybox(app, app->skybox);
 }

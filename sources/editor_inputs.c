@@ -12,6 +12,8 @@ void	texture_change(t_app *app)
 		app->input_plus = 0;
 		app->hit_wall->sprite_index++;
 	}
+	app->hit_wall->sprite_index =
+			(app->hit_wall->sprite_index % 493 + 493) % 493;
 }
 
 void	texture_scale_y_change(t_app *app)
@@ -26,8 +28,6 @@ void	texture_scale_y_change(t_app *app)
 		app->hit_wall->scale_y -= 0.25;
 		app->input_plus = 0;
 	}
-	app->hit_wall->sprite_index =
-			(app->hit_wall->sprite_index % 493 + 493) % 493;
 }
 
 void	texture_scale_x_change(t_app *app)
@@ -42,6 +42,4 @@ void	texture_scale_x_change(t_app *app)
 		app->hit_wall->scale_x -= 0.25;
 		app->input_plus = 0;
 	}
-	app->hit_wall->sprite_index =
-			(app->hit_wall->sprite_index % 493 + 493) % 493;
 }
