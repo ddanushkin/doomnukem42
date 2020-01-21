@@ -3,6 +3,7 @@
 void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *t, int offset)
 {
 	Uint32	c;
+	Uint8 	*color;
 	Uint32	img_x;
 	Uint32	img_y;
 
@@ -11,6 +12,12 @@ void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *t, int offset)
 	c = t[((img_y << 8u) + img_x)];
 	if (c != TRANSPARENCY_COLOR)
 	{
+		color = (Uint8 	*)&c;
+		double shade = (d->tex_z * d->tex_z + 0.1) * 2.0;
+		shade = CLAMP(shade, 0.0, 1.2);
+		color[0] *= shade;
+		color[1] *= shade;
+		color[2] *= shade;
 		app->depth_buffer[offset] = d->depth;
 		set_pixel_uint32(app->sdl->surface, offset, c);
 	}

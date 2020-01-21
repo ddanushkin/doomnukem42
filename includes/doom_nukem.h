@@ -10,8 +10,21 @@
 
 # define	PRINT_DEBUG 0
 
-# define	SCREEN_W 640
-# define	SCREEN_H 360
+//# define	SCREEN_W 1920
+//# define	SCREEN_H 1080
+
+//# define	SCREEN_W 1280
+//# define	SCREEN_H 720
+
+//# define	SCREEN_W 640
+//# define	SCREEN_H 360
+
+# define	SCREEN_W 480
+# define	SCREEN_H 270
+
+//# define	SCREEN_W 320
+//# define	SCREEN_H 180
+
 # define	WIN_TITLE "DOOM-NUKEM"
 
 # define	TRANSPARENCY_COLOR 0xffff00ff
@@ -44,11 +57,6 @@ typedef struct	s_color
 	uint8_t		g;
 	uint8_t		b;
 }				t_color;
-
-typedef struct	s_depth_chunk
-{
-	double		z[2];
-}				t_depth_chunk;
 
 typedef struct	s_mat4x4
 {
@@ -234,8 +242,7 @@ typedef struct	s_sdl
 	SDL_Event		event;
 	SDL_Window		*window;
 	SDL_Surface		*surface;
-	double			half_height;
-	double			half_width;
+	SDL_Surface		*screen;
 	int				height;
 	int				width;
 }				t_sdl;
@@ -318,6 +325,16 @@ typedef struct	s_skybox
 	double 		value;
 }				t_skybox;
 
+typedef struct	s_depth_chunk
+{
+	double		z[SCREEN_W];
+}				t_depth_chunk;
+
+typedef struct	s_screen_chunk
+{
+	Uint32		z[SCREEN_W];
+}				t_screen_chunk;
+
 typedef struct	s_app
 {
 	t_timer		*timer;
@@ -352,7 +369,10 @@ typedef struct	s_app
 	t_v3d 		collide_point;
 	t_v3d		prev_pos;
 	t_skybox	skybox;
-	__int128	depth_chunk;
+	t_depth_chunk	depth_chunk;
+	t_depth_chunk	*depth_chunk_array;
+	t_screen_chunk	screen_chunk;
+	t_screen_chunk	*screen_chunk_array;
 }				t_app;
 
 t_v3d	get_forward(t_v3d qt);

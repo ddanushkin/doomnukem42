@@ -1,24 +1,37 @@
 #include "doom_nukem.h"
 
+void	prepare_chunks(t_app *app)
+{
+	int		i;
+	double	*depth_chunk;
+	Uint32	*screen_chunk;
+
+	i = 0;
+	depth_chunk = (double *)&app->depth_chunk;
+	screen_chunk = (Uint32 *)&app->screen_chunk;
+	while (i++ < SCREEN_W)
+	{
+		*depth_chunk++ = 100000.0;
+		*screen_chunk++ = 0;
+	}
+	app->depth_chunk_array = (t_depth_chunk *)app->depth_buffer;
+	app->screen_chunk_array = (t_screen_chunk *)app->sdl->surface->pixels;
+}
+
 void	reset_screen(t_app *app)
 {
 	int				i;
-	int				len;
-	__int128		*screen;
-	__int128		*depth;
-	__int128		holder;
+	t_depth_chunk	*depth_buffer;
+	t_screen_chunk	*screen_buffer;
 
-	holder = app->depth_chunk;
+	depth_buffer = app->depth_chunk_array;
+	screen_buffer = app->screen_chunk_array;
 	i = 0;
-	len = SCREEN_H * SCREEN_W / 4;
-	depth = (__int128	*)app->depth_buffer;
-	screen = app->sdl->surface->pixels;
-	while (i < len)
-		screen[i++] = 0;
-	i = 0;
-	len *= 2;
-	while (i < len)
-		depth[i++] = holder;
+	while (i++ < SCREEN_H)
+	{
+		*depth_buffer++ = app->depth_chunk;
+		*screen_buffer++ = app->screen_chunk;
+	}
 }
 
 int 	vertex_inside(t_v3d *v)
@@ -34,7 +47,7 @@ void	start_the_game(t_app *app)
 	app->timer->prev = SDL_GetPerformanceCounter();
 	app->prev_pos = app->camera->pos;
 	app->camera->pos.z += 9.5;
-	app->depth_chunk = *(__int128 *)&(t_depth_chunk){999999.0, 999999.0};
+	prepare_chunks(app);
 	while (1)
 	{
 		if (!event_handling(app))
@@ -89,12 +102,11 @@ void	start_the_game(t_app *app)
 		}
 		if (!app->edge_selected)
 			sector_close(app);
-		draw_cross(app, (int)app->sdl->half_width, (int)app->sdl->half_height, 8, 0xffffff);
+		draw_cross(app, 240, 135, 8, 0xffffff);
 		update_fps_text(app);
 		update_walls_data(app);
 		SDL_UpdateWindowSurface(app->sdl->window);
 		get_delta_time(app->timer);
-		//printf("%f\n", app->timer->time / (double)app->timer->frame);
 	}
 	TTF_CloseFont(app->font);
 	TTF_Quit();
@@ -189,11 +201,11 @@ int		main(int argv, char**argc)
 
 	app->sectors[0].ready = 0;
 
-	clock_t begin = clock();
+//	clock_t begin = clock();
 	start_the_game(app);
-	clock_t end = clock();
-	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-	printf("UPDATE LOOP TIME -> %f\n", time_spent);
+//	clock_t end = clock();
+//	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+//	printf("UPDATE LOOP TIME -> %f\n", time_spent);
 	quit_properly();
 	return (0);
 }

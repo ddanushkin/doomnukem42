@@ -17,9 +17,7 @@ void	init_projection_mat(t_app *app)
 static	void	init_sdl(t_sdl *sdl)
 {
 	sdl->width = SCREEN_W;
-	sdl->half_width = (double)sdl->width * 0.5;
 	sdl->height = SCREEN_H;
-	sdl->half_height = (double)sdl->height * 0.5;
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();
 	sdl->window = SDL_CreateWindow(

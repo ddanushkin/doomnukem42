@@ -29,7 +29,7 @@ void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color)
 		return ;
 	i = 0;
 	len = (int)(64.0 / size);
-	len = CLAMP(len, 2, 64);
+	len = CLAMP(len, 2, 32);
 	start_x = x - (int)(len * 0.5);
 	start_y = y - (int)(len * 0.5);
 	while (i <= len)
