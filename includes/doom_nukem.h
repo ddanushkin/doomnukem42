@@ -16,11 +16,11 @@
 //# define	SCREEN_W 1280
 //# define	SCREEN_H 720
 
-//# define	SCREEN_W 640
-//# define	SCREEN_H 360
+# define	SCREEN_W 640
+# define	SCREEN_H 360
 
-# define	SCREEN_W 480
-# define	SCREEN_H 270
+//# define	SCREEN_W 480
+//# define	SCREEN_H 270
 
 //# define	SCREEN_W 320
 //# define	SCREEN_H 180

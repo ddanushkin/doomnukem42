@@ -102,7 +102,7 @@ void	start_the_game(t_app *app)
 		}
 		if (!app->edge_selected)
 			sector_close(app);
-		draw_cross(app, 240, 135, 8, 0xffffff);
+		draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
 		update_fps_text(app);
 		update_walls_data(app);
 		SDL_UpdateWindowSurface(app->sdl->window);

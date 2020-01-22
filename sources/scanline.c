@@ -1,6 +1,6 @@
 #include "doom_nukem.h"
 
-void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *t, int offset)
+void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *tex, int offset)
 {
 	Uint32	c;
 	Uint8 	*color;
@@ -9,7 +9,7 @@ void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *t, int offset)
 
 	img_x = (Uint32)(d->tex_x / d->tex_z * d->scale_x * 256.0) % 256;
 	img_y = (Uint32)(d->tex_y / d->tex_z * d->scale_y * 256.0) % 256;
-	c = t[((img_y << 8u) + img_x)];
+	c = tex[((img_y << 8u) + img_x)];
 	if (c != TRANSPARENCY_COLOR)
 	{
 		color = (Uint8 	*)&c;
