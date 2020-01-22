@@ -7,7 +7,7 @@ void 	render_billboard(t_app *app, t_wall *w)
 	t_v3d	v2;
 	t_v3d	v3;
 
-	t_v3d	right = new_vector(app->camera->view.m[0][0], app->camera->view.m[0][1], app->camera->view.m[0][2]);
+	t_v3d	right = new_vector(app->camera->view.m[0], app->camera->view.m[1], app->camera->view.m[2]);
 	t_v3d	up = new_vector(0, 1, 0);
 
 	t_v3d	position = new_vector(1.0, 1.0, 0.0);

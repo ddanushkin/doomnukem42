@@ -60,7 +60,7 @@ typedef struct	s_color
 
 typedef struct	s_mat4x4
 {
-	double m[4][4];
+	double m[16];
 }				t_mat4x4;
 
 typedef struct	s_v3d

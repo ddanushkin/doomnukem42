@@ -65,22 +65,22 @@ t_mat4x4	mat_rotation_fur(t_v3d f, t_v3d u, t_v3d r)
 {
 	t_mat4x4	mat;
 
-	mat.m[0][0] = r.x;
-	mat.m[0][1] = r.y;
-	mat.m[0][2] = r.z;
-	mat.m[0][3] = 0;
-	mat.m[1][0] = u.x;
-	mat.m[1][1] = u.y;
-	mat.m[1][2] = u.z;
-	mat.m[1][3] = 0;
-	mat.m[2][0] = f.x;
-	mat.m[2][1] = f.y;
-	mat.m[2][2] = f.z;
-	mat.m[2][3] = 0;
-	mat.m[3][0] = 0;
-	mat.m[3][1] = 0;
-	mat.m[3][2] = 0;
-	mat.m[3][3] = 1;
+	mat.m[0] = r.x;
+	mat.m[1] = r.y;
+	mat.m[2] = r.z;
+	mat.m[3] = 0;
+	mat.m[4] = u.x;
+	mat.m[5] = u.y;
+	mat.m[6] = u.z;
+	mat.m[7] = 0;
+	mat.m[8] = f.x;
+	mat.m[9] = f.y;
+	mat.m[10] = f.z;
+	mat.m[11] = 0;
+	mat.m[12] = 0;
+	mat.m[13] = 0;
+	mat.m[14] = 0;
+	mat.m[15] = 1;
 	return (mat);
 }
 
@@ -142,9 +142,9 @@ void 	update_camera(t_camera *camera)
 	camera->view = matrix_multiply(camera->rotation, camera->translation);
 	camera->view_projection = matrix_multiply(camera->projection, camera->view);
 	camera->transform = get_transform_matrix(camera->view_projection);
-	camera->dir.x = camera->view.m[2][0];
-	camera->dir.y = camera->view.m[2][1];
-	camera->dir.z = camera->view.m[2][2];
+	camera->dir.x = camera->view.m[8];
+	camera->dir.y = camera->view.m[9];
+	camera->dir.z = camera->view.m[10];
 }
 
 void	process_inputs(t_app *app, double delta_time)

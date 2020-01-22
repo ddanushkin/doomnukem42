@@ -6,12 +6,12 @@ void	init_projection_mat(t_app *app)
 
 	camera = app->camera;
 	ft_bzero(&app->projection_mat, sizeof(t_mat4x4));
-	app->projection_mat.m[0][0] = camera->asp_ratio * camera->for_rad;
-	app->projection_mat.m[1][1] = camera->for_rad;
-	app->projection_mat.m[2][2] = camera->z_far / (camera->z_far - camera->z_near);
-	app->projection_mat.m[3][2] = (-camera->z_far * camera->z_near) / (camera->z_far - camera->z_near);
-	app->projection_mat.m[2][3] = 1.0;
-	app->projection_mat.m[3][3] = 0.0;
+	app->projection_mat.m[0] = camera->asp_ratio * camera->for_rad;
+	app->projection_mat.m[5] = camera->for_rad;
+	app->projection_mat.m[10] = camera->z_far / (camera->z_far - camera->z_near);
+	app->projection_mat.m[14] = (-camera->z_far * camera->z_near) / (camera->z_far - camera->z_near);
+	app->projection_mat.m[11] = 1.0;
+	app->projection_mat.m[15] = 0.0;
 }
 
 static	void	init_sdl(t_sdl *sdl)
