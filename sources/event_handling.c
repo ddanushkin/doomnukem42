@@ -135,16 +135,32 @@ t_v3d	get_right(t_v3d qt)
 	return (vector_rotate_by_qt(new_vector(1.0, 0.0, 0.0), qt));
 }
 
-void 	update_camera(t_camera *camera)
+void 	update_camera(t_camera *c)
 {
-	camera->rotation = qt_to_rot_mat(qt_conjugate(camera->rot));
-	camera->translation = matrix_translation(-camera->pos.x, -camera->pos.y, -camera->pos.z);
-	camera->view = matrix_multiply(camera->rotation, camera->translation);
-	camera->view_projection = matrix_multiply(camera->projection, camera->view);
-	camera->transform = get_transform_matrix(camera->view_projection);
-	camera->dir.x = camera->view.m[8];
-	camera->dir.y = camera->view.m[9];
-	camera->dir.z = camera->view.m[10];
+	double	x_acos;
+
+	c->rotation = qt_to_rot_mat(qt_conjugate(c->rot));
+	c->translation = matrix_translation(-c->pos.x, -c->pos.y, -c->pos.z);
+	c->view = matrix_multiply(c->rotation, c->translation);
+	c->view_projection = matrix_multiply(c->projection, c->view);
+	c->transform = get_transform_matrix(c->view_projection);
+	c->dir.x = c->view.m[8];
+	c->dir.y = c->view.m[9];
+	c->dir.z = c->view.m[10];
+	x_acos = acos(c->dir.x);
+	if (x_acos < 0.392699)
+		c->quad = 0;
+	else if (x_acos >= 0.392699 && x_acos < 1.178097)
+		c->quad = 1;
+	else if (x_acos >= 1.178097 && x_acos < 1.963495)
+		c->quad = 2;
+	else if (x_acos >= 1.963495 && x_acos < 2.748893)
+		c->quad = 3;
+	else if (x_acos >= 2.748893)
+		c->quad = 4;
+	if (acos(c->dir.z) > 1.570796 && c->quad != 0 && c->quad != 4)
+		c->quad = 8 - c->quad;
+	c->right = new_vector(c->view.m[0], c->view.m[1], c->view.m[2]);
 }
 
 void	process_inputs(t_app *app, double delta_time)
@@ -168,8 +184,8 @@ void	process_inputs(t_app *app, double delta_time)
 	forward.y = 0.0;
 	right = get_right(camera->rot);
 	app->camera->pos_prev = app->camera->pos;
-	if (mouse->y)
-		rotate(camera, right, (double)mouse->y * mouse_speed);
+//	if (mouse->y)
+//		rotate(camera, right, (double)mouse->y * mouse_speed);
 	if (key[SDL_SCANCODE_W])
 		move(camera, forward, 4.54321 * delta_time);
 	if (key[SDL_SCANCODE_S])

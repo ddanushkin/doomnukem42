@@ -142,19 +142,20 @@ int		main(int argv, char**argc)
 	app->inputs = (t_inputs *)malloc(sizeof(t_inputs));
 	app->timer = (t_timer *)malloc(sizeof(t_timer));
 	app->camera = (t_camera *)malloc(sizeof(t_camera));
+	app->camera->up = new_vector(0.0, 1.0, 0.0);
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
 	init_app(app);
 
 	/* TODO: Set number of meshes */
-	int number_of_meshes = 2;
-	app->meshes = (t_mesh *)malloc(sizeof(t_mesh) * number_of_meshes);
-	obj_load("resources/plane.obj", &app->meshes[0]);
-	obj_load("resources/cube.obj", &app->meshes[1]);
+//	int number_of_meshes = 2;
+//	app->meshes = (t_mesh *)malloc(sizeof(t_mesh) * number_of_meshes);
+//	obj_load("resources/plane.obj", &app->meshes[0]);
+//	obj_load("resources/cube.obj", &app->meshes[1]);
 
 	/* TODO: Set number of meshes */
 	app->sprites_count = 0;
 	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * 499);
-	for (int i = 0; i < 499; i++)
+	for (int i = 0; i < 504; i++)
 	{
 		char	*file_name;
 		char	file_path[100];
@@ -167,11 +168,6 @@ int		main(int argv, char**argc)
 		bmp_load(app, file_path);
 	}
 
-	app->sectors_count = 1;
-	app->sectors = (t_sector *)malloc(sizeof(t_sector) * 1000);
-	app->sectors[0].walls_count = 0;
-	app->sectors[0].walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
-
 	double size = 100.0;
 	app->skybox.v[0] = new_vector(-size, -size, size);
 	app->skybox.v[1] = new_vector(size, size, size);
@@ -182,22 +178,27 @@ int		main(int argv, char**argc)
 	app->skybox.v[6] = new_vector(size, -size, -size);
 	app->skybox.v[7] = new_vector(-size, size, -size);
 
+	app->sectors_count = 1;
+	app->sectors = (t_sector *)malloc(sizeof(t_sector) * 1000);
+
+	app->sectors[0].walls_count = 0;
+	app->sectors[0].walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
 	app->sectors[0].walls[0] = wall_new();
 	app->sectors[0].walls[0].v[0] = new_vector(0.0, 0.0, 0.0);
 	app->sectors[0].walls[0].v[1] = new_vector(2.0, 2.0, 0.0);
 	app->sectors[0].walls[0].v[2] = new_vector(2.0, 0.0, 0.0);
 	app->sectors[0].walls[0].v[3] = new_vector(0.0, 2.0, 0.0);
 	wall_reset_tex(&app->sectors[0].walls[0]);
-	app->sectors[0].walls[0].billboard = 0;
 	app->sectors[0].walls_count++;
 
-	app->sectors[0].walls[1] = wall_new();
-	app->sectors[0].walls[1].v[0] = new_vector(2.0, 0.0, 0.0);
-	app->sectors[0].walls[1].v[1] = new_vector(4.0, 2.0, 0.0);
-	app->sectors[0].walls[1].v[2] = new_vector(4.0, 0.0, 0.0);
-	app->sectors[0].walls[1].v[3] = new_vector(2.0, 2.0, 0.0);
-	wall_reset_tex(&app->sectors[0].walls[1]);
-//	app->sectors[0].walls_count++;
+	app->sectors[0].objs_count = 0;
+	app->sectors[0].objs = (t_wall *)malloc(sizeof(t_wall) * 1000);
+	app->sectors[0].objs[0] = wall_new();
+	app->sectors[0].objs[0].size = 1.5;
+	app->sectors[0].objs[0].pos = new_vector(1.0, app->sectors[0].walls[0].v[0].y + app->sectors[0].objs[0].size * 0.5, -4.0);
+	wall_reset_tex(&app->sectors[0].objs[0]);
+	app->sectors[0].objs[0].sprite_index = 499;
+	app->sectors[0].objs_count++;
 
 	app->sectors[0].ready = 0;
 

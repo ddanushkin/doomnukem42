@@ -12,9 +12,9 @@ void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *tex, int offset)
 	c = tex[((img_y << 8u) + img_x)];
 	if (c != TRANSPARENCY_COLOR)
 	{
-		color = (Uint8 	*)&c;
-		double shade = (d->tex_z * d->tex_z + 0.1) * 2.0;
-		shade = CLAMP(shade, 0.0, 1.2);
+		color = (Uint8 *)&c;
+		double shade = d->tex_z;
+		shade = CLAMP(shade, 0.0, 1.0);
 		color[0] *= shade;
 		color[1] *= shade;
 		color[2] *= shade;

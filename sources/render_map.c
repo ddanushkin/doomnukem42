@@ -1,40 +1,60 @@
 #include "doom_nukem.h"
 
+void 	billboard_face_player(t_app *app, t_wall *w)
+{
+	t_camera	*c;
+	double		half_size;
+	t_v3d		r;
+	t_v3d		u;
+
+	c = app->camera;
+	half_size = 0.5 * w->size;
+	r = vector_mul_by(c->right, half_size);
+	u = vector_mul_by(c->up, half_size);
+	w->v[0] = vector_sub(vector_sub(w->pos, r), u);
+	w->v[1] = vector_sum(vector_sum(w->pos, r), u);
+	w->v[3] = vector_sum(vector_sub(w->pos, r), u);
+	w->v[2] = vector_sub(vector_sum(w->pos, r), u);
+	wall_reset_tex(w);
+}
+
+void 	billboard_switch_sprite(t_app *app, t_wall *w)
+{
+	int quad;
+
+	quad = app->camera->quad;
+	if (quad == 2)
+		w->sprite_index = 499;
+	if (quad == 6)
+		w->sprite_index = 503;
+	if (quad == 5 || quad == 7)
+		w->sprite_index = 502;
+	if (quad == 1 || quad == 3)
+		w->sprite_index = 500;
+	if (quad == 4 || quad == 0)
+		w->sprite_index = 501;
+	if (quad == 1 || quad == 0 || quad == 7)
+	{
+		SWAP(w->v[3].tex_x, w->v[1].tex_x, double);
+		SWAP(w->v[3].tex_y, w->v[1].tex_y, double);
+		SWAP(w->v[0].tex_x, w->v[2].tex_x, double);
+		SWAP(w->v[0].tex_y, w->v[2].tex_y, double);
+	}
+}
+
 void 	render_billboard(t_app *app, t_wall *w)
 {
-	t_v3d	v0;
-	t_v3d	v1;
-	t_v3d	v2;
-	t_v3d	v3;
+	t_v3d v0;
+	t_v3d v1;
+	t_v3d v2;
+	t_v3d v3;
 
-	t_v3d	right = new_vector(app->camera->view.m[0], app->camera->view.m[1], app->camera->view.m[2]);
-	t_v3d	up = new_vector(0, 1, 0);
-
-	t_v3d	position = new_vector(1.0, 1.0, 0.0);
-	double	size = 2.0;
-
-	v0 = vector_sum(position, vector_mul_by(right, -0.5 * size));
-	v0 = vector_sum(v0, vector_mul_by(up, -0.5 * size));
-	v1 = vector_sum(position, vector_mul_by(right, 0.5 * size));
-	v1 = vector_sum(v1, vector_mul_by(up, 0.5 * size));
-	v2 = vector_sum(position, vector_mul_by(right, -0.5 * size));
-	v2 = vector_sum(v2, vector_mul_by(up, 0.5 * size));
-	v3 = vector_sum(position, vector_mul_by(right, 0.5 * size));
-	v3 = vector_sum(v3, vector_mul_by(up, -0.5 * size));
-
-	v0 = matrix_transform(app->camera->transform, v0);
-	v1 = matrix_transform(app->camera->transform, v1);
-	v2 = matrix_transform(app->camera->transform, v2);
-	v3 = matrix_transform(app->camera->transform, v3);
-
-	v0.tex_x = 0.0;
-	v0.tex_y = 0.0;
-	v1.tex_x = 1.0;
-	v1.tex_y = 1.0;
-	v2.tex_x = 1.0;
-	v2.tex_y = 0.0;
-	v3.tex_x = 0.0;
-	v3.tex_y = 1.0;
+	billboard_face_player(app, w);
+	billboard_switch_sprite(app, w);
+	v0 = matrix_transform(app->camera->transform, w->v[0]);
+	v1 = matrix_transform(app->camera->transform, w->v[1]);
+	v2 = matrix_transform(app->camera->transform, w->v[2]);
+	v3 = matrix_transform(app->camera->transform, w->v[3]);
 	app->hit = 0;
 	app->render_wall = w;
 	render_triangle(app, v0, v1, v2);
@@ -103,12 +123,6 @@ void 	render_wall(t_app *app, t_wall *w)
 	v2 = matrix_transform(app->camera->transform, w->v[2]);
 	v3 = matrix_transform(app->camera->transform, w->v[3]);
 
-//	app->collide_x = colliding(1.0, v0, v2);
-//	if (app->collide_x)
-//		printf("c!\n");
-//	if (!app->collide_z)
-//		app->collide_z = colliding(new_vector(app->camera->pos_prev.x, app->camera->pos_prev.y, app->camera->pos.z), 1.0, min, max);
-
 	app->render_wall = w;
 	app->hit = 0;
 	if (render_triangle(app, v0, v1, v2) && !app->edge_selected)
@@ -125,19 +139,17 @@ void 	render_wall(t_app *app, t_wall *w)
 	}
 }
 
-void 	render_sector(t_app *app, t_sector	*s)
+void 	render_sector(t_app *app, t_sector *s)
 {
 	int			j;
 	t_triangle	ceil_triangle;
 
 	j = 0;
+	while (j < s->objs_count)
+		render_billboard(app, &s->objs[j++]);
+	j = 0;
 	while (j < s->walls_count)
-	{
-		if (s->walls[j].billboard)
-			render_billboard(app, &s->walls[j++]);
-		else
-			render_wall(app, &s->walls[j++]);
-	}
+		render_wall(app, &s->walls[j++]);
 	if (s->ready && s->triangles_count > 0)
 	{
 		j = 0;

@@ -40,6 +40,7 @@
 # define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
 # define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 # define TO_RAD(a) (a * M_PI / 180.0)
+# define TO_DEG(a) (a * 180.0 / M_PI)
 
 # define RESOURCES_MD5 "92e21b66507aebb010adb353fc83badb"
 
@@ -79,7 +80,9 @@ typedef struct	s_wall
 	int			sprite_index;
 	double 		scale_x;
 	double 		scale_y;
-	int 		billboard;
+	t_v3d		pos;
+	t_v3d		quad;
+	double 		size;
 }				t_wall;
 
 typedef struct	s_v2d
@@ -218,6 +221,9 @@ typedef struct	s_camera
 	t_mat4x4	view_projection;
 	t_mat4x4	transform;
 	t_mat4x4	screen_space;
+	int 		quad;
+	t_v3d		up;
+	t_v3d		right;
 }				t_camera;
 
 typedef struct	s_timer
@@ -303,9 +309,11 @@ typedef struct	s_clip_data
 typedef struct	s_sector
 {
 	t_wall		*walls;
+	t_wall		*objs;
 	t_wall		floor;
 	t_wall		ceil;
 	int 		walls_count;
+	int 		objs_count;
 	double 		floor_height;
 	double 		ceil_height;
 	int			ready;
