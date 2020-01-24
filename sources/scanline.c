@@ -6,15 +6,15 @@ void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *tex, int offset)
 	Uint8 	*color;
 	Uint32	img_x;
 	Uint32	img_y;
+	double	shade;
 
 	img_x = (Uint32)(d->tex_x / d->tex_z * d->scale_x * 256.0) % 256;
 	img_y = (Uint32)(d->tex_y / d->tex_z * d->scale_y * 256.0) % 256;
 	c = tex[((img_y << 8u) + img_x)];
 	if (c != TRANSPARENCY_COLOR)
 	{
+		shade = app->rw->shade[(int)(((app->is_floor ? d->tex_y : d->tex_x) / d->tex_z) * 100)];
 		color = (Uint8 *)&c;
-		double shade = d->tex_z;
-		shade = CLAMP(shade, 0.0, 1.0);
 		color[0] *= shade;
 		color[1] *= shade;
 		color[2] *= shade;
@@ -23,10 +23,10 @@ void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *tex, int offset)
 	}
 }
 
-void 	scanline_calc(t_scanline *d, t_edge *left, t_edge *right)
+void 	scanline_calc(t_app *app, t_scanline *d, t_edge *left, t_edge *right)
 {
-	d->start = (int)ceil(left->x);
-	d->end = (int)ceil(right->x);
+	d->start = ceil(left->x);
+	d->end = ceil(right->x);
 	d->pre_step = d->start - left->x;
 	d->dist = 1.0 / (right->x - left->x);
 	d->x_step = (right->tex_x - left->tex_x) * d->dist;
@@ -46,10 +46,10 @@ void	scanline(t_app *app, t_edge *left, t_edge *right, int y)
 	int			offset;
 	t_scanline	d;
 
-	w = app->render_wall;
-	texture = app->sprites[w->sprite_index].pixels;
-	scanline_calc(&d, left, right);
-	offset = y * SCREEN_W + d.start;
+	w = app->rw;
+	texture = app->sprites[w->sprite].pixels;
+	scanline_calc(app, &d, left, right);
+	offset = y * SCREEN_W + (d.start);
 	d.scale_x = w->scale_x;
 	d.scale_y = w->scale_y;
 	while (d.start < d.end)

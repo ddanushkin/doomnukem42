@@ -77,12 +77,15 @@ typedef struct	s_v3d
 typedef struct	s_wall
 {
 	t_v3d 		v[4];
-	int			sprite_index;
+	int			sprite;
 	double 		scale_x;
 	double 		scale_y;
 	t_v3d		pos;
 	t_v3d		quad;
 	double 		size;
+	double 		dist_min;
+	double 		dist_max;
+	double 		shade[100];
 }				t_wall;
 
 typedef struct	s_v2d
@@ -222,6 +225,7 @@ typedef struct	s_camera
 	t_mat4x4	transform;
 	t_mat4x4	screen_space;
 	int 		quad;
+	t_v3d		forward;
 	t_v3d		up;
 	t_v3d		right;
 }				t_camera;
@@ -363,14 +367,14 @@ typedef struct	s_app
 	int 		edge_selected;
 	t_wall		edit_wall;
 	t_sector	*sectors;
-	int 		current_sector;
+	t_sector	*cs;
 	int 		sectors_count;
 	int			input_g;
 	double 		grid_size;
 	double 		input_plus;
 	double 		input_minus;
 	int 		tex_switch;
-	t_wall		*render_wall;
+	t_wall		*rw;
 	int 		triangles_counter;
 	int 		collide_x;
 	int 		collide_z;
@@ -381,9 +385,11 @@ typedef struct	s_app
 	t_depth_chunk	*depth_chunk_array;
 	t_screen_chunk	screen_chunk;
 	t_screen_chunk	*screen_chunk_array;
+	int 		printed;
+	int 		is_floor;
 }				t_app;
 
-t_v3d	get_forward(t_v3d qt);
+t_v3d	get_forward(t_mat4x4 view);
 t_v3d	get_right(t_v3d qt);
 
 void 	draw_polygon_line(t_app *app, t_v3d start, t_v3d end);

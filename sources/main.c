@@ -50,6 +50,7 @@ void	start_the_game(t_app *app)
 	prepare_chunks(app);
 	while (1)
 	{
+		app->printed = 0;
 		if (!event_handling(app))
 			break;
 		if (app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
@@ -65,6 +66,7 @@ void	start_the_game(t_app *app)
 		}
 		reset_screen(app);
 		process_inputs(app, app->timer->delta);
+		update_camera(app->camera);
 		render_map(app);
 		app->prev_pos.y = app->camera->pos.y;
 		if (!app->collide_x)
@@ -81,7 +83,6 @@ void	start_the_game(t_app *app)
 			app->camera->pos.z = app->prev_pos.z;
 			app->collide_z = 0;
 		}
-		update_camera(app->camera);
 		if (app->hit_wall && !app->edge_selected)
 			show_edge(app);
 		if (app->edge_selected)
@@ -197,7 +198,7 @@ int		main(int argv, char**argc)
 	app->sectors[0].objs[0].size = 1.5;
 	app->sectors[0].objs[0].pos = new_vector(1.0, app->sectors[0].walls[0].v[0].y + app->sectors[0].objs[0].size * 0.5, -4.0);
 	wall_reset_tex(&app->sectors[0].objs[0]);
-	app->sectors[0].objs[0].sprite_index = 499;
+	app->sectors[0].objs[0].sprite = 499;
 	app->sectors[0].objs_count++;
 
 	app->sectors[0].ready = 0;

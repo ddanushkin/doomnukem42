@@ -7,7 +7,7 @@ void	skybox_front_back(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[2];
 	w->v[3] = s->v[3];
 	wall_reset_tex(w);
-	w->sprite_index = 498;
+	w->sprite = 498;
 	render_triangle(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle(app, w->v[0], w->v[3], w->v[1]);
 	w->v[0] = s->v[4];
@@ -15,7 +15,7 @@ void	skybox_front_back(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[6];
 	w->v[3] = s->v[7];
 	wall_reset_tex(w);
-	w->sprite_index = 495;
+	w->sprite = 495;
 	render_triangle(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle(app, w->v[0], w->v[3], w->v[1]);
 }
@@ -27,7 +27,7 @@ void	skybox_left_right(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[0];
 	w->v[3] = s->v[7];
 	wall_reset_tex(w);
-	w->sprite_index = 493;
+	w->sprite = 493;
 	render_triangle(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle(app, w->v[0], w->v[3], w->v[1]);
 	w->v[0] = s->v[2];
@@ -35,7 +35,7 @@ void	skybox_left_right(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[6];
 	w->v[3] = s->v[1];
 	wall_reset_tex(w);
-	w->sprite_index = 496;
+	w->sprite = 496;
 	render_triangle(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle(app, w->v[0], w->v[3], w->v[1]);
 }
@@ -47,7 +47,7 @@ void	skybox_top_bottom(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[1];
 	w->v[3] = s->v[7];
 	wall_reset_tex(w);
-	w->sprite_index = 497;
+	w->sprite = 497;
 	render_triangle(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle(app, w->v[0], w->v[3], w->v[1]);
 	w->v[0] = s->v[4];
@@ -55,7 +55,7 @@ void	skybox_top_bottom(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[6];
 	w->v[3] = s->v[0];
 	wall_reset_tex(w);
-	w->sprite_index = 494;
+	w->sprite = 494;
 	render_triangle(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle(app, w->v[0], w->v[3], w->v[1]);
 }
@@ -69,8 +69,8 @@ void 	render_skybox(t_app *app, t_skybox s)
 			app->camera->projection,
 			app->camera->rotation));
 	w = wall_new();
-	w.sprite_index = 100;
-	app->render_wall = &w;
+	w.sprite = 100;
+	app->rw = &w;
 	s.v[0] = matrix_transform(tr, s.v[0]);
 	s.v[1] = matrix_transform(tr, s.v[1]);
 	s.v[2] = matrix_transform(tr, s.v[2]);

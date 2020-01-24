@@ -6,7 +6,7 @@ void 		hit_fill_data(t_app *app, double distance)
 			app->camera->pos,
 			vector_mul_by(app->camera->dir, distance));
 	app->hit_dist = distance;
-	app->hit_wall = app->render_wall;
+	app->hit_wall = app->rw;
 	app->hit = 1;
 }
 

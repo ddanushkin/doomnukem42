@@ -10,7 +10,7 @@ void 	select_edge(t_app *app,  t_v3d v0, t_v3d v1)
 	app->edit_wall.v[1] = v0;
 	app->edit_wall.v[2] = v1;
 	app->edit_wall.v[3] = v0;
-	app->edit_wall.sprite_index = w->sprite_index;
+	app->edit_wall.sprite = w->sprite;
 	wall_reset_tex(&app->edit_wall);
 	wall_update_scale(&app->edit_wall);
 	app->inputs->mouse.left = 0;
@@ -52,7 +52,7 @@ void	draw_new_wall(t_app *app)
 	tmp.w = 1.0;
 	tmp = vector_sum(
 			app->camera->pos,
-			vector_mul_by(get_forward(app->camera->rot), 2));
+			vector_mul_by(app->camera->forward, 2));
 	tmp.x = round(tmp.x / app->grid_size) * app->grid_size;
 	tmp.z = round(tmp.z / app->grid_size) * app->grid_size;
 	app->edit_wall.v[app->hit_first ? 1 : 3].x = tmp.x;

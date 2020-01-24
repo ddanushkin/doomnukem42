@@ -5,15 +5,15 @@ void	texture_change(t_app *app)
 	if (app->input_minus)
 	{
 		app->input_minus = 0;
-		app->hit_wall->sprite_index--;
+		app->hit_wall->sprite--;
 	}
 	else if (app->input_plus)
 	{
 		app->input_plus = 0;
-		app->hit_wall->sprite_index++;
+		app->hit_wall->sprite++;
 	}
-	app->hit_wall->sprite_index =
-			(app->hit_wall->sprite_index % 493 + 493) % 493;
+	app->hit_wall->sprite =
+			(app->hit_wall->sprite % 493 + 493) % 493;
 }
 
 void	texture_scale_y_change(t_app *app)

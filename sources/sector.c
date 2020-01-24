@@ -14,9 +14,9 @@ void 	sector_close(t_app *app)
 		cs->floor = wall_new();
 		cs->floor.scale_x = fabs(cs->x_min - cs->x_max) * 0.5;
 		cs->floor.scale_y = fabs(cs->z_min - cs->z_max) * 0.5;
-		cs->floor.sprite_index = 278;
+		cs->floor.sprite = 278;
 		cs->ceil = cs->floor;
-		cs->ceil.sprite_index = 399;
+		cs->ceil.sprite = 399;
 		cs->ready = 1;
 	}
 }

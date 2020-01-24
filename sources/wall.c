@@ -23,7 +23,7 @@ t_wall	wall_new()
 	wall_reset_tex(&w);
 	w.scale_x = 1.0;
 	w.scale_y = 1.0;
-	w.sprite_index = 103;
+	w.sprite = 103;
 	return (w);
 }
 
