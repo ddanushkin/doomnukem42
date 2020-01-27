@@ -34,11 +34,14 @@ void	reset_screen(t_app *app)
 	}
 }
 
-int 	vertex_inside(t_v3d *v)
+Uint8 	vertex_inside(t_v3d *v)
 {
-	return (fabs(v->x) <= fabs(v->w) &&
-			fabs(v->y) <= fabs(v->w) &&
-			fabs(v->z) <= fabs(v->w));
+	double	w;
+
+	w = fabs(v->w);
+	return (fabs(v->x) <= w &&
+			fabs(v->y) <= w &&
+			fabs(v->z) <= w);
 }
 
 void	start_the_game(t_app *app)
@@ -155,7 +158,7 @@ int		main(int argv, char**argc)
 
 	/* TODO: Set number of meshes */
 	app->sprites_count = 0;
-	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * 499);
+	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * 504);
 	for (int i = 0; i < 504; i++)
 	{
 		char	*file_name;
@@ -182,6 +185,10 @@ int		main(int argv, char**argc)
 	app->sectors_count = 1;
 	app->sectors = (t_sector *)malloc(sizeof(t_sector) * 1000);
 
+	app->sectors[0].floor_y = 0.0;
+	app->sectors[0].ceil_y = 2.0;
+	app->sectors[0].delta_y = 2.0;
+
 	app->sectors[0].walls_count = 0;
 	app->sectors[0].walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
 	app->sectors[0].walls[0] = wall_new();
@@ -190,13 +197,14 @@ int		main(int argv, char**argc)
 	app->sectors[0].walls[0].v[2] = new_vector(2.0, 0.0, 0.0);
 	app->sectors[0].walls[0].v[3] = new_vector(0.0, 2.0, 0.0);
 	wall_reset_tex(&app->sectors[0].walls[0]);
+	wall_update_scale(&app->sectors[0].walls[0]);
 	app->sectors[0].walls_count++;
 
 	app->sectors[0].objs_count = 0;
 	app->sectors[0].objs = (t_wall *)malloc(sizeof(t_wall) * 1000);
 	app->sectors[0].objs[0] = wall_new();
 	app->sectors[0].objs[0].size = 1.5;
-	app->sectors[0].objs[0].pos = new_vector(1.0, app->sectors[0].walls[0].v[0].y + app->sectors[0].objs[0].size * 0.5, -4.0);
+	app->sectors[0].objs[0].pos = new_vector(1.0, app->sectors[0].walls[0].v[0].y, -4.0);
 	wall_reset_tex(&app->sectors[0].objs[0]);
 	app->sectors[0].objs[0].sprite = 499;
 	app->sectors[0].objs_count++;

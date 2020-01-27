@@ -60,8 +60,6 @@ void 	update_camera(t_camera *c)
 		c->quad = 8 - c->quad;
 	c->right = new_vector(c->view.m[0], c->view.m[1], c->view.m[2]);
 	c->forward = new_vector(c->view.m[8], 0.0, c->view.m[10]);
-//	printf("[%f, %f, %f]\n", c->rot.x, c->rot.y, c->rot.z);
-//	printf("[%f, %f, %f]\n", c->forward.x, c->forward.y, c->forward.z);
 }
 
 void	process_inputs(t_app *app, double delta_time)

@@ -1,29 +1,52 @@
 #include "doom_nukem.h"
 
+void 	blend_color(Uint8 	*c0, Uint8 	*c1, double value)
+{
+	double delta;
+
+	delta = 1.0 - value;
+	c0[0] = delta * c0[0] + value * c1[0];
+	c0[1] = delta * c0[1] + value * c1[1];
+	c0[2] = delta * c0[2] + value * c1[2];
+}
+
+void 	shade_color(t_app *app, int x, int y, Uint32 *c)
+{
+	Uint8 	*color;
+	double	shade;
+	double 	*sh;
+
+	sh = &app->rw->shade[0];
+	color = (Uint8 *)c;
+	shade = sh[y * 100 + x];
+	color[0] *= shade;
+	color[1] *= shade;
+	color[2] *= shade;
+}
+
 void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *tex, int offset)
 {
 	Uint32	c;
-	Uint8 	*color;
 	Uint32	img_x;
 	Uint32	img_y;
-	double	shade;
+	double	x;
+	double	y;
 
-	img_x = (Uint32)(d->tex_x / d->tex_z * d->scale_x * 256.0) % 256;
-	img_y = (Uint32)(d->tex_y / d->tex_z * d->scale_y * 256.0) % 256;
+	x = d->tex_x / d->tex_z;
+	y = d->tex_y / d->tex_z;
+	img_x = (Uint32)(x * d->scale_x * 256.0) % 256;
+	img_y = (Uint32)(y * d->scale_y * 256.0) % 256;
 	c = tex[((img_y << 8u) + img_x)];
 	if (c != TRANSPARENCY_COLOR)
 	{
-		shade = app->rw->shade[(int)(((app->is_floor ? d->tex_y : d->tex_x) / d->tex_z) * 100)];
-		color = (Uint8 *)&c;
-		color[0] *= shade;
-		color[1] *= shade;
-		color[2] *= shade;
+		if (app->cs->ready && !app->is_skybox)
+			shade_color(app, x * 100, y * 100, &c);
 		app->depth_buffer[offset] = d->depth;
 		set_pixel_uint32(app->sdl->surface, offset, c);
 	}
 }
 
-void 	scanline_calc(t_app *app, t_scanline *d, t_edge *left, t_edge *right)
+void 	scanline_calc(t_scanline *d, t_edge *left, t_edge *right)
 {
 	d->start = ceil(left->x);
 	d->end = ceil(right->x);
@@ -48,7 +71,7 @@ void	scanline(t_app *app, t_edge *left, t_edge *right, int y)
 
 	w = app->rw;
 	texture = app->sprites[w->sprite].pixels;
-	scanline_calc(app, &d, left, right);
+	scanline_calc(&d, left, right);
 	offset = y * SCREEN_W + (d.start);
 	d.scale_x = w->scale_x;
 	d.scale_y = w->scale_y;
