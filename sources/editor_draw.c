@@ -20,6 +20,8 @@ void 	draw_edge(t_app *app, t_v3d edge)
 {
 	t_v3d v;
 
+	if (app->hit_type != wall)
+		return ;
 	v = matrix_transform(app->camera->transform, edge);
 	if (vertex_inside(&v))
 	{

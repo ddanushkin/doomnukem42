@@ -45,6 +45,7 @@ void	init_camera(t_camera *camera)
 			0.05,
 			1000.0);
 	camera->screen_space = matrix_screen_space();
+	camera->fly = 0;
 }
 
 void	init_app(t_app *app)

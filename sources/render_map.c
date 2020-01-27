@@ -96,30 +96,6 @@ void 	billboard_switch_sprite(t_app *app, t_wall *w)
 	}
 }
 
-int is_colliding(t_v3d c0, double radius, t_v3d v0, t_v3d v1)
-{
-	double	dist;
-	double	u;
-	t_v3d	v1v0;
-	t_v3d	c0v0;
-	t_v3d	tmp;
-
-	v1v0 = vector_sub(v1, v0);
-	c0v0 = vector_sub(c0, v0);
-	u = (c0v0.x * v1v0.x + c0v0.z * v1v0.z) /
-		(v1v0.z * v1v0.z + v1v0.x * v1v0.x);
-	if (u >= 0.0 && u <= 1.0)
-	{
-		dist = (v0.x + v1v0.x * u - c0.x) * (v0.x + v1v0.x * u - c0.x) +
-			   (v0.z + v1v0.z * u - c0.z) * (v0.z + v1v0.z * u - c0.z);
-	} else
-	{
-		tmp = u < 0.0 ? vector_sub(v0, c0) : vector_sub(v1, c0);
-		dist = (tmp.x * tmp.x) + (tmp.z * tmp.z);
-	}
-	return (dist < (radius * radius));
-}
-
 void 	render_billboard(t_app *app, t_wall *w)
 {
 	t_v3d v0;
@@ -136,7 +112,6 @@ void 	render_billboard(t_app *app, t_wall *w)
 	if (wall_outside(&v0, &v1, &v2, &v3))
 		return;
 	w->inside = wall_inside(&v0, &v1, &v2, &v3);
-	app->hit = 0;
 	app->rw = w;
 	render_triangle_0(app, v0, v1, v2);
 	render_triangle_1(app, v0, v3, v1);
@@ -154,14 +129,10 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 	w->inside = (vertex_inside(&v0) << 24u) +
 				(vertex_inside(&v1) << 16u) +
 				(vertex_inside(&v2) << 8u) + 1u;
-	app->hit = 0;
 	app->rw = w;
-	if (render_triangle_0(app, v0, v1, v2) && !app->edge_selected)
-	{
-		ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]);
-		if (app->hit)
-			app->hit_first = 1;
-	}
+	render_triangle_0(app, v0, v1, v2);
+	if (!app->edge_selected && ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]))
+		app->hit_first = 1;
 }
 
 void 	render_wall(t_app *app, t_wall *w)
@@ -171,13 +142,6 @@ void 	render_wall(t_app *app, t_wall *w)
 	t_v3d	v2;
 	t_v3d	v3;
 
-	t_v3d	pos = app->camera->pos;
-	t_v3d	prev = app->camera->pos_prev;
-
-	if (!app->collide_x && app->cs->ready)
-		app->collide_x = is_colliding(new_vector(pos.x, 0.0, prev.z), 0.20, w->v[2], w->v[0]);
-	if (!app->collide_z && app->cs->ready)
-		app->collide_z = is_colliding(new_vector(prev.x, 0.0, pos.z), 0.20, w->v[2], w->v[0]);
 	v0 = matrix_transform(app->camera->transform, w->v[0]);
 	v1 = matrix_transform(app->camera->transform, w->v[1]);
 	v2 = matrix_transform(app->camera->transform, w->v[2]);
@@ -186,17 +150,13 @@ void 	render_wall(t_app *app, t_wall *w)
 		return;
 	w->inside = wall_inside(&v0, &v1, &v2, &v3);
 	app->rw = w;
-	app->hit = 0;
-	if (render_triangle_0(app, v0, v1, v2) && !app->edge_selected)
+	render_triangle_0(app, v0, v1, v2);
+	render_triangle_1(app, v0, v3, v1);
+	if (!app->edge_selected)
 	{
-		ray_intersect(app, w->v[0], w->v[1], w->v[2]);
-		if (app->hit)
+		if (ray_intersect(app, w->v[0], w->v[1], w->v[2]))
 			app->hit_first = 1;
-	}
-	if (render_triangle_1(app, v0, v3, v1) && !app->edge_selected && !app->hit)
-	{
-		ray_intersect(app, w->v[0], w->v[3], w->v[1]);
-		if (app->hit)
+		else if (ray_intersect(app, w->v[0], w->v[3], w->v[1]))
 			app->hit_first = 0;
 	}
 }
@@ -208,18 +168,22 @@ void 	render_sector(t_app *app, t_sector *s)
 
 	app->cs = s;
 	j = 0;
+	app->render_type = obj;
 	while (j < s->objs_count)
 		render_billboard(app, &s->objs[j++]);
 	j = 0;
+	app->render_type = wall;
 	while (j < s->walls_count)
 		render_wall(app, &s->walls[j++]);
 	j = 0;
+	app->render_type = decor;
 	while (j < s->decor_count)
 		render_wall(app, &s->decor[j++]);
 	if (s->ready && s->triangles_count > 0)
 	{
 		app->is_floor = 1;
 		j = 0;
+		app->render_type = floor_ceil;
 		while (j < s->triangles_count)
 		{
 			render_floor_ceil(app, &s->triangles[j], &s->floor);
@@ -239,7 +203,6 @@ void	render_map(t_app *app)
 
 	i = 0;
 	app->hit_dist = 10000.0;
-	app->hit = 0;
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
 	while (i < app->sectors_count)

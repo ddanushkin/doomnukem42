@@ -1,8 +1,8 @@
 #include <doom_nukem.h>
 
-void 	move(t_camera *camera, t_v3d dir, double amount)
+void 	move(t_v3d *v, t_v3d dir, double amount)
 {
-	camera->pos = vector_sum(camera->pos, vector_mul_by(dir, amount));
+	*v = vector_sum(*v, vector_mul_by(dir, amount));
 }
 
 t_mat4x4 view_matrix(t_v3d eye, double pitch, double yaw)
@@ -59,7 +59,9 @@ void 	update_camera(t_camera *c)
 	if (acos(c->dir.z) > 1.570796 && c->quad != 0 && c->quad != 4)
 		c->quad = 8 - c->quad;
 	c->right = new_vector(c->view.m[0], c->view.m[1], c->view.m[2]);
-	c->forward = new_vector(c->view.m[8], 0.0, c->view.m[10]);
+	c->forward = new_vector(c->view.m[8], c->view.m[9], c->view.m[10]);
+	if (!c->fly)
+		c->forward.y = 0.0;
 }
 
 void	process_inputs(t_app *app, double delta_time)
@@ -67,7 +69,6 @@ void	process_inputs(t_app *app, double delta_time)
 	t_mouse_state	*mouse;
 	const uint8_t	*key;
 	t_camera		*c;
-
 	double			mouse_speed = 1.2123 * delta_time;
 
 	c = app->camera;
@@ -80,15 +81,15 @@ void	process_inputs(t_app *app, double delta_time)
 	if (mouse->y)
 		c->rot.x += (double)mouse->y * mouse_speed;
 	c->rot.x = CLAMP(c->rot.x, -1.45, 1.45);
-	app->camera->pos_prev = app->camera->pos;
-	if (key[SDL_SCANCODE_W])
-		move(c, c->forward, 4.54321 * delta_time);
-	if (key[SDL_SCANCODE_S])
-		move(c, c->forward, -4.54321 * delta_time);
+	app->camera->pos_old = app->camera->pos;
+	if (key[SDL_SCANCODE_W] && app->jump <= 0.0)
+		move(&c->pos, c->forward, app->speed * delta_time);
+	if (key[SDL_SCANCODE_S] && app->jump <= 0.0)
+		move(&c->pos, c->forward, -app->speed * delta_time);
 	if (key[SDL_SCANCODE_A])
-		move(c, c->right, -4.54321 * delta_time);
+		move(&c->pos, c->right, -app->speed * delta_time);
 	if (key[SDL_SCANCODE_D])
-		move(c, c->right, 4.54321 * delta_time);
+		move(&c->pos, c->right, app->speed * delta_time);
 }
 
 int		event_handling(t_app *app)
@@ -136,6 +137,8 @@ int		event_handling(t_app *app)
 				app->input_plus = 1;
 			if (e.key.keysym.scancode == SDL_SCANCODE_T)
 				app->input_t = 1;
+			if (e.key.keysym.scancode == SDL_SCANCODE_R)
+				app->input_r = 1;
 		}
 		if (event == SDL_KEYUP)
 		{
@@ -145,6 +148,8 @@ int		event_handling(t_app *app)
 				app->input_minus = 0;
 			if (e.key.keysym.scancode == SDL_SCANCODE_T)
 				app->input_t = 0;
+			if (e.key.keysym.scancode == SDL_SCANCODE_R)
+				app->input_r = 0;
 		}
 
 	}

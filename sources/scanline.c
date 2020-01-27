@@ -18,7 +18,7 @@ void 	shade_color(t_app *app, int x, int y, Uint32 *c)
 
 	sh = &app->rw->shade[0];
 	color = (Uint8 *)c;
-	shade = sh[y * 100 + x];
+	shade = sh[y * 10 + x];
 	color[0] *= shade;
 	color[1] *= shade;
 	color[2] *= shade;
@@ -40,7 +40,7 @@ void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *tex, int offset)
 	if (c != TRANSPARENCY_COLOR)
 	{
 		if (app->cs->ready && !app->is_skybox)
-			shade_color(app, x * 100, y * 100, &c);
+			shade_color(app, x * 10.0, y * 10.0, &c);
 		app->depth_buffer[offset] = d->depth;
 		set_pixel_uint32(app->sdl->surface, offset, c);
 	}

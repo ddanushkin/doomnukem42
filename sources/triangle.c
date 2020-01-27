@@ -25,24 +25,22 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	app->triangles_counter++;
 }
 
-int		render_triangle_0(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2)
+void	render_triangle_0(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2)
 {
 	if (app->rw->inside == 16843009 || app->rw->inside == 16843008)
 	{
 		fill_triangle(app, v0, v1, v2);
-		return 1;
+		return ;
 	}
 	clip_fill_triangle(app, v0, v1, v2);
-	return 1;
 }
 
-int		render_triangle_1(t_app *app, t_v3d v0, t_v3d v3, t_v3d v1)
+void	render_triangle_1(t_app *app, t_v3d v0, t_v3d v3, t_v3d v1)
 {
 	if (app->rw->inside == 16843009 || app->rw->inside == 16842753)
 	{
 		fill_triangle(app, v0, v3, v1);
-		return 1;
+		return ;
 	}
 	clip_fill_triangle(app, v0, v3, v1);
-	return 1;
 }

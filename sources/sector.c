@@ -22,15 +22,15 @@ void 	fill_shade_y(t_light *light, t_v3d v0, t_v3d v1, double *shade)
 	int 	j;
 
 	i = 0;
-	step_y = fabs(v0.y - v1.y) / 100.0;
+	step_y = fabs(v0.y - v1.y) / 10.0;
 	v1.y = v0.y;
-	while (i < 100)
+	while (i < 10)
 	{
 		j = 0;
-		while (j < 100)
+		while (j < 10)
 		{
-			shade[i * 100 + j] = get_shade(light, &v0, &v1,
-					(double)j / 100.0);
+			shade[i * 10 + j] = get_shade(light, &v0, &v1,
+										  (double)j / 10.0);
 			j++;
 		}
 		v0.y += step_y;
@@ -46,15 +46,15 @@ void 	fill_shade_z(t_light *light, t_v3d v0, t_v3d v1, double *shade)
 	int 	j;
 
 	i = 0;
-	step_y = fabs(v0.z - v1.z) / 100.0;
+	step_y = fabs(v0.z - v1.z) / 10.0;
 	v1.z = v0.z;
-	while (i < 100)
+	while (i < 10)
 	{
 		j = 0;
-		while (j < 100)
+		while (j < 10)
 		{
-			shade[i * 100 + j] = get_shade(light, &v0, &v1,
-					(double)j / 100.0);
+			shade[i * 10 + j] = get_shade(light, &v0, &v1,
+										  (double)j / 10.0);
 			j++;
 		}
 		v0.z += step_y;

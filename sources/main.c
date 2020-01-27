@@ -44,18 +44,113 @@ Uint8 	vertex_inside(t_v3d *v)
 			fabs(v->z) <= w);
 }
 
+void 	decore_move(t_wall *decor, t_v3d forward)
+{
+	decor->v[0].y -= DECOR_LEN_HALF;
+	decor->v[1].y += DECOR_LEN_HALF;
+	decor->v[2].y -= DECOR_LEN_HALF;
+	decor->v[3].y += DECOR_LEN_HALF;
+	move(&decor->v[0], forward, -0.01);
+	move(&decor->v[1], forward, -0.01);
+	move(&decor->v[2], forward, -0.01);
+	move(&decor->v[3], forward, -0.01);
+}
+
+void 	decore_new(t_v3d hit_p, t_sector *cs, t_wall *hit_w, t_camera *cam)
+{
+	t_wall	*decor;
+	double	dz;
+	double	dx;
+	double	nz;
+	double	nx;
+
+	decor = &cs->decor[cs->decor_count];
+	*decor = wall_new();
+	dz = hit_w->v[1].z - hit_w->v[0].z;
+	dx = hit_w->v[1].x - hit_w->v[0].x;
+	nz = ((hit_p.z / DECOR_LEN) + dz / sqrt(dx*dx+dz*dz)) * DECOR_LEN;
+	nx = ((hit_p.x / DECOR_LEN) + dx / sqrt(dx*dx+dz*dz)) * DECOR_LEN;
+	decor->v[0] = hit_p;
+	decor->v[1] = new_vector(nx, hit_p.y, nz);
+	decor->v[2] = decor->v[1];
+	decor->v[3] = decor->v[0];
+	decore_move(decor, cam->forward);
+	wall_reset_tex(decor);
+	decor->sprite = 323;
+	cs->decor_count++;
+	sector_update_shade(cs);
+}
+
+int is_colliding(t_v3d c0, double radius, t_v3d v0, t_v3d v1)
+{
+	double	dist;
+	double	u;
+	t_v3d	v1v0;
+	t_v3d	c0v0;
+	t_v3d	tmp;
+
+	v1v0 = vector_sub(v1, v0);
+	c0v0 = vector_sub(c0, v0);
+	u = (c0v0.x * v1v0.x + c0v0.z * v1v0.z) /
+		(v1v0.z * v1v0.z + v1v0.x * v1v0.x);
+	if (u >= 0.0 && u <= 1.0)
+	{
+		dist = (v0.x + v1v0.x * u - c0.x) * (v0.x + v1v0.x * u - c0.x) +
+			   (v0.z + v1v0.z * u - c0.z) * (v0.z + v1v0.z * u - c0.z);
+	} else
+	{
+		tmp = u < 0.0 ? vector_sub(v0, c0) : vector_sub(v1, c0);
+		dist = (tmp.x * tmp.x) + (tmp.z * tmp.z);
+	}
+	return (dist < (radius * radius));
+}
+
+void 	wall_check_collision(t_app *app, t_wall *w)
+{
+	t_v3d	*new;
+	t_v3d	*old;
+
+	new = &app->camera->pos;
+	old = &app->camera->pos_old;
+	app->collide_x = is_colliding(new_vector(new->x, 0.0, old->z), 0.5, w->v[2], w->v[0]);
+	if (app->collide_x)
+		new->x = old->x;
+	app->collide_z = is_colliding(new_vector(new->x, 0.0, new->z), 0.5, w->v[2], w->v[0]);
+	if (app->collide_z)
+		new->z = old->z;
+}
+
+void 	check_collision(t_app *app)
+{
+	int	i;
+	int j;
+
+	i = 0;
+	while (i < app->sectors_count)
+	{
+		j = 0;
+		while (j < app->sectors[i].walls_count)
+			wall_check_collision(app, &app->sectors[i].walls[j++]);
+		i++;
+	}
+}
+
 void	start_the_game(t_app *app)
 {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	app->timer->prev = SDL_GetPerformanceCounter();
-	app->prev_pos = app->camera->pos;
 	app->camera->pos.z += 9.5;
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
+	app->cs = &app->sectors[0];
+	app->height = 1.0;
+	app->camera->pos.y = app->cs->floor_y + app->height;
+	app->speed = 4.54321;
+	app->acc = 0.0;
+	app->jump = 0.0;
 	prepare_chunks(app);
 	while (1)
 	{
-		app->printed = 0;
 		if (!event_handling(app))
 			break;
 		if (app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
@@ -68,46 +163,12 @@ void	start_the_game(t_app *app)
 				texture_scale_y_change(app);
 			if (app->inputs->keyboard[SDL_SCANCODE_LCTRL])
 				texture_scale_x_change(app);
-			if (app->input_t)
+			if (app->input_t && app->hit_type == wall)
 			{
-				t_wall	*decor;
-
-				decor = &app->hit_sector->decor[app->hit_sector->decor_count];
-				*decor = wall_new();
-
-				double	dz = app->hit_wall->v[1].z - app->hit_wall->v[0].z;
-				double	dx = app->hit_wall->v[1].x - app->hit_wall->v[0].x;
-
-				double	len = sqrt(dx*dx+dz*dz);
-
-				double	qz = dz / len;
-				double	qx = dx / len;
-
-				double	decor_size = 0.25;
-				double	decor_len = sqrt(decor_size*decor_size+decor_size*decor_size);
-
-				double	nz = ((app->hit_point.z / decor_len) + qz) * decor_len;
-				double	nx = ((app->hit_point.x / decor_len) + qx) * decor_len;
-				double	z;
-
-				z = app->camera->forward.z <= 0.0 ? 0.02 : -0.02;
-				decor->v[0] = app->hit_point;
-				decor->v[1] = new_vector(nx, app->hit_point.y, nz);
-				decor->v[2] = decor->v[1];
-				decor->v[3] = decor->v[0];
-				decor->v[0].y -= decor_len * 0.5;
-				decor->v[1].y += decor_len * 0.5;
-				decor->v[2].y -= decor_len * 0.5;
-				decor->v[3].y += decor_len * 0.5;
-				decor->v[0].z += z;
-				decor->v[1].z += z;
-				decor->v[2].z += z;
-				decor->v[3].z += z;
-				wall_reset_tex(decor);
-//				wall_update_scale(decor);
-				decor->sprite = 323;
-				app->hit_sector->decor_count++;
-				sector_update_shade(app->hit_sector);
+				decore_new(app->hit_point,
+						app->hit_sector,
+						app->hit_wall,
+						app->camera);
 				app->input_t = 0;
 			}
 			if (app->inputs->keyboard[SDL_SCANCODE_L])
@@ -160,23 +221,19 @@ void	start_the_game(t_app *app)
 		}
 		reset_screen(app);
 		process_inputs(app, app->timer->delta);
+		if (app->input_r)
+		{
+			app->camera->fly = !app->camera->fly;
+			app->input_r = 0;
+		}
+		if (!app->camera->fly && app->cs->ready)
+			check_collision(app);
+		if (!app->camera->fly && fabs(app->camera->pos.y - app->cs->floor_y) > 1.0)
+			app->camera->pos.y -= 9.8 * app->timer->delta;
+		if (!app->camera->fly && app->camera->pos.y < app->cs->floor_y)
+			app->camera->pos.y = app->cs->floor_y + app->height;
 		update_camera(app->camera);
 		render_map(app);
-		app->prev_pos.y = app->camera->pos.y;
-		if (!app->collide_x)
-			app->prev_pos.x = app->camera->pos.x;
-		if (!app->collide_z)
-			app->prev_pos.z = app->camera->pos.z;
-		if (app->collide_x)
-		{
-			app->camera->pos.x = app->prev_pos.x;
-			app->collide_x = 0;
-		}
-		if (app->collide_z)
-		{
-			app->camera->pos.z = app->prev_pos.z;
-			app->collide_z = 0;
-		}
 		if (app->hit_wall && !app->edge_selected)
 			show_edge(app);
 		if (app->edge_selected)

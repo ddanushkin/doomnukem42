@@ -51,6 +51,16 @@
 # define MSG_OK "OK."
 # define MSG_FILE_NOT_FOUND "FILE NOT FOUND: "
 # define MSG_BAD_RESOURCES "BAD RESOURCES!"
+# define DECOR_LEN 0.35355339059327379
+# define DECOR_LEN_HALF 0.17677669529663689
+
+enum e_hit_type
+{
+	wall,
+	decor,
+	obj,
+	floor_ceil
+};
 
 typedef struct	s_color
 {
@@ -214,7 +224,7 @@ typedef struct	s_camera
 	double 		for_rad;
 	double 		asp_ratio;
 	t_v3d		pos;
-	t_v3d		pos_prev;
+	t_v3d		pos_old;
 	t_v3d		rot;
 	t_v3d		dir;
 	t_mat4x4	view;
@@ -228,6 +238,7 @@ typedef struct	s_camera
 	t_v3d		forward;
 	t_v3d		up;
 	t_v3d		right;
+	int			fly;
 }				t_camera;
 
 typedef struct	s_timer
@@ -364,12 +375,12 @@ typedef struct	s_app
 	t_mat4x4	projection_mat;
 	t_sdl		*sdl;
 	t_inputs	*inputs;
-	t_mesh		*meshes;
 	t_sprite	*sprites;
 	int 		sprites_count;
 	double		*depth_buffer;
 	TTF_Font	*font;
-	int 		hit;
+	enum e_hit_type	hit_type;
+	enum e_hit_type	render_type;
 	int 		hit_first;
 	t_wall		*hit_wall;
 	t_v3d		hit_point;
@@ -382,28 +393,30 @@ typedef struct	s_app
 	int 		sectors_count;
 	int			input_g;
 	int			input_t;
+	int 		input_r;
 	double 		grid_size;
 	int 		input_plus;
 	int 		input_minus;
-	int 		tex_switch;
 	t_wall		*rw;
 	int 		triangles_counter;
 	int 		collide_x;
 	int 		collide_z;
-	t_v3d 		collide_point;
-	t_v3d		prev_pos;
 	t_skybox	skybox;
 	t_depth_chunk	depth_chunk;
 	t_depth_chunk	*depth_chunk_array;
 	t_screen_chunk	screen_chunk;
 	t_screen_chunk	*screen_chunk_array;
-	int 		printed;
 	int 		is_floor;
 	int 		is_skybox;
+	double			height;
+	double 			speed;
+	double			acc;
+	int 		jumped;
+	double 		jump;
+	t_v3d 		force;
 }				t_app;
 
-t_v3d	get_forward(t_mat4x4 view);
-t_v3d	get_right(t_v3d qt);
+void 	move(t_v3d *v, t_v3d dir, double amount);
 
 void 	draw_polygon_line(t_app *app, t_v3d start, t_v3d end);
 void	triangulate(t_sector *current_sector);
@@ -411,7 +424,6 @@ void	triangulate(t_sector *current_sector);
 void	process_inputs(t_app *app, double delta_time);
 void 	update_camera(t_camera *camera);
 
-void 	fill_shade(t_light *light, t_v3d v0, t_v3d v1, double *shade);
 void	sector_update_shade(t_sector *cs);
 
 void	wall_reset_tex(t_wall *w);
@@ -429,13 +441,13 @@ Uint8	vertex_inside(t_v3d *v);
 void	vertex_perspective_divide(t_v3d *v);
 void	polygon_add(t_polygon **poly, t_v3d v);
 void	scan_triangle(t_app *app, t_v3d min, t_v3d mid, t_v3d max, int handedness);
-void	ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
+int		ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void	vr_list_add(t_vr_list **list, t_v3d v);
 void 	vr_list_free(t_vr_list **list);
 t_vr_list	*vr_list_last(t_vr_list *head);
 void 	clip_fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
-int		render_triangle_0(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
-int		render_triangle_1(t_app *app, t_v3d v0, t_v3d v3, t_v3d v1);
+void	render_triangle_0(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
+void	render_triangle_1(t_app *app, t_v3d v0, t_v3d v3, t_v3d v1);
 void 	get_sector_min_max(t_sector *cs);
 void 	render_wall(t_app *app, t_wall *w);
 void 	render_billboard(t_app *app, t_wall *w);

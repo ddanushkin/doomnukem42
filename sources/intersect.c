@@ -1,6 +1,6 @@
 #include "doom_nukem.h"
 
-void 		hit_fill_data(t_app *app, double distance)
+int	hit_fill_data(t_app *app, double distance)
 {
 	app->hit_point = vector_sum(
 			app->camera->pos,
@@ -8,10 +8,11 @@ void 		hit_fill_data(t_app *app, double distance)
 	app->hit_dist = distance;
 	app->hit_wall = app->rw;
 	app->hit_sector = app->cs;
-	app->hit = 1;
+	app->hit_type = app->render_type;
+	return (1);
 }
 
-void		ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2)
+int		ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2)
 {
 	t_intersect	i;
 
@@ -20,17 +21,18 @@ void		ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2)
 	i.pvec = vector_cross_product(app->camera->dir, i.v0v2);
 	i.det = vector_dot_product(i.v0v1, i.pvec);
 	if (fabs(i.det) < 0.0)
-		return ;
+		return 0;
 	i.det = 1 / i.det;
 	i.tvec = vector_sub(app->camera->pos, v0);
 	i.u = vector_dot_product(i.tvec, i.pvec) * i.det;
 	if (i.u < 0 || i.u > 1)
-		return ;
+		return 0;
 	i.qvec = vector_cross_product(i.tvec, i.v0v1);
 	i.v = vector_dot_product(app->camera->dir, i.qvec) * i.det;
 	if (i.v < 0 || i.u + i.v > 1)
-		return ;
+		return 0;
 	i.t = vector_dot_product(i.v0v2, i.qvec) * i.det;
 	if (i.t < app->hit_dist && i.t > 0.0)
-		hit_fill_data(app, i.t);
+		return (hit_fill_data(app, i.t));
+	return 0;
 }
