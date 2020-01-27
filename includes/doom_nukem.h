@@ -85,6 +85,7 @@ typedef struct	s_wall
 	double 		size;
 	double 		shade[10000];
 	Uint32 		inside;
+	int 		decor;
 }				t_wall;
 
 typedef struct	s_v2d
@@ -319,17 +320,19 @@ typedef struct	s_sector
 {
 	t_wall		*walls;
 	t_wall		*objs;
+	t_wall 		*decor;
+	t_triangle	*triangles;
 	t_wall		floor;
 	t_wall		ceil;
 	int 		walls_count;
 	int 		objs_count;
+	int 		decor_count;
+	int 		triangles_count;
 	double 		floor_y;
 	double 		ceil_y;
 	double 		delta_y;
 	int			ready;
 	t_polygon 	*polygon;
-	t_triangle	*triangles;
-	int 		triangles_count;
 	double 		x_min;
 	double 		z_min;
 	double 		x_max;
@@ -370,6 +373,7 @@ typedef struct	s_app
 	int 		hit_first;
 	t_wall		*hit_wall;
 	t_v3d		hit_point;
+	t_sector	*hit_sector;
 	double 		hit_dist;
 	int 		edge_selected;
 	t_wall		edit_wall;
@@ -377,9 +381,10 @@ typedef struct	s_app
 	t_sector	*cs;
 	int 		sectors_count;
 	int			input_g;
+	int			input_t;
 	double 		grid_size;
-	double 		input_plus;
-	double 		input_minus;
+	int 		input_plus;
+	int 		input_minus;
 	int 		tex_switch;
 	t_wall		*rw;
 	int 		triangles_counter;

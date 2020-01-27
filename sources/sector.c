@@ -107,6 +107,13 @@ void	sector_update_shade(t_sector *cs)
 		fill_shade_y(&cs->l, w->v[0], w->v[1], &w->shade[0]);
 		i++;
 	}
+	i = 0;
+	while (i < cs->decor_count)
+	{
+		w = &cs->decor[i];
+		fill_shade_y(&cs->l, w->v[0], w->v[1], &w->shade[0]);
+		i++;
+	}
 	sector_floor_shade(cs);
 }
 

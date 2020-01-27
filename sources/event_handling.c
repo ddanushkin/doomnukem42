@@ -134,6 +134,8 @@ int		event_handling(t_app *app)
 				app->input_minus = 1;
 			if (e.key.keysym.scancode == SDL_SCANCODE_EQUALS)
 				app->input_plus = 1;
+			if (e.key.keysym.scancode == SDL_SCANCODE_T)
+				app->input_t = 1;
 		}
 		if (event == SDL_KEYUP)
 		{
@@ -141,8 +143,8 @@ int		event_handling(t_app *app)
 				app->input_g = 0;
 			if (e.key.keysym.scancode == SDL_SCANCODE_MINUS)
 				app->input_minus = 0;
-			if (e.key.keysym.scancode == SDL_SCANCODE_EQUALS)
-				app->input_plus = 0;
+			if (e.key.keysym.scancode == SDL_SCANCODE_T)
+				app->input_t = 0;
 		}
 
 	}

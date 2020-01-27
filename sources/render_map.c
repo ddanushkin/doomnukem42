@@ -206,12 +206,16 @@ void 	render_sector(t_app *app, t_sector *s)
 	int			j;
 	t_triangle	ceil_triangle;
 
+	app->cs = s;
 	j = 0;
 	while (j < s->objs_count)
 		render_billboard(app, &s->objs[j++]);
 	j = 0;
 	while (j < s->walls_count)
 		render_wall(app, &s->walls[j++]);
+	j = 0;
+	while (j < s->decor_count)
+		render_wall(app, &s->decor[j++]);
 	if (s->ready && s->triangles_count > 0)
 	{
 		app->is_floor = 1;
@@ -237,61 +241,11 @@ void	render_map(t_app *app)
 	app->hit_dist = 10000.0;
 	app->hit = 0;
 	app->hit_wall = NULL;
+	app->hit_sector = NULL;
 	while (i < app->sectors_count)
 	{
 		app->is_floor = 0;
-		app->cs = &app->sectors[i];
 		render_sector(app, &app->sectors[i++]);
-		if (app->hit_wall && app->cs->ready)
-		{
-			if (app->inputs->keyboard[SDL_SCANCODE_L])
-			{
-				if (app->input_minus)
-				{
-					app->input_minus = 0;
-					app->cs->l.power -= 0.15;
-				}
-				else if (app->input_plus)
-				{
-					app->input_plus = 0;
-					app->cs->l.power += 0.15;
-				}
-				sector_update_shade(app->cs);
-				app->cs->l.power = CLAMP(app->cs->l.power, 0.0, 1000.0);
-			}
-			if (app->inputs->keyboard[SDL_SCANCODE_R])
-			{
-				if (app->input_minus)
-				{
-					app->input_minus = 0;
-					app->cs->floor_y -= 0.5;
-//					app->camera->pos.y -= 0.5;
-				}
-				else if (app->input_plus)
-				{
-					app->input_plus = 0;
-					app->cs->floor_y += 0.5;
-//					app->camera->pos.y += 0.5;
-				}
-				sector_update_height(app->cs);
-				sector_update_shade(app->cs);
-			}
-			if (app->inputs->keyboard[SDL_SCANCODE_C])
-			{
-				if (app->input_minus)
-				{
-					app->input_minus = 0;
-					app->cs->ceil_y -= 0.5;
-				}
-				else if (app->input_plus)
-				{
-					app->input_plus = 0;
-					app->cs->ceil_y += 0.5;
-				}
-				sector_update_height(app->cs);
-				sector_update_shade(app->cs);
-			}
-		}
 	}
 //	render_skybox(app, app->skybox);
 }

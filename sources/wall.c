@@ -24,6 +24,7 @@ t_wall	wall_new()
 	w.scale_x = 1.0;
 	w.scale_y = 1.0;
 	w.sprite = 103;
+	w.decor = 0;
 	return (w);
 }
 

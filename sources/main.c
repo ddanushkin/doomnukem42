@@ -50,6 +50,8 @@ void	start_the_game(t_app *app)
 	app->timer->prev = SDL_GetPerformanceCounter();
 	app->prev_pos = app->camera->pos;
 	app->camera->pos.z += 9.5;
+	app->hit_wall = NULL;
+	app->hit_sector = NULL;
 	prepare_chunks(app);
 	while (1)
 	{
@@ -58,7 +60,7 @@ void	start_the_game(t_app *app)
 			break;
 		if (app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
 			break ;
-		if (app->hit_wall)
+		if (app->hit_wall && app->hit_sector->ready)
 		{
 			if (app->inputs->keyboard[SDL_SCANCODE_LSHIFT])
 				texture_change(app);
@@ -66,6 +68,95 @@ void	start_the_game(t_app *app)
 				texture_scale_y_change(app);
 			if (app->inputs->keyboard[SDL_SCANCODE_LCTRL])
 				texture_scale_x_change(app);
+			if (app->input_t)
+			{
+				t_wall	*decor;
+
+				decor = &app->hit_sector->decor[app->hit_sector->decor_count];
+				*decor = wall_new();
+
+				double	dz = app->hit_wall->v[1].z - app->hit_wall->v[0].z;
+				double	dx = app->hit_wall->v[1].x - app->hit_wall->v[0].x;
+
+				double	len = sqrt(dx*dx+dz*dz);
+
+				double	qz = dz / len;
+				double	qx = dx / len;
+
+				double	decor_size = 0.25;
+				double	decor_len = sqrt(decor_size*decor_size+decor_size*decor_size);
+
+				double	nz = ((app->hit_point.z / decor_len) + qz) * decor_len;
+				double	nx = ((app->hit_point.x / decor_len) + qx) * decor_len;
+				double	z;
+
+				z = app->camera->forward.z <= 0.0 ? 0.02 : -0.02;
+				decor->v[0] = app->hit_point;
+				decor->v[1] = new_vector(nx, app->hit_point.y, nz);
+				decor->v[2] = decor->v[1];
+				decor->v[3] = decor->v[0];
+				decor->v[0].y -= decor_len * 0.5;
+				decor->v[1].y += decor_len * 0.5;
+				decor->v[2].y -= decor_len * 0.5;
+				decor->v[3].y += decor_len * 0.5;
+				decor->v[0].z += z;
+				decor->v[1].z += z;
+				decor->v[2].z += z;
+				decor->v[3].z += z;
+				wall_reset_tex(decor);
+//				wall_update_scale(decor);
+				decor->sprite = 323;
+				app->hit_sector->decor_count++;
+				sector_update_shade(app->hit_sector);
+				app->input_t = 0;
+			}
+			if (app->inputs->keyboard[SDL_SCANCODE_L])
+			{
+				if (app->input_minus)
+				{
+					app->input_minus = 0;
+					app->hit_sector->l.power -= 0.15;
+				}
+				else if (app->input_plus)
+				{
+					app->input_plus = 0;
+					app->hit_sector->l.power += 0.15;
+				}
+				sector_update_shade(app->hit_sector);
+				app->hit_sector->l.power = CLAMP(app->hit_sector->l.power, 0.0, 1000.0);
+			}
+			if (app->inputs->keyboard[SDL_SCANCODE_F])
+			{
+				if (app->input_minus)
+				{
+					app->input_minus = 0;
+					app->hit_sector->floor_y -= 0.5;
+//					app->camera->pos.y -= 0.5;
+				}
+				else if (app->input_plus)
+				{
+					app->input_plus = 0;
+					app->hit_sector->floor_y += 0.5;
+//					app->camera->pos.y += 0.5;
+				}
+				sector_update_height(app->hit_sector);
+				sector_update_shade(app->hit_sector);
+			}
+			if (app->inputs->keyboard[SDL_SCANCODE_C])
+			{
+				if (app->input_minus)
+				{
+					app->input_minus = 0;
+					app->hit_sector->ceil_y -= 0.5;
+				}
+				else if (app->input_plus)
+				{
+					app->input_plus = 0;
+					app->hit_sector->ceil_y += 0.5;
+				}
+				sector_update_height(app->hit_sector);
+				sector_update_shade(app->hit_sector);
+			}
 		}
 		reset_screen(app);
 		process_inputs(app, app->timer->delta);
@@ -185,29 +276,41 @@ int		main(int argv, char**argc)
 	app->sectors_count = 1;
 	app->sectors = (t_sector *)malloc(sizeof(t_sector) * 1000);
 
-	app->sectors[0].floor_y = 0.0;
-	app->sectors[0].ceil_y = 2.0;
-	app->sectors[0].delta_y = 2.0;
+	t_sector *cs;
 
-	app->sectors[0].walls_count = 0;
-	app->sectors[0].walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
-	app->sectors[0].walls[0] = wall_new();
-	app->sectors[0].walls[0].v[0] = new_vector(0.0, 0.0, 0.0);
-	app->sectors[0].walls[0].v[1] = new_vector(2.0, 2.0, 0.0);
-	app->sectors[0].walls[0].v[2] = new_vector(2.0, 0.0, 0.0);
-	app->sectors[0].walls[0].v[3] = new_vector(0.0, 2.0, 0.0);
-	wall_reset_tex(&app->sectors[0].walls[0]);
-	wall_update_scale(&app->sectors[0].walls[0]);
-	app->sectors[0].walls_count++;
+	cs = &app->sectors[0];
+	cs->floor_y = 0.0;
+	cs->ceil_y = 2.0;
+	cs->delta_y = 2.0;
 
-	app->sectors[0].objs_count = 0;
-	app->sectors[0].objs = (t_wall *)malloc(sizeof(t_wall) * 1000);
-	app->sectors[0].objs[0] = wall_new();
-	app->sectors[0].objs[0].size = 1.5;
-	app->sectors[0].objs[0].pos = new_vector(1.0, app->sectors[0].walls[0].v[0].y, -4.0);
-	wall_reset_tex(&app->sectors[0].objs[0]);
-	app->sectors[0].objs[0].sprite = 499;
-	app->sectors[0].objs_count++;
+	cs->walls_count = 0;
+	cs->walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
+	cs->walls[0] = wall_new();
+
+//	cs->walls[0].v[0] = new_vector(-1.878427, 0.795421, -1.137056);
+//	cs->walls[0].v[1] = new_vector(-0.628427, 1.295421, -0.387056);
+//	cs->walls[0].v[2] = new_vector(-0.628427, 0.795421, -1.137056);
+//	cs->walls[0].v[3] = new_vector(-1.878427, 1.295421, -0.387056);
+
+	cs->walls[0].v[0] = new_vector(0.0, 0.0, 0.0);
+	cs->walls[0].v[1] = new_vector(2.0, 2.0, 0.0);
+	cs->walls[0].v[2] = new_vector(2.0, 0.0, 0.0);
+	cs->walls[0].v[3] = new_vector(0.0, 2.0, 0.0);
+	wall_reset_tex(&cs->walls[0]);
+	wall_update_scale(&cs->walls[0]);
+	cs->walls_count++;
+
+	cs->objs_count = 0;
+	cs->objs = (t_wall *)malloc(sizeof(t_wall) * 1000);
+	cs->objs[0] = wall_new();
+	cs->objs[0].size = 1.5;
+	cs->objs[0].pos = new_vector(1.0, cs->walls[0].v[0].y, -4.0);
+	wall_reset_tex(&cs->objs[0]);
+	cs->objs[0].sprite = 499;
+	cs->objs_count++;
+
+	cs->decor = (t_wall *)malloc(sizeof(t_wall) * 1000);
+	cs->decor_count = 0;
 
 	app->sectors[0].ready = 0;
 
