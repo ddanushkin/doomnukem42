@@ -72,13 +72,13 @@ t_v3d 	get_head(t_app *app, t_camera *c)
 		app->acc += 5.0 * app->timer->delta;
 	app->acc = CLAMP(app->acc, 0.5, 2.0);
 
-	head.y = app->cs->floor_y + app->height;
+	head.y = app->floor_point.y + app->height;
 
 	if (app->inputs->keyboard[SDL_SCANCODE_SPACE] && app->jump <= 0.0 && app->fall <= 0.0)
 		app->jump = 0.3;
 	if (app->jump > 0.0)
 	{
-		app->fall += 9.8 * app->timer->delta;
+		app->fall += 5.8 * app->timer->delta;
 		app->acc = 2.0;
 		app->jump -= app->timer->delta;
 	}
@@ -86,24 +86,20 @@ t_v3d 	get_head(t_app *app, t_camera *c)
 	if (app->fall <= 0.0 && app->height == 1.0)
 		app->fall = fabs(app->prev_y - head.y);
 	if (!app->camera->fly && app->fall > 0.0 && app->jump <= 0.0)
-	{
-		printf("fall %f\n", app->fall);
 		app->fall -= 9.8 * app->timer->delta;
-	}
 	app->prev_y = head.y;
 	head.y += app->fall;
-	if (head.y >= app->cs->ceil_y)
+	if (app->jump > 0.0 && head.y >= app->cs->ceil_y && app->prev_y < app->cs->ceil_y)
 	{
 		app->jump = 0.0;
 		head.y = app->cs->ceil_y;
 	}
-	if (app->fall <= 0.0)
-		head.y += sin(app->head_speed) * app->head_power;
 	if (app->camera->fly)
 		head = c->pos;
 	c->pos = head;
+	if (app->fall <= 0.0 && !app->camera->fly)
+		head.y += sin(app->head_speed) * app->head_power;
 	app->speed = 4.54321 * app->acc;
-	printf("speed -> %f\n", app->speed);
 	return (head);
 }
 

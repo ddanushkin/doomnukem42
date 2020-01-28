@@ -118,6 +118,7 @@ void 	wall_check_collision(t_app *app, t_wall *w)
 	app->collide_z = is_colliding(new_vector(new->x, 0.0, new->z), 0.5, w->v[2], w->v[0]);
 	if (app->collide_z)
 		new->z = old->z;
+	printf("!\n");
 }
 
 void 	check_collision(t_app *app)
@@ -227,6 +228,8 @@ void	start_the_game(t_app *app)
 		if (app->input_r)
 		{
 			app->camera->fly = !app->camera->fly;
+			if (!app->camera->fly)
+				app->fall = app->camera->pos.y - app->floor_point.y - app->height;
 			app->input_r = 0;
 		}
 		if (!app->camera->fly && app->cs->ready)
@@ -343,11 +346,6 @@ int		main(int argv, char**argc)
 	cs->walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
 	cs->walls[0] = wall_new();
 
-//	cs->walls[0].v[0] = new_vector(-1.878427, 0.795421, -1.137056);
-//	cs->walls[0].v[1] = new_vector(-0.628427, 1.295421, -0.387056);
-//	cs->walls[0].v[2] = new_vector(-0.628427, 0.795421, -1.137056);
-//	cs->walls[0].v[3] = new_vector(-1.878427, 1.295421, -0.387056);
-
 	cs->walls[0].v[0] = new_vector(0.0, 0.0, 0.0);
 	cs->walls[0].v[1] = new_vector(2.0, 2.0, 0.0);
 	cs->walls[0].v[2] = new_vector(2.0, 0.0, 0.0);
@@ -368,6 +366,7 @@ int		main(int argv, char**argc)
 	cs->decor = (t_wall *)malloc(sizeof(t_wall) * 1000);
 	cs->decor_count = 0;
 
+	cs->l.power = 5;
 	app->sectors[0].ready = 0;
 
 //	clock_t begin = clock();

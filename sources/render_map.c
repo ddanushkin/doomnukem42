@@ -117,7 +117,7 @@ void 	render_billboard(t_app *app, t_wall *w)
 	render_triangle_1(app, v0, v3, v1);
 }
 
-void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
+void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w, int is_floor)
 {
 	t_v3d	v0;
 	t_v3d	v1;
@@ -133,6 +133,9 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 	render_triangle_0(app, v0, v1, v2);
 	if (!app->edge_selected && ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]))
 		app->hit_first = 1;
+	if (ray_floor(app, tr->v[0], tr->v[1], tr->v[2]))
+		printf("[%d] floor_hit -> [%f, %f, %f]\n", is_floor, app->floor_point.x, app->floor_point.y, app->floor_point.z);
+
 }
 
 void 	render_wall(t_app *app, t_wall *w)
@@ -185,12 +188,12 @@ void 	render_sector(t_app *app, t_sector *s)
 		app->render_type = floor_ceil;
 		while (j < s->triangles_count)
 		{
-			render_floor_ceil(app, &s->triangles[j], &s->floor);
+			render_floor_ceil(app, &s->triangles[j], &s->floor, 1);
 			ceil_triangle = s->triangles[j];
 			ceil_triangle.v[0].y += s->delta_y;
 			ceil_triangle.v[1].y += s->delta_y;
 			ceil_triangle.v[2].y += s->delta_y;
-			render_floor_ceil(app, &ceil_triangle, &s->ceil);
+			render_floor_ceil(app, &ceil_triangle, &s->ceil, 0);
 			j++;
 		}
 	}
@@ -202,6 +205,7 @@ void	render_map(t_app *app)
 
 	i = 0;
 	app->hit_dist = 10000.0;
+	app->floor_dist = 10000.0;
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
 	while (i < app->sectors_count)

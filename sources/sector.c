@@ -161,12 +161,12 @@ void 	sector_close(t_app *app)
 		cs->ceil = cs->floor;
 		cs->ceil.sprite = 399;
 		cs->ready = 1;
+//		app->sectors_count++;
 	}
 	if (app->inputs->keyboard[SDL_SCANCODE_Q] && cs->ready)
 	{
 		cs->l.pos = app->camera->pos;
 		cs->l.pos.y = cs->ceil_y - 0.1;
-		cs->l.power = 5;
 		sector_update_shade(cs);
 	}
 

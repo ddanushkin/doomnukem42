@@ -417,6 +417,9 @@ typedef struct	s_app
 	double 		head_power;
 	double 		head_acc;
 	double 		head_speed;
+	t_v3d 		floor_point;
+	double		floor_dist;
+	int			point_mode;
 }				t_app;
 
 void 	move(t_v3d *v, t_v3d dir, double amount);
@@ -445,6 +448,7 @@ void	vertex_perspective_divide(t_v3d *v);
 void	polygon_add(t_polygon **poly, t_v3d v);
 void	scan_triangle(t_app *app, t_v3d min, t_v3d mid, t_v3d max, int handedness);
 int		ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
+int		ray_floor(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void	vr_list_add(t_vr_list **list, t_v3d v);
 void 	vr_list_free(t_vr_list **list);
 t_vr_list	*vr_list_last(t_vr_list *head);
