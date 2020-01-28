@@ -35,11 +35,35 @@ t_mat4x4 view_matrix(t_v3d eye, double pitch, double yaw)
 	return (view);
 }
 
-void 	update_camera(t_camera *c)
+t_v3d 	get_head(t_app *app, t_camera *c)
+{
+	t_v3d			head;
+	const uint8_t	*key;
+	double			delta;
+
+	delta = app->timer->delta;
+	key = app->inputs->keyboard;
+	if (IF_MOVE && app->head_power < 0.2)
+		app->head_power += 0.2 * delta;
+	else if (app->head_power > 0.05)
+		app->head_power -= 0.2 * delta;
+	if (IF_MOVE && app->head_acc < 5.0)
+		app->head_acc += 2.5 * delta;
+	else if (app->head_acc > 0.0)
+		app->head_acc -= 2.5 * delta;
+	app->head_speed += 1.5 * app->head_acc * app->timer->delta;
+	app->head_power = CLAMP(app->head_power, 0.05, 0.2);
+	app->head_acc = CLAMP(app->head_acc, 1.0, 5.0);
+	head = c->pos;
+	head.y += sin(app->head_speed) * app->head_power;
+	return (head);
+}
+
+void 	update_camera(t_app *app, t_camera *c)
 {
 	double	x_acos;
 
-	c->view = view_matrix(c->pos, c->rot.x, c->rot.y);
+	c->view = view_matrix(get_head(app, c), c->rot.x, c->rot.y);
 	c->view_projection = matrix_multiply(c->projection, c->view);
 	c->transform = get_transform_matrix(c->view_projection);
 	c->dir.x = c->view.m[8];

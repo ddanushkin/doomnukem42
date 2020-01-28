@@ -53,6 +53,7 @@
 # define MSG_BAD_RESOURCES "BAD RESOURCES!"
 # define DECOR_LEN 0.35355339059327379
 # define DECOR_LEN_HALF 0.17677669529663689
+# define IF_MOVE (key[SDL_SCANCODE_W] || key[SDL_SCANCODE_A] || key[SDL_SCANCODE_S] || key[SDL_SCANCODE_D])
 
 enum e_hit_type
 {
@@ -414,6 +415,9 @@ typedef struct	s_app
 	int 		jumped;
 	double 		jump;
 	t_v3d 		force;
+	double 		head_power;
+	double 		head_acc;
+	double 		head_speed;
 }				t_app;
 
 void 	move(t_v3d *v, t_v3d dir, double amount);
@@ -422,7 +426,7 @@ void 	draw_polygon_line(t_app *app, t_v3d start, t_v3d end);
 void	triangulate(t_sector *current_sector);
 
 void	process_inputs(t_app *app, double delta_time);
-void 	update_camera(t_camera *camera);
+void 	update_camera(t_app *app, t_camera *camera);
 
 void	sector_update_shade(t_sector *cs);
 

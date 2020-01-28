@@ -148,6 +148,9 @@ void	start_the_game(t_app *app)
 	app->speed = 4.54321;
 	app->acc = 0.0;
 	app->jump = 0.0;
+	app->head_acc = 1.0;
+	app->head_power = 0.05;
+	app->head_speed = 0.0;
 	prepare_chunks(app);
 	while (1)
 	{
@@ -192,13 +195,11 @@ void	start_the_game(t_app *app)
 				{
 					app->input_minus = 0;
 					app->hit_sector->floor_y -= 0.5;
-//					app->camera->pos.y -= 0.5;
 				}
 				else if (app->input_plus)
 				{
 					app->input_plus = 0;
 					app->hit_sector->floor_y += 0.5;
-//					app->camera->pos.y += 0.5;
 				}
 				sector_update_height(app->hit_sector);
 				sector_update_shade(app->hit_sector);
@@ -232,7 +233,7 @@ void	start_the_game(t_app *app)
 			app->camera->pos.y -= 9.8 * app->timer->delta;
 		if (!app->camera->fly && app->camera->pos.y < app->cs->floor_y)
 			app->camera->pos.y = app->cs->floor_y + app->height;
-		update_camera(app->camera);
+		update_camera(app, app->camera);
 		render_map(app);
 		if (app->hit_wall && !app->edge_selected)
 			show_edge(app);
