@@ -14,5 +14,4 @@ void	save_new_wall(t_app *app)
 	app->hit_wall = NULL;
 	app->hit_dist = 10000.0;
 	app->edge_selected = 0;
-	app->inputs->mouse.left = 0;
 }

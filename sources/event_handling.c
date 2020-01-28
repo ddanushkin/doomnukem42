@@ -103,6 +103,16 @@ t_v3d 	get_head(t_app *app, t_camera *c)
 	return (head);
 }
 
+void 	update_points_camera(t_camera *c)
+{
+	c->view = view_matrix(c->pos, c->rot.x, c->rot.y);
+	c->view_projection = matrix_multiply(c->projection, c->view);
+	c->transform = get_transform_matrix(c->view_projection);
+	c->dir.x = c->view.m[8];
+	c->dir.y = c->view.m[9];
+	c->dir.z = c->view.m[10];
+}
+
 void 	update_camera(t_app *app, t_camera *c)
 {
 	double	x_acos;
@@ -132,6 +142,33 @@ void 	update_camera(t_app *app, t_camera *c)
 		c->forward.y = 0.0;
 }
 
+void	process_points_inputs(t_app *app, double delta_time)
+{
+	const uint8_t	*key;
+	t_camera		*c;
+	t_mouse_state	*mouse;
+
+	mouse = &app->inputs->mouse;
+	c = app->camera;
+	key = app->inputs->keyboard;
+	if (key[SDL_SCANCODE_W])
+		c->pos.z += app->speed * delta_time;
+	if (key[SDL_SCANCODE_S])
+		c->pos.z -= app->speed * delta_time;
+	if (key[SDL_SCANCODE_A])
+		c->pos.x -= app->speed * delta_time;
+	if (key[SDL_SCANCODE_D])
+		c->pos.x += app->speed * delta_time;
+	if (app->mouse[SDL_MOUSE_SCROLL_UP])
+		c->pos.y += app->speed * 50.0 * delta_time;
+	if (app->mouse[SDL_MOUSE_SCROLL_DOWN])
+		c->pos.y -= app->speed * 50.0 * delta_time;
+	if (mouse->x != 0)
+		app->cursor_x += mouse->x;
+	if (mouse->y != 0)
+		app->cursor_y += mouse->y;
+}
+
 void	process_inputs(t_app *app, double delta_time)
 {
 	t_mouse_state	*mouse;
@@ -148,7 +185,8 @@ void	process_inputs(t_app *app, double delta_time)
 		c->rot.y += (double)mouse->x * mouse_speed;
 	if (mouse->y)
 		c->rot.x += (double)mouse->y * mouse_speed;
-	c->rot.x = CLAMP(c->rot.x, -1.45, 1.45);
+	if (!app->point_mode)
+		c->rot.x = CLAMP(c->rot.x, -1.45, 1.45);
 	app->camera->pos_old = app->camera->pos;
 	if (key[SDL_SCANCODE_W])
 		move(&c->pos, c->forward, app->speed * delta_time);
@@ -177,49 +215,17 @@ int		event_handling(t_app *app)
 			app->inputs->mouse.x = e.motion.xrel;
 			app->inputs->mouse.y = e.motion.yrel;
 		}
+		if (event == SDL_MOUSEWHEEL)
+		{
+			if (e.wheel.y > 0)
+				app->mouse[SDL_MOUSE_SCROLL_UP] = 1;
+			else if (e.wheel.y < 0)
+				app->mouse[SDL_MOUSE_SCROLL_DOWN] = 1;
+		}
 		if (event == SDL_MOUSEBUTTONDOWN)
-		{
-			if (e.button.button == SDL_BUTTON_LEFT)
-				app->inputs->mouse.left = 1;
-			if (e.button.button == SDL_BUTTON_RIGHT)
-				app->inputs->mouse.right = 1;
-			if (e.button.button == SDL_BUTTON_MIDDLE)
-				app->inputs->mouse.middle = 1;
-		}
-		if (event == SDL_MOUSEBUTTONUP)
-		{
-			if (e.button.button == SDL_BUTTON_LEFT)
-				app->inputs->mouse.left = 0;
-			if (e.button.button == SDL_BUTTON_RIGHT)
-				app->inputs->mouse.right = 0;
-			if (e.button.button == SDL_BUTTON_MIDDLE)
-				app->inputs->mouse.middle = 0;
-		}
+			app->mouse[e.button.button] = 1;
 		if (event == SDL_KEYDOWN)
-		{
-			if (e.key.keysym.scancode == SDL_SCANCODE_G)
-				app->input_g = 1;
-			if (e.key.keysym.scancode == SDL_SCANCODE_MINUS)
-				app->input_minus = 1;
-			if (e.key.keysym.scancode == SDL_SCANCODE_EQUALS)
-				app->input_plus = 1;
-			if (e.key.keysym.scancode == SDL_SCANCODE_T)
-				app->input_t = 1;
-			if (e.key.keysym.scancode == SDL_SCANCODE_R)
-				app->input_r = 1;
-		}
-		if (event == SDL_KEYUP)
-		{
-			if (e.key.keysym.scancode == SDL_SCANCODE_G)
-				app->input_g = 0;
-			if (e.key.keysym.scancode == SDL_SCANCODE_MINUS)
-				app->input_minus = 0;
-			if (e.key.keysym.scancode == SDL_SCANCODE_T)
-				app->input_t = 0;
-			if (e.key.keysym.scancode == SDL_SCANCODE_R)
-				app->input_r = 0;
-		}
-
+			app->keys[e.key.keysym.scancode] = 1;
 	}
 	return (1);
 }

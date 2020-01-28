@@ -52,7 +52,6 @@ void	init_app(t_app *app)
 {
 	init_sdl(app->sdl);
 	app->inputs->keyboard = SDL_GetKeyboardState(NULL);
-	app->inputs->mouse.sens = 0.5;
 	app->timer->prev = 0;
 	app->timer->delta = 0;
 	app->timer->fps = 0;
@@ -60,16 +59,9 @@ void	init_app(t_app *app)
 	app->timer->time = 0.0;
 	app->timer->frame = 0;
 	app->edge_selected = 0;
-	app->input_g = 0;
-	app->input_minus = 0;
-	app->input_plus = 0;
-	app->inputs->mouse.left = 0;
-	app->inputs->mouse.right = 0;
-	app->inputs->mouse.middle = 0;
 	app->grid_size = 0.5;
 	app->triangles_counter = 0;
 	init_camera(app->camera);
 	init_projection_mat(app);
-	//prepare_chunks(app);
 	app->font = TTF_OpenFont("resources/calibrib.ttf", 14);
 }

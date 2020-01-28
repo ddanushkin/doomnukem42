@@ -13,7 +13,6 @@ void 	select_edge(t_app *app,  t_v3d v0, t_v3d v1)
 	app->edit_wall.sprite = w->sprite;
 	wall_reset_tex(&app->edit_wall);
 	wall_update_scale(&app->edit_wall);
-	app->inputs->mouse.left = 0;
 }
 
 void 	draw_edge(t_app *app, t_v3d edge)
@@ -42,7 +41,7 @@ void 	show_edge(t_app *app)
 	{
 		draw_edge(app, v0);
 		draw_edge(app, v1);
-		if (app->inputs->mouse.left)
+		if (app->mouse[SDL_MOUSE_LEFT])
 			select_edge(app, v0, v1);
 	}
 }

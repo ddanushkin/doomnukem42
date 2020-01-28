@@ -136,14 +136,55 @@ void 	check_collision(t_app *app)
 	}
 }
 
+void 	draw_point(t_app *app, t_v3d p, Uint32 c)
+{
+	p = matrix_transform(app->camera->transform, p);
+	if (vertex_inside(&p))
+	{
+		p = matrix_transform(app->camera->screen_space, p);
+		vertex_perspective_divide(&p);
+		int offset = (int)p.y * SCREEN_W + (int)p.x;
+		if (p.z < app->depth_buffer[offset])
+			set_pixel_uint32(app->sdl->surface, offset, c);
+	}
+}
+
+t_v3d	save_point(t_app *app, double x, double z)
+{
+	double angle;
+
+	angle = tan(0.5 * app->camera->fov) * app->camera->pos.y;
+	x = (2.0 * x / SCREEN_W - 1) * angle / app->camera->asp_ratio;
+	z = (2.0 * z / SCREEN_H - 1) * angle;
+	x = round((app->camera->pos.x + x) / app->grid_size) * app->grid_size;
+	z = round((app->camera->pos.z - z) / app->grid_size) * app->grid_size;
+	return (new_vector(x, 0.0, z));
+}
+
+void 	draw_line_3d(t_app *app, t_v3d start, t_v3d end, uint32_t c)
+{
+	t_v3d		tmp1;
+	t_v3d		tmp2;
+
+	tmp1 = matrix_transform(app->camera->transform, start);
+	tmp2 = matrix_transform(app->camera->transform, end);
+	if (vertex_inside(&tmp1) &&
+		vertex_inside(&tmp2))
+	{
+		tmp1 = matrix_transform(app->camera->screen_space, tmp1);
+		vertex_perspective_divide(&tmp1);
+		tmp2 = matrix_transform(app->camera->screen_space, tmp2);
+		vertex_perspective_divide(&tmp2);
+		draw_line(app, &tmp1, &tmp2, c);
+	}
+}
+
 void	start_the_game(t_app *app)
 {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	app->timer->prev = SDL_GetPerformanceCounter();
-	app->camera->pos.z += 9.5;
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
-	app->cs = &app->sectors[0];
 	app->speed = 4.54321;
 	app->acc = 0.0;
 	app->jump = 0.0;
@@ -152,9 +193,16 @@ void	start_the_game(t_app *app)
 	app->head_speed = 0.0;
 	app->fall = 0.0;
 	app->height = 1.0;
-	app->camera->pos.y = 0.0;
-	app->prev_y = app->cs->floor_y + app->height;
 	prepare_chunks(app);
+	app->point_mode = 1;
+	app->cursor_x = SCREEN_W * 0.5;
+	app->cursor_y = SCREEN_H * 0.5;
+	app->camera->pos.x = 0.0;
+	app->camera->pos.z = 0.0;
+	app->camera->pos.y = 10.0;
+	app->points_count = 0;
+	ft_bzero(&app->keys, sizeof(uint8_t) * 512);
+	ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
 	while (1)
 	{
 		if (!event_handling(app))
@@ -169,97 +217,108 @@ void	start_the_game(t_app *app)
 				texture_scale_y_change(app);
 			if (app->inputs->keyboard[SDL_SCANCODE_LCTRL])
 				texture_scale_x_change(app);
-			if (app->input_t && app->hit_type == wall)
+			if (app->keys[SDL_SCANCODE_T] && app->hit_type == wall)
 			{
 				decore_new(app->hit_point,
 						app->hit_sector,
 						app->hit_wall,
 						app->camera);
-				app->input_t = 0;
 			}
 			if (app->inputs->keyboard[SDL_SCANCODE_L])
 			{
-				if (app->input_minus)
-				{
-					app->input_minus = 0;
+				if (app->keys[SDL_SCANCODE_MINUS])
 					app->hit_sector->l.power -= 0.15;
-				}
-				else if (app->input_plus)
-				{
-					app->input_plus = 0;
+				else if (app->keys[SDL_SCANCODE_EQUALS])
 					app->hit_sector->l.power += 0.15;
-				}
 				sector_update_shade(app->hit_sector);
 				app->hit_sector->l.power = CLAMP(app->hit_sector->l.power, 0.0, 1000.0);
 			}
 			if (app->inputs->keyboard[SDL_SCANCODE_F])
 			{
-				if (app->input_minus)
-				{
-					app->input_minus = 0;
+				if (app->keys[SDL_SCANCODE_MINUS])
 					app->hit_sector->floor_y -= 0.5;
-				}
-				else if (app->input_plus)
-				{
-					app->input_plus = 0;
+				else if (app->keys[SDL_SCANCODE_EQUALS])
 					app->hit_sector->floor_y += 0.5;
-				}
 				sector_update_height(app->hit_sector);
 				sector_update_shade(app->hit_sector);
 			}
 			if (app->inputs->keyboard[SDL_SCANCODE_C])
 			{
-				if (app->input_minus)
-				{
-					app->input_minus = 0;
+				if (app->keys[SDL_SCANCODE_MINUS])
 					app->hit_sector->ceil_y -= 0.5;
-				}
-				else if (app->input_plus)
-				{
-					app->input_plus = 0;
+				else if (app->keys[SDL_SCANCODE_EQUALS])
 					app->hit_sector->ceil_y += 0.5;
-				}
 				sector_update_height(app->hit_sector);
 				sector_update_shade(app->hit_sector);
 			}
 		}
 		reset_screen(app);
-		process_inputs(app, app->timer->delta);
-		if (app->input_r)
+		if (app->point_mode)
 		{
-			app->camera->fly = !app->camera->fly;
-			if (!app->camera->fly)
-				app->fall = app->camera->pos.y - app->floor_point.y - app->height;
-			app->input_r = 0;
-		}
-		if (!app->camera->fly && app->cs->ready)
-			check_collision(app);
-		update_camera(app, app->camera);
-		render_map(app);
-		if (app->hit_wall && !app->edge_selected)
-			show_edge(app);
-		if (app->edge_selected)
-		{
-			if (app->input_g)
-			{
+			process_points_inputs(app, app->timer->delta);
+			if (app->keys[SDL_SCANCODE_G])
 				app->grid_size = app->grid_size == 2.0 ? 0.5 : 2.0;
-				app->input_g = 0;
-			}
-			draw_new_wall(app);
-			if (app->inputs->mouse.right)
+			app->camera->rot.x = 1.57;
+			update_points_camera(app->camera);
+			draw_cross(app, (int)app->cursor_x, (int)app->cursor_y, 8, 0xffffff);
+
+			if (app->mouse[SDL_MOUSE_LEFT])
 			{
-				app->edge_selected = 0;
-				app->inputs->mouse.right = 0;
+				app->points[app->points_count] = save_point(app, app->cursor_x, app->cursor_y);
+				app->points_count++;
 			}
-			if (app->edge_selected && app->inputs->mouse.left)
-				save_new_wall(app);
+			if (app->mouse[SDL_MOUSE_RIGHT] && app->points_count > 0)
+				app->points_count--;
+			draw_point_mode(app);
+			int i = 0;
+			if (app->points_count == 1)
+				draw_point(app, app->points[0], 0xff00ff);
+			else
+			{
+				while (i < app->points_count - 1)
+				{
+					printf("i - %d\n", i);
+					draw_line_3d(app, app->points[i], app->points[i + 1], 0xff00ff);
+					i++;
+				}
+				printf("count - %d\n", app->points_count);
+				draw_line_3d(app, app->points[app->points_count - 1], app->points[0], 0xffff00);
+			}
+
+		} else
+		{
+			process_inputs(app, app->timer->delta);
+			if (app->keys[SDL_SCANCODE_R])
+			{
+				app->camera->fly = !app->camera->fly;
+				if (!app->camera->fly)
+					app->fall = app->camera->pos.y - app->floor_point.y - app->height;
+			}
+			if (!app->camera->fly && app->cs->ready)
+				check_collision(app);
+			update_camera(app, app->camera);
+			render_map(app);
+			if (app->hit_wall && !app->edge_selected)
+				show_edge(app);
+			if (app->edge_selected)
+			{
+				if (app->keys[SDL_SCANCODE_G])
+					app->grid_size = app->grid_size == 2.0 ? 0.5 : 2.0;
+				draw_new_wall(app);
+				if (app->mouse[SDL_MOUSE_RIGHT])
+					app->edge_selected = 0;
+				if (app->edge_selected && app->mouse[SDL_MOUSE_LEFT])
+					save_new_wall(app);
+			}
+			if (!app->edge_selected)
+				sector_close(app);
+			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
 		}
-		if (!app->edge_selected)
-			sector_close(app);
-		draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
 		update_fps_text(app);
 		update_walls_data(app);
 		SDL_UpdateWindowSurface(app->sdl->window);
+		ft_bzero(&app->keys, sizeof(uint8_t) * 512);
+		ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
 		get_delta_time(app->timer);
 	}
 	TTF_CloseFont(app->font);
@@ -332,42 +391,42 @@ int		main(int argv, char**argc)
 	app->skybox.v[6] = new_vector(size, -size, -size);
 	app->skybox.v[7] = new_vector(-size, size, -size);
 
-	app->sectors_count = 1;
+	app->sectors_count = 0;
 	app->sectors = (t_sector *)malloc(sizeof(t_sector) * 1000);
 
-	t_sector *cs;
-
-	cs = &app->sectors[0];
-	cs->floor_y = 0.0;
-	cs->ceil_y = 2.0;
-	cs->delta_y = 2.0;
-
-	cs->walls_count = 0;
-	cs->walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
-	cs->walls[0] = wall_new();
-
-	cs->walls[0].v[0] = new_vector(0.0, 0.0, 0.0);
-	cs->walls[0].v[1] = new_vector(2.0, 2.0, 0.0);
-	cs->walls[0].v[2] = new_vector(2.0, 0.0, 0.0);
-	cs->walls[0].v[3] = new_vector(0.0, 2.0, 0.0);
-	wall_reset_tex(&cs->walls[0]);
-	wall_update_scale(&cs->walls[0]);
-	cs->walls_count++;
-
-	cs->objs_count = 0;
-	cs->objs = (t_wall *)malloc(sizeof(t_wall) * 1000);
-	cs->objs[0] = wall_new();
-	cs->objs[0].size = 1.5;
-	cs->objs[0].pos = new_vector(1.0, cs->walls[0].v[0].y, -4.0);
-	wall_reset_tex(&cs->objs[0]);
-	cs->objs[0].sprite = 499;
-	cs->objs_count++;
-
-	cs->decor = (t_wall *)malloc(sizeof(t_wall) * 1000);
-	cs->decor_count = 0;
-
-	cs->l.power = 5;
-	app->sectors[0].ready = 0;
+//	t_sector *cs;
+//
+//	cs = &app->sectors[0];
+//	cs->floor_y = 0.0;
+//	cs->ceil_y = 2.0;
+//	cs->delta_y = 2.0;
+//
+//	cs->walls_count = 0;
+//	cs->walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
+//	cs->walls[0] = wall_new();
+//
+//	cs->walls[0].v[0] = new_vector(0.0, 0.0, 0.0);
+//	cs->walls[0].v[1] = new_vector(2.0, 2.0, 0.0);
+//	cs->walls[0].v[2] = new_vector(2.0, 0.0, 0.0);
+//	cs->walls[0].v[3] = new_vector(0.0, 2.0, 0.0);
+//	wall_reset_tex(&cs->walls[0]);
+//	wall_update_scale(&cs->walls[0]);
+//	cs->walls_count++;
+//
+//	cs->objs_count = 0;
+//	cs->objs = (t_wall *)malloc(sizeof(t_wall) * 1000);
+//	cs->objs[0] = wall_new();
+//	cs->objs[0].size = 1.5;
+//	cs->objs[0].pos = new_vector(1.0, cs->walls[0].v[0].y, -4.0);
+//	wall_reset_tex(&cs->objs[0]);
+//	cs->objs[0].sprite = 499;
+//	cs->objs_count++;
+//
+//	cs->decor = (t_wall *)malloc(sizeof(t_wall) * 1000);
+//	cs->decor_count = 0;
+//
+//	cs->l.power = 5;
+//	app->sectors[0].ready = 0;
 
 //	clock_t begin = clock();
 	start_the_game(app);

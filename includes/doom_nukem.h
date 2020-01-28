@@ -36,7 +36,7 @@
 # define MIN(a,b) (((a)<(b))?(a):(b))
 # define MAX(a,b) (((a)>(b))?(a):(b))
 # define ABS(N) ((N<0)?(-N):(N))
-# define SIGN(x) ((x < 0) ? -1 : 1);
+# define SIGN(x) ((x < 0) ? -1 : 1)
 # define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
 # define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 # define TO_RAD(a) (a * M_PI / 180.0)
@@ -54,6 +54,12 @@
 # define DECOR_LEN 0.35355339059327379
 # define DECOR_LEN_HALF 0.17677669529663689
 # define IF_MOVE (key[SDL_SCANCODE_W] || key[SDL_SCANCODE_A] || key[SDL_SCANCODE_S] || key[SDL_SCANCODE_D])
+
+# define SDL_MOUSE_LEFT 1
+# define SDL_MOUSE_RIGHT 3
+# define SDL_MOUSE_MIDDLE 2
+# define SDL_MOUSE_SCROLL_UP 4
+# define SDL_MOUSE_SCROLL_DOWN 5
 
 enum e_hit_type
 {
@@ -211,10 +217,6 @@ typedef struct	s_mouse_state
 {
 	int 		x;
 	int 		y;
-	int 		left;
-	int 		right;
-	int 		middle;
-	double 		sens;
 }				t_mouse_state;
 
 typedef struct	s_camera
@@ -257,6 +259,8 @@ typedef struct	s_inputs
 	t_mouse_state	mouse;
 	int				x;
 	int				y;
+	int			scr_u;
+	int			scr_d;
 }				t_inputs;
 
 typedef struct	s_sdl
@@ -392,12 +396,7 @@ typedef struct	s_app
 	t_sector	*sectors;
 	t_sector	*cs;
 	int 		sectors_count;
-	int			input_g;
-	int			input_t;
-	int 		input_r;
 	double 		grid_size;
-	int 		input_plus;
-	int 		input_minus;
 	t_wall		*rw;
 	int 		triangles_counter;
 	int 		collide_x;
@@ -420,15 +419,25 @@ typedef struct	s_app
 	t_v3d 		floor_point;
 	double		floor_dist;
 	int			point_mode;
+	t_v3d		points[1000];
+	uint8_t		points_count;
+	double 		cursor_x;
+	double 		cursor_y;
+	uint8_t 	keys[512];
+	uint8_t 	mouse[6];
 }				t_app;
 
 void 	move(t_v3d *v, t_v3d dir, double amount);
 
 void 	draw_polygon_line(t_app *app, t_v3d start, t_v3d end);
+void 	draw_point_mode(t_app *app);
+void 	draw_grid_point(t_app *app, t_v3d *gp, Uint32 c);
 void	triangulate(t_sector *current_sector);
 
 void	process_inputs(t_app *app, double delta_time);
+void	process_points_inputs(t_app *app, double delta_time);
 void 	update_camera(t_app *app, t_camera *camera);
+void 	update_points_camera(t_camera *c);
 
 void	sector_update_shade(t_sector *cs);
 

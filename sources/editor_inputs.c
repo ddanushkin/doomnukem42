@@ -2,44 +2,26 @@
 
 void	texture_change(t_app *app)
 {
-	if (app->input_minus)
-	{
-		app->input_minus = 0;
+	if (app->keys[SDL_SCANCODE_MINUS])
 		app->hit_wall->sprite--;
-	}
-	else if (app->input_plus)
-	{
-		app->input_plus = 0;
+	else if (app->keys[SDL_SCANCODE_EQUALS])
 		app->hit_wall->sprite++;
-	}
 	app->hit_wall->sprite =
 			(app->hit_wall->sprite % 493 + 493) % 493;
 }
 
 void	texture_scale_y_change(t_app *app)
 {
-	if (app->input_minus && app->hit_wall->scale_y < 10.0)
-	{
+	if (app->keys[SDL_SCANCODE_MINUS] && app->hit_wall->scale_y < 10.0)
 		app->hit_wall->scale_y += 0.25;
-		app->input_minus = 0;
-	}
-	else if (app->input_plus && app->hit_wall->scale_y > 0.25)
-	{
+	else if (app->keys[SDL_SCANCODE_EQUALS] && app->hit_wall->scale_y > 0.25)
 		app->hit_wall->scale_y -= 0.25;
-		app->input_plus = 0;
-	}
 }
 
 void	texture_scale_x_change(t_app *app)
 {
-	if (app->input_minus && app->hit_wall->scale_x < 10.0)
-	{
+	if (app->keys[SDL_SCANCODE_MINUS] && app->hit_wall->scale_x < 10.0)
 		app->hit_wall->scale_x += 0.25;
-		app->input_minus = 0;
-	}
-	else if (app->input_plus && app->hit_wall->scale_x > 0.25)
-	{
+	else if (app->keys[SDL_SCANCODE_EQUALS] && app->hit_wall->scale_x > 0.25)
 		app->hit_wall->scale_x -= 0.25;
-		app->input_plus = 0;
-	}
 }
