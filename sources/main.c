@@ -143,14 +143,16 @@ void	start_the_game(t_app *app)
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
 	app->cs = &app->sectors[0];
-	app->height = 1.0;
-	app->camera->pos.y = app->cs->floor_y + app->height;
 	app->speed = 4.54321;
 	app->acc = 0.0;
 	app->jump = 0.0;
 	app->head_acc = 1.0;
 	app->head_power = 0.05;
 	app->head_speed = 0.0;
+	app->fall = 0.0;
+	app->height = 1.0;
+	app->camera->pos.y = 0.0;
+	app->prev_y = app->cs->floor_y + app->height;
 	prepare_chunks(app);
 	while (1)
 	{
@@ -229,10 +231,6 @@ void	start_the_game(t_app *app)
 		}
 		if (!app->camera->fly && app->cs->ready)
 			check_collision(app);
-		if (!app->camera->fly && fabs(app->camera->pos.y - app->cs->floor_y) > 1.0)
-			app->camera->pos.y -= 9.8 * app->timer->delta;
-		if (!app->camera->fly && app->camera->pos.y < app->cs->floor_y)
-			app->camera->pos.y = app->cs->floor_y + app->height;
 		update_camera(app, app->camera);
 		render_map(app);
 		if (app->hit_wall && !app->edge_selected)

@@ -181,7 +181,6 @@ void 	render_sector(t_app *app, t_sector *s)
 		render_wall(app, &s->decor[j++]);
 	if (s->ready && s->triangles_count > 0)
 	{
-		app->is_floor = 1;
 		j = 0;
 		app->render_type = floor_ceil;
 		while (j < s->triangles_count)
@@ -206,9 +205,6 @@ void	render_map(t_app *app)
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
 	while (i < app->sectors_count)
-	{
-		app->is_floor = 0;
 		render_sector(app, &app->sectors[i++]);
-	}
 //	render_skybox(app, app->skybox);
 }

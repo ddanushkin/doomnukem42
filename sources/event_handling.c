@@ -55,7 +55,55 @@ t_v3d 	get_head(t_app *app, t_camera *c)
 	app->head_power = CLAMP(app->head_power, 0.05, 0.2);
 	app->head_acc = CLAMP(app->head_acc, 1.0, 5.0);
 	head = c->pos;
-	head.y += sin(app->head_speed) * app->head_power;
+
+	if (app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->height > 0.5)
+		app->height -= 2.3 * app->timer->delta;
+	if (!app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->height < 1.0)
+		app->height += 2.3 * app->timer->delta;
+	app->height = CLAMP(app->height, 0.5, 1.0);
+
+	if (app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc < 2.0)
+		app->acc += 2.5 * app->timer->delta;
+	if (!app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc > 1.0)
+		app->acc -= 5.0 * app->timer->delta;
+	if (app->height < 1.0 && app->acc > 0.5)
+		app->acc -= 2.5 * app->timer->delta;
+	else if (app->height > 0.5 && app->acc < 1.0)
+		app->acc += 5.0 * app->timer->delta;
+	app->acc = CLAMP(app->acc, 0.5, 2.0);
+
+	head.y = app->cs->floor_y + app->height;
+
+	if (app->inputs->keyboard[SDL_SCANCODE_SPACE] && app->jump <= 0.0 && app->fall <= 0.0)
+		app->jump = 0.3;
+	if (app->jump > 0.0)
+	{
+		app->fall += 9.8 * app->timer->delta;
+		app->acc = 2.0;
+		app->jump -= app->timer->delta;
+	}
+
+	if (app->fall <= 0.0 && app->height == 1.0)
+		app->fall = fabs(app->prev_y - head.y);
+	if (!app->camera->fly && app->fall > 0.0 && app->jump <= 0.0)
+	{
+		printf("fall %f\n", app->fall);
+		app->fall -= 9.8 * app->timer->delta;
+	}
+	app->prev_y = head.y;
+	head.y += app->fall;
+	if (head.y >= app->cs->ceil_y)
+	{
+		app->jump = 0.0;
+		head.y = app->cs->ceil_y;
+	}
+	if (app->fall <= 0.0)
+		head.y += sin(app->head_speed) * app->head_power;
+	if (app->camera->fly)
+		head = c->pos;
+	c->pos = head;
+	app->speed = 4.54321 * app->acc;
+	printf("speed -> %f\n", app->speed);
 	return (head);
 }
 
@@ -106,9 +154,9 @@ void	process_inputs(t_app *app, double delta_time)
 		c->rot.x += (double)mouse->y * mouse_speed;
 	c->rot.x = CLAMP(c->rot.x, -1.45, 1.45);
 	app->camera->pos_old = app->camera->pos;
-	if (key[SDL_SCANCODE_W] && app->jump <= 0.0)
+	if (key[SDL_SCANCODE_W])
 		move(&c->pos, c->forward, app->speed * delta_time);
-	if (key[SDL_SCANCODE_S] && app->jump <= 0.0)
+	if (key[SDL_SCANCODE_S])
 		move(&c->pos, c->forward, -app->speed * delta_time);
 	if (key[SDL_SCANCODE_A])
 		move(&c->pos, c->right, -app->speed * delta_time);
