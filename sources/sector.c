@@ -144,59 +144,76 @@ void 	sector_update_height(t_sector *cs)
 	cs->delta_y = cs->ceil_y - cs->floor_y;
 }
 
-void 	sector_close(t_app *app)
+void 	sector_copy_points(t_sector *s, t_v3d *p, int len)
 {
-	t_sector *cs;
+	int		i;
 
-	cs = &app->sectors[app->sectors_count - 1];
-	if (app->inputs->keyboard[SDL_SCANCODE_Q] && cs->walls_count >= 3 && !cs->ready)
+	i = 0;
+	while (i < len)
 	{
-		get_sector_min_max(cs);
-		get_floor_poly(cs);
-		/*TODO: Set sector floor height*/
-		cs->floor = wall_new();
-		cs->floor.scale_x = fabs(cs->x_min - cs->x_max) * 0.5;
-		cs->floor.scale_y = fabs(cs->z_min - cs->z_max) * 0.5;
-		cs->floor.sprite = 278;
-		cs->ceil = cs->floor;
-		cs->ceil.sprite = 399;
-		cs->ready = 1;
-//		app->sectors_count++;
+		s->points[i] = p[i];
+		i++;
 	}
-	if (app->inputs->keyboard[SDL_SCANCODE_Q] && cs->ready)
-	{
-		cs->l.pos = app->camera->pos;
-		cs->l.pos.y = cs->ceil_y - 0.1;
-		sector_update_shade(cs);
-	}
-
-}
-
-void 	compare_size(t_sector *cs, t_wall *w, int index)
-{
-	if (w->v[index].x < cs->x_min)
-		cs->x_min = w->v[index].x;
-	if (w->v[index].x > cs->x_max)
-		cs->x_max = w->v[index].x;
-	if (w->v[index].z < cs->z_min)
-		cs->z_min = w->v[index].z;
-	if (w->v[index].z > cs->z_max)
-		cs->z_max = w->v[index].z;
+	s->points_count = len;
 }
 
 void 	get_sector_min_max(t_sector *cs)
 {
 	int		i;
+	t_v3d	*v;
 
 	i = 0;
-	cs->x_min = cs->walls[0].v[0].x;
+	cs->x_min = cs->points[0].x;
 	cs->x_max = cs->x_min;
-	cs->z_min = cs->walls[0].v[0].z;
+	cs->z_min = cs->points[0].z;
 	cs->z_max = cs->z_min;
-	while (i < cs->walls_count)
+	while (i < cs->points_count)
 	{
-		compare_size(cs, &cs->walls[i], 0);
-		compare_size(cs, &cs->walls[i], 2);
+		v = &cs->points[i];
+		if (v->x < cs->x_min)
+			cs->x_min = v->x;
+		if (v->x > cs->x_max)
+			cs->x_max = v->x;
+		if (v->z < cs->z_min)
+			cs->z_min = v->z;
+		if (v->z > cs->z_max)
+			cs->z_max = v->z;
 		i++;
 	}
+}
+
+void 	sector_update_light(t_sector *s, t_v3d pos)
+{
+	s->l.pos = pos;
+	s->l.pos.y = s->ceil_y - 0.1;
+	sector_update_shade(s);
+}
+
+void 	sector_close(t_app *app, t_sector *s)
+{
+	if (s->ready)
+		return (sector_update_light(s, app->camera->pos));
+	sector_copy_points(s, &app->points[0], app->points_count);
+	get_sector_min_max(s);
+	polygon_to_list(s, app->points, app->points_count);
+	triangulate(s);
+	s->floor = wall_new();
+	s->floor.scale_x = fabs(s->x_min - s->x_max) * 0.5;
+	s->floor.scale_y = fabs(s->z_min - s->z_max) * 0.5;
+	s->floor.sprite = 278;
+	s->ceil = s->floor;
+	s->ceil.sprite = 399;
+	s->floor_y = 0.0;
+	s->ceil_y = 2.0;
+	s->delta_y = s->ceil_y - s->floor_y;
+	s->ready = 1;
+	s->walls_count = 0;
+	s->objs_count = 0;
+	sector_update_light(s, app->camera->pos);
+	s->l.power = 5.0;
+	app->cs = s;
+	app->sectors_count++;
+	app->points_count = 0;
+	printf("pc -> %d\n", s->points_count);
+	printf("tc -> %d\n", s->triangles_count);
 }

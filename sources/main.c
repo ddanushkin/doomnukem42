@@ -179,6 +179,21 @@ void 	draw_line_3d(t_app *app, t_v3d start, t_v3d end, uint32_t c)
 	}
 }
 
+void 	camera_point_mode(t_v3d *pos, t_v3d *rot)
+{
+	pos->y = 10.0;
+	rot->x = 1.57;
+	rot->y = 0.0;
+	rot->z = 0.0;
+}
+
+void 	camera_live_mode(t_v3d *pos, t_v3d *rot)
+{
+	rot->x = 0.0;
+	rot->y = 0.0;
+	rot->z = 0.0;
+}
+
 void	start_the_game(t_app *app)
 {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -199,7 +214,7 @@ void	start_the_game(t_app *app)
 	app->cursor_y = SCREEN_H * 0.5;
 	app->camera->pos.x = 0.0;
 	app->camera->pos.z = 0.0;
-	app->camera->pos.y = 10.0;
+	camera_point_mode(&app->camera->pos, &app->camera->rot);
 	app->points_count = 0;
 	ft_bzero(&app->keys, sizeof(uint8_t) * 512);
 	ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
@@ -258,10 +273,15 @@ void	start_the_game(t_app *app)
 			process_points_inputs(app, app->timer->delta);
 			if (app->keys[SDL_SCANCODE_G])
 				app->grid_size = app->grid_size == 2.0 ? 0.5 : 2.0;
-			app->camera->rot.x = 1.57;
+			if (app->keys[SDL_SCANCODE_Q])
+			{
+				sector_close(app, &app->sectors[app->sectors_count]);
+				app->point_mode = 0;
+				camera_live_mode(&app->camera->pos, &app->camera->rot);
+				continue ;
+			}
 			update_points_camera(app->camera);
 			draw_cross(app, (int)app->cursor_x, (int)app->cursor_y, 8, 0xffffff);
-
 			if (app->mouse[SDL_MOUSE_LEFT])
 			{
 				app->points[app->points_count] = save_point(app, app->cursor_x, app->cursor_y);
@@ -277,14 +297,11 @@ void	start_the_game(t_app *app)
 			{
 				while (i < app->points_count - 1)
 				{
-					printf("i - %d\n", i);
 					draw_line_3d(app, app->points[i], app->points[i + 1], 0xff00ff);
 					i++;
 				}
-				printf("count - %d\n", app->points_count);
 				draw_line_3d(app, app->points[app->points_count - 1], app->points[0], 0xffff00);
 			}
-
 		} else
 		{
 			process_inputs(app, app->timer->delta);
@@ -310,8 +327,8 @@ void	start_the_game(t_app *app)
 				if (app->edge_selected && app->mouse[SDL_MOUSE_LEFT])
 					save_new_wall(app);
 			}
-			if (!app->edge_selected)
-				sector_close(app);
+			if (app->keys[SDL_SCANCODE_Q])
+				sector_close(app, app->cs);
 			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
 		}
 		update_fps_text(app);
@@ -431,8 +448,7 @@ int		main(int argv, char**argc)
 //	clock_t begin = clock();
 	start_the_game(app);
 //	clock_t end = clock();
-//	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-//	printf("UPDATE LOOP TIME -> %f\n", time_spent);
+//	printf("UPDATE LOOP TIME -> %f\n", (double)(end - begin) / CLOCKS_PER_SEC);
 	quit_properly();
 	return (0);
 }

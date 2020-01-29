@@ -117,7 +117,7 @@ void 	render_billboard(t_app *app, t_wall *w)
 	render_triangle_1(app, v0, v3, v1);
 }
 
-void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w, int is_floor)
+void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 {
 	t_v3d	v0;
 	t_v3d	v1;
@@ -133,9 +133,8 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w, int is_floor)
 	render_triangle_0(app, v0, v1, v2);
 	if (!app->edge_selected && ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]))
 		app->hit_first = 1;
-	if (ray_floor(app, tr->v[0], tr->v[1], tr->v[2]))
-		printf("[%d] floor_hit -> [%f, %f, %f]\n", is_floor, app->floor_point.x, app->floor_point.y, app->floor_point.z);
-
+	if (!app->camera->fly)
+		ray_floor(app, tr->v[0], tr->v[1], tr->v[2]);
 }
 
 void 	render_wall(t_app *app, t_wall *w)
@@ -188,12 +187,15 @@ void 	render_sector(t_app *app, t_sector *s)
 		app->render_type = floor_ceil;
 		while (j < s->triangles_count)
 		{
-			render_floor_ceil(app, &s->triangles[j], &s->floor, 1);
+			render_floor_ceil(app, &s->triangles[j], &s->floor);
 			ceil_triangle = s->triangles[j];
 			ceil_triangle.v[0].y += s->delta_y;
 			ceil_triangle.v[1].y += s->delta_y;
 			ceil_triangle.v[2].y += s->delta_y;
-			render_floor_ceil(app, &ceil_triangle, &s->ceil, 0);
+			render_floor_ceil(app, &ceil_triangle, &s->ceil);
+			draw_line_3d(app, s->triangles[j].v[0], s->triangles[j].v[1], 0xff00ff);
+			draw_line_3d(app, s->triangles[j].v[0], s->triangles[j].v[2], 0xff00ff);
+			draw_line_3d(app, s->triangles[j].v[2], s->triangles[j].v[1], 0xff00ff);
 			j++;
 		}
 	}

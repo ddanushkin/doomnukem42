@@ -31,7 +31,7 @@ if(MINGW OR CYGWIN)
     if (MINGW)
         target_link_libraries(${EXECUTABLE_NAME} "-lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf")
     elseif(CYGWIN)
-        target_link_libraries(${EXECUTABLE_NAME} "-lcygwin -lSDL2main -lSDL2 -lSDL2_ttf")
+        target_link_libraries(${EXECUTABLE_NAME} "-lcygwin -lpthread -lSDL2main -lSDL2 -lSDL2_ttf")
     endif()
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory

@@ -112,6 +112,53 @@ void	scan_edges(t_app *app, t_edge *a, t_edge *b, int handedness)
 	}
 }
 
+void	*scanline_thread(void *data_ptr)
+{
+	t_thread_data	*data;
+
+	data = (t_thread_data *)data_ptr;
+	scanline(data->app, &(data->left), &(data->right), data->y);
+	return (NULL);
+}
+
+void	scan_edges_threads(t_app *app, t_edge *a, t_edge *b, int handedness)
+{
+	t_edge	*left;
+	t_edge	*right;
+	int		y_start;
+	int		y_end;
+	int		y;
+
+	left = a;
+	right = b;
+	if (handedness)
+		SWAP(left, right, t_edge *);
+	y_start = b->y_start;
+	y_end = b->y_end;
+	y = y_start;
+
+	int number_of_threads = abs(y_end - y_start);
+	int i = 0;
+	pthread_t thr[number_of_threads];
+	t_thread_data thr_data[number_of_threads];
+
+	while (y < y_end)
+	{
+		thr_data[i].app = app;
+		thr_data[i].left = *left;
+		thr_data[i].right = *right;
+		thr_data[i].y = y;
+		edge_step(left);
+		edge_step(right);
+		pthread_create(&thr[i], NULL, scanline_thread, &thr_data[i]);
+		y++;
+		i++;
+	}
+	i = 0;
+	while (i < number_of_threads)
+		pthread_join(thr[i++], NULL);
+}
+
 void	scan_triangle(t_app *app, t_v3d min, t_v3d mid, t_v3d max, int handedness)
 {
 	t_edge		top_to_bottom;

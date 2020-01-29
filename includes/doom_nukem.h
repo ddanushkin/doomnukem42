@@ -354,6 +354,8 @@ typedef struct	s_sector
 	double 		x_max;
 	double 		z_max;
 	t_light		l;
+	t_v3d		points[1000];
+	int 		points_count;
 }				t_sector;
 
 typedef struct	s_skybox
@@ -427,9 +429,21 @@ typedef struct	s_app
 	uint8_t 	mouse[6];
 }				t_app;
 
+typedef struct	s_thread_data
+{
+	t_app		*app;
+	t_edge		left;
+	t_edge		right;
+	int			y;
+}				t_thread_data;
+
+void 	camera_live_mode(t_v3d *pos, t_v3d *rot);
+void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
+
 void 	move(t_v3d *v, t_v3d dir, double amount);
 
 void 	draw_polygon_line(t_app *app, t_v3d start, t_v3d end);
+void 	draw_line_3d(t_app *app, t_v3d start, t_v3d end, uint32_t c);
 void 	draw_point_mode(t_app *app);
 void 	draw_grid_point(t_app *app, t_v3d *gp, Uint32 c);
 void	triangulate(t_sector *current_sector);
@@ -475,7 +489,8 @@ int		find_linked_wall(t_sector *sector, t_v3d v, int skip);
 double	get_orientation(t_v3d *polygon, int size);
 int 	compare_vertex(t_v3d *v1, t_v3d *v2);
 void 	get_floor_poly(t_sector *cs);
-void 	sector_close(t_app *app);
+void 	polygon_to_list(t_sector *cs, t_v3d *polygon, int size);
+void 	sector_close(t_app *app, t_sector *s);
 void	draw_new_wall(t_app *app);
 void	save_new_wall(t_app *app);
 void 	draw_edge(t_app *app, t_v3d edge);
