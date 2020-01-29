@@ -112,12 +112,20 @@ void	scan_edges(t_app *app, t_edge *a, t_edge *b, int handedness)
 	}
 }
 
-void	*scanline_thread(void *data_ptr)
+void	*scanline_thread(void *ptr)
 {
 	t_thread_data	*data;
+	t_scanline_data	*sl;
+	int		i;
 
-	data = (t_thread_data *)data_ptr;
-	scanline(data->app, &(data->left), &(data->right), data->y);
+	data = (t_thread_data *)ptr;
+	i = data->start;
+	while (i < data->end)
+	{
+		sl = &data->data[i];
+		scanline(data->app, &(sl->left), &(sl->right), sl->y);
+		i++;
+	}
 	return (NULL);
 }
 
@@ -137,26 +145,56 @@ void	scan_edges_threads(t_app *app, t_edge *a, t_edge *b, int handedness)
 	y_end = b->y_end;
 	y = y_start;
 
-	int number_of_threads = abs(y_end - y_start);
-	int i = 0;
-	pthread_t thr[number_of_threads];
-	t_thread_data thr_data[number_of_threads];
+	int threads = 16;
 
+	pthread_t thr[threads];
+	t_thread_data	thr_data[threads];
+
+	t_scanline_data sl_data[SCREEN_H];
+	int	i;
+
+	i = 0;
 	while (y < y_end)
 	{
-		thr_data[i].app = app;
-		thr_data[i].left = *left;
-		thr_data[i].right = *right;
-		thr_data[i].y = y;
+		sl_data[i].left = *left;
+		sl_data[i].right = *right;
+		sl_data[i].y = y;
 		edge_step(left);
 		edge_step(right);
-		pthread_create(&thr[i], NULL, scanline_thread, &thr_data[i]);
 		y++;
 		i++;
 	}
+
+	int i_s;
+	int i_step;
+
+	i_s = 0;
+	i_step = abs(y_end - y_start) / (threads - 1);
 	i = 0;
-	while (i < number_of_threads)
-		pthread_join(thr[i++], NULL);
+	while (i < (threads - 1) && i_step > 0)
+	{
+		thr_data[i].app = app;
+		thr_data[i].data = &sl_data[0];
+		thr_data[i].start = i_s;
+		thr_data[i].end = i_s + i_step;
+		i_s += i_step;
+		pthread_create(&thr[i], NULL, scanline_thread, &thr_data[i]);
+		i++;
+	}
+	if (i_s < abs(y_end - y_start))
+	{
+		thr_data[i].app = app;
+		thr_data[i].data = &sl_data[0];
+		thr_data[i].start = i_s;
+		thr_data[i].end = abs(y_end - y_start);
+		pthread_create(&thr[i], NULL, scanline_thread, &thr_data[i]);
+	}
+	i = 0;
+	while (i < threads)
+	{
+		pthread_join(thr[i], NULL);
+		i++;
+	}
 }
 
 void	scan_triangle(t_app *app, t_v3d min, t_v3d mid, t_v3d max, int handedness)
@@ -170,6 +208,6 @@ void	scan_triangle(t_app *app, t_v3d min, t_v3d mid, t_v3d max, int handedness)
 	top_to_bottom = edge_new(gradient, min, max, 0);
 	top_to_middle = edge_new(gradient, min, mid, 0);
 	middle_to_bottom = edge_new(gradient, mid, max, 1);
-	scan_edges(app, &top_to_bottom, &top_to_middle, handedness);
-	scan_edges(app, &top_to_bottom, &middle_to_bottom, handedness);
+	scan_edges_threads(app, &top_to_bottom, &top_to_middle, handedness);
+	scan_edges_threads(app, &top_to_bottom, &middle_to_bottom, handedness);
 }

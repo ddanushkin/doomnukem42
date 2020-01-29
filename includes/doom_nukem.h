@@ -429,12 +429,19 @@ typedef struct	s_app
 	uint8_t 	mouse[6];
 }				t_app;
 
-typedef struct	s_thread_data
+typedef struct	s_scanline_data
 {
-	t_app		*app;
 	t_edge		left;
 	t_edge		right;
 	int			y;
+}				t_scanline_data;
+
+typedef struct	s_thread_data
+{
+	t_app					*app;
+	struct s_scanline_data	*data;
+	int 					start;
+	int 					end;
 }				t_thread_data;
 
 void 	camera_live_mode(t_v3d *pos, t_v3d *rot);
