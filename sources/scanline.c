@@ -1,51 +1,5 @@
 #include "doom_nukem.h"
 
-void 	blend_color(Uint8 	*c0, Uint8 	*c1, double value)
-{
-	double delta;
-
-	delta = 1.0 - value;
-	c0[0] = delta * c0[0] + value * c1[0];
-	c0[1] = delta * c0[1] + value * c1[1];
-	c0[2] = delta * c0[2] + value * c1[2];
-}
-
-void 	shade_color(t_app *app, int x, int y, Uint32 *c)
-{
-	Uint8 	*color;
-	double	shade;
-	double 	*sh;
-
-	sh = &app->rw->shade[0];
-	color = (Uint8 *)c;
-	shade = sh[y * 10 + x];
-	color[0] *= shade;
-	color[1] *= shade;
-	color[2] *= shade;
-}
-
-void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *tex, int offset)
-{
-	Uint32	c;
-	Uint32	img_x;
-	Uint32	img_y;
-	double	x;
-	double	y;
-
-	x = d->tex_x / d->tex_z;
-	y = d->tex_y / d->tex_z;
-	img_x = (Uint32)(x * d->scale_x * 256.0) % 256;
-	img_y = (Uint32)(y * d->scale_y * 256.0) % 256;
-	c = tex[((img_y << 8u) + img_x)];
-	if (c != TRANSPARENCY_COLOR)
-	{
-		if (app->cs->ready && !app->is_skybox)
-			shade_color(app, x * 10.0, y * 10.0, &c);
-		app->depth_buffer[offset] = d->depth;
-		set_pixel_uint32(app->sdl->surface, offset, c);
-	}
-}
-
 void 	scanline_calc(t_scanline *d, t_edge *left, t_edge *right)
 {
 	d->start = ceil(left->x);
@@ -62,6 +16,32 @@ void 	scanline_calc(t_scanline *d, t_edge *left, t_edge *right)
 	d->depth = left->depth + d->d_step * d->pre_step;
 }
 
+void 	scanline_set_pixel(t_app *app, t_scanline *d, Uint32 *tex, int offset)
+{
+	Uint32	c;
+	double	x;
+	double	y;
+	double	z;
+	Uint8	*color;
+
+	z = 1.0 / d->tex_z;
+	x = d->tex_x * z;
+	y = d->tex_y * z;
+	c = (tex[(((uint32_t)(y * d->scale_y) >> 8) & 0xff00) +
+			 (((uint32_t)(x * d->scale_x) >> 16) & 0xff)]);
+	if (c != TRANSPARENCY_COLOR)
+	{
+		color = (Uint8 *)&c;
+		app->shade = app->rw->shade[(int)(y * 10.0) * 10 +
+									(int)(x * 10.0)];
+		color[0] *= app->shade;
+		color[1] *= app->shade;
+		color[2] *= app->shade;
+		app->depth_buffer[offset] = d->depth;
+		app->screen[offset] = c;
+	}
+}
+
 void	scanline(t_app *app, t_edge *left, t_edge *right, int y)
 {
 	t_wall		*w;
@@ -73,8 +53,8 @@ void	scanline(t_app *app, t_edge *left, t_edge *right, int y)
 	texture = app->sprites[w->sprite].pixels;
 	scanline_calc(&d, left, right);
 	offset = y * SCREEN_W + (d.start);
-	d.scale_x = w->scale_x;
-	d.scale_y = w->scale_y;
+	d.scale_x = w->scale_x * 16777216;
+	d.scale_y = w->scale_y * 16777216;
 	while (d.start < d.end)
 	{
 		if (d.depth < app->depth_buffer[offset])
@@ -112,7 +92,7 @@ void	scan_edges(t_app *app, t_edge *a, t_edge *b, int handedness)
 	}
 }
 
-void	*scanline_thread(void *ptr)
+void	*scanline_thr(void *ptr)
 {
 	t_thread_data	*data;
 	t_scanline_data	*sl;
@@ -129,13 +109,46 @@ void	*scanline_thread(void *ptr)
 	return (NULL);
 }
 
-void	scan_edges_threads(t_app *app, t_edge *a, t_edge *b, int handedness)
+void 	start_scanline_thread(t_app *app, int thr_id, int start, int end)
+{
+	t_thread_data *thr_data;
+
+	thr_data = &app->thr_data[thr_id];
+	thr_data->app = app;
+	thr_data->data = &app->sl_data[0];
+	thr_data->start = start;
+	thr_data->end = end;
+	pthread_create(&app->thr[thr_id], NULL, scanline_thr, thr_data);
+}
+
+void 	scanline_threads(t_app *app, int size)
+{
+	int	start;
+	int	step;
+	int i;
+
+	start = 0;
+	step = size / (THREADS_N - 1);
+	i = 0;
+	while (i < (THREADS_N - 1) && step > 0)
+	{
+		start_scanline_thread(app, i, start, start + step);
+		start += step;
+		i++;
+	}
+	if (start < size)
+		start_scanline_thread(app, i, start, size);
+	i = 0;
+	while (i < THREADS_N)
+		pthread_join(app->thr[i++], NULL);
+}
+
+void	scan_edges_thread(t_app *app, t_edge *a, t_edge *b, int handedness)
 {
 	t_edge	*left;
 	t_edge	*right;
 	int		y_start;
 	int		y_end;
-	int		y;
 
 	left = a;
 	right = b;
@@ -143,57 +156,15 @@ void	scan_edges_threads(t_app *app, t_edge *a, t_edge *b, int handedness)
 		SWAP(left, right, t_edge *);
 	y_start = b->y_start;
 	y_end = b->y_end;
-	y = y_start;
-
-	int threads = 16;
-
-	pthread_t thr[threads];
-	t_thread_data	thr_data[threads];
-
-	t_scanline_data sl_data[SCREEN_H];
-	int	i;
-
-	i = 0;
-	while (y < y_end)
+	while (y_start < y_end)
 	{
-		sl_data[i].left = *left;
-		sl_data[i].right = *right;
-		sl_data[i].y = y;
+		app->sl_data[app->sl_counter].left = *left;
+		app->sl_data[app->sl_counter].right = *right;
+		app->sl_data[app->sl_counter].y = y_start;
 		edge_step(left);
 		edge_step(right);
-		y++;
-		i++;
-	}
-
-	int i_s;
-	int i_step;
-
-	i_s = 0;
-	i_step = abs(y_end - y_start) / (threads - 1);
-	i = 0;
-	while (i < (threads - 1) && i_step > 0)
-	{
-		thr_data[i].app = app;
-		thr_data[i].data = &sl_data[0];
-		thr_data[i].start = i_s;
-		thr_data[i].end = i_s + i_step;
-		i_s += i_step;
-		pthread_create(&thr[i], NULL, scanline_thread, &thr_data[i]);
-		i++;
-	}
-	if (i_s < abs(y_end - y_start))
-	{
-		thr_data[i].app = app;
-		thr_data[i].data = &sl_data[0];
-		thr_data[i].start = i_s;
-		thr_data[i].end = abs(y_end - y_start);
-		pthread_create(&thr[i], NULL, scanline_thread, &thr_data[i]);
-	}
-	i = 0;
-	while (i < threads)
-	{
-		pthread_join(thr[i], NULL);
-		i++;
+		y_start++;
+		app->sl_counter++;
 	}
 }
 
@@ -208,6 +179,8 @@ void	scan_triangle(t_app *app, t_v3d min, t_v3d mid, t_v3d max, int handedness)
 	top_to_bottom = edge_new(gradient, min, max, 0);
 	top_to_middle = edge_new(gradient, min, mid, 0);
 	middle_to_bottom = edge_new(gradient, mid, max, 1);
-	scan_edges_threads(app, &top_to_bottom, &top_to_middle, handedness);
-	scan_edges_threads(app, &top_to_bottom, &middle_to_bottom, handedness);
+	app->sl_counter = 0;
+	scan_edges_thread(app, &top_to_bottom, &top_to_middle, handedness);
+	scan_edges_thread(app, &top_to_bottom, &middle_to_bottom, handedness);
+	scanline_threads(app, app->sl_counter);
 }

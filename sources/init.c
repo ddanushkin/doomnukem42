@@ -51,6 +51,7 @@ void	init_camera(t_camera *camera)
 void	init_app(t_app *app)
 {
 	init_sdl(app->sdl);
+	app->screen = app->sdl->surface->pixels;
 	app->inputs->keyboard = SDL_GetKeyboardState(NULL);
 	app->timer->prev = 0;
 	app->timer->delta = 0;

@@ -23,6 +23,9 @@
 //# define	SCREEN_H 270
 
 //# define	SCREEN_W 320
+//# define	SCREEN_H 200
+
+//# define	SCREEN_W 320
 //# define	SCREEN_H 180
 
 # define	WIN_TITLE "DOOM-NUKEM"
@@ -60,6 +63,7 @@
 # define SDL_MOUSE_MIDDLE 2
 # define SDL_MOUSE_SCROLL_UP 4
 # define SDL_MOUSE_SCROLL_DOWN 5
+# define THREADS_N 12
 
 enum e_hit_type
 {
@@ -375,6 +379,21 @@ typedef struct	s_screen_chunk
 	Uint32		z[SCREEN_W];
 }				t_screen_chunk;
 
+typedef struct	s_scanline_data
+{
+	t_edge		left;
+	t_edge		right;
+	int			y;
+}				t_scanline_data;
+
+typedef struct	s_thread_data
+{
+	struct	s_app			*app;
+	struct s_scanline_data	*data;
+	int 					start;
+	int 					end;
+}				t_thread_data;
+
 typedef struct	s_app
 {
 	t_timer		*timer;
@@ -427,22 +446,13 @@ typedef struct	s_app
 	double 		cursor_y;
 	uint8_t 	keys[512];
 	uint8_t 	mouse[6];
+	uint32_t 	*screen;
+	double 		shade;
+	pthread_t				thr[THREADS_N];
+	struct	s_thread_data	thr_data[THREADS_N];
+	t_scanline_data			sl_data[SCREEN_H];
+	int 					sl_counter;
 }				t_app;
-
-typedef struct	s_scanline_data
-{
-	t_edge		left;
-	t_edge		right;
-	int			y;
-}				t_scanline_data;
-
-typedef struct	s_thread_data
-{
-	t_app					*app;
-	struct s_scanline_data	*data;
-	int 					start;
-	int 					end;
-}				t_thread_data;
 
 void 	camera_live_mode(t_v3d *pos, t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
