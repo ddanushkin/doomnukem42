@@ -333,11 +333,6 @@ void	start_the_game(t_app *app)
 		}
 		update_fps_text(app);
 		update_walls_data(app);
-
-		int	i = 0;
-		while (i < THREADS_N)
-			pthread_join(app->thr[i++], NULL);
-
 		SDL_UpdateWindowSurface(app->sdl->window);
 		ft_bzero(&app->keys, sizeof(uint8_t) * 512);
 		ft_bzero(&app->mouse, sizeof(uint8_t) * 6);

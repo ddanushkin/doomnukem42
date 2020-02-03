@@ -16,8 +16,11 @@
 //# define	SCREEN_W 1280
 //# define	SCREEN_H 720
 
-# define	SCREEN_W 640
-# define	SCREEN_H 360
+# define	SCREEN_W 1024
+# define	SCREEN_H 576
+
+//# define	SCREEN_W 640
+//# define	SCREEN_H 360
 
 //# define	SCREEN_W 480
 //# define	SCREEN_H 270
@@ -386,13 +389,25 @@ typedef struct	s_scanline_data
 	int			y;
 }				t_scanline_data;
 
-typedef struct	s_thread_data
+typedef struct	s_tr_thr_data
 {
-	struct	s_app			*app;
-	struct s_scanline_data	*data;
-	int 					start;
-	int 					end;
-}				t_thread_data;
+	struct	s_app	*app;
+	t_v3d 			v0;
+	t_v3d 			v1;
+	t_v3d 			v2;
+}				t_tr_thr_data;
+
+typedef struct	t_render
+{
+	int 			y;
+	int 			handedness;
+	t_wall			w;
+	double 			scale_x;
+	double 			scale_y;
+	uint32_t		*t;
+	double 			*depth;
+	uint32_t		*screen;
+}				t_render;
 
 typedef struct	s_app
 {
@@ -447,12 +462,13 @@ typedef struct	s_app
 	uint8_t 	keys[512];
 	uint8_t 	mouse[6];
 	uint32_t 	*screen;
-	double 		shade;
-	pthread_t				thr[THREADS_N];
-	struct	s_thread_data	thr_data[THREADS_N];
-	t_scanline_data			sl_data[SCREEN_H];
-	int 					sl_counter;
+	pthread_t				tr_thr[1000];
+	t_tr_thr_data			tr_thr_data[1000];
+	int 					tr_thr_counter;
 }				t_app;
+
+void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
+void 	join_tr_thrd(t_app *app);
 
 void 	camera_live_mode(t_v3d *pos, t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
@@ -486,7 +502,7 @@ void 	print_to_screen(t_app *app, int x, int y, char *text);
 Uint8	vertex_inside(t_v3d *v);
 void	vertex_perspective_divide(t_v3d *v);
 void	polygon_add(t_polygon **poly, t_v3d v);
-void	scan_triangle(t_app *app, t_v3d min, t_v3d mid, t_v3d max, int handedness);
+void	scan_triangle(t_v3d min, t_v3d mid, t_v3d max, t_render *r);
 int		ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 int		ray_floor(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void	vr_list_add(t_vr_list **list, t_v3d v);

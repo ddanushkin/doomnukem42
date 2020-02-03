@@ -130,6 +130,7 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 				(vertex_inside(&v1) << 16u) +
 				(vertex_inside(&v2) << 8u) + 1u;
 	app->rw = w;
+	app->tr_thr_counter = 0;
 	render_triangle_0(app, v0, v1, v2);
 	if (!app->edge_selected && ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]))
 		app->hit_first = 1;
@@ -169,35 +170,36 @@ void 	render_sector(t_app *app, t_sector *s)
 	t_triangle	ceil_triangle;
 
 	app->cs = s;
-	j = 0;
-	app->render_type = obj;
-	while (j < s->objs_count)
-		render_billboard(app, &s->objs[j++]);
-	j = 0;
-	app->render_type = wall;
-	while (j < s->walls_count)
-		render_wall(app, &s->walls[j++]);
-	j = 0;
-	app->render_type = decor;
-	while (j < s->decor_count)
-		render_wall(app, &s->decor[j++]);
+	app->tr_thr_counter = 0;
+//	j = 0;
+//	app->render_type = obj;
+//	while (j < s->objs_count)
+//		render_billboard(app, &s->objs[j++]);
+//	j = 0;
+//	app->render_type = wall;
+//	while (j < s->walls_count)
+//		render_wall(app, &s->walls[j++]);
+//	j = 0;
+//	app->render_type = decor;
+//	while (j < s->decor_count)
+//		render_wall(app, &s->decor[j++]);
 	if (s->ready && s->triangles_count > 0)
 	{
 		j = 0;
 		app->render_type = floor_ceil;
 		while (j < s->triangles_count)
+			render_floor_ceil(app, &s->triangles[j++], &s->floor);
+//		join_tr_thrd(app);
+		j = 0;
+		while (j < s->triangles_count)
 		{
-			render_floor_ceil(app, &s->triangles[j], &s->floor);
-			ceil_triangle = s->triangles[j];
+			ceil_triangle = s->triangles[j++];
 			ceil_triangle.v[0].y += s->delta_y;
 			ceil_triangle.v[1].y += s->delta_y;
 			ceil_triangle.v[2].y += s->delta_y;
 			render_floor_ceil(app, &ceil_triangle, &s->ceil);
-			draw_line_3d(app, s->triangles[j].v[0], s->triangles[j].v[1], 0xff00ff);
-			draw_line_3d(app, s->triangles[j].v[0], s->triangles[j].v[2], 0xff00ff);
-			draw_line_3d(app, s->triangles[j].v[2], s->triangles[j].v[1], 0xff00ff);
-			j++;
 		}
+//		join_tr_thrd(app);
 	}
 }
 
