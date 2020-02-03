@@ -189,6 +189,30 @@ void 	sector_update_light(t_sector *s, t_v3d pos)
 	sector_update_shade(s);
 }
 
+void	sector_make_walls(t_sector *s)
+{
+	int i;
+	t_wall *w;
+
+	i = 0;
+	s->walls = (t_wall *)malloc(sizeof(t_wall) * s->points_count);
+	while (i < s->points_count)
+	{
+		w = &s->walls[i];
+		*w = wall_new();
+		w->v[0] = s->points[i];
+		w->v[2] = s->points[i + 1 != s->points_count ? i + 1 : 0];
+		w->v[3] = w->v[0];
+		w->v[1] = w->v[2];
+		w->v[3].y = s->delta_y;
+		w->v[1].y = s->delta_y;
+		wall_reset_tex(w);
+		wall_update_scale(w);
+		i++;
+	}
+	s->walls_count = s->points_count;
+}
+
 void 	sector_close(t_app *app, t_sector *s)
 {
 	if (s->ready)
@@ -211,6 +235,7 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->objs_count = 0;
 	sector_update_light(s, app->camera->pos);
 	s->l.power = 5.0;
+	sector_make_walls(s);
 	app->cs = s;
 	app->sectors_count++;
 	app->points_count = 0;
