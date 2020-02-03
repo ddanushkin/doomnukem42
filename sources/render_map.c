@@ -171,28 +171,25 @@ void 	render_sector(t_app *app, t_sector *s)
 
 	app->cs = s;
 	app->tr_thr_counter = 0;
-//	j = 0;
-//	app->render_type = obj;
-//	while (j < s->objs_count)
-//		render_billboard(app, &s->objs[j++]);
-//	j = 0;
-//	app->render_type = wall;
-//	while (j < s->walls_count)
-//		render_wall(app, &s->walls[j++]);
-//	j = 0;
-//	app->render_type = decor;
-//	while (j < s->decor_count)
-//		render_wall(app, &s->decor[j++]);
+	j = 0;
+	app->render_type = obj;
+	while (j < s->objs_count)
+		render_billboard(app, &s->objs[j++]);
+	j = 0;
+	app->render_type = wall;
+	while (j < s->walls_count)
+		render_wall(app, &s->walls[j++]);
+	j = 0;
+	app->render_type = decor;
+	while (j < s->decor_count)
+		render_wall(app, &s->decor[j++]);
 	if (s->ready && s->triangles_count > 0)
 	{
 		j = 0;
 		app->render_type = floor_ceil;
 		while (j < s->triangles_count)
-			render_floor_ceil(app, &s->triangles[j++], &s->floor);
-//		join_tr_thrd(app);
-		j = 0;
-		while (j < s->triangles_count)
 		{
+			render_floor_ceil(app, &s->triangles[j], &s->floor);
 			ceil_triangle = s->triangles[j++];
 			ceil_triangle.v[0].y += s->delta_y;
 			ceil_triangle.v[1].y += s->delta_y;
