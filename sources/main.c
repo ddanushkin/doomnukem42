@@ -105,23 +105,37 @@ int is_colliding(t_v3d c0, double radius, t_v3d v0, t_v3d v1)
 	return (dist < (radius * radius));
 }
 
-void 	wall_check_collision(t_app *app, t_wall *w)
+t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2)
 {
-	t_v3d	*new;
-	t_v3d	*old;
+	t_v3d	a;
+	t_v3d	b;
 
-	new = &app->camera->pos;
-	old = &app->camera->pos_old;
-	app->collide_x = is_colliding(new_vector(new->x, 0.0, old->z), 0.5, w->v[2], w->v[0]);
-	if (app->collide_x)
-		new->x = old->x;
-	app->collide_z = is_colliding(new_vector(new->x, 0.0, new->z), 0.5, w->v[2], w->v[0]);
-	if (app->collide_z)
-		new->z = old->z;
-	printf("!\n");
+	a = vector_sub(v1, v0);
+	b = vector_sub(v2, v0);
+	return (vector_normalise(
+			new_vector(a.y * b.z - a.z * b.y,
+					   a.z * b.x - a.x * b.z,
+					   a.x * b.y - a.y * b.x)));
 }
 
-void 	check_collision(t_app *app)
+void 	wall_check_collision(t_wall *w, t_v3d *pos, t_v3d *f)
+{
+	int		collide;
+	t_v3d	normal;
+	t_v3d	inv_normal;
+	t_v3d	tmp_pos;
+
+	collide = is_colliding(vector_sum(*pos, *f), 0.5, w->v[2], w->v[0]);
+	if (collide)
+	{
+		normal = get_triangle_normal(w->v[0], w->v[1], w->v[2]);
+		inv_normal = vector_mul_by(normal, -vector_length(*f));
+		tmp_pos = vector_sum(*pos, vector_sub(*f, inv_normal));
+		*f = vector_sub(tmp_pos, *pos);
+	}
+}
+
+void 	check_collision(t_app *app, t_v3d *pos, t_v3d f)
 {
 	int	i;
 	int j;
@@ -131,9 +145,10 @@ void 	check_collision(t_app *app)
 	{
 		j = 0;
 		while (j < app->sectors[i].walls_count)
-			wall_check_collision(app, &app->sectors[i].walls[j++]);
+			wall_check_collision(&app->sectors[i].walls[j++], pos, &f);
 		i++;
 	}
+	*pos = vector_sum(*pos, f);
 }
 
 void 	draw_point(t_app *app, t_v3d p, Uint32 c)
@@ -192,6 +207,42 @@ void 	camera_live_mode(t_v3d *pos, t_v3d *rot)
 	rot->x = 0.0;
 	rot->y = 0.0;
 	rot->z = 0.0;
+}
+
+void 	draw_points_sector(t_app *app, t_v3d *p, int size)
+{
+	int		i;
+
+	if (size == 1)
+		draw_point(app, p[0], 0xff00ff);
+	else
+	{
+		i = 0;
+		while (i < size - 1)
+		{
+			draw_line_3d(app, p[i], p[i + 1], 0xffffff);
+			i++;
+		}
+		draw_line_3d(app, p[size - 1], p[0], 0xffffff);
+	}
+}
+
+void 	draw_points(t_app *app, t_v3d *p, int size)
+{
+	int		i;
+
+	if (size == 1)
+		draw_point(app, p[0], 0xff00ff);
+	else
+	{
+		i = 0;
+		while (i < size - 1)
+		{
+			draw_line_3d(app, p[i], p[i + 1], 0xff00ff);
+			i++;
+		}
+		draw_line_3d(app, p[size - 1], p[0], 0xffff00);
+	}
 }
 
 void	start_the_game(t_app *app)
@@ -273,12 +324,14 @@ void	start_the_game(t_app *app)
 			process_points_inputs(app, app->timer->delta);
 			if (app->keys[SDL_SCANCODE_G])
 				app->grid_size = app->grid_size == 2.0 ? 0.5 : 2.0;
-			if (app->keys[SDL_SCANCODE_Q])
+			if (app->keys[SDL_SCANCODE_Q] && app->points_count >= 3)
 			{
 				sector_close(app, &app->sectors[app->sectors_count]);
 				app->point_mode = 0;
 				camera_live_mode(&app->camera->pos, &app->camera->rot);
-				continue ;
+				ft_bzero(&app->keys, sizeof(uint8_t) * 512);
+				ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
+				continue;
 			}
 			update_points_camera(app->camera);
 			draw_cross(app, (int)app->cursor_x, (int)app->cursor_y, 8, 0xffffff);
@@ -290,18 +343,20 @@ void	start_the_game(t_app *app)
 			if (app->mouse[SDL_MOUSE_RIGHT] && app->points_count > 0)
 				app->points_count--;
 			draw_point_mode(app);
-			int i = 0;
-			if (app->points_count == 1)
-				draw_point(app, app->points[0], 0xff00ff);
-			else
+
+			int			i;
+			t_sector	*s;
+
+			i = 0;
+			while (i < app->sectors_count)
 			{
-				while (i < app->points_count - 1)
-				{
-					draw_line_3d(app, app->points[i], app->points[i + 1], 0xff00ff);
-					i++;
-				}
-				draw_line_3d(app, app->points[app->points_count - 1], app->points[0], 0xffff00);
+				s = &app->sectors[i];
+				draw_points_sector(app, &s->points[0], s->points_count);
+				i++;
 			}
+			if (app->points_count > 0)
+				draw_points(app, &app->points[0], app->points_count);
+
 		} else
 		{
 			process_inputs(app, app->timer->delta);
@@ -311,24 +366,17 @@ void	start_the_game(t_app *app)
 				if (!app->camera->fly)
 					app->fall = app->camera->pos.y - app->floor_point.y - app->height;
 			}
-			if (!app->camera->fly && app->cs->ready)
-				check_collision(app);
 			update_camera(app, app->camera);
 			render_map(app);
-			if (app->hit_wall && !app->edge_selected)
-				show_edge(app);
-			if (app->edge_selected)
+			if (app->keys[SDL_SCANCODE_Q] && !app->point_mode)
 			{
-				if (app->keys[SDL_SCANCODE_G])
-					app->grid_size = app->grid_size == 2.0 ? 0.5 : 2.0;
-				draw_new_wall(app);
-				if (app->mouse[SDL_MOUSE_RIGHT])
-					app->edge_selected = 0;
-				if (app->edge_selected && app->mouse[SDL_MOUSE_LEFT])
-					save_new_wall(app);
+				app->point_mode = 1;
+				app->points_count = 0;
+				camera_point_mode(&app->camera->pos, &app->camera->rot);
+				ft_bzero(&app->keys, sizeof(uint8_t) * 512);
+				ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
+				continue;
 			}
-			if (app->keys[SDL_SCANCODE_Q])
-				sector_close(app, app->cs);
 			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
 		}
 		update_fps_text(app);

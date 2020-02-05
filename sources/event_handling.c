@@ -1,5 +1,18 @@
 #include <doom_nukem.h>
 
+void 	move_c(t_app *app, t_v3d *pos, t_v3d dir, double amount)
+{
+	t_v3d m;
+
+	if (!app->camera->fly && app->cs->ready)
+	{
+		m = vector_mul_by(dir, amount);
+		check_collision(app, pos, m);
+	}
+	else
+		move(pos, dir, amount);
+}
+
 void 	move(t_v3d *v, t_v3d dir, double amount)
 {
 	*v = vector_sum(*v, vector_mul_by(dir, amount));
@@ -187,15 +200,14 @@ void	process_inputs(t_app *app, double delta_time)
 		c->rot.x += (double)mouse->y * mouse_speed;
 	if (!app->point_mode)
 		c->rot.x = CLAMP(c->rot.x, -1.45, 1.45);
-	app->camera->pos_old = app->camera->pos;
 	if (key[SDL_SCANCODE_W])
-		move(&c->pos, c->forward, app->speed * delta_time);
+		move_c(app, &c->pos, c->forward, app->speed * delta_time);
 	if (key[SDL_SCANCODE_S])
-		move(&c->pos, c->forward, -app->speed * delta_time);
+		move_c(app, &c->pos, c->forward, -app->speed * delta_time);
 	if (key[SDL_SCANCODE_A])
-		move(&c->pos, c->right, -app->speed * delta_time);
+		move_c(app, &c->pos, c->right, -app->speed * delta_time);
 	if (key[SDL_SCANCODE_D])
-		move(&c->pos, c->right, app->speed * delta_time);
+		move_c(app, &c->pos, c->right, app->speed * delta_time);
 }
 
 int		event_handling(t_app *app)

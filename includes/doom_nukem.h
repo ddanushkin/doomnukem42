@@ -16,11 +16,11 @@
 //# define	SCREEN_W 1280
 //# define	SCREEN_H 720
 
-# define	SCREEN_W 1024
-# define	SCREEN_H 576
+//# define	SCREEN_W 1024
+//# define	SCREEN_H 576
 
-//# define	SCREEN_W 640
-//# define	SCREEN_H 360
+# define	SCREEN_W 640
+# define	SCREEN_H 360
 
 //# define	SCREEN_W 480
 //# define	SCREEN_H 270
@@ -43,6 +43,7 @@
 # define MAX(a,b) (((a)>(b))?(a):(b))
 # define ABS(N) ((N<0)?(-N):(N))
 # define SIGN(x) ((x < 0) ? -1 : 1)
+# define SIGNF(x) ((x < 0.0) ? -1.0 : 1.0)
 # define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
 # define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 # define TO_RAD(a) (a * M_PI / 180.0)
@@ -467,6 +468,7 @@ typedef struct	s_app
 	int 					tr_thr_counter;
 }				t_app;
 
+void 	check_collision(t_app *app, t_v3d *pos, t_v3d f);
 void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void 	join_tr_thrd(t_app *app);
 
