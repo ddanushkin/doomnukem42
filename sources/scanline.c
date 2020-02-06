@@ -65,11 +65,66 @@ void	scan_edges(t_edge *a, t_edge *b, t_render *r)
 	y = y_start;
 	while (y < y_end)
 	{
-		scanline_calc(&r->sl[r->sl_counter++], left, right, y);
+		scanline_calc(&r->sl[r->sl_counter], left, right, y);
+		r->sl[r->sl_counter].x *= r->scale_x;
+		r->sl[r->sl_counter].y *= r->scale_y;
+		r->sl[r->sl_counter].xs *= r->scale_x;
+		r->sl[r->sl_counter++].ys *= r->scale_y;
 		edge_step(left);
 		edge_step(right);
 		y++;
 	}
+}
+
+void 	thr_data_set(t_thr_data *thr_data, t_render *r, int start, int end)
+{
+	thr_data->start = start;
+	thr_data->end = end;
+	thr_data->r = r;
+}
+
+void 	*scanline_thr(register void *ptr)
+{
+	register t_thr_data	*td;
+	register t_render	*r;
+	int					i;
+	int 				len;
+
+	td = (t_thr_data *)ptr;
+	r = td->r;
+	i = td->start;
+	len = td->end;
+	while (i < len)
+		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen);
+	return (NULL);
+}
+
+void 	scanline_threads(t_render *r, int size)
+{
+	int	start;
+	int	step;
+	int i;
+	pthread_t	thr[THREADS_N];
+	t_thr_data	thr_data[THREADS_N];
+
+	start = 0;
+	step = size / (THREADS_N - 1);
+	i = 0;
+	while (i < (THREADS_N - 1) && step > 0)
+	{
+		thr_data_set(&thr_data[i], r, start, start + step);
+		pthread_create(&thr[i], NULL, scanline_thr, &thr_data[i]);
+		start += step;
+		i++;
+	}
+	if (start < size)
+	{
+		thr_data_set(&thr_data[i], r, start, size);
+		pthread_create(&thr[i], NULL, scanline_thr, &thr_data[i]);
+	}
+	i = 0;
+	while (i < THREADS_N)
+		pthread_join(thr[i++], NULL);
 }
 
 void	scan_triangle(t_v3d min, t_v3d mid, t_v3d max, t_render *r)
@@ -87,13 +142,8 @@ void	scan_triangle(t_v3d min, t_v3d mid, t_v3d max, t_render *r)
 	r->sl_counter = 0;
 	scan_edges(&top_to_bottom, &top_to_middle, r);
 	scan_edges(&top_to_bottom, &middle_to_bottom, r);
-	i = 0;
-	while (i < r->sl_counter)
-	{
-		r->sl[i].x *= r->scale_x;
-		r->sl[i].y *= r->scale_y;
-		r->sl[i].xs *= r->scale_x;
-		r->sl[i].ys *= r->scale_y;
-		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen);
-	}
+	scanline_threads(r, r->sl_counter);
+//	i = 0;
+//	while (i < r->sl_counter)
+//		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen);
 }

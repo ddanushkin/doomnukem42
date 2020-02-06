@@ -13,14 +13,14 @@
 //# define	SCREEN_W 1920
 //# define	SCREEN_H 1080
 
-//# define	SCREEN_W 1280
-//# define	SCREEN_H 720
+# define	SCREEN_W 1280
+# define	SCREEN_H 720
 
 //# define	SCREEN_W 1024
 //# define	SCREEN_H 576
 
-# define	SCREEN_W 640
-# define	SCREEN_H 360
+//# define	SCREEN_W 640
+//# define	SCREEN_H 360
 
 //# define	SCREEN_W 480
 //# define	SCREEN_H 270
@@ -67,7 +67,7 @@
 # define SDL_MOUSE_MIDDLE 2
 # define SDL_MOUSE_SCROLL_UP 4
 # define SDL_MOUSE_SCROLL_DOWN 5
-# define THREADS_N 12
+# define THREADS_N 4
 
 enum e_hit_type
 {
@@ -383,7 +383,7 @@ typedef struct	s_sl_data
 	int			offset;
 }				t_sl_data;
 
-typedef struct	t_render
+typedef struct	s_render
 {
 	int 			handedness;
 	double 			scale_x;
@@ -394,6 +394,12 @@ typedef struct	t_render
 	t_sl_data		sl[SCREEN_H];
 	int				sl_counter;
 }				t_render;
+typedef struct	s_thr_data
+{
+	t_render	*r;
+	int			start;
+	int 		end;
+}				t_thr_data;
 
 typedef struct	s_app
 {
@@ -448,6 +454,7 @@ typedef struct	s_app
 	uint32_t 	*screen;
 	pthread_t				tr_thr[1000];
 	t_tr_thr_data			tr_thr_data[1000];
+	pthread_t				thr[THREADS_N];
 	int 					tr_thr_counter;
 }				t_app;
 
