@@ -65,7 +65,6 @@ void	clip_triangle(t_app *app, t_vr_list	*list)
 	{
 		node = list;
 		fill_triangle(app, root, node->v, node->next->v);
-//		create_tr_thrd(app, root, node->v, node->next->v);
 		list = list->next;
 		free(node);
 	}

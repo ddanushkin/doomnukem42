@@ -235,13 +235,10 @@ typedef struct	s_camera
 	double 		for_rad;
 	double 		asp_ratio;
 	t_v3d		pos;
-	t_v3d		pos_old;
 	t_v3d		rot;
 	t_v3d		dir;
 	t_mat4x4	view;
-	t_mat4x4	rotation;
 	t_mat4x4	projection;
-	t_mat4x4	translation;
 	t_mat4x4	view_projection;
 	t_mat4x4	transform;
 	t_mat4x4	screen_space;
@@ -267,8 +264,6 @@ typedef struct	s_inputs
 	t_mouse_state	mouse;
 	int				x;
 	int				y;
-	int			scr_u;
-	int			scr_d;
 }				t_inputs;
 
 typedef struct	s_sdl
@@ -295,24 +290,6 @@ typedef struct	s_polygon
 	int 				is_ear;
 	double 				angle;
 }				t_polygon;
-
-typedef struct	s_scanline
-{
-	int			start;
-	int			end;
-	double		pre_step;
-	double		dist;
-	double		x_step;
-	double		y_step;
-	double		z_step;
-	double 		d_step;
-	double		tex_x;
-	double		tex_y;
-	double		tex_z;
-	double		depth;
-	double 		scale_x;
-	double 		scale_y;
-}				t_scanline;
 
 typedef struct 	s_intersect
 {
@@ -383,13 +360,6 @@ typedef struct	s_screen_chunk
 	Uint32		z[SCREEN_W];
 }				t_screen_chunk;
 
-typedef struct	s_scanline_data
-{
-	t_edge		left;
-	t_edge		right;
-	int			y;
-}				t_scanline_data;
-
 typedef struct	s_tr_thr_data
 {
 	struct	s_app	*app;
@@ -398,16 +368,31 @@ typedef struct	s_tr_thr_data
 	t_v3d 			v2;
 }				t_tr_thr_data;
 
+typedef struct	s_sl_data
+{
+	double		x;
+	double		xs;
+	double		y;
+	double		ys;
+	double		z;
+	double		zs;
+	double		d;
+	double		ds;
+	int			start;
+	int			end;
+	int			offset;
+}				t_sl_data;
+
 typedef struct	t_render
 {
-	int 			y;
 	int 			handedness;
-	t_wall			w;
 	double 			scale_x;
 	double 			scale_y;
 	uint32_t		*t;
 	double 			*depth;
 	uint32_t		*screen;
+	t_sl_data		sl[SCREEN_H];
+	int				sl_counter;
 }				t_render;
 
 typedef struct	s_app
@@ -436,8 +421,6 @@ typedef struct	s_app
 	double 		grid_size;
 	t_wall		*rw;
 	int 		triangles_counter;
-	int 		collide_x;
-	int 		collide_z;
 	t_skybox	skybox;
 	t_depth_chunk	depth_chunk;
 	t_depth_chunk	*depth_chunk_array;
