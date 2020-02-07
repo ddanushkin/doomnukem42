@@ -67,7 +67,7 @@
 # define SDL_MOUSE_MIDDLE 2
 # define SDL_MOUSE_SCROLL_UP 4
 # define SDL_MOUSE_SCROLL_DOWN 5
-# define THREADS_N 4
+# define THREADS_N 5
 
 enum e_hit_type
 {
@@ -462,7 +462,7 @@ void 	check_collision(t_app *app, t_v3d *pos, t_v3d f);
 void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void 	join_tr_thrd(t_app *app);
 
-void 	camera_live_mode(t_v3d *pos, t_v3d *rot);
+void 	camera_live_mode(t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
 
 void 	move(t_v3d *v, t_v3d dir, double amount);

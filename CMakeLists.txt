@@ -11,13 +11,7 @@ set(CMAKE_C_STANDARD 99)
 include_directories("includes")
 include_directories("libft/includes")
 
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-endif()
-
-set(CMAKE_CXX_FLAGS "-O3 -c")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -c")
-set(CMAKE_CXX_FLAGS_DEBUG "-O3 -c")
+set(CMAKE_C_FLAGS "-O2 -Wall -Wextra -Werror")
 
 if(MINGW OR CYGWIN)
     message("-- WINDOWS --")

@@ -11,6 +11,7 @@ void 	*fill_triangle_thr(void *ptr)
 
 	data = (t_tr_thr_data *)ptr;
 	fill_triangle(data->app, data->v0, data->v1, data->v2);
+	return (NULL);
 }
 
 void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2)

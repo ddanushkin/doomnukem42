@@ -20,11 +20,11 @@ void 	scanline_calc(t_sl_data *d, t_edge *left, t_edge *right, int y)
 	d->offset = y * SCREEN_W + d->start;
 }
 
-void 	scanline_draw(register t_sl_data *d, uint32_t *t, double *depth, uint32_t *screen)
+void 	scanline_draw(register t_sl_data *d, register uint32_t *t, register double *depth, register uint32_t *screen)
 {
-	int			i;
-	int 		offset;
-	uint32_t 	c;
+	register int	i;
+	register int	offset;
+	uint32_t		c;
 
 	i = d->start;
 	offset = d->offset;
@@ -48,10 +48,10 @@ void 	scanline_draw(register t_sl_data *d, uint32_t *t, double *depth, uint32_t 
 	}
 }
 
-void	scan_edges(t_edge *a, t_edge *b, t_render *r)
+void	scan_edges(t_edge *a,  t_edge *b, t_render *r)
 {
-	t_edge	*left;
-	t_edge	*right;
+	register t_edge	*left;
+	register t_edge	*right;
 	int		y_start;
 	int		y_end;
 	int 	y;
@@ -142,8 +142,8 @@ void	scan_triangle(t_v3d min, t_v3d mid, t_v3d max, t_render *r)
 	r->sl_counter = 0;
 	scan_edges(&top_to_bottom, &top_to_middle, r);
 	scan_edges(&top_to_bottom, &middle_to_bottom, r);
-	scanline_threads(r, r->sl_counter);
-//	i = 0;
-//	while (i < r->sl_counter)
-//		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen);
+//	scanline_threads(r, r->sl_counter);
+	i = 0;
+	while (i < r->sl_counter)
+		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen);
 }

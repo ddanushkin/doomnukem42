@@ -202,7 +202,7 @@ void 	camera_point_mode(t_v3d *pos, t_v3d *rot)
 	rot->z = 0.0;
 }
 
-void 	camera_live_mode(t_v3d *pos, t_v3d *rot)
+void 	camera_live_mode(t_v3d *rot)
 {
 	rot->x = 0.0;
 	rot->y = 0.0;
@@ -328,7 +328,7 @@ void	start_the_game(t_app *app)
 			{
 				sector_close(app, &app->sectors[app->sectors_count]);
 				app->point_mode = 0;
-				camera_live_mode(&app->camera->pos, &app->camera->rot);
+				camera_live_mode(&app->camera->rot);
 				ft_bzero(&app->keys, sizeof(uint8_t) * 512);
 				ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
 				continue;
@@ -412,6 +412,7 @@ int		main(int argv, char**argc)
 {
 	t_app	*app;
 
+	printf("%d, %s\n", argv, argc[0]);
 	//getchar();
 	//if (!check_resources())
 	//	exit_with_status(STATUS_BAD_RESOURCES, NULL);
