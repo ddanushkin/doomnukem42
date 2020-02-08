@@ -182,12 +182,12 @@ void	process_points_inputs(t_app *app, double delta_time)
 		app->cursor_y += mouse->y;
 }
 
-void	process_inputs(t_app *app, double delta_time)
+void	process_inputs(t_app *app, double dt)
 {
 	t_mouse_state	*mouse;
 	const uint8_t	*key;
 	t_camera		*c;
-	double			mouse_speed = 1.2123 * delta_time;
+	double			mouse_speed = 1.2123 * dt;
 
 	c = app->camera;
 	key = app->inputs->keyboard;
@@ -201,13 +201,13 @@ void	process_inputs(t_app *app, double delta_time)
 	if (!app->point_mode)
 		c->rot.x = CLAMP(c->rot.x, -1.45, 1.45);
 	if (key[SDL_SCANCODE_W])
-		move_c(app, &c->pos, c->forward, app->speed * delta_time);
+		move_c(app, &c->pos, c->forward, app->speed * dt);
 	if (key[SDL_SCANCODE_S])
-		move_c(app, &c->pos, c->forward, -app->speed * delta_time);
+		move_c(app, &c->pos, c->forward, -app->speed * dt);
 	if (key[SDL_SCANCODE_A])
-		move_c(app, &c->pos, c->right, -app->speed * delta_time);
+		move_c(app, &c->pos, c->right, -app->speed * dt);
 	if (key[SDL_SCANCODE_D])
-		move_c(app, &c->pos, c->right, app->speed * delta_time);
+		move_c(app, &c->pos, c->right, app->speed * dt);
 }
 
 int		event_handling(t_app *app)
