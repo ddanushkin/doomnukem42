@@ -60,6 +60,7 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	r.scale_y = app->rw->scale_y * 256;
 	r.handedness = triangle_area(&v1, &v3, &v2) >= 0.0;
 	r.depth = &app->depth_buffer[0];
+	r.shade = &app->rw->shade[0];
 	r.screen = &app->screen[0];
 	scan_triangle(v1, v2, v3, &r);
 }

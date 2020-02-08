@@ -67,7 +67,7 @@
 # define SDL_MOUSE_MIDDLE 2
 # define SDL_MOUSE_SCROLL_UP 4
 # define SDL_MOUSE_SCROLL_DOWN 5
-# define THREADS_N 5
+# define THREADS_N 8
 
 enum e_hit_type
 {
@@ -108,7 +108,7 @@ typedef struct	s_wall
 	t_v3d		pos;
 	t_v3d		quad;
 	double 		size;
-	double 		shade[10000];
+	double 		shade[65536];
 	Uint32 		inside;
 	int 		decor;
 }				t_wall;
@@ -381,6 +381,10 @@ typedef struct	s_sl_data
 	int			start;
 	int			end;
 	int			offset;
+	double 		shx;
+	double 		shy;
+	double 		shsx;
+	double 		shsy;
 }				t_sl_data;
 
 typedef struct	s_render
@@ -390,6 +394,7 @@ typedef struct	s_render
 	double 			scale_y;
 	uint32_t		*t;
 	double 			*depth;
+	double 			*shade;
 	uint32_t		*screen;
 	t_sl_data		sl[SCREEN_H];
 	int				sl_counter;
@@ -454,13 +459,13 @@ typedef struct	s_app
 	uint32_t 	*screen;
 	pthread_t				tr_thr[1000];
 	t_tr_thr_data			tr_thr_data[1000];
-	pthread_t				thr[THREADS_N];
 	int 					tr_thr_counter;
 }				t_app;
 
 void 	check_collision(t_app *app, t_v3d *pos, t_v3d f);
 void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void 	join_tr_thrd(t_app *app);
+void 	sector_update_light(t_sector *s, t_v3d pos);
 
 void 	camera_live_mode(t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);

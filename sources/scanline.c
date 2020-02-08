@@ -1,11 +1,22 @@
 #include "doom_nukem.h"
 
+void 	shade_color(double shade, register uint32_t *c)
+{
+	uint8_t	*color;
+
+	color = (uint8_t *)c;
+	color[0] *= shade;
+	color[1] *= shade;
+	color[2] *= shade;
+}
+
 void 	scanline_calc(t_sl_data *d, t_edge *left, t_edge *right, int y)
 {
 	double	dist;
 	double	pre_step;
 
 	d->start = ceil(left->x);
+	d->start--;
 	d->end = ceil(right->x);
 	pre_step = d->start - left->x;
 	dist = 1.0 / (right->x - left->x);
@@ -18,23 +29,31 @@ void 	scanline_calc(t_sl_data *d, t_edge *left, t_edge *right, int y)
 	d->z = left->tex_z + d->zs * pre_step;
 	d->d = left->depth + d->ds * pre_step;
 	d->offset = y * SCREEN_W + d->start;
+	d->shx = d->x * 256;
+	d->shy = d->y * 256;
+	d->shsx = d->xs * 256;
+	d->shsy = d->ys * 256;
 }
 
-void 	scanline_draw(register t_sl_data *d, register uint32_t *t, register double *depth, register uint32_t *screen)
+void 	scanline_draw(register t_sl_data *d, register uint32_t *t, register double *depth, register uint32_t *screen, register double *shade)
 {
 	register int	i;
 	register int	offset;
 	uint32_t		c;
+	uint16_t 		t_offset;
 
 	i = d->start;
 	offset = d->offset;
-	while (i < d->end)
+	while (i++ < d->end)
 	{
 		if (d->d < depth[offset])
-		{
-			c = t[((uint8_t)(d->y / d->z) << 8u) + (uint8_t)(d->x / d->z)];
+			{
+			t_offset = ((uint8_t)(d->y / d->z) << 8u) + (d->x / d->z);
+			c = t[t_offset];
 			if (c != TRANSPARENCY_COLOR)
 			{
+				t_offset = ((uint)(d->shy / d->z) << 8u) + (d->shx / d->z);
+				shade_color(shade[t_offset], &c);
 				depth[offset] = d->d;
 				screen[offset] = c;
 			}
@@ -43,8 +62,9 @@ void 	scanline_draw(register t_sl_data *d, register uint32_t *t, register double
 		d->y += d->ys;
 		d->z += d->zs;
 		d->d += d->ds;
+		d->shx += d->shsx;
+		d->shy += d->shsy;
 		offset++;
-		i++;
 	}
 }
 
@@ -95,7 +115,7 @@ void 	*scanline_thr(register void *ptr)
 	i = td->start;
 	len = td->end;
 	while (i < len)
-		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen);
+		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen, r->shade);
 	return (NULL);
 }
 
@@ -133,7 +153,7 @@ void	scan_triangle(t_v3d min, t_v3d mid, t_v3d max, t_render *r)
 	t_edge		top_to_middle;
 	t_edge		middle_to_bottom;
 	t_gradient	gradient;
-	int			i;
+//	int			i;
 
 	gradient = gradient_new(min, mid, max);
 	top_to_bottom = edge_new(gradient, min, max, 0);
@@ -142,8 +162,8 @@ void	scan_triangle(t_v3d min, t_v3d mid, t_v3d max, t_render *r)
 	r->sl_counter = 0;
 	scan_edges(&top_to_bottom, &top_to_middle, r);
 	scan_edges(&top_to_bottom, &middle_to_bottom, r);
-//	scanline_threads(r, r->sl_counter);
-	i = 0;
-	while (i < r->sl_counter)
-		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen);
+	scanline_threads(r, r->sl_counter);
+//	i = 0;
+//	while (i < r->sl_counter)
+//		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen);
 }

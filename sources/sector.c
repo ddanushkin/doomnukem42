@@ -1,15 +1,15 @@
 #include "doom_nukem.h"
 
-double	get_shade(t_light *l, t_v3d	*v0, t_v3d *v2, double value)
+double	get_shade(t_light *l, t_v3d	*v0, t_v3d *v1, double value)
 {
 	double	x;
 	double	y;
 	double	z;
 	double	shade;
 
-	x = l->pos.x - (v0->x + value * (v2->x - v0->x));
-	y = l->pos.y - (v0->y + value * (v2->y - v0->y));
-	z = l->pos.z - (v0->z + value * (v2->z - v0->z));
+	x = l->pos.x - (v0->x + value * (v1->x - v0->x));
+	y = l->pos.y - (v0->y + value * (v1->y - v0->y));
+	z = l->pos.z - (v0->z + value * (v1->z - v0->z));
 	shade = sqrt(x * x + y * y + z * z);
 	shade = CLAMP(1.0 - (shade / l->power), 0.0, 1.0);
 	return (shade);
@@ -22,15 +22,15 @@ void 	fill_shade_y(t_light *light, t_v3d v0, t_v3d v1, double *shade)
 	int 	j;
 
 	i = 0;
-	step_y = fabs(v0.y - v1.y) / 10.0;
+	step_y = fabs(v0.y - v1.y) / 256.0;
 	v1.y = v0.y;
-	while (i < 10)
+	while (i < 256)
 	{
 		j = 0;
-		while (j < 10)
+		while (j < 256)
 		{
-			shade[i * 10 + j] = get_shade(light, &v0, &v1,
-										  (double)j / 10.0);
+			shade[i * 256 + j] = get_shade(light, &v0, &v1,
+										  (double)j / 256.0);
 			j++;
 		}
 		v0.y += step_y;
@@ -46,15 +46,15 @@ void 	fill_shade_z(t_light *light, t_v3d v0, t_v3d v1, double *shade)
 	int 	j;
 
 	i = 0;
-	step_y = fabs(v0.z - v1.z) / 10.0;
+	step_y = fabs(v0.z - v1.z) / 256.0;
 	v1.z = v0.z;
-	while (i < 10)
+	while (i < 256)
 	{
 		j = 0;
-		while (j < 10)
+		while (j < 256)
 		{
-			shade[i * 10 + j] = get_shade(light, &v0, &v1,
-										  (double)j / 10.0);
+			shade[i * 256 + j] = get_shade(light, &v0, &v1,
+										  (double)j / 256.0);
 			j++;
 		}
 		v0.z += step_y;
@@ -81,8 +81,8 @@ void 	sector_floor_shade(t_sector *cs)
 		v1.y = v0.y;
 		v1.z = cs->z_max;
 		fill_shade_z(&cs->l, v0, v1, &cs->floor.shade[0]);
-		v0.y = v0.y + 2.0;
-		v1.y = v0.y + 2.0;
+		v0.y = v0.y + cs->delta_y;
+		v1.y = v0.y;
 		fill_shade_z(&cs->l, v0, v1, &cs->ceil.shade[0]);
 		i++;
 	}
@@ -93,13 +93,13 @@ void	sector_update_shade(t_sector *cs)
 	int			i;
 	t_wall		*w;
 
-	i = 0;
-	while (i < cs->objs_count)
-	{
-		w = &cs->objs[i];
-		fill_shade_y(&cs->l, w->v[0], w->v[1], &w->shade[0]);
-		i++;
-	}
+//	i = 0;
+//	while (i < cs->objs_count)
+//	{
+//		w = &cs->objs[i];
+//		fill_shade_y(&cs->l, w->v[0], w->v[1], &w->shade[0]);
+//		i++;
+//	}
 	i = 0;
 	while (i < cs->walls_count)
 	{
@@ -107,13 +107,13 @@ void	sector_update_shade(t_sector *cs)
 		fill_shade_y(&cs->l, w->v[0], w->v[1], &w->shade[0]);
 		i++;
 	}
-	i = 0;
-	while (i < cs->decor_count)
-	{
-		w = &cs->decor[i];
-		fill_shade_y(&cs->l, w->v[0], w->v[1], &w->shade[0]);
-		i++;
-	}
+//	i = 0;
+//	while (i < cs->decor_count)
+//	{
+//		w = &cs->decor[i];
+//		fill_shade_y(&cs->l, w->v[0], w->v[1], &w->shade[0]);
+//		i++;
+//	}
 	sector_floor_shade(cs);
 }
 
@@ -187,6 +187,7 @@ void 	sector_update_light(t_sector *s, t_v3d pos)
 	s->l.pos = pos;
 	s->l.pos.y = s->ceil_y - 0.1;
 	sector_update_shade(s);
+	s->l.power = CLAMP(s->l.power, 0.0, 1000.0);
 }
 
 void	sector_make_walls(t_sector *s)
@@ -233,9 +234,9 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->ready = 1;
 	s->walls_count = 0;
 	s->objs_count = 0;
-	sector_update_light(s, app->camera->pos);
 	s->l.power = 5.0;
 	sector_make_walls(s);
+	sector_update_light(s, app->camera->pos);
 	app->cs = s;
 	app->sectors_count++;
 	app->points_count = 0;

@@ -8,8 +8,8 @@ t_edge	edge_new(t_gradient	g, t_v3d min, t_v3d max, int index)
 	double		y_step;
 	double		x_step;
 
-	e.y_start = (int)ceil(min.y);
-	e.y_end = (int)ceil(max.y);
+	e.y_start = ceil(min.y);
+	e.y_end = ceil(max.y);
 	y_dist = max.y - min.y;
 	x_dist = max.x - min.x;
 	y_step = e.y_start - min.y;

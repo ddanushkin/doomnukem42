@@ -296,8 +296,7 @@ void	start_the_game(t_app *app)
 					app->hit_sector->l.power -= 0.15;
 				else if (app->keys[SDL_SCANCODE_EQUALS])
 					app->hit_sector->l.power += 0.15;
-				sector_update_shade(app->hit_sector);
-				app->hit_sector->l.power = CLAMP(app->hit_sector->l.power, 0.0, 1000.0);
+				sector_update_light(app->hit_sector, app->camera->pos);
 			}
 			if (app->inputs->keyboard[SDL_SCANCODE_F])
 			{
