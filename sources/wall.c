@@ -21,8 +21,8 @@ t_wall	wall_new()
 	w.v[2].w = 1.0;
 	w.v[3].w = 1.0;
 	wall_reset_tex(&w);
-	w.scale_x = 1.0;
-	w.scale_y = 1.0;
+	w.sx = 1.0;
+	w.sy = 1.0;
 	w.sprite = 103;
 	w.decor = 0;
 	return (w);
@@ -35,8 +35,8 @@ void 	wall_update_scale(t_wall *w)
 
 	dx = fabs(w->v[0].x - w->v[1].x);
 	dz = fabs(w->v[0].z - w->v[1].z);
-	w->scale_x = (dx + dz) * 0.5;
-	w->scale_y = fabs(w->v[0].y - w->v[1].y) * 0.5;
+	w->sx = (dx + dz) * 0.5;
+	w->sy = fabs(w->v[0].y - w->v[1].y) * 0.5;
 }
 
 void	update_walls_data(t_app *app)

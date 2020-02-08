@@ -4,6 +4,8 @@ void 	shade_color(double shade, register uint32_t *c)
 {
 	uint8_t	*color;
 
+	if (*c == TRANSPARENCY_COLOR)
+		return ;
 	color = (uint8_t *)c;
 	color[0] *= shade;
 	color[1] *= shade;
@@ -29,41 +31,35 @@ void 	scanline_calc(t_sl_data *d, t_edge *left, t_edge *right, int y)
 	d->z = left->tex_z + d->zs * pre_step;
 	d->d = left->depth + d->ds * pre_step;
 	d->offset = y * SCREEN_W + d->start;
-	d->shx = d->x * 256;
-	d->shy = d->y * 256;
-	d->shsx = d->xs * 256;
-	d->shsy = d->ys * 256;
+	d->x *= 256;
+	d->y *= 256;
+	d->xs *= 256;
+	d->ys *= 256;
 }
 
-void 	scanline_draw(register t_sl_data *d, register uint32_t *t, register double *depth, register uint32_t *screen, register double *shade)
+void 	scanline_draw(register t_sl_data *s, register uint32_t *t, register double *depth, register uint32_t *screen)
 {
-	register int	i;
-	register int	offset;
-	uint32_t		c;
-	uint16_t 		t_offset;
+	int			i;
+	int			offset;
+	uint32_t	c;
 
-	i = d->start;
-	offset = d->offset;
-	while (i++ < d->end)
+	i = s->start;
+	offset = s->offset;
+	while (i++ < s->end)
 	{
-		if (d->d < depth[offset])
-			{
-			t_offset = ((uint8_t)(d->y / d->z) << 8u) + (d->x / d->z);
-			c = t[t_offset];
+		if (s->d < depth[offset])
+		{
+			c = t[((uint8_t)(s->y / s->z) << 8u) + (uint8_t)(s->x / s->z)];
 			if (c != TRANSPARENCY_COLOR)
 			{
-				t_offset = ((uint)(d->shy / d->z) << 8u) + (d->shx / d->z);
-				shade_color(shade[t_offset], &c);
-				depth[offset] = d->d;
+				depth[offset] = s->d;
 				screen[offset] = c;
 			}
 		}
-		d->x += d->xs;
-		d->y += d->ys;
-		d->z += d->zs;
-		d->d += d->ds;
-		d->shx += d->shsx;
-		d->shy += d->shsy;
+		s->x += s->xs;
+		s->y += s->ys;
+		s->z += s->zs;
+		s->d += s->ds;
 		offset++;
 	}
 }
@@ -85,11 +81,7 @@ void	scan_edges(t_edge *a,  t_edge *b, t_render *r)
 	y = y_start;
 	while (y < y_end)
 	{
-		scanline_calc(&r->sl[r->sl_counter], left, right, y);
-		r->sl[r->sl_counter].x *= r->scale_x;
-		r->sl[r->sl_counter].y *= r->scale_y;
-		r->sl[r->sl_counter].xs *= r->scale_x;
-		r->sl[r->sl_counter++].ys *= r->scale_y;
+		scanline_calc(&r->sl[r->sl_counter++], left, right, y);
 		edge_step(left);
 		edge_step(right);
 		y++;
@@ -115,7 +107,7 @@ void 	*scanline_thr(register void *ptr)
 	i = td->start;
 	len = td->end;
 	while (i < len)
-		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen, r->shade);
+		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen);
 	return (NULL);
 }
 

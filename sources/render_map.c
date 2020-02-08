@@ -130,7 +130,6 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 				(vertex_inside(&v1) << 16u) +
 				(vertex_inside(&v2) << 8u) + 1u;
 	app->rw = w;
-	app->tr_thr_counter = 0;
 	render_triangle_0(app, v0, v1, v2);
 	if (!app->edge_selected && ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]))
 		app->hit_first = 1;
@@ -170,7 +169,6 @@ void 	render_sector(t_app *app, t_sector *s)
 	t_triangle	ceil_triangle;
 
 	app->cs = s;
-	app->tr_thr_counter = 0;
 //	j = 0;
 //	app->render_type = obj;
 //	while (j < s->objs_count)
@@ -196,7 +194,6 @@ void 	render_sector(t_app *app, t_sector *s)
 			ceil_triangle.v[2].y += s->delta_y;
 			render_floor_ceil(app, &ceil_triangle, &s->ceil);
 		}
-//		join_tr_thrd(app);
 	}
 }
 

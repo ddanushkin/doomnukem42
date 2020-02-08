@@ -78,7 +78,6 @@ void 	decore_new(t_v3d hit_p, t_sector *cs, t_wall *hit_w, t_camera *cam)
 	wall_reset_tex(decor);
 	decor->sprite = 323;
 	cs->decor_count++;
-	sector_update_shade(cs);
 }
 
 int is_colliding(t_v3d c0, double radius, t_v3d v0, t_v3d v1)
@@ -296,7 +295,7 @@ void	start_the_game(t_app *app)
 					app->hit_sector->l.power -= 0.15;
 				else if (app->keys[SDL_SCANCODE_EQUALS])
 					app->hit_sector->l.power += 0.15;
-				sector_update_light(app->hit_sector, app->camera->pos);
+				sector_update_light(&app->sprites[0], app->hit_sector, app->camera->pos);
 			}
 			if (app->inputs->keyboard[SDL_SCANCODE_F])
 			{
@@ -305,7 +304,7 @@ void	start_the_game(t_app *app)
 				else if (app->keys[SDL_SCANCODE_EQUALS])
 					app->hit_sector->floor_y += 0.5;
 				sector_update_height(app->hit_sector);
-				sector_update_shade(app->hit_sector);
+				sector_update_shade(&app->sprites[0] ,app->hit_sector);
 			}
 			if (app->inputs->keyboard[SDL_SCANCODE_C])
 			{
@@ -314,7 +313,7 @@ void	start_the_game(t_app *app)
 				else if (app->keys[SDL_SCANCODE_EQUALS])
 					app->hit_sector->ceil_y += 0.5;
 				sector_update_height(app->hit_sector);
-				sector_update_shade(app->hit_sector);
+				sector_update_shade(&app->sprites[0] ,app->hit_sector);
 			}
 		}
 		reset_screen(app);

@@ -103,13 +103,13 @@ typedef struct	s_wall
 {
 	t_v3d 		v[4];
 	int			sprite;
-	double 		scale_x;
-	double 		scale_y;
+	double 		sx;
+	double 		sy;
 	t_v3d		pos;
 	t_v3d		quad;
 	double 		size;
-	double 		shade[65536];
-	Uint32 		inside;
+	uint32_t	t[65536];
+	uint32_t 	inside;
 	int 		decor;
 }				t_wall;
 
@@ -381,20 +381,13 @@ typedef struct	s_sl_data
 	int			start;
 	int			end;
 	int			offset;
-	double 		shx;
-	double 		shy;
-	double 		shsx;
-	double 		shsy;
 }				t_sl_data;
 
 typedef struct	s_render
 {
 	int 			handedness;
-	double 			scale_x;
-	double 			scale_y;
 	uint32_t		*t;
 	double 			*depth;
-	double 			*shade;
 	uint32_t		*screen;
 	t_sl_data		sl[SCREEN_H];
 	int				sl_counter;
@@ -457,15 +450,16 @@ typedef struct	s_app
 	uint8_t 	keys[512];
 	uint8_t 	mouse[6];
 	uint32_t 	*screen;
-	pthread_t				tr_thr[1000];
-	t_tr_thr_data			tr_thr_data[1000];
-	int 					tr_thr_counter;
 }				t_app;
 
 void 	check_collision(t_app *app, t_v3d *pos, t_v3d f);
 void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void 	join_tr_thrd(t_app *app);
-void 	sector_update_light(t_sector *s, t_v3d pos);
+void 	shade_color(double shade, register uint32_t *c);
+void 	sector_update_light(t_sprite *sp, t_sector *s, t_v3d pos);
+void	reset_shade(uint32_t *s, uint32_t *t, double sx, double sy);
+void 	sector_floor_shade(t_sprite *s, t_sector *cs);
+void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, u_int32_t *t);
 
 void 	camera_live_mode(t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
@@ -483,7 +477,7 @@ void	process_points_inputs(t_app *app, double delta_time);
 void 	update_camera(t_app *app, t_camera *camera);
 void 	update_points_camera(t_camera *c);
 
-void	sector_update_shade(t_sector *cs);
+void	sector_update_shade(t_sprite *sprites, t_sector *cs);
 
 void	wall_reset_tex(t_wall *w);
 t_wall	wall_new();
