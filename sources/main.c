@@ -44,40 +44,63 @@ Uint8 	vertex_inside(t_v3d *v)
 			fabs(v->z) <= w);
 }
 
-void 	decore_move(t_wall *decor, t_v3d forward)
+void 	decore_set_pos(t_wall *decor, t_v3d lp, t_v3d tp, t_v3d forward)
 {
-	decor->v[0].y -= DECOR_LEN_HALF;
-	decor->v[1].y += DECOR_LEN_HALF;
-	decor->v[2].y -= DECOR_LEN_HALF;
-	decor->v[3].y += DECOR_LEN_HALF;
+	decor->v[0] = lp;
+	decor->v[1] = tp;
+	decor->v[2] = decor->v[1];
+	decor->v[2].y = decor->v[0].y;
+	decor->v[3] = decor->v[0];
+	decor->v[3].y = decor->v[1].y;
 	move(&decor->v[0], forward, -0.01);
 	move(&decor->v[1], forward, -0.01);
 	move(&decor->v[2], forward, -0.01);
 	move(&decor->v[3], forward, -0.01);
 }
 
-void 	decore_new(t_v3d hit_p, t_sector *cs, t_wall *hit_w, t_camera *cam)
+void	calc_top_point(t_v3d *lp, t_v3d *tp, double dx, double dz)
+{
+	tp->x = ((lp->x / DECOR_LEN) + dx / sqrt(dx*dx+dz*dz)) * DECOR_LEN;
+	tp->z = ((lp->z / DECOR_LEN) + dz / sqrt(dx*dx+dz*dz)) * DECOR_LEN;
+	tp->y = lp->y + DECOR_LEN;
+}
+
+void 	decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam)
 {
 	t_wall	*decor;
 	double	dz;
 	double	dx;
-	double	nz;
-	double	nx;
+	t_v3d	tp;
 
-	decor = &cs->decor[cs->decor_count];
+	decor = &cs->decor[cs->decor_next];
 	*decor = wall_new();
-	dz = hit_w->v[1].z - hit_w->v[0].z;
 	dx = hit_w->v[1].x - hit_w->v[0].x;
-	nz = ((hit_p.z / DECOR_LEN) + dz / sqrt(dx*dx+dz*dz)) * DECOR_LEN;
-	nx = ((hit_p.x / DECOR_LEN) + dx / sqrt(dx*dx+dz*dz)) * DECOR_LEN;
-	decor->v[0] = hit_p;
-	decor->v[1] = new_vector(nx, hit_p.y, nz);
-	decor->v[2] = decor->v[1];
-	decor->v[3] = decor->v[0];
-	decore_move(decor, cam->forward);
+	dz = hit_w->v[1].z - hit_w->v[0].z;
+	calc_top_point(&lp, &tp, dx, dz);
+	lp.x -= (tp.x - lp.x) * 0.5;
+	lp.z -= (tp.z - lp.z) * 0.5;
+	lp.y -= DECOR_LEN_HALF;
+	calc_top_point(&lp, &tp, dx, dz);
+	decore_set_pos(decor, lp, tp, cam->forward);
 	wall_reset_tex(decor);
 	decor->sprite = 323;
-	cs->decor_count++;
+	if (cs->decor_count != 10)
+		cs->decor_count++;
+	cs->decor_next = (cs->decor_next + 1) % 10;
+}
+
+void 	decore_new(t_app *app)
+{
+	t_sector	*s;
+	int			decor_id;
+
+	s = app->hit_sector;
+	decor_id = s->decor_next;
+	decore_add(app->hit_point,
+			   s,
+			   app->hit_wall,
+			   app->camera);
+	update_wall_shade(app, &s->decor[decor_id]);
 }
 
 int is_colliding(t_v3d c0, double radius, t_v3d v0, t_v3d v1)
@@ -283,12 +306,7 @@ void	start_the_game(t_app *app)
 			if (app->inputs->keyboard[SDL_SCANCODE_LCTRL])
 				texture_scale_x_change(app);
 			if (app->keys[SDL_SCANCODE_T] && app->hit_type == wall)
-			{
-				decore_new(app->hit_point,
-						app->hit_sector,
-						app->hit_wall,
-						app->camera);
-			}
+				decore_new(app);
 			if (app->inputs->keyboard[SDL_SCANCODE_L])
 			{
 				if (app->keys[SDL_SCANCODE_MINUS])
@@ -357,6 +375,7 @@ void	start_the_game(t_app *app)
 
 		} else
 		{
+			update_camera(app, app->camera);
 			process_inputs(app, app->timer->delta);
 			if (app->keys[SDL_SCANCODE_R])
 			{
@@ -364,7 +383,6 @@ void	start_the_game(t_app *app)
 				if (!app->camera->fly)
 					app->fall = app->camera->pos.y - app->floor_point.y - app->height;
 			}
-			update_camera(app, app->camera);
 			render_map(app);
 			if (app->keys[SDL_SCANCODE_Q] && !app->point_mode)
 			{
@@ -456,7 +474,7 @@ int		main(int argv, char**argc)
 	app->skybox.v[7] = new_vector(-size, size, -size);
 
 	app->sectors_count = 0;
-	app->sectors = (t_sector *)malloc(sizeof(t_sector) * 1000);
+	//app->sectors = (t_sector *)malloc(sizeof(t_sector) * 1000);
 
 //	t_sector *cs;
 //

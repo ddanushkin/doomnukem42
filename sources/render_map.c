@@ -177,10 +177,10 @@ void 	render_sector(t_app *app, t_sector *s)
 	app->render_type = wall;
 	while (j < s->walls_count)
 		render_wall(app, &s->walls[j++]);
-//	j = 0;
-//	app->render_type = decor;
-//	while (j < s->decor_count)
-//		render_wall(app, &s->decor[j++]);
+	j = 0;
+	app->render_type = decor;
+	while (j < s->decor_count)
+		render_wall(app, &s->decor[j++]);
 	if (s->ready && s->triangles_count > 0)
 	{
 		j = 0;

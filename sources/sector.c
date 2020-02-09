@@ -130,8 +130,8 @@ void	sector_update_shade(t_sprite *s, t_sector *cs)
 //	while (i < cs->objs_count)
 //	{
 //		w = &cs->objs[i];
-//		reset_shade(&sprites[w->sprite].pixels[0], &w->t[0], w->sx, w->sy);
-//		fill_shade_y(&cs->l, w->v[0], w->v[1], &w->shade[0]);
+//		reset_shade(&s[w->sprite].pixels[0], &w->t[0], w->sx, w->sy);
+//		fill_shade_wall(&cs->l, w->v[0], w->v[1], &w->t[0]);
 //		i++;
 //	}
 	i = 0;
@@ -142,14 +142,14 @@ void	sector_update_shade(t_sprite *s, t_sector *cs)
 		fill_shade_wall(&cs->l, w->v[0], w->v[1], &w->t[0]);
 		i++;
 	}
-//	i = 0;
-//	while (i < cs->decor_count)
-//	{
-//		w = &cs->decor[i];
-//		reset_shade(&sprites[w->sprite].pixels[0], &w->t[0], w->sx, w->sy);
-//		fill_shade_y(&cs->l, w->v[0], w->v[1], &w->shade[0]);
-//		i++;
-//	}
+	i = 0;
+	while (i < cs->decor_count)
+	{
+		w = &cs->decor[i];
+		reset_shade(&s[w->sprite].pixels[0], &w->t[0], w->sx, w->sy);
+		fill_shade_wall(&cs->l, w->v[0], w->v[1], &w->t[0]);
+		i++;
+	}
 	sector_floor_shade(s, cs);
 }
 
@@ -232,7 +232,6 @@ void	sector_make_walls(t_sector *s)
 	t_wall *w;
 
 	i = 0;
-	s->walls = (t_wall *)malloc(sizeof(t_wall) * s->points_count);
 	while (i < s->points_count)
 	{
 		w = &s->walls[i];
@@ -271,6 +270,9 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->walls_count = 0;
 	s->objs_count = 0;
 	s->l.power = 5.0;
+	s->objs_count = 0;
+	s->decor_count = 0;
+	s->decor_next = 0;
 	sector_make_walls(s);
 	sector_update_light(&app->sprites[0], s, app->camera->pos);
 	app->cs = s;

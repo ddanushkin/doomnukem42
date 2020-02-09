@@ -319,15 +319,16 @@ typedef struct	s_light
 
 typedef struct	s_sector
 {
-	t_wall		*walls;
-	t_wall		*objs;
-	t_wall 		*decor;
+	t_wall		walls[1000];
+	t_wall		objs[100];
+	t_wall 		decor[10];
 	t_triangle	*triangles;
 	t_wall		floor;
 	t_wall		ceil;
 	int 		walls_count;
 	int 		objs_count;
 	int 		decor_count;
+	int 		decor_next;
 	int 		triangles_count;
 	double 		floor_y;
 	double 		ceil_y;
@@ -419,7 +420,7 @@ typedef struct	s_app
 	double 		hit_dist;
 	int 		edge_selected;
 	t_wall		edit_wall;
-	t_sector	*sectors;
+	t_sector	sectors[100];
 	t_sector	*cs;
 	int 		sectors_count;
 	double 		grid_size;
@@ -460,6 +461,7 @@ void 	sector_update_light(t_sprite *sp, t_sector *s, t_v3d pos);
 void	reset_shade(uint32_t *s, uint32_t *t, double sx, double sy);
 void 	sector_floor_shade(t_sprite *s, t_sector *cs);
 void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, u_int32_t *t);
+void	update_wall_shade(t_app *app, t_wall *w);
 
 void 	camera_live_mode(t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
