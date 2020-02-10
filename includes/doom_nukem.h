@@ -13,11 +13,11 @@
 //# define	SCREEN_W 1920
 //# define	SCREEN_H 1080
 
-# define	SCREEN_W 1280
-# define	SCREEN_H 720
+//# define	SCREEN_W 1280
+//# define	SCREEN_H 720
 
-//# define	SCREEN_W 1024
-//# define	SCREEN_H 576
+# define	SCREEN_W 1024
+# define	SCREEN_H 576
 
 //# define	SCREEN_W 640
 //# define	SCREEN_H 360
@@ -69,6 +69,11 @@
 # define SDL_MOUSE_SCROLL_DOWN 5
 # define THREADS_N 8
 
+# define MAX_SECTOR 100
+# define MAX_WALL 50
+# define MAX_DECOR 25
+# define MAX_OBJ 25
+
 enum e_hit_type
 {
 	wall,
@@ -108,7 +113,8 @@ typedef struct	s_wall
 	t_v3d		pos;
 	t_v3d		quad;
 	double 		size;
-	uint32_t	t[65536];
+	uint32_t 	t[65536];
+	double 		sh[100];
 	uint32_t 	inside;
 	int 		decor;
 }				t_wall;
@@ -319,9 +325,9 @@ typedef struct	s_light
 
 typedef struct	s_sector
 {
-	t_wall		walls[1000];
-	t_wall		objs[100];
-	t_wall 		decor[10];
+	t_wall		walls[MAX_WALL];
+	t_wall		objs[MAX_OBJ];
+	t_wall 		decor[MAX_DECOR];
 	t_triangle	*triangles;
 	t_wall		floor;
 	t_wall		ceil;
@@ -340,7 +346,7 @@ typedef struct	s_sector
 	double 		x_max;
 	double 		z_max;
 	t_light		l;
-	t_v3d		points[1000];
+	t_v3d		points[MAX_WALL];
 	int 		points_count;
 }				t_sector;
 
@@ -420,7 +426,7 @@ typedef struct	s_app
 	double 		hit_dist;
 	int 		edge_selected;
 	t_wall		edit_wall;
-	t_sector	sectors[100];
+	t_sector	sectors[MAX_SECTOR];
 	t_sector	*cs;
 	int 		sectors_count;
 	double 		grid_size;
@@ -444,7 +450,7 @@ typedef struct	s_app
 	t_v3d 		floor_point;
 	double		floor_dist;
 	int			point_mode;
-	t_v3d		points[1000];
+	t_v3d		points[50];
 	uint8_t		points_count;
 	double 		cursor_x;
 	double 		cursor_y;
@@ -456,12 +462,11 @@ typedef struct	s_app
 void 	check_collision(t_app *app, t_v3d *pos, t_v3d f);
 void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void 	join_tr_thrd(t_app *app);
-void 	shade_color(double shade, register uint32_t *c);
-void 	sector_update_light(t_sprite *sp, t_sector *s, t_v3d pos);
-void	reset_shade(uint32_t *s, uint32_t *t, double sx, double sy);
-void 	sector_floor_shade(t_sprite *s, t_sector *cs);
-void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, u_int32_t *t);
-void	update_wall_shade(t_app *app, t_wall *w);
+uint32_t 	shade_color(double shade, uint32_t c);
+void 	sector_update_light(t_sector *s, t_v3d pos);
+void 	sector_floor_shade(t_sector *cs);
+void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, double *sh);
+void	update_wall_shade(t_sector *s, t_wall *w);
 
 void 	camera_live_mode(t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
@@ -479,7 +484,7 @@ void	process_points_inputs(t_app *app, double delta_time);
 void 	update_camera(t_app *app, t_camera *camera);
 void 	update_points_camera(t_camera *c);
 
-void	sector_update_shade(t_sprite *sprites, t_sector *cs);
+void	sector_update_shade(t_sector *cs);
 
 void	wall_reset_tex(t_wall *w);
 t_wall	wall_new();

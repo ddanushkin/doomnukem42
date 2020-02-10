@@ -137,7 +137,39 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 		ray_floor(app, tr->v[0], tr->v[1], tr->v[2]);
 }
 
-void 	render_wall(t_app *app, t_wall *w)
+uint32_t	shade(double shade, uint32_t color)
+{
+	uint8_t	*c;
+
+	c = (uint8_t *)(&color);
+	c[0] *= shade;
+	c[1] *= shade;
+	c[2] *= shade;
+	return (*((uint32_t*)c));
+}
+
+void 	reshade_sprite(register uint32_t *s, register t_wall *w)
+{
+	int			x;
+	int			y;
+	uint32_t	c;
+
+	y = 0;
+	while (y < 256)
+	{
+		x = 0;
+		while (x < 256)
+		{
+			c = s[((uint8_t)(y * w->sy) << 8u) + (uint8_t)(x * w->sx)];
+			if (c != TRANSPARENCY_COLOR)
+				w->t[y * 256 + x] = shade(w->sh[(uint8_t)(y / 25.6) * 10 + (uint8_t)(x / 25.6)], c);
+			x++;
+		}
+		y++;
+	}
+}
+
+void 	render_wall(register t_app *app, register t_wall *w)
 {
 	t_v3d	v0;
 	t_v3d	v1;
@@ -152,6 +184,7 @@ void 	render_wall(t_app *app, t_wall *w)
 		return;
 	w->inside = wall_inside(&v0, &v1, &v2, &v3);
 	app->rw = w;
+	reshade_sprite(&app->sprites[w->sprite].pixels[0], w);
 	render_triangle_0(app, v0, v1, v2);
 	render_triangle_1(app, v0, v3, v1);
 	if (!app->edge_selected)
@@ -185,6 +218,8 @@ void 	render_sector(t_app *app, t_sector *s)
 	{
 		j = 0;
 		app->render_type = floor_ceil;
+		reshade_sprite(&app->sprites[s->floor.sprite].pixels[0], &s->floor);
+		reshade_sprite(&app->sprites[s->ceil.sprite].pixels[0], &s->ceil);
 		while (j < s->triangles_count)
 		{
 			render_floor_ceil(app, &s->triangles[j], &s->floor);

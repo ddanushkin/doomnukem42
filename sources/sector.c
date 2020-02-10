@@ -15,22 +15,21 @@ double	get_shade(t_light *l, t_v3d	*v0, t_v3d *v1, double value)
 	return (shade);
 }
 
-void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, u_int32_t *t)
+void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, double *sh)
 {
 	double	step_y;
 	int 	i;
 	int 	j;
 
 	i = 0;
-	step_y = fabs(v0.y - v1.y) / 256.0;
+	step_y = fabs(v0.y - v1.y) / 10.0;
 	v1.y = v0.y;
-	while (i < 256)
+	while (i < 10)
 	{
 		j = 0;
-		while (j < 256)
+		while (j < 10)
 		{
-			shade_color(get_shade(light, &v0, &v1,
-					(double)j / 256.0), &t[i * 256 + j]);
+			sh[i * 10 + j] = get_shade(light, &v0, &v1, (double)j / 10.0);
 			j++;
 		}
 		v0.y += step_y;
@@ -39,24 +38,21 @@ void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, u_int32_t *t)
 	}
 }
 
-
-
-void 	fill_shade_floor(t_light *light, t_v3d v0, t_v3d v1, u_int32_t *t)
+void 	fill_shade_floor(t_light *light, t_v3d v0, t_v3d v1, double *sh)
 {
 	double	step_y;
 	int 	i;
 	int 	j;
 
 	i = 0;
-	step_y = fabs(v0.z - v1.z) / 256.0;
+	step_y = fabs(v0.z - v1.z) / 10.0;
 	v1.z = v0.z;
-	while (i < 256)
+	while (i < 10)
 	{
 		j = 0;
-		while (j < 256)
+		while (j < 10)
 		{
-			shade_color(get_shade(light, &v0, &v1,
-					(double)j / 256.0), &t[i * 256 + j]);
+			sh[i * 10 + j] = get_shade(light, &v0, &v1, (double)j / 10.0);
 			j++;
 		}
 		v0.z += step_y;
@@ -65,37 +61,7 @@ void 	fill_shade_floor(t_light *light, t_v3d v0, t_v3d v1, u_int32_t *t)
 	}
 }
 
-void	reset_shade(uint32_t *s, uint32_t *t, double sx, double sy)
-{
-	int x;
-	int y;
-
-	y = 0;
-	while (y < 256)
-	{
-		x = 0;
-		while (x < 256)
-		{
-			t[y * 256 + x] = s[((u_int8_t)(y * sy) << 8u) + (u_int8_t)(x * sx)];
-			x++;
-		}
-		y++;
-	}
-}
-
-void	sector_floor_reset(t_sprite *s, t_sector *cs)
-{
-	reset_shade(&s[cs->floor.sprite].pixels[0],
-			&cs->floor.t[0],
-			cs->floor.sx,
-			cs->floor.sy);
-	reset_shade(&s[cs->ceil.sprite].pixels[0],
-			&cs->ceil.t[0],
-			cs->ceil.sx,
-			cs->ceil.sy);
-}
-
-void 	sector_floor_shade(t_sprite *s, t_sector *cs)
+void 	sector_floor_shade(t_sector *cs)
 {
 	int			i;
 	t_triangle	tr;
@@ -103,7 +69,6 @@ void 	sector_floor_shade(t_sprite *s, t_sector *cs)
 	t_v3d		v1;
 
 	i = 0;
-	sector_floor_reset(s, cs);
 	while (i < cs->triangles_count)
 	{
 		tr = cs->triangles[i];
@@ -113,44 +78,41 @@ void 	sector_floor_shade(t_sprite *s, t_sector *cs)
 		v1.x = cs->x_max;
 		v1.y = v0.y;
 		v1.z = cs->z_max;
-		fill_shade_floor(&cs->l, v0, v1, &cs->floor.t[0]);
+		fill_shade_floor(&cs->l, v0, v1, &cs->floor.sh[0]);
 		v0.y = v0.y + cs->delta_y;
 		v1.y = v0.y;
-		fill_shade_floor(&cs->l, v0, v1, &cs->ceil.t[0]);
+		fill_shade_floor(&cs->l, v0, v1, &cs->ceil.sh[0]);
 		i++;
 	}
 }
 
-void	sector_update_shade(t_sprite *s, t_sector *cs)
+void	sector_update_shade(t_sector *cs)
 {
 	int			i;
 	t_wall		*w;
 
-//	i = 0;
-//	while (i < cs->objs_count)
-//	{
-//		w = &cs->objs[i];
-//		reset_shade(&s[w->sprite].pixels[0], &w->t[0], w->sx, w->sy);
-//		fill_shade_wall(&cs->l, w->v[0], w->v[1], &w->t[0]);
-//		i++;
-//	}
+	i = 0;
+	while (i < cs->objs_count)
+	{
+		w = &cs->objs[i];
+		fill_shade_wall(&cs->l, w->v[0], w->v[1], &w->sh[0]);
+		i++;
+	}
 	i = 0;
 	while (i < cs->walls_count)
 	{
 		w = &cs->walls[i];
-		reset_shade(&s[w->sprite].pixels[0], &w->t[0], w->sx, w->sy);
-		fill_shade_wall(&cs->l, w->v[0], w->v[1], &w->t[0]);
+		fill_shade_wall(&cs->l, w->v[0], w->v[1], &w->sh[0]);
 		i++;
 	}
 	i = 0;
 	while (i < cs->decor_count)
 	{
 		w = &cs->decor[i];
-		reset_shade(&s[w->sprite].pixels[0], &w->t[0], w->sx, w->sy);
-		fill_shade_wall(&cs->l, w->v[0], w->v[1], &w->t[0]);
+		fill_shade_wall(&cs->l, w->v[0], w->v[1], &w->sh[0]);
 		i++;
 	}
-	sector_floor_shade(s, cs);
+	sector_floor_shade(cs);
 }
 
 void 	sector_update_height(t_sector *cs)
@@ -218,11 +180,11 @@ void 	get_sector_min_max(t_sector *cs)
 	}
 }
 
-void 	sector_update_light(t_sprite *sp, t_sector *s, t_v3d pos)
+void 	sector_update_light(t_sector *s, t_v3d pos)
 {
 	s->l.pos = pos;
 	s->l.pos.y = s->ceil_y - 0.1;
-	sector_update_shade(sp, s);
+	sector_update_shade(s);
 	s->l.power = CLAMP(s->l.power, 0.0, 1000.0);
 }
 
@@ -252,7 +214,7 @@ void	sector_make_walls(t_sector *s)
 void 	sector_close(t_app *app, t_sector *s)
 {
 	if (s->ready)
-		return (sector_update_light(&app->sprites[0], s, app->camera->pos));
+		return (sector_update_light(s, app->camera->pos));
 	sector_copy_points(s, &app->points[0], app->points_count);
 	get_sector_min_max(s);
 	polygon_to_list(s, app->points, app->points_count);
@@ -274,7 +236,7 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->decor_count = 0;
 	s->decor_next = 0;
 	sector_make_walls(s);
-	sector_update_light(&app->sprites[0], s, app->camera->pos);
+	sector_update_light(s, app->camera->pos);
 	app->cs = s;
 	app->sectors_count++;
 	app->points_count = 0;
