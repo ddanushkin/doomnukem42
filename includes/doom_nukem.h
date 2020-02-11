@@ -155,7 +155,7 @@ typedef struct	s_bmp_header
 typedef struct	s_sprite
 {
 	t_bmp_header	header;
-	uint32_t		*pixels;
+	uint32_t		pixels[65536];
 }				t_sprite;
 
 typedef struct	s_edge
@@ -419,8 +419,6 @@ typedef struct	s_app
 	t_mat4x4	projection_mat;
 	t_sdl		*sdl;
 	t_inputs	*inputs;
-	t_sprite	*sprites;
-	int 		sprites_count;
 	double		*depth_buffer;
 	TTF_Font	*font;
 	enum e_hit_type	hit_type;
@@ -432,9 +430,7 @@ typedef struct	s_app
 	double 		hit_dist;
 	int 		edge_selected;
 	t_wall		edit_wall;
-	t_sector	sectors[MAX_SECTOR];
 	t_sector	*cs;
-	int 		sectors_count;
 	double 		grid_size;
 	t_wall		*rw;
 	int 		triangles_counter;
@@ -450,9 +446,6 @@ typedef struct	s_app
 	double		acc;
 	double		fall;
 	double 		jump;
-	double 		head_power;
-	double 		head_acc;
-	double 		head_speed;
 	t_v3d 		floor_point;
 	double		floor_dist;
 	int			point_mode;
@@ -463,6 +456,11 @@ typedef struct	s_app
 	uint8_t 	keys[512];
 	uint8_t 	mouse[6];
 	uint32_t 	*screen;
+//	save to binary below
+	t_sprite	*sprites;
+	int 		sprites_count;
+	t_sector	sectors[MAX_SECTOR];
+	int 		sectors_count;
 }				t_app;
 
 void 	check_collision(t_app *app, t_v3d *pos, t_v3d f);

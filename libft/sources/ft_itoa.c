@@ -42,6 +42,32 @@ static size_t	get_nbr_len(long num)
 	return (1);
 }
 
+char			*ft_itoa2(int n, char *res)
+{
+	size_t	nbr_len;
+	int		sign;
+	int		i;
+	long	lng_n;
+
+	lng_n = (long)n;
+	sign = get_sign(lng_n);
+	lng_n = (lng_n < 0 ? lng_n * -1 : lng_n);
+	nbr_len = (sign < 0 ? get_nbr_len(lng_n) + 1 : get_nbr_len(lng_n));
+	i = nbr_len - 1;
+	if (!res)
+		return (NULL);
+	while (i >= 0)
+	{
+		res[i] = (lng_n % 10) + '0';
+		lng_n = lng_n / 10;
+		i--;
+	}
+	if (sign < 0)
+		res[0] = '-';
+	res[nbr_len] = '\0';
+	return (res);
+}
+
 char			*ft_itoa(int n)
 {
 	size_t	nbr_len;

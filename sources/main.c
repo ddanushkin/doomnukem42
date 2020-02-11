@@ -276,9 +276,6 @@ void	start_the_game(t_app *app)
 	app->speed = 4.54321;
 	app->acc = 0.0;
 	app->jump = 0.0;
-	app->head_acc = 1.0;
-	app->head_power = 0.05;
-	app->head_speed = 0.0;
 	app->fall = 0.0;
 	app->height = 1.0;
 	prepare_chunks(app);
@@ -424,6 +421,86 @@ int	check_resources(void)
 	return (ft_strequ(hash, RESOURCES_MD5));
 }
 
+void 	gamedata_write(int fd, void *mem, size_t type_size, size_t count)
+{
+	char	info[50];
+	size_t	size;
+
+	size = type_size * count;
+	info[0] = '\0';
+	ft_strcat(&info[0], "T:");
+	ft_itoa2(size, &info[2]);
+	ft_strcat(&info[0], ":");
+	printf("WRITE_INFO: %s\n", info);
+	write(fd, &info[0], ft_strlen(info));
+	write(fd, mem, size);
+}
+
+void	gamedata_create(t_app *a)
+{
+	int		data;
+
+	data = open("GAME_DATA", O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, 644);
+	if (data == -1)
+		return ;
+	gamedata_write(data, &a->sprites[0], sizeof(t_sprite), a->sprites_count);
+	close(data);
+	usleep(10);
+}
+
+void 	gamedata_malloc(t_app *a, int fd, char *info)
+{
+	char		tmp[50];
+	uint64_t	size;
+	char		type;
+	int			i;
+
+	i = 0;
+	type = *info++;
+	info++;
+	while (*info != ':')
+	{
+		tmp[i++] = *info;
+		info++;
+	}
+	tmp[i] = '\0';
+	size = ft_atoi(&tmp[0]);
+	if (type == 'T')
+	{
+		a->sprites = malloc(size);
+		read(fd, a->sprites, size);
+	}
+	read(fd, NULL, 1);
+}
+
+void	gamedata_load(t_app *a)
+{
+	int		data;
+	char	info[50];
+	char 	buff[2];
+	int 	sep;
+
+	data = open("GAME_DATA", O_RDONLY | O_BINARY);
+	if (data == -1)
+		return ;
+	info[0] = '\0';
+	buff[1] = '\0';
+	sep = 0;
+	while (read(data, &buff[0], 1))
+	{
+		if (buff[0] == ':')
+			sep++;
+		ft_strcat(&info[0], &buff[0]);
+		if (sep == 2)
+		{
+			sep = 0;
+			gamedata_malloc(a, data, &info[0]);
+			break ;
+		}
+	}
+	close(data);
+}
+
 int		main(int argv, char**argc)
 {
 	t_app	*app;
@@ -441,13 +518,8 @@ int		main(int argv, char**argc)
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
 	init_app(app);
 
-	/* TODO: Set number of meshes */
-//	int number_of_meshes = 2;
-//	app->meshes = (t_mesh *)malloc(sizeof(t_mesh) * number_of_meshes);
-//	obj_load("resources/plane.obj", &app->meshes[0]);
-//	obj_load("resources/cube.obj", &app->meshes[1]);
+	printf("MEMORY: %d MB.\n", (int)(sizeof(*app)/1000000));
 
-	/* TODO: Set number of meshes */
 	app->sprites_count = 0;
 	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * 504);
 	for (int i = 0; i < 504; i++)
@@ -463,6 +535,10 @@ int		main(int argv, char**argc)
 		bmp_load(app, file_path);
 	}
 
+	gamedata_create(app);
+	free(app->sprites);
+	gamedata_load(app);
+
 	double size = 100.0;
 	app->skybox.v[0] = new_vector(-size, -size, size);
 	app->skybox.v[1] = new_vector(size, size, size);
@@ -472,43 +548,7 @@ int		main(int argv, char**argc)
 	app->skybox.v[5] = new_vector(size, size, -size);
 	app->skybox.v[6] = new_vector(size, -size, -size);
 	app->skybox.v[7] = new_vector(-size, size, -size);
-
 	app->sectors_count = 0;
-	//app->sectors = (t_sector *)malloc(sizeof(t_sector) * 1000);
-
-//	t_sector *cs;
-//
-//	cs = &app->sectors[0];
-//	cs->floor_y = 0.0;
-//	cs->ceil_y = 2.0;
-//	cs->delta_y = 2.0;
-//
-//	cs->walls_count = 0;
-//	cs->walls = (t_wall *)malloc(sizeof(t_wall) * 1000);
-//	cs->walls[0] = wall_new();
-//
-//	cs->walls[0].v[0] = new_vector(0.0, 0.0, 0.0);
-//	cs->walls[0].v[1] = new_vector(2.0, 2.0, 0.0);
-//	cs->walls[0].v[2] = new_vector(2.0, 0.0, 0.0);
-//	cs->walls[0].v[3] = new_vector(0.0, 2.0, 0.0);
-//	wall_reset_tex(&cs->walls[0]);
-//	wall_update_scale(&cs->walls[0]);
-//	cs->walls_count++;
-//
-//	cs->objs_count = 0;
-//	cs->objs = (t_wall *)malloc(sizeof(t_wall) * 1000);
-//	cs->objs[0] = wall_new();
-//	cs->objs[0].size = 1.5;
-//	cs->objs[0].pos = new_vector(1.0, cs->walls[0].v[0].y, -4.0);
-//	wall_reset_tex(&cs->objs[0]);
-//	cs->objs[0].sprite = 499;
-//	cs->objs_count++;
-//
-//	cs->decor = (t_wall *)malloc(sizeof(t_wall) * 1000);
-//	cs->decor_count = 0;
-//
-//	cs->l.power = 5;
-//	app->sectors[0].ready = 0;
 
 //	clock_t begin = clock();
 	start_the_game(app);

@@ -11,7 +11,8 @@ set(CMAKE_C_STANDARD 99)
 include_directories("includes")
 include_directories("libft/includes")
 
-set(CMAKE_C_FLAGS "-O2 -Wall -Wextra -Werror")
+#set(CMAKE_C_FLAGS "-O2 -Wall -Wextra -Werror")
+set(CMAKE_C_FLAGS "-O2")
 
 if(MINGW)
     message("-- WINDOWS --")

@@ -44,8 +44,7 @@ void			bpm_read_pixels(int fd, t_bmp_header h, t_sprite *sprite)
 
 	len = h.width_px * h.height_px;
 	sprite->header = h;
-	sprite->pixels = (uint32_t *)malloc(len * sizeof(uint32_t));
-	read(fd, sprite->pixels, len * sizeof(uint32_t));
+	read(fd, &sprite->pixels[0], len * sizeof(uint32_t));
 }
 
 t_bmp_header	bmp_read_header(int fd)
