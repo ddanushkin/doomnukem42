@@ -111,6 +111,8 @@ void 	render_billboard(t_app *app, t_wall *w)
 	v3 = matrix_transform(app->camera->transform, w->v[3]);
 	if (wall_outside(&v0, &v1, &v2, &v3))
 		return;
+	fill_shade_wall(&app->hit_sector->l, w->v[0], w->v[1], &w->sh[0]);
+	reshade_sprite(&app->sprites[w->sprite].pixels[0], w);
 	w->inside = wall_inside(&v0, &v1, &v2, &v3);
 	app->rw = w;
 	render_triangle_0(app, v0, v1, v2);
@@ -186,7 +188,6 @@ void 	render_wall(register t_app *app, register t_wall *w)
 		return;
 	w->inside = wall_inside(&v0, &v1, &v2, &v3);
 	app->rw = w;
-	reshade_sprite(&app->sprites[w->sprite].pixels[0], w);
 	render_triangle_0(app, v0, v1, v2);
 	render_triangle_1(app, v0, v3, v1);
 	if (!app->edge_selected)
@@ -204,10 +205,10 @@ void 	render_sector(t_app *app, t_sector *s)
 	t_triangle	ceil_triangle;
 
 	app->cs = s;
-//	j = 0;
-//	app->render_type = obj;
-//	while (j < s->objs_count)
-//		render_billboard(app, &s->objs[j++]);
+	j = 0;
+	app->render_type = obj;
+	while (j < s->objs_count)
+		render_billboard(app, &s->objs[j++]);
 	j = 0;
 	app->render_type = wall;
 	while (j < s->walls_count)
@@ -220,8 +221,6 @@ void 	render_sector(t_app *app, t_sector *s)
 	{
 		j = 0;
 		app->render_type = floor_ceil;
-		reshade_sprite(&app->sprites[s->floor.sprite].pixels[0], &s->floor);
-		reshade_sprite(&app->sprites[s->ceil.sprite].pixels[0], &s->ceil);
 		while (j < s->triangles_count)
 		{
 			render_floor_ceil(app, &s->triangles[j], &s->floor);

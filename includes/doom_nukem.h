@@ -13,11 +13,11 @@
 //# define	SCREEN_W 1920
 //# define	SCREEN_H 1080
 
-# define	SCREEN_W 1280
-# define	SCREEN_H 720
+//# define	SCREEN_W 1280
+//# define	SCREEN_H 720
 
-//# define	SCREEN_W 1024
-//# define	SCREEN_H 576
+# define	SCREEN_W 1024
+# define	SCREEN_H 576
 
 //# define	SCREEN_W 640
 //# define	SCREEN_H 360
@@ -469,10 +469,11 @@ void 	check_collision(t_app *app, t_v3d *pos, t_v3d f);
 void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void 	join_tr_thrd(t_app *app);
 uint32_t 	shade_color(double shade, uint32_t c);
-void 	sector_update_light(t_sector *s, t_v3d pos);
-void 	sector_floor_shade(t_sector *cs);
+void 	sector_update_light(t_sprite *sprites, t_sector *s, t_v3d pos);
+void 	sector_floor_shade(t_sprite *sprites, t_sector *cs);
 void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, double *sh);
-void	update_wall_shade(t_sector *s, t_wall *w);
+void	update_wall_shade(t_sprite *sprites, t_sector *s, t_wall *w);
+void 	reshade_sprite(register uint32_t *s, register t_wall *w);
 
 void 	camera_live_mode(t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
@@ -490,7 +491,7 @@ void	process_points_inputs(t_app *app, double delta_time);
 void 	update_camera(t_app *app, t_camera *camera);
 void 	update_points_camera(t_camera *c);
 
-void	sector_update_shade(t_sector *cs);
+void	sector_update_shade(t_sprite *sprites, t_sector *cs);
 
 void	wall_reset_tex(t_wall *w);
 t_wall	wall_new();
