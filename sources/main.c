@@ -471,6 +471,7 @@ void 	gamedata_malloc(t_app *a, int fd, char *info)
 		read(fd, a->sprites, size);
 	}
 	read(fd, NULL, 1);
+	*info = '\0';
 }
 
 void	gamedata_load(t_app *a)
