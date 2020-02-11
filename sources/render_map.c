@@ -163,6 +163,8 @@ void 	reshade_sprite(register uint32_t *s, register t_wall *w)
 			c = s[((uint8_t)(y * w->sy) << 8u) + (uint8_t)(x * w->sx)];
 			if (c != TRANSPARENCY_COLOR)
 				w->t[y * 256 + x] = shade(w->sh[(uint8_t)(y / 25.6) * 10 + (uint8_t)(x / 25.6)], c);
+			else
+				w->t[y * 256 + x] = c;
 			x++;
 		}
 		y++;

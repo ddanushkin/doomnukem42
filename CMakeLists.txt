@@ -11,9 +11,9 @@ set(CMAKE_C_STANDARD 99)
 include_directories("includes")
 include_directories("libft/includes")
 
-set(CMAKE_C_FLAGS "-O1 -Wall -Wextra -Werror")
+set(CMAKE_C_FLAGS "-O2 -Wall -Wextra -Werror")
 
-if(MINGW OR CYGWIN)
+if(MINGW)
     message("-- WINDOWS --")
     set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -22,19 +22,10 @@ if(MINGW OR CYGWIN)
     include_directories("sdl2/ttf/include/SDL2/")
     link_directories(sdl2/ttf/lib/)
     add_executable(${EXECUTABLE_NAME} ${PROJ_SOURCES} ${LIBFT_SOURCES})
-    if (MINGW)
-        target_link_libraries(${EXECUTABLE_NAME} "-lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf")
-    elseif(CYGWIN)
-        target_link_libraries(${EXECUTABLE_NAME} "-lcygwin -lpthread -lSDL2main -lSDL2 -lSDL2_ttf")
-    endif()
+    target_link_libraries(${EXECUTABLE_NAME} "-lmingw32 -lpthread -lSDL2main -lSDL2 -lSDL2_ttf")
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${PROJECT_SOURCE_DIR}/sdl2/main/bin/"
-            $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
-    add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${PROJECT_SOURCE_DIR}/sdl2/ttf/bin/"
-            $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/sdl2/main/bin/" $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/sdl2/ttf/bin/" $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
 endif()
 
 if(APPLE)

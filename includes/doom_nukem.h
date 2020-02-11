@@ -13,11 +13,11 @@
 //# define	SCREEN_W 1920
 //# define	SCREEN_H 1080
 
-//# define	SCREEN_W 1280
-//# define	SCREEN_H 720
+# define	SCREEN_W 1280
+# define	SCREEN_H 720
 
-# define	SCREEN_W 1024
-# define	SCREEN_H 576
+//# define	SCREEN_W 1024
+//# define	SCREEN_H 576
 
 //# define	SCREEN_W 640
 //# define	SCREEN_H 360
@@ -73,6 +73,12 @@
 # define MAX_WALL 50
 # define MAX_DECOR 25
 # define MAX_OBJ 25
+
+# ifndef MULTITHREAD
+#  ifdef __APPLE__
+#    define MULTITHREAD
+#  endif
+# endif
 
 enum e_hit_type
 {
