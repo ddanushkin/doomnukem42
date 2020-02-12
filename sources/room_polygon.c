@@ -18,6 +18,7 @@ t_polygon	*points_to_list(t_sector *cs, t_v3d *points, int size)
 	int			i;
 	t_polygon	*polygon;
 
+	polygon = NULL;
 	or = get_orientation(&points[0], size);
 	if (or > 0)
 	{

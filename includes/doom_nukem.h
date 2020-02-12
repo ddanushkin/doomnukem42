@@ -119,7 +119,7 @@ typedef struct	s_wall
 	t_v3d		pos;
 	t_v3d		quad;
 	double 		size;
-	uint32_t 	t[1];
+	uint32_t 	t[65536];
 	double 		sh[100];
 	uint32_t 	inside;
 	int 		decor;
