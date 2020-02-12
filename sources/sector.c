@@ -121,7 +121,7 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->objs_count = 0;
 	s->decor_count = 0;
 	s->decor_next = 0;
-	s->shade = 1.0;
+	s->shade = 0;
 	sector_make_walls(s);
 	sector_update_shade(s);
 	app->cs = s;

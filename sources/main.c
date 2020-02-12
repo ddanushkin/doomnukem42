@@ -292,13 +292,14 @@ void	start_the_game(t_app *app)
 				texture_scale_x_change(app);
 			if (app->keys[SDL_SCANCODE_T] && app->hit_type == wall)
 				decore_new(app);
+			if (app->keys[SDL_SCANCODE_DELETE])
+				app->hit_wall->active = 0;
 			if (app->inputs->keyboard[SDL_SCANCODE_L])
 			{
-				if (app->keys[SDL_SCANCODE_MINUS])
-					app->hit_wall->shade -= 0.15;
-				else if (app->keys[SDL_SCANCODE_EQUALS])
-					app->hit_wall->shade += 0.15;
-				app->hit_wall->shade = CLAMP(app->hit_wall->shade, 0.0, 1.0);
+				if (app->keys[SDL_SCANCODE_MINUS] && app->hit_wall->shade > 0)
+					app->hit_wall->shade--;
+				else if (app->keys[SDL_SCANCODE_EQUALS] && app->hit_wall->shade < 6)
+					app->hit_wall->shade++;
 			}
 			if (app->inputs->keyboard[SDL_SCANCODE_F])
 			{
@@ -321,17 +322,18 @@ void	start_the_game(t_app *app)
 		if (app->point_mode)
 		{
 			process_points_inputs(app, app->timer->delta);
-			if (app->keys[SDL_SCANCODE_G])
-				app->grid_size = app->grid_size == 2.0 ? 0.5 : 2.0;
-			if (app->keys[SDL_SCANCODE_Q] && app->points_count >= 3)
+			if (app->keys[SDL_SCANCODE_P])
 			{
-				sector_close(app, &app->sectors[app->sectors_count]);
 				app->point_mode = 0;
 				camera_live_mode(&app->camera->rot);
 				ft_bzero(&app->keys, sizeof(uint8_t) * 512);
 				ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
 				continue;
 			}
+			if (app->keys[SDL_SCANCODE_G])
+				app->grid_size = app->grid_size == 2.0 ? 0.5 : 2.0;
+			if (app->keys[SDL_SCANCODE_Q] && app->points_count >= 3)
+				sector_close(app, &app->sectors[app->sectors_count]);
 			update_points_camera(app->camera);
 			draw_cross(app, (int)app->cursor_x, (int)app->cursor_y, 8, 0xffffff);
 			if (app->mouse[SDL_MOUSE_LEFT])
@@ -367,10 +369,9 @@ void	start_the_game(t_app *app)
 					app->fall = app->camera->pos.y - app->floor_point.y - app->height;
 			}
 			render_map(app);
-			if (app->keys[SDL_SCANCODE_Q] && !app->point_mode)
+			if (app->keys[SDL_SCANCODE_P])
 			{
 				app->point_mode = 1;
-				app->points_count = 0;
 				camera_point_mode(&app->camera->pos, &app->camera->rot);
 				ft_bzero(&app->keys, sizeof(uint8_t) * 512);
 				ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
@@ -426,7 +427,7 @@ void	gamedata_save(t_app *a)
 {
 	int		data;
 
-	data = open("GAME_DATA", O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, 644);
+	data = open("GAME_DATA.BIN", O_RDWR | O_CREAT | O_TRUNC, 777);
 	if (data == -1)
 		return ;
 	gamedata_write(data, &a->sprites[0], sizeof(t_sprite), a->sprites_count);
@@ -474,7 +475,7 @@ void	gamedata_load(t_app *a)
 	char 	buff[2];
 	int 	sep;
 
-	data = open("GAME_DATA", O_RDONLY | O_BINARY);
+	data = open("GAME_DATA.BIN", O_RDONLY);
 	if (data == -1)
 		return ;
 	info[0] = '\0';

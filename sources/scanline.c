@@ -26,16 +26,16 @@ void 	scanline_calc(t_sl_data *d, t_edge *left, t_edge *right, t_render *r)
 	d->shade = r->shade;
 }
 
-uint32_t shade(uint32_t c)
+uint32_t	shade(uint8_t shade, uint32_t c)
 {
 	uint8_t		r;
 	uint8_t		g;
 	uint8_t		b;
 
-	r = ((c >> 16) & 0xFF) / 2;
-	g = ((c >> 8) & 0xFF) / 2;
-	b = (c & 0xFF) / 2;
-	return ((0xFF << 25) | (r << 16) | (g << 8) | b);
+	r = ((c >> 16) & 0xFF) >> shade;
+	g = ((c >> 8) & 0xFF) >> shade;
+	b = (c & 0xFF) >> shade;
+	return ((0xFFu << 25u) | (r << 16u) | (g << 8u) | b);
 }
 
 void 	scanline_draw(register t_sl_data *s, register uint32_t *t, register double *depth, register uint32_t *screen)
@@ -54,7 +54,10 @@ void 	scanline_draw(register t_sl_data *s, register uint32_t *t, register double
 			if (c != TRANSPARENCY_COLOR)
 			{
 				depth[offset] = s->d;
-				screen[offset] = shade(c);
+				if (s->shade != 0)
+					screen[offset] = shade(s->shade, c);
+				else
+					screen[offset] = c;
 			}
 		}
 		s->x += s->xs;
@@ -160,7 +163,7 @@ void	scan_triangle(t_v3d min, t_v3d mid, t_v3d max, t_render *r)
 #ifndef MULTITHREAD
 	while (i < r->sl_counter)
 		scanline_draw(&r->sl[i++], r->t, r->depth, r->screen);
-#elif
+#else
 	scanline_threads(r, r->sl_counter);
 #endif
 }

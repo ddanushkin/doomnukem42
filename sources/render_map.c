@@ -146,6 +146,8 @@ void 	render_wall(register t_app *app, register t_wall *w)
 	t_v3d	v2;
 	t_v3d	v3;
 
+	if (!w->active)
+		return ;
 	v0 = matrix_transform(app->camera->transform, w->v[0]);
 	v1 = matrix_transform(app->camera->transform, w->v[1]);
 	v2 = matrix_transform(app->camera->transform, w->v[2]);

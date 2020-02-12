@@ -122,6 +122,7 @@ typedef struct	s_wall
 	double		shade;
 	uint32_t 	inside;
 	int 		decor;
+	int			active;
 }				t_wall;
 
 typedef struct	s_v2d
@@ -336,7 +337,7 @@ typedef struct	s_sector
 	t_triangle	triangles[MAX_WALL - 2];
 	t_wall		floor;
 	t_wall		ceil;
-	double		shade;
+	uint8_t 	shade;
 	int 		walls_count;
 	int 		objs_count;
 	int 		decor_count;
@@ -392,7 +393,7 @@ typedef struct	s_sl_data
 	int			start;
 	int			end;
 	int			offset;
-	double		shade;
+	uint8_t 	shade;
 }				t_sl_data;
 
 typedef struct	s_render
@@ -406,7 +407,7 @@ typedef struct	s_render
 	int 			y;
 	double 			scale_x;
 	double 			scale_y;
-	double			shade;
+	uint8_t 		shade;
 }				t_render;
 
 typedef struct	s_thr_data

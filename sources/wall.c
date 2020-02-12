@@ -25,6 +25,7 @@ t_wall	wall_new()
 	w.sy = 1.0;
 	w.sprite = 103;
 	w.decor = 0;
+	w.active = 1;
 	return (w);
 }
 
