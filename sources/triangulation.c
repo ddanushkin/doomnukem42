@@ -173,31 +173,31 @@ t_polygon	*biggest_ear(t_polygon *p)
 	return (ear);
 }
 
-void	triangulate(t_sector *cs)
+void	triangulate(t_triangle *trs, int *trs_size, t_polygon *polygon)
 {
 	t_polygon	*prev;
 	t_polygon	*next;
 	t_polygon	*ear;
 	t_triangle	*tr;
 
-	update_polygon(cs->polygon);
-	while (polygon_size(cs->polygon) != 3)
+	update_polygon(polygon);
+	while (polygon_size(polygon) != 3)
 	{
-		ear = biggest_ear(cs->polygon);
+		ear = biggest_ear(polygon);
 		prev = ear->prev;
 		next = ear->next;
-		tr = &cs->triangles[cs->triangles_count];
+		tr = &trs[*trs_size];
 		tr->v[0] = prev->v;
 		tr->v[1] = ear->v;
 		tr->v[2] = next->v;
-		cs->triangles_count++;
-		polygon_delete(&cs->polygon, ear);
-		update_vertex(prev, cs->polygon);
-		update_vertex(next, cs->polygon);
+		trs_size[0]++;
+		polygon_delete(&polygon, ear);
+		update_vertex(prev, polygon);
+		update_vertex(next, polygon);
 	}
-	tr = &cs->triangles[cs->triangles_count];
-	tr->v[0] = cs->polygon->v;
-	tr->v[1] = cs->polygon->next->v;
-	tr->v[2] = cs->polygon->next->next->v;
-	cs->triangles_count++;
+	tr = &trs[*trs_size];
+	tr->v[0] = polygon->v;
+	tr->v[1] = polygon->next->v;
+	tr->v[2] = polygon->next->next->v;
+	trs_size[0]++;
 }

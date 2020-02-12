@@ -214,8 +214,7 @@ void 	sector_close(t_app *app, t_sector *s)
 		return (sector_update_light(&app->sprites[0], s, app->camera->pos));
 	sector_copy_points(s, &app->points[0], app->points_count);
 	get_sector_min_max(s);
-	polygon_to_list(s, app->points, app->points_count);
-	triangulate(s);
+	triangulate(&s->triangles[0], &s->triangles_count, points_to_list(s, app->points, app->points_count));
 	s->floor = wall_new();
 	s->floor.sx = fabs(s->x_min - s->x_max) * 0.5;
 	s->floor.sy = fabs(s->z_min - s->z_max) * 0.5;

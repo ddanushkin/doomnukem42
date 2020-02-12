@@ -436,7 +436,7 @@ void 	gamedata_write(int fd, void *mem, size_t type_size, size_t count)
 	write(fd, mem, size);
 }
 
-void	gamedata_create(t_app *a)
+void	gamedata_save(t_app *a)
 {
 	int		data;
 
@@ -448,7 +448,21 @@ void	gamedata_create(t_app *a)
 	usleep(10);
 }
 
-void 	gamedata_malloc(t_app *a, int fd, char *info)
+void 	gamedata_type_malloc(t_app *a, int fd, char type, uint64_t size)
+{
+	if (type == 'T')
+	{
+		a->sprites = malloc(size);
+		read(fd, a->sprites, size);
+	}
+	else if (type == 'S')
+	{
+		a->sectors = malloc(size);
+		read(fd, a->sectors, size);
+	}
+}
+
+void 	gamedata_parse_info(t_app *a, int fd, char *info)
 {
 	char		tmp[50];
 	uint64_t	size;
@@ -459,17 +473,10 @@ void 	gamedata_malloc(t_app *a, int fd, char *info)
 	type = *info++;
 	info++;
 	while (*info != ':')
-	{
-		tmp[i++] = *info;
-		info++;
-	}
+		tmp[i++] = *info++;
 	tmp[i] = '\0';
 	size = ft_atoi(&tmp[0]);
-	if (type == 'T')
-	{
-		a->sprites = malloc(size);
-		read(fd, a->sprites, size);
-	}
+	gamedata_type_malloc(a, fd, type, size);
 	read(fd, NULL, 1);
 	*info = '\0';
 }
@@ -495,7 +502,7 @@ void	gamedata_load(t_app *a)
 		if (sep == 2)
 		{
 			sep = 0;
-			gamedata_malloc(a, data, &info[0]);
+			gamedata_parse_info(a, data, &info[0]);
 			break ;
 		}
 	}
@@ -519,6 +526,7 @@ int		main(int argv, char**argc)
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
 	init_app(app);
 
+	printf("SECTORS SIZE: %d MB.\n", (int)(sizeof(t_sector)*MAX_SECTOR/1000000));
 	printf("MEMORY: %d MB.\n", (int)(sizeof(*app)/1000000));
 
 	app->sprites_count = 0;
@@ -536,9 +544,12 @@ int		main(int argv, char**argc)
 		bmp_load(app, file_path);
 	}
 
-	gamedata_create(app);
+	gamedata_save(app);
 	free(app->sprites);
 	gamedata_load(app);
+
+	app->sectors_count = 0;
+	app->sectors = (t_sector *)malloc(sizeof(t_sector) * MAX_SECTOR);
 
 	double size = 100.0;
 	app->skybox.v[0] = new_vector(-size, -size, size);
@@ -549,7 +560,6 @@ int		main(int argv, char**argc)
 	app->skybox.v[5] = new_vector(size, size, -size);
 	app->skybox.v[6] = new_vector(size, -size, -size);
 	app->skybox.v[7] = new_vector(-size, size, -size);
-	app->sectors_count = 0;
 
 //	clock_t begin = clock();
 	start_the_game(app);

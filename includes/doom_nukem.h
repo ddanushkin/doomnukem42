@@ -119,7 +119,7 @@ typedef struct	s_wall
 	t_v3d		pos;
 	t_v3d		quad;
 	double 		size;
-	uint32_t 	t[65536];
+	uint32_t 	t[1];
 	double 		sh[100];
 	uint32_t 	inside;
 	int 		decor;
@@ -334,7 +334,7 @@ typedef struct	s_sector
 	t_wall		walls[MAX_WALL];
 	t_wall		objs[MAX_OBJ];
 	t_wall 		decor[MAX_DECOR];
-	t_triangle	*triangles;
+	t_triangle	triangles[MAX_WALL - 2];
 	t_wall		floor;
 	t_wall		ceil;
 	int 		walls_count;
@@ -346,7 +346,6 @@ typedef struct	s_sector
 	double 		ceil_y;
 	double 		delta_y;
 	int			ready;
-	t_polygon 	*polygon;
 	double 		x_min;
 	double 		z_min;
 	double 		x_max;
@@ -459,7 +458,7 @@ typedef struct	s_app
 //	save to binary below
 	t_sprite	*sprites;
 	int 		sprites_count;
-	t_sector	sectors[MAX_SECTOR];
+	t_sector	*sectors;
 	int 		sectors_count;
 }				t_app;
 
@@ -478,11 +477,10 @@ void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
 
 void 	move(t_v3d *v, t_v3d dir, double amount);
 
-void 	draw_polygon_line(t_app *app, t_v3d start, t_v3d end);
 void 	draw_line_3d(t_app *app, t_v3d start, t_v3d end, uint32_t c);
 void 	draw_point_mode(t_app *app);
 void 	draw_grid_point(t_app *app, t_v3d *gp, Uint32 c);
-void	triangulate(t_sector *current_sector);
+void	triangulate(t_triangle *trs, int *trs_size, t_polygon *polygon);
 
 void	process_inputs(t_app *app, double delta_time);
 void	process_points_inputs(t_app *app, double delta_time);
@@ -525,7 +523,7 @@ int		find_linked_wall(t_sector *sector, t_v3d v, int skip);
 double	get_orientation(t_v3d *polygon, int size);
 int 	compare_vertex(t_v3d *v1, t_v3d *v2);
 void 	get_floor_poly(t_sector *cs);
-void 	polygon_to_list(t_sector *cs, t_v3d *polygon, int size);
+t_polygon	*points_to_list(t_sector *cs, t_v3d *points, int size);
 void 	sector_close(t_app *app, t_sector *s);
 void	draw_new_wall(t_app *app);
 void	save_new_wall(t_app *app);
