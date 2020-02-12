@@ -74,6 +74,7 @@ void 	decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam)
 
 	decor = &cs->decor[cs->decor_next];
 	*decor = wall_new();
+	decor->shade = cs->shade;
 	dx = hit_w->v[1].x - hit_w->v[0].x;
 	dz = hit_w->v[1].z - hit_w->v[0].z;
 	calc_top_point(&lp, &tp, dx, dz);
@@ -91,16 +92,10 @@ void 	decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam)
 
 void 	decore_new(t_app *app)
 {
-	t_sector	*s;
-	int			id;
-
-	s = app->hit_sector;
-	id = s->decor_next;
 	decore_add(app->hit_point,
-			   s,
+			   app->hit_sector,
 			   app->hit_wall,
 			   app->camera);
-	update_wall_shade(&app->sprites[0], app->hit_sector, &s->decor[id]);
 }
 
 int is_colliding(t_v3d c0, double radius, t_v3d v0, t_v3d v1)
@@ -129,35 +124,28 @@ int is_colliding(t_v3d c0, double radius, t_v3d v0, t_v3d v1)
 
 t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2)
 {
-	t_v3d	a;
-	t_v3d	b;
-
-	a = vector_sub(v1, v0);
-	b = vector_sub(v2, v0);
-	return (vector_normalise(
-			new_vector(a.y * b.z - a.z * b.y,
-					   a.z * b.x - a.x * b.z,
-					   a.x * b.y - a.y * b.x)));
+	return (vector_normalise(vector_cross_product(vector_sub(v0, v1), vector_sub(v0, v2))));
 }
 
 void 	wall_check_collision(t_wall *w, t_v3d *pos, t_v3d *f)
 {
 	int		collide;
 	t_v3d	normal;
-	t_v3d	inv_normal;
 	t_v3d	tmp_pos;
+	t_v3d	tmp;
 
 	collide = is_colliding(vector_sum(*pos, *f), 0.5, w->v[2], w->v[0]);
 	if (collide)
 	{
-		normal = get_triangle_normal(w->v[0], w->v[1], w->v[2]);
-		inv_normal = vector_mul_by(normal, -vector_length(*f));
-		tmp_pos = vector_sum(*pos, vector_sub(*f, inv_normal));
+		normal = get_triangle_normal(w->v[1], w->v[2], w->v[0]);
+		tmp = new_vector(f->x * normal.x, f->y * normal.y, f->z * normal.z);
+		normal = vector_mul_by(normal, -vector_length(tmp));
+		tmp_pos = vector_sum(*pos, vector_sub(*f, normal));
 		*f = vector_sub(tmp_pos, *pos);
 	}
 }
 
-void 	check_collision(t_app *app, t_v3d *pos, t_v3d f)
+void 	check_collision(t_app *app, t_v3d *pos, t_v3d dir)
 {
 	int	i;
 	int j;
@@ -167,10 +155,10 @@ void 	check_collision(t_app *app, t_v3d *pos, t_v3d f)
 	{
 		j = 0;
 		while (j < app->sectors[i].walls_count)
-			wall_check_collision(&app->sectors[i].walls[j++], pos, &f);
+			wall_check_collision(&app->sectors[i].walls[j++], pos, &dir);
 		i++;
 	}
-	*pos = vector_sum(*pos, f);
+	*pos = vector_sum(*pos, dir);
 }
 
 void 	draw_point(t_app *app, t_v3d p, Uint32 c)
@@ -307,10 +295,10 @@ void	start_the_game(t_app *app)
 			if (app->inputs->keyboard[SDL_SCANCODE_L])
 			{
 				if (app->keys[SDL_SCANCODE_MINUS])
-					app->hit_sector->l.power -= 0.15;
+					app->hit_wall->shade -= 0.15;
 				else if (app->keys[SDL_SCANCODE_EQUALS])
-					app->hit_sector->l.power += 0.15;
-				sector_update_light(&app->sprites[0], app->hit_sector, app->camera->pos);
+					app->hit_wall->shade += 0.15;
+				app->hit_wall->shade = CLAMP(app->hit_wall->shade, 0.0, 1.0);
 			}
 			if (app->inputs->keyboard[SDL_SCANCODE_F])
 			{
@@ -319,7 +307,6 @@ void	start_the_game(t_app *app)
 				else if (app->keys[SDL_SCANCODE_EQUALS])
 					app->hit_sector->floor_y += 0.5;
 				sector_update_height(app->hit_sector);
-				sector_update_shade(&app->sprites[0], app->hit_sector);
 			}
 			if (app->inputs->keyboard[SDL_SCANCODE_C])
 			{
@@ -328,7 +315,6 @@ void	start_the_game(t_app *app)
 				else if (app->keys[SDL_SCANCODE_EQUALS])
 					app->hit_sector->ceil_y += 0.5;
 				sector_update_height(app->hit_sector);
-				sector_update_shade(&app->sprites[0], app->hit_sector);
 			}
 		}
 		reset_screen(app);

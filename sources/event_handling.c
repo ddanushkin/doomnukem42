@@ -4,9 +4,9 @@ void 	move_c(t_app *app, t_v3d *pos, t_v3d dir, double amount)
 {
 	t_v3d m;
 
-	if (!app->camera->fly && app->cs->ready)
+	m = vector_mul_by(dir, amount);
+	if (!app->camera->fly)
 	{
-		m = vector_mul_by(dir, amount);
 		check_collision(app, pos, m);
 	}
 	else
@@ -159,9 +159,9 @@ void	process_points_inputs(t_app *app, double delta_time)
 	if (app->mouse[SDL_MOUSE_SCROLL_DOWN])
 		c->pos.y -= app->speed * 50.0 * delta_time;
 	if (mouse->x != 0)
-		app->cursor_x += mouse->x;
+		app->cursor_x += mouse->x * 2.0;
 	if (mouse->y != 0)
-		app->cursor_y += mouse->y;
+		app->cursor_y += mouse->y * 2.0;
 }
 
 void	process_inputs(t_app *app, double dt)

@@ -119,8 +119,7 @@ typedef struct	s_wall
 	t_v3d		pos;
 	t_v3d		quad;
 	double 		size;
-	uint32_t 	t[65536];
-	double 		sh[100];
+	double		shade;
 	uint32_t 	inside;
 	int 		decor;
 }				t_wall;
@@ -337,6 +336,7 @@ typedef struct	s_sector
 	t_triangle	triangles[MAX_WALL - 2];
 	t_wall		floor;
 	t_wall		ceil;
+	double		shade;
 	int 		walls_count;
 	int 		objs_count;
 	int 		decor_count;
@@ -350,7 +350,6 @@ typedef struct	s_sector
 	double 		z_min;
 	double 		x_max;
 	double 		z_max;
-	t_light		l;
 	t_v3d		points[MAX_WALL];
 	int 		points_count;
 }				t_sector;
@@ -393,6 +392,7 @@ typedef struct	s_sl_data
 	int			start;
 	int			end;
 	int			offset;
+	double		shade;
 }				t_sl_data;
 
 typedef struct	s_render
@@ -403,7 +403,12 @@ typedef struct	s_render
 	uint32_t		*screen;
 	t_sl_data		sl[SCREEN_H];
 	int				sl_counter;
+	int 			y;
+	double 			scale_x;
+	double 			scale_y;
+	double			shade;
 }				t_render;
+
 typedef struct	s_thr_data
 {
 	t_render	*r;
@@ -460,17 +465,15 @@ typedef struct	s_app
 	int 		sprites_count;
 	t_sector	*sectors;
 	int 		sectors_count;
+	uint32_t 	t[65536];
 }				t_app;
 
 void 	check_collision(t_app *app, t_v3d *pos, t_v3d f);
 void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void 	join_tr_thrd(t_app *app);
-uint32_t 	shade_color(double shade, uint32_t c);
-void 	sector_update_light(t_sprite *sprites, t_sector *s, t_v3d pos);
-void 	sector_floor_shade(t_sprite *sprites, t_sector *cs);
+void	sector_update_shade(t_sector *s);
 void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, double *sh);
 void	update_wall_shade(t_sprite *sprites, t_sector *s, t_wall *w);
-void 	reshade_sprite(register uint32_t *s, register t_wall *w);
 
 void 	camera_live_mode(t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
@@ -486,8 +489,6 @@ void	process_inputs(t_app *app, double delta_time);
 void	process_points_inputs(t_app *app, double delta_time);
 void 	update_camera(t_app *app, t_camera *camera);
 void 	update_points_camera(t_camera *c);
-
-void	sector_update_shade(t_sprite *sprites, t_sector *cs);
 
 void	wall_reset_tex(t_wall *w);
 t_wall	wall_new();

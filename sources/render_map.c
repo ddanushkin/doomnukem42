@@ -111,8 +111,8 @@ void 	render_billboard(t_app *app, t_wall *w)
 	v3 = matrix_transform(app->camera->transform, w->v[3]);
 	if (wall_outside(&v0, &v1, &v2, &v3))
 		return;
-	fill_shade_wall(&app->hit_sector->l, w->v[0], w->v[1], &w->sh[0]);
-	reshade_sprite(&app->sprites[w->sprite].pixels[0], w);
+	/* TODO: Set current sector shade! */
+	w->shade = 1.0;
 	w->inside = wall_inside(&v0, &v1, &v2, &v3);
 	app->rw = w;
 	render_triangle_0(app, v0, v1, v2);
@@ -137,40 +137,6 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 		app->hit_first = 1;
 	if (!app->camera->fly)
 		ray_floor(app, tr->v[0], tr->v[1], tr->v[2]);
-}
-
-uint32_t	shade(double shade, uint32_t color)
-{
-	uint8_t	*c;
-
-	c = (uint8_t *)(&color);
-	c[0] *= shade;
-	c[1] *= shade;
-	c[2] *= shade;
-	return (*((uint32_t*)c));
-}
-
-void 	reshade_sprite(register uint32_t *s, register t_wall *w)
-{
-	int			x;
-	int			y;
-	uint32_t	c;
-
-	y = 0;
-	while (y < 256)
-	{
-		x = 0;
-		while (x < 256)
-		{
-			c = s[((uint8_t)(y * w->sy) << 8u) + (uint8_t)(x * w->sx)];
-			if (c != TRANSPARENCY_COLOR)
-				w->t[y * 256 + x] = shade(w->sh[(uint8_t)(y / 25.6) * 10 + (uint8_t)(x / 25.6)], c);
-			else
-				w->t[y * 256 + x] = c;
-			x++;
-		}
-		y++;
-	}
 }
 
 void 	render_wall(register t_app *app, register t_wall *w)
@@ -235,7 +201,7 @@ void 	render_sector(t_app *app, t_sector *s)
 
 void	render_map(t_app *app)
 {
-	int			i;
+	int		i;
 
 	i = 0;
 	app->hit_dist = 10000.0;

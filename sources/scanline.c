@@ -1,6 +1,6 @@
 #include "doom_nukem.h"
 
-void 	scanline_calc(t_sl_data *d, t_edge *left, t_edge *right, int y)
+void 	scanline_calc(t_sl_data *d, t_edge *left, t_edge *right, t_render *r)
 {
 	double	dist;
 	double	pre_step;
@@ -18,11 +18,24 @@ void 	scanline_calc(t_sl_data *d, t_edge *left, t_edge *right, int y)
 	d->y = left->tex_y + d->ys * pre_step;
 	d->z = left->tex_z + d->zs * pre_step;
 	d->d = left->depth + d->ds * pre_step;
-	d->offset = y * SCREEN_W + d->start;
-	d->x *= 256;
-	d->y *= 256;
-	d->xs *= 256;
-	d->ys *= 256;
+	d->offset = r->y * SCREEN_W + d->start;
+	d->x *= 256 * r->scale_x;
+	d->y *= 256 * r->scale_y;
+	d->xs *= 256 * r->scale_x;
+	d->ys *= 256 * r->scale_y;
+	d->shade = r->shade;
+}
+
+uint32_t shade(uint32_t c)
+{
+	uint8_t		r;
+	uint8_t		g;
+	uint8_t		b;
+
+	r = ((c >> 16) & 0xFF) / 2;
+	g = ((c >> 8) & 0xFF) / 2;
+	b = (c & 0xFF) / 2;
+	return ((0xFF << 25) | (r << 16) | (g << 8) | b);
 }
 
 void 	scanline_draw(register t_sl_data *s, register uint32_t *t, register double *depth, register uint32_t *screen)
@@ -41,7 +54,7 @@ void 	scanline_draw(register t_sl_data *s, register uint32_t *t, register double
 			if (c != TRANSPARENCY_COLOR)
 			{
 				depth[offset] = s->d;
-				screen[offset] = c;
+				screen[offset] = shade(c);
 			}
 		}
 		s->x += s->xs;
@@ -69,7 +82,8 @@ void	scan_edges(t_edge *a,  t_edge *b, t_render *r)
 	y = y_start;
 	while (y < y_end)
 	{
-		scanline_calc(&r->sl[r->sl_counter++], left, right, y);
+		r->y = y;
+		scanline_calc(&r->sl[r->sl_counter++], left, right, r);
 		edge_step(left);
 		edge_step(right);
 		y++;

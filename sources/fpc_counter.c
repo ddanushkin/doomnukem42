@@ -15,7 +15,7 @@ void	get_delta_time(t_timer *timer)
 
 	timer->frame++;
 	current = SDL_GetPerformanceCounter();
-	timer->delta  = (current - timer->prev) / (double)SDL_GetPerformanceFrequency();
+	timer->delta = (current - timer->prev) / (double)SDL_GetPerformanceFrequency();
 	timer->prev = current;
 	timer->time += timer->delta;
 	if(fmod(timer->time, 0.25) >= 0.24)
