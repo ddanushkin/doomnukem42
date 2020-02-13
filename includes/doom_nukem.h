@@ -13,11 +13,11 @@
 //# define	SCREEN_W 1920
 //# define	SCREEN_H 1080
 
-//# define	SCREEN_W 1280
-//# define	SCREEN_H 720
+# define	SCREEN_W 1280
+# define	SCREEN_H 720
 
-# define	SCREEN_W 1024
-# define	SCREEN_H 576
+//# define	SCREEN_W 1024
+//# define	SCREEN_H 576
 
 //# define	SCREEN_W 640
 //# define	SCREEN_H 360
@@ -32,11 +32,7 @@
 //# define	SCREEN_H 180
 
 # define	WIN_TITLE "DOOM-NUKEM"
-
 # define	TRANSPARENCY_COLOR 0xffff00ff
-# define	COLOR_KEY_G 0
-# define	COLOR_KEY_B 254
-
 # define	OUTLINE_COLOR new_color(0, 0, 0)
 
 # define MIN(a,b) (((a)<(b))?(a):(b))
@@ -475,9 +471,12 @@ void 	join_tr_thrd(t_app *app);
 void	sector_update_shade(t_sector *s);
 void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, double *sh);
 void	update_wall_shade(t_sprite *sprites, t_sector *s, t_wall *w);
-
+void 	decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam);
 void 	camera_live_mode(t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
+void 	point_draw(t_app *app, t_v3d p, Uint32 c);
+t_v3d	point_save(t_app *app, double x, double z);
+int		switch_mode(t_app *app);
 
 void 	move(t_v3d *v, t_v3d dir, double amount);
 
@@ -490,6 +489,10 @@ void	process_inputs(t_app *app, double delta_time);
 void	process_points_inputs(t_app *app, double delta_time);
 void 	update_camera(t_app *app, t_camera *camera);
 void 	update_points_camera(t_camera *c);
+void	point_mode_inputs(t_app *app);
+void	live_mode_inputs(t_app *app);
+void 	draw_points(t_app *app, t_v3d *p, int size);
+void	draw_sectors(t_app *app);
 
 void	wall_reset_tex(t_wall *w);
 t_wall	wall_new();

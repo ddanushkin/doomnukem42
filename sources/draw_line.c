@@ -16,10 +16,11 @@ static void	dx_dom(t_app *app, t_line *l)
 			stack -= l->dir.x;
 			l->cur.y += l->inc.y;
 		}
-		set_pixel_uint32(
-				app->sdl->surface,
-				(int)l->cur.y * SCREEN_W + (int)l->cur.x,
-				l->color);
+		if (!(l->cur.x >= SCREEN_W || l->cur.x < 0)
+		&& !(l->cur.y >= SCREEN_H || l->cur.y < 0))
+			set_pixel_uint32(app->sdl->surface,
+					(int)l->cur.y * SCREEN_W + (int)l->cur.x,
+					l->color);
 	}
 }
 
@@ -39,15 +40,11 @@ static void	dy_dom(t_app *app, t_line *l)
 			stack -= l->dir.y;
 			l->cur.x += l->inc.x;
 		}
-		if ((l->inc.x > 0 && l->cur.x >= SCREEN_W)
-			|| (l->inc.x < 0 && l->cur.x < 0)
-			|| (l->inc.y < 0 && l->cur.y < 0)
-			|| (l->inc.y > 0 && l->cur.y >= SCREEN_H))
-			break ;
-		set_pixel_uint32(
-				app->sdl->surface,
-				(int)l->cur.y * SCREEN_W + (int)l->cur.x,
-				l->color);
+		if (!(l->cur.x >= SCREEN_W || l->cur.x < 0)
+		&& !(l->cur.y >= SCREEN_H || l->cur.y < 0))
+			set_pixel_uint32(app->sdl->surface,
+							 (int)l->cur.y * SCREEN_W + (int)l->cur.x,
+							 l->color);
 	}
 }
 
@@ -55,8 +52,8 @@ void		draw_line(t_app *app, t_v3d *start, t_v3d *end, uint32_t color)
 {
 	t_line line;
 
-	line.cur.x = start->x;
-	line.cur.y = start->y;
+	line.cur.x = CLAMP(start->x, 0, SCREEN_W - 1);
+	line.cur.y = CLAMP(start->y, 0, SCREEN_H - 1);
 	line.dir.x = end->x - start->x;
 	line.dir.y = end->y - start->y;
 	line.inc.x = (line.dir.x > 0) ? 1 : -1;

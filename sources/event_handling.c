@@ -2,11 +2,11 @@
 
 void 	move_c(t_app *app, t_v3d *pos, t_v3d dir, double amount)
 {
-	t_v3d m;
+	t_v3d	m;
 
-	m = vector_mul_by(dir, amount);
 	if (!app->camera->fly)
 	{
+		m = vector_mul_by(dir, amount);
 		check_collision(app, pos, m);
 	}
 	else
@@ -48,54 +48,14 @@ t_mat4x4 view_matrix(t_v3d eye, double pitch, double yaw)
 	return (view);
 }
 
-t_v3d 	get_head(t_app *app, t_camera *c)
+void	get_head(t_app *app)
 {
-	t_v3d			head;
-
-	head = c->pos;
-	if (app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->height > 0.5)
-		app->height -= 2.3 * app->timer->delta;
-	if (!app->inputs->keyboard[SDL_SCANCODE_LCTRL] && app->height < 1.0)
-		app->height += 2.3 * app->timer->delta;
-	app->height = CLAMP(app->height, 0.5, 1.0);
-
-	if (app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc < 2.0)
-		app->acc += 2.5 * app->timer->delta;
+	if (app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc < 1.4)
+		app->acc += 0.25;
 	if (!app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc > 1.0)
-		app->acc -= 5.0 * app->timer->delta;
-	if (app->height < 1.0 && app->acc > 0.5)
-		app->acc -= 2.5 * app->timer->delta;
-	else if (app->height > 0.5 && app->acc < 1.0)
-		app->acc += 5.0 * app->timer->delta;
-	app->acc = CLAMP(app->acc, 0.5, 2.0);
-
-	head.y = app->floor_point.y + app->height;
-
-	if (app->inputs->keyboard[SDL_SCANCODE_SPACE] && app->jump <= 0.0 && app->fall <= 0.0)
-		app->jump = 0.3;
-	if (app->jump > 0.0)
-	{
-		app->fall += 5.8 * app->timer->delta;
-		app->acc = 2.0;
-		app->jump -= app->timer->delta;
-	}
-
-	if (app->fall <= 0.0 && app->height == 1.0)
-		app->fall = fabs(app->prev_y - head.y);
-	if (!app->camera->fly && app->fall > 0.0 && app->jump <= 0.0)
-		app->fall -= 9.8 * app->timer->delta;
-	app->prev_y = head.y;
-	head.y += app->fall;
-	if (app->jump > 0.0 && head.y >= app->cs->ceil_y && app->prev_y < app->cs->ceil_y)
-	{
-		app->jump = 0.0;
-		head.y = app->cs->ceil_y;
-	}
-	if (app->camera->fly)
-		head = c->pos;
-	c->pos = head;
+		app->acc -= 0.50;
+	app->acc = CLAMP(app->acc, 0.5, 1.4);
 	app->speed = 4.54321 * app->acc;
-	return (head);
 }
 
 void 	update_points_camera(t_camera *c)
@@ -112,7 +72,8 @@ void 	update_camera(t_app *app, t_camera *c)
 {
 	double	x_acos;
 
-	c->view = view_matrix(get_head(app, c), c->rot.x, c->rot.y);
+	get_head(app);
+	c->view = view_matrix(app->camera->pos, c->rot.x, c->rot.y);
 	c->view_projection = matrix_multiply(c->projection, c->view);
 	c->transform = get_transform_matrix(c->view_projection);
 	c->dir.x = c->view.m[8];

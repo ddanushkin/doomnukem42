@@ -26,7 +26,7 @@ static	void	init_sdl(t_sdl *sdl)
 			SDL_WINDOWPOS_CENTERED,
 			sdl->width,
 			sdl->height,
-			0);
+			SDL_WINDOW_OPENGL);
 	sdl->surface = SDL_GetWindowSurface(sdl->window);
 }
 
