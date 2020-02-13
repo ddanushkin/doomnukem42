@@ -26,6 +26,7 @@ t_wall	wall_new()
 	w.sprite = 103;
 	w.decor = 0;
 	w.active = 1;
+	w.flip = 0;
 	return (w);
 }
 

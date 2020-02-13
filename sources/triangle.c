@@ -2,7 +2,8 @@
 
 double	triangle_area(t_v3d *a, t_v3d *b, t_v3d *c)
 {
-	return ((b->x - a->x) * (c->y - a->y) - (c->x - a->x) * (b->y - a->y));
+	return ((b->x - a->x) * (c->y - a->y) -
+			(c->x - a->x) * (b->y - a->y));
 }
 
 void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
@@ -15,8 +16,9 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	vertex_perspective_divide(&v1);
 	vertex_perspective_divide(&v2);
 	vertex_perspective_divide(&v3);
-//	if (app->cs->ready && triangle_area(&v1, &v3, &v2) >= 0.0)
-//		return;
+	if (((app->rw->flip && triangle_area(&v1, &v3, &v2) >= 0.0) ||
+		(!app->rw->flip && triangle_area(&v1, &v3, &v2) < 0.0)) && app->rw->type != decor)
+		return;
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
 	if (v2.y < v1.y)

@@ -119,6 +119,8 @@ typedef struct	s_wall
 	uint32_t 	inside;
 	int 		decor;
 	int			active;
+	int			flip;
+	enum e_hit_type	type;
 }				t_wall;
 
 typedef struct	s_v2d
@@ -477,6 +479,7 @@ void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
 void 	point_draw(t_app *app, t_v3d p, Uint32 c);
 t_v3d	point_save(t_app *app, double x, double z);
 int		switch_mode(t_app *app);
+double	triangle_area(t_v3d *a, t_v3d *b, t_v3d *c);
 
 void 	move(t_v3d *v, t_v3d dir, double amount);
 

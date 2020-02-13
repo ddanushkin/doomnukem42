@@ -109,6 +109,8 @@ void	live_mode_inputs(t_app *app)
 			texture_scale_x_change(app);
 		else if (app->keys[SDL_SCANCODE_DELETE])
 			app->hit_wall->active = 0;
+		else if (app->keys[SDL_SCANCODE_TAB] && (app->hit_type == wall || app->hit_type == floor_ceil))
+			app->hit_wall->flip = !app->hit_wall->flip;
 		else if (app->inputs->keyboard[SDL_SCANCODE_F])
 			live_edit_change_floor_h(app);
 		else if (app->inputs->keyboard[SDL_SCANCODE_C])
