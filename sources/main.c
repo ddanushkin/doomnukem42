@@ -138,7 +138,11 @@ void	gamedata_save(t_app *a)
 {
 	int		data;
 
+#ifdef __APPLE__
 	data = open("GAME_DATA.BIN", O_RDWR | O_CREAT | O_TRUNC, 777);
+#else
+	data = open("GAME_DATA.BIN", O_BINARY | O_WRONLY | O_CREAT | O_TRUNC, 655);
+#endif
 	if (data == -1)
 		return ;
 	gamedata_write(data, &a->sprites[0], sizeof(t_sprite), a->sprites_count);
@@ -186,7 +190,11 @@ void	gamedata_load(t_app *a)
 	char 	buff[2];
 	int 	sep;
 
+#ifdef __APPLE__
 	data = open("GAME_DATA.BIN", O_RDONLY);
+#else
+	data = open("GAME_DATA.BIN", O_BINARY | O_RDONLY);
+#endif
 	if (data == -1)
 		return ;
 	info[0] = '\0';
