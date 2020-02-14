@@ -1,12 +1,5 @@
 #include "doom_nukem.h"
 
-void		set_vector(t_v3d *v, double x, double y, double z)
-{
-	v->x = x;
-	v->y = y;
-	v->z = z;
-}
-
 double 		vector_length(t_v3d v)
 {
 	return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
@@ -25,14 +18,14 @@ t_v3d	vector_normalise(t_v3d v)
 	return (result);
 }
 
-double		vector_dot_product(t_v3d v1, t_v3d v2)
+double		v3d_dot(t_v3d v1, t_v3d v2)
 {
 	return (v1.x * v2.x +
 			v1.y * v2.y +
 			v1.z * v2.z);
 }
 
-t_v3d	vector_cross_product(t_v3d v1, t_v3d v2)
+t_v3d	v3d_cross(t_v3d v1, t_v3d v2)
 {
 	t_v3d	result;
 

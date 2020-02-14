@@ -63,12 +63,12 @@ void 	billboard_face_player(t_app *app, t_wall *w)
 	pos.y += w->size * 0.5;
 	c = app->camera;
 	half_size = 0.5 * w->size;
-	r = vector_mul_by(c->right, half_size);
-	u = vector_mul_by(c->up, half_size);
-	w->v[0] = vector_sub(vector_sub(pos, r), u);
-	w->v[1] = vector_sum(vector_sum(pos, r), u);
-	w->v[3] = vector_sum(vector_sub(pos, r), u);
-	w->v[2] = vector_sub(vector_sum(pos, r), u);
+	r = v3d_mul_by(c->right, half_size);
+	u = v3d_mul_by(c->up, half_size);
+	w->v[0] = v3d_sub(v3d_sub(pos, r), u);
+	w->v[1] = v3d_sum(v3d_sum(pos, r), u);
+	w->v[3] = v3d_sum(v3d_sub(pos, r), u);
+	w->v[2] = v3d_sub(v3d_sum(pos, r), u);
 	wall_reset_tex(w);
 }
 

@@ -3,14 +3,14 @@
 void 	move_c(t_app *app, t_v3d *pos, t_v3d dir, double amount)
 {
 	if (!app->camera->fly)
-		check_collision(app, pos, vector_mul_by(dir, amount));
+		check_collision(app, pos, v3d_mul_by(dir, amount));
 	else
 		move(pos, dir, amount);
 }
 
 void 	move(t_v3d *v, t_v3d dir, double amount)
 {
-	*v = vector_sum(*v, vector_mul_by(dir, amount));
+	*v = v3d_sum(*v, v3d_mul_by(dir, amount));
 }
 
 t_mat4x4 view_matrix(t_v3d eye, double pitch, double yaw)
@@ -27,15 +27,15 @@ t_mat4x4 view_matrix(t_v3d eye, double pitch, double yaw)
 	view.m[0] = xaxis.x;
 	view.m[1] = xaxis.y;
 	view.m[2] = xaxis.z;
-	view.m[3] = -vector_dot_product(xaxis, eye);
+	view.m[3] = -v3d_dot(xaxis, eye);
 	view.m[4] = yaxis.x;
 	view.m[5] = yaxis.y;
 	view.m[6] = yaxis.z;
-	view.m[7] = -vector_dot_product(yaxis, eye);
+	view.m[7] = -v3d_dot(yaxis, eye);
 	view.m[8] = zaxis.x;
 	view.m[9] = zaxis.y;
 	view.m[10] = zaxis.z;
-	view.m[11] = -vector_dot_product(zaxis, eye);
+	view.m[11] = -v3d_dot(zaxis, eye);
 	view.m[12] = 0.0;
 	view.m[13] = 0.0;
 	view.m[14] = 0.0;
@@ -93,6 +93,19 @@ void 	update_camera(t_app *app, t_camera *c)
 		c->forward.y = 0.0;
 }
 
+
+void 	cursor_clamp(t_app *app)
+{
+	if (app->cursor_x >= (double)SCREEN_W)
+		app->cursor_x = 0.0;
+	else if (app->cursor_x <= 0.0)
+		app->cursor_x = (double)SCREEN_W;
+	if (app->cursor_y >= (double)SCREEN_H)
+		app->cursor_y = 0.0;
+	else if (app->cursor_y <= 0.0)
+		app->cursor_y = (double)SCREEN_H;
+}
+
 void	process_points_inputs(t_app *app, double delta_time)
 {
 	const uint8_t	*key;
@@ -118,6 +131,7 @@ void	process_points_inputs(t_app *app, double delta_time)
 		app->cursor_x += mouse->x * 2.0;
 	if (mouse->y != 0)
 		app->cursor_y += mouse->y * 2.0;
+	cursor_clamp(app);
 }
 
 void	process_inputs(t_app *app, double dt)

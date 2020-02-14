@@ -101,8 +101,35 @@ void	sector_make_walls(t_sector *s)
 	s->walls_count = s->points_count;
 }
 
+int		sector_close_check(t_v3d *points, int size)
+{
+	int		i;
+
+	if (size < 3)
+		return (1);
+	i = 1;
+	while (i < size - 1)
+	{
+		if (line_intersection(
+				points[i],
+				points[i + 1],
+				points[size - 1],
+				points[0]))
+		{
+			return (0);
+		}
+		i++;
+	}
+	return (1);
+}
+
 void 	sector_close(t_app *app, t_sector *s)
 {
+	if (!sector_close_check(&app->points[0], app->points_count))
+	{
+		app->bad_close = 0.25;
+		return ;
+	}
 	sector_copy_points(s, &app->points[0], app->points_count);
 	get_sector_min_max(s);
 	triangulate(&s->triangles[0], &s->triangles_count, points_to_list(s, app->points, app->points_count));

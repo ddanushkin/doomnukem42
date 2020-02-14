@@ -11,7 +11,7 @@ t_v3d	new_vector(double x, double y, double z)
 	return (v);
 }
 
-t_v3d	vector_sum(t_v3d vector1, t_v3d vector2)
+t_v3d	v3d_sum(t_v3d vector1, t_v3d vector2)
 {
 	t_v3d result;
 
@@ -22,7 +22,7 @@ t_v3d	vector_sum(t_v3d vector1, t_v3d vector2)
 	return result;
 }
 
-t_v3d vector_sub(t_v3d vector1, t_v3d vector2)
+t_v3d v3d_sub(t_v3d vector1, t_v3d vector2)
 {
 	t_v3d result;
 
@@ -33,7 +33,7 @@ t_v3d vector_sub(t_v3d vector1, t_v3d vector2)
 	return result;
 }
 
-t_v3d vector_mul_by(t_v3d v, double k)
+t_v3d v3d_mul_by(t_v3d v, double k)
 {
 	t_v3d result;
 

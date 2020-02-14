@@ -51,9 +51,9 @@ void	draw_new_wall(t_app *app)
 	t_v3d tmp;
 
 	tmp.w = 1.0;
-	tmp = vector_sum(
+	tmp = v3d_sum(
 			app->camera->pos,
-			vector_mul_by(app->camera->forward, 2));
+			v3d_mul_by(app->camera->forward, 2));
 	tmp.x = round(tmp.x / app->grid_size) * app->grid_size;
 	tmp.z = round(tmp.z / app->grid_size) * app->grid_size;
 	app->edit_wall.v[app->hit_first ? 1 : 3].x = tmp.x;

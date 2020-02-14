@@ -66,7 +66,7 @@
 # define THREADS_N 8
 
 # define MAX_SECTOR 100
-# define MAX_WALL 50
+# define MAX_WALL 500
 # define MAX_DECOR 25
 # define MAX_OBJ 25
 
@@ -455,8 +455,8 @@ typedef struct	s_app
 	t_v3d 		floor_point;
 	double		floor_dist;
 	int			point_mode;
-	t_v3d		points[50];
-	uint8_t		points_count;
+	t_v3d		points[MAX_WALL];
+	int			points_count;
 	double 		cursor_x;
 	double 		cursor_y;
 	uint8_t 	keys[512];
@@ -468,6 +468,9 @@ typedef struct	s_app
 	t_sector	*sectors;
 	int 		sectors_count;
 	uint32_t 	t[65536];
+	double 		bad_close;
+	int			bflag;
+	uint32_t 	bclr[2];
 }				t_app;
 
 t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
@@ -484,6 +487,8 @@ void 	point_draw(t_app *app, t_v3d p, Uint32 c);
 t_v3d	point_save(t_app *app, double x, double z, int grid);
 int		switch_mode(t_app *app);
 double	triangle_area(t_v3d *a, t_v3d *b, t_v3d *c);
+int 	line_intersection(t_v3d v0, t_v3d v1, t_v3d v2, t_v3d v3);
+void	points_add_check(t_v3d *points, int *size);
 
 void 	move(t_v3d *v, t_v3d dir, double amount);
 
@@ -602,14 +607,14 @@ t_mat4x4	matrix_identity();
 t_mat4x4	init_translation_mat(t_v3d trans_v);
 
 t_v3d		new_vector(double x, double y, double z);
-t_v3d		vector_sum(t_v3d vector1, t_v3d vector2);
-t_v3d		vector_sub(t_v3d vector1, t_v3d vector2);
-t_v3d		vector_mul_by(t_v3d v, double k);
+t_v3d		v3d_sum(t_v3d vector1, t_v3d vector2);
+t_v3d		v3d_sub(t_v3d vector1, t_v3d vector2);
+t_v3d		v3d_mul_by(t_v3d v, double k);
 t_v3d		vector_div_by(t_v3d v, double k);
 t_v3d		vector_normalise(t_v3d v);
 double		vector_length(t_v3d v);
-t_v3d		vector_cross_product(t_v3d v1, t_v3d v2);
-double		vector_dot_product(t_v3d v1, t_v3d v2);
+t_v3d		v3d_cross(t_v3d v1, t_v3d v2);
+double		v3d_dot(t_v3d v1, t_v3d v2);
 
 void		bmp_load(t_app *app, char *path);
 void		obj_load(char *path, t_mesh *mesh);

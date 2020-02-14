@@ -106,8 +106,8 @@ double	get_angle(t_v3d v0, t_v3d v1, t_v3d v2)
 	t_v3d	vec1;
 	t_v3d	vec2;
 
-	vec1 = normalize(vector_sub(v0, v1));
-	vec2 = normalize(vector_sub(v2, v1));
+	vec1 = normalize(v3d_sub(v0, v1));
+	vec2 = normalize(v3d_sub(v2, v1));
 	return (vec1.x * vec2.x + vec1.z * vec2.z);
 }
 

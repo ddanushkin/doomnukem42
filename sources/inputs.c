@@ -37,12 +37,34 @@ void	point_mode_switch_grid(t_app *app)
 	app->grid_size = app->grid_size == 2.0 ? 0.5 : 2.0;
 }
 
+int 	point_exist(t_v3d *points, int size, t_v3d point)
+{
+	int		i;
+	t_v3d	tmp;
+
+	i = 0;
+	while (i < size)
+	{
+		tmp = points[i];
+		if (tmp.x == point.x && tmp.z == point.z)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
 void	point_mode_mouse(t_app *app)
 {
+	t_v3d	new_point;
+
 	if (app->mouse[SDL_MOUSE_LEFT])
 	{
-		app->points[app->points_count] = point_save(app, app->cursor_x, app->cursor_y, 1);
-		app->points_count++;
+		new_point = point_save(app, app->cursor_x, app->cursor_y, 1);
+		if (!point_exist(&app->points[0], app->points_count, new_point))
+		{
+			app->points[app->points_count] = new_point;
+			app->points_count++;
+		}
 	}
 	else if (app->mouse[SDL_MOUSE_RIGHT] && app->points_count > 0)
 		app->points_count--;

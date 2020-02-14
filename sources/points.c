@@ -1,5 +1,29 @@
 #include "doom_nukem.h"
 
+void	points_add_check(t_v3d *points, int *size)
+{
+	int		i;
+	int		len;
+
+	if (*size < 3)
+		return ;
+	i = 0;
+	len = *size - 2;
+	while (i < len)
+	{
+		if (line_intersection(
+				points[i],
+				points[i + 1],
+				points[*size - 2],
+				points[*size - 1]))
+		{
+			*size = *size - 1;
+			return ;
+		}
+		i++;
+	}
+}
+
 void 	point_draw(t_app *app, t_v3d p, Uint32 c)
 {
 	p = matrix_transform(app->camera->transform, p);

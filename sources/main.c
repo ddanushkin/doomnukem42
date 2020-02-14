@@ -59,6 +59,10 @@ void	start_the_game(t_app *app)
 	app->camera->pos.z = 0.0;
 	app->points_count = 0;
 	app->point_mode = 0;
+	app->bad_close = 0.0;
+	app->bflag = 0;
+	app->bclr[0] = 0xff0000;
+	app->bclr[1] = 0x00ff00;
 	prepare_chunks(app);
 	switch_mode(app);
 	SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -81,6 +85,8 @@ void	start_the_game(t_app *app)
 			draw_cross(app, (int)app->cursor_x, (int)app->cursor_y, 8, 0xffffff);
 			draw_point_mode(app);
 			draw_sectors(app);
+			if (app->points_count > 3)
+				points_add_check(&app->points[0], &app->points_count);
 			if (app->points_count > 0)
 				draw_points(app, &app->points[0], app->points_count);
 		}
