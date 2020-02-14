@@ -112,6 +112,8 @@ typedef struct	s_wall
 	int			sprite;
 	double 		sx;
 	double 		sy;
+	double		ox;
+	double		oy;
 	t_v3d		pos;
 	t_v3d		quad;
 	double 		size;

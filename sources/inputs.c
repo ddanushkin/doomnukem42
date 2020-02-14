@@ -124,9 +124,51 @@ void	point_mode_inputs(t_app *app)
 		point_mode_sector_save(app);
 }
 
+void 	wall_offset_x(t_app *app, t_wall *w)
+{
+	if (app->inputs->keyboard[SDL_SCANCODE_RIGHT])
+	{
+		w->v[0].tex_x -= 0.001;
+		w->v[1].tex_x -= 0.001;
+		w->v[2].tex_x -= 0.001;
+		w->v[3].tex_x -= 0.001;
+	}
+	if (app->inputs->keyboard[SDL_SCANCODE_LEFT])
+	{
+		w->v[0].tex_x += 0.001;
+		w->v[1].tex_x += 0.001;
+		w->v[2].tex_x += 0.001;
+		w->v[3].tex_x += 0.001;
+	}
+}
+
+void 	wall_offset_y(t_app *app, t_wall *w)
+{
+	if (app->inputs->keyboard[SDL_SCANCODE_UP])
+	{
+		w->v[0].tex_y -= 0.001;
+		w->v[1].tex_y -= 0.001;
+		w->v[2].tex_y -= 0.001;
+		w->v[3].tex_y -= 0.001;
+	}
+	if (app->inputs->keyboard[SDL_SCANCODE_DOWN])
+	{
+		w->v[0].tex_y += 0.001;
+		w->v[1].tex_y += 0.001;
+		w->v[2].tex_y += 0.001;
+		w->v[3].tex_y += 0.001;
+	}
+}
+
+void 	live_mode_wall_offset(t_app *app)
+{
+	wall_offset_x(app, app->hit_wall);
+	wall_offset_y(app, app->hit_wall);
+}
+
 void	live_mode_inputs(t_app *app)
 {
-	if (app->hit_wall && app->hit_sector->ready)
+	if (app->hit_wall)
 	{
 		if (app->inputs->keyboard[SDL_SCANCODE_LSHIFT])
 			texture_change(app);
@@ -150,5 +192,7 @@ void	live_mode_inputs(t_app *app)
 			live_mode_toggle_fly(app);
 		if (app->keys[SDL_SCANCODE_I])
 			live_edit_sector_io(app);
+		if (app->inputs->keyboard[SDL_SCANCODE_O])
+			live_mode_wall_offset(app);
 	}
 }

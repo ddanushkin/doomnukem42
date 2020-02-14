@@ -27,6 +27,8 @@ t_wall	wall_new()
 	w.decor = 0;
 	w.active = 1;
 	w.flip = 1;
+	w.ox = 0.0;
+	w.oy = 0.0;
 	return (w);
 }
 
