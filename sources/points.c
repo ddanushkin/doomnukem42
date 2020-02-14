@@ -13,14 +13,22 @@ void 	point_draw(t_app *app, t_v3d p, Uint32 c)
 	}
 }
 
-t_v3d	point_save(t_app *app, double x, double z)
+t_v3d	point_save(t_app *app, double x, double z, int grid)
 {
 	double angle;
 
 	angle = tan(0.5 * app->camera->fov) * app->camera->pos.y;
 	x = (2.0 * x / SCREEN_W - 1) * angle / app->camera->asp_ratio;
 	z = (2.0 * z / SCREEN_H - 1) * angle;
-	x = round((app->camera->pos.x + x) / app->grid_size) * app->grid_size;
-	z = round((app->camera->pos.z - z) / app->grid_size) * app->grid_size;
+	if (grid)
+	{
+		x = round((app->camera->pos.x + x) / app->grid_size) * app->grid_size;
+		z = round((app->camera->pos.z - z) / app->grid_size) * app->grid_size;
+	}
+	else
+	{
+		x = (app->camera->pos.x + x);
+		z = (app->camera->pos.z - z);
+	}
 	return (new_vector(x, 0.0, z));
 }

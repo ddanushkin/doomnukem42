@@ -111,6 +111,7 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->floor.sy = fabs(s->z_min - s->z_max) * 0.5;
 	s->floor.sprite = 278;
 	s->ceil = s->floor;
+	s->floor.flip = 0;
 	s->ceil.sprite = 399;
 	s->floor_y = 0.0;
 	s->ceil_y = 2.0;
@@ -122,6 +123,7 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->decor_count = 0;
 	s->decor_next = 0;
 	s->shade = 0;
+	s->inside = 0;
 	sector_make_walls(s);
 	sector_update_shade(s);
 	app->cs = s;

@@ -336,6 +336,7 @@ typedef struct	s_sector
 	t_wall		floor;
 	t_wall		ceil;
 	uint8_t 	shade;
+	int 		inside;
 	int 		walls_count;
 	int 		objs_count;
 	int 		decor_count;
@@ -478,7 +479,7 @@ void 	decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam);
 void 	camera_live_mode(t_v3d *rot);
 void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
 void 	point_draw(t_app *app, t_v3d p, Uint32 c);
-t_v3d	point_save(t_app *app, double x, double z);
+t_v3d	point_save(t_app *app, double x, double z, int grid);
 int		switch_mode(t_app *app);
 double	triangle_area(t_v3d *a, t_v3d *b, t_v3d *c);
 

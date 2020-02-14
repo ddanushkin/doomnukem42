@@ -18,7 +18,8 @@ int	hit_fill_floor(t_app *app, t_v3d dir, double distance)
 			app->camera->pos,
 			vector_mul_by(dir, distance));
 	app->floor_dist = distance;
-	app->hit_sector = app->cs;
+	/* TODO: !!! */
+	//app->hit_sector = app->cs;
 	return (1);
 }
 
