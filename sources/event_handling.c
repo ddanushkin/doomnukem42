@@ -2,13 +2,8 @@
 
 void 	move_c(t_app *app, t_v3d *pos, t_v3d dir, double amount)
 {
-	t_v3d	m;
-
 	if (!app->camera->fly)
-	{
-		m = vector_mul_by(dir, amount);
-		check_collision(app, pos, m);
-	}
+		check_collision(app, pos, vector_mul_by(dir, amount));
 	else
 		move(pos, dir, amount);
 }

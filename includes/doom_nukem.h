@@ -467,6 +467,7 @@ typedef struct	s_app
 	uint32_t 	t[65536];
 }				t_app;
 
+t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
 void 	check_collision(t_app *app, t_v3d *pos, t_v3d f);
 void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void 	join_tr_thrd(t_app *app);
