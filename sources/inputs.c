@@ -17,11 +17,18 @@ void 	camera_live_mode(t_v3d *rot)
 
 int		switch_mode(t_app *app)
 {
+	int	id;
+
 	app->point_mode = !app->point_mode;
 	if (app->point_mode)
 		camera_point_mode(&app->camera->pos, &app->camera->rot);
 	else
+	{
+		id = app->sectors_count - 1;
 		camera_live_mode(&app->camera->rot);
+		app->camera->pos = point_save(app, app->cursor_x, app->cursor_y);
+		app->camera->pos.y = app->sectors[id].floor_y + 1.0;
+	}
 	return (1);
 }
 
@@ -121,5 +128,12 @@ void	live_mode_inputs(t_app *app)
 			live_edit_add_decore(app);
 		if (app->keys[SDL_SCANCODE_R])
 			live_mode_toggle_fly(app);
+		if (app->keys[SDL_SCANCODE_1])
+		{
+			t_v3d v = get_triangle_normal(app->hit_wall->v[1], app->hit_wall->v[2], app->hit_wall->v[0]);
+			double a = triangle_area(&app->hit_wall->v[1], &app->hit_wall->v[2], &app->hit_wall->v[0]);
+			printf("normal - [%f, %f, %f]\n", v.x, v.y, v.z);
+			printf("area -   [%f]\n\n", a);
+		}
 	}
 }
