@@ -160,7 +160,6 @@ void	gamedata_save(t_app *a)
 	gamedata_write(data, &a->sprites[0], sizeof(t_sprite) * MAX_SPRITE, "T:\0");
 	gamedata_write(data, &a->audio[0], sizeof(t_raw_sfx) * MAX_AUDIO, "A:\0");
 	close(data);
-	usleep(10);
 }
 
 void	map_save(t_app *a, char *name)
@@ -338,48 +337,24 @@ int		main(int argv, char**argc)
 	app->camera = (t_camera *)malloc(sizeof(t_camera));
 	app->camera->up = new_vector(0.0, 1.0, 0.0);
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
-	init_app(app);
-
-	printf("SECTORS SIZE: %d MB.\n", (int)(sizeof(t_sector)*MAX_SECTOR/1000000));
-	printf("MEMORY: %d MB.\n", (int)(sizeof(*app)/1000000));
 
 	app->game_data_init = 0;
 	app->map_init = 0;
-
+	if (!app->game_data_init)
+		gamedata_load(app);
+	if (!app->map_init)
+		map_load(app, "test_map");
 	if (app->game_data_init)
 		init_game_data(app);
 	if (app->map_init)
 		init_map(app);
 
-	if (!app->game_data_init)
-		gamedata_load(app);
-	if (!app->map_init)
-		map_load(app, "test_map");
-
-	SDL_RWops	*raw;
-	app->sfx = (Mix_Music **)malloc(sizeof(Mix_Music *) * MAX_AUDIO);
-	for (int i = 0; i < MAX_AUDIO; i++)
-	{
-		raw = SDL_RWFromMem(&app->audio[i].mem[0], app->audio[i].size);
-		app->sfx[i] = Mix_LoadMUSType_RW(raw, MUS_OGG, 1);
-	}
-
-	double size = 100.0;
-	app->skybox.v[0] = new_vector(-size, -size, size);
-	app->skybox.v[1] = new_vector(size, size, size);
-	app->skybox.v[2] = new_vector(size, -size, size);
-	app->skybox.v[3] = new_vector(-size, size, size);
-	app->skybox.v[4] = new_vector(-size, -size, -size);
-	app->skybox.v[5] = new_vector(size, size, -size);
-	app->skybox.v[6] = new_vector(size, -size, -size);
-	app->skybox.v[7] = new_vector(-size, size, -size);
-
-//	clock_t begin = clock();
+	init_app(app);
 	start_the_game(app);
+
 	gamedata_save(app);
 	map_save(app, "test_map");
-//	clock_t end = clock();
-//	printf("UPDATE LOOP TIME -> %f\n", (double)(end - begin) / CLOCKS_PER_SEC);
+
 	quit_properly();
 	return (0);
 }

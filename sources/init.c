@@ -52,6 +52,36 @@ void	init_camera(t_camera *camera)
 	camera->fly = 0;
 }
 
+void 	init_sfx(t_app *app)
+{
+	SDL_RWops	*raw;
+	int 		i;
+
+	i = 0;
+	app->sfx = (Mix_Music **)malloc(sizeof(Mix_Music *) * MAX_AUDIO);
+	while (i < MAX_AUDIO)
+	{
+		raw = SDL_RWFromMem(&app->audio[i].mem[0], app->audio[i].size);
+		app->sfx[i] = Mix_LoadMUSType_RW(raw, MUS_OGG, 1);
+		i++;
+	}
+}
+
+void 	init_skybox(t_app *app)
+{
+	double size;
+
+	size = 100.0;
+	app->skybox.v[0] = new_vector(-size, -size, size);
+	app->skybox.v[1] = new_vector(size, size, size);
+	app->skybox.v[2] = new_vector(size, -size, size);
+	app->skybox.v[3] = new_vector(-size, size, size);
+	app->skybox.v[4] = new_vector(-size, -size, -size);
+	app->skybox.v[5] = new_vector(size, size, -size);
+	app->skybox.v[6] = new_vector(size, -size, -size);
+	app->skybox.v[7] = new_vector(-size, size, -size);
+}
+
 void	init_app(t_app *app)
 {
 	init_sdl(app->sdl);
@@ -69,4 +99,6 @@ void	init_app(t_app *app)
 	init_camera(app->camera);
 	init_projection_mat(app);
 	app->font = TTF_OpenFont("resources/calibrib.ttf", 14);
+	init_sfx(app);
+	init_skybox(app);
 }
