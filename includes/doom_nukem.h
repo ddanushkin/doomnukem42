@@ -7,6 +7,7 @@
 # include "stdio.h"
 # include <SDL.h>
 # include <SDL_ttf.h>
+# include <SDL_mixer.h>
 
 # define	PRINT_DEBUG 0
 
@@ -66,10 +67,11 @@
 # define THREADS_N 8
 
 # define MAX_SECTOR 100
-# define MAX_WALL 50
-# define MAX_DECOR 25
-# define MAX_OBJ 25
+# define MAX_WALL	50
+# define MAX_DECOR	25
+# define MAX_OBJ	25
 # define MAX_SPRITE 504
+# define MAX_AUDIO	107
 
 # ifndef MULTITHREAD
 #  ifdef __APPLE__
@@ -419,6 +421,12 @@ typedef struct	s_thr_data
 	int 		end;
 }				t_thr_data;
 
+typedef struct	s_raw_sfx
+{
+	char			mem[24000];
+	size_t			size;
+}				t_raw_sfx;
+
 typedef struct	s_app
 {
 	t_timer		*timer;
@@ -466,12 +474,16 @@ typedef struct	s_app
 //	save to binary below
 	t_sprite	*sprites;
 	int 		sprites_count;
+	t_raw_sfx	*audio;
+	Mix_Music	**sfx;
 	t_sector	*sectors;
 	int 		sectors_count;
 	uint32_t 	t[65536];
 	double 		bad_close;
 	int			bflag;
 	uint32_t 	bclr[2];
+	int 		game_data_init;
+	int			map_init;
 }				t_app;
 
 t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);

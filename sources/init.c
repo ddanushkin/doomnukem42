@@ -18,8 +18,12 @@ static	void	init_sdl(t_sdl *sdl)
 {
 	sdl->width = SCREEN_W;
 	sdl->height = SCREEN_H;
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
 	TTF_Init();
+	Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
+
+//	Mix_Music *music = Mix_LoadMUSType_RW(rw, MUS_MP3, 1);
+//	printf("mix -> %d\n", Mix_PlayMusic(music, -1));
 	sdl->window = SDL_CreateWindow(
 			WIN_TITLE,
 			SDL_WINDOWPOS_CENTERED,

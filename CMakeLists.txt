@@ -22,11 +22,14 @@ if(MINGW)
     link_directories(sdl2/main/lib/)
     include_directories("sdl2/ttf/include/SDL2/")
     link_directories(sdl2/ttf/lib/)
+    include_directories("sdl2/mixer/include/SDL2/")
+    link_directories(sdl2/mixer/lib/)
     add_executable(${EXECUTABLE_NAME} ${PROJ_SOURCES} ${LIBFT_SOURCES})
-    target_link_libraries(${EXECUTABLE_NAME} "-lmingw32 -lpthread -lSDL2main -lSDL2 -lSDL2_ttf")
+    target_link_libraries(${EXECUTABLE_NAME} "-lmingw32 -lpthread -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer")
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/sdl2/main/bin/" $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/sdl2/ttf/bin/" $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/sdl2/ttf/bin/" $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/sdl2/mixer/bin/" $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
 endif()
 
 if(APPLE)

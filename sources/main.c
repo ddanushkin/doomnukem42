@@ -65,6 +65,7 @@ void	start_the_game(t_app *app)
 	app->bclr[1] = 0x00ff00;
 	prepare_chunks(app);
 	switch_mode(app);
+
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	while (1)
 	{
@@ -79,6 +80,12 @@ void	start_the_game(t_app *app)
 			break ;
 		if (app->point_mode)
 		{
+			if (app->keys[SDL_SCANCODE_1])
+				Mix_PlayMusic(app->sfx[0], 0);
+			if (app->keys[SDL_SCANCODE_2])
+				Mix_PlayMusic(app->sfx[1], 0);
+			if (app->keys[SDL_SCANCODE_3])
+				Mix_PlayMusic(app->sfx[2], 0);
 			point_mode_inputs(app);
 			update_points_camera(app->camera);
 			process_points_inputs(app, app->timer->delta);
@@ -109,6 +116,7 @@ void	start_the_game(t_app *app)
 	SDL_DestroyWindow(app->sdl->window);
 }
 
+/* TODO: rewrite for GAME_DATA*/
 int	check_resources(void)
 {
 	int		fd;
@@ -145,11 +153,27 @@ void	gamedata_save(t_app *a)
 #ifdef __APPLE__
 	data = open("GAME_DATA.BIN", O_RDWR | O_CREAT | O_TRUNC, 777);
 #else
-	data = open("GAME_DATA.BIN", O_BINARY | O_WRONLY | O_CREAT | O_TRUNC, 655);
+	data = open("GAME_DATA", O_BINARY | O_WRONLY | O_CREAT | O_TRUNC, 655);
 #endif
 	if (data == -1)
 		return ;
 	gamedata_write(data, &a->sprites[0], sizeof(t_sprite) * MAX_SPRITE, "T:\0");
+	gamedata_write(data, &a->audio[0], sizeof(t_raw_sfx) * MAX_AUDIO, "A:\0");
+	close(data);
+	usleep(10);
+}
+
+void	map_save(t_app *a, char *name)
+{
+	int		data;
+
+#ifdef __APPLE__
+	data = open(name, O_RDWR | O_CREAT | O_TRUNC, 777);
+#else
+	data = open(name, O_BINARY | O_WRONLY | O_CREAT | O_TRUNC, 655);
+#endif
+	if (data == -1)
+		return ;
 	gamedata_write(data, &a->sectors[0], sizeof(t_sector) * a->sectors_count, "S:\0");
 	close(data);
 	usleep(10);
@@ -159,7 +183,6 @@ void 	gamedata_type_malloc(t_app *a, int fd, char type, uint64_t size)
 {
 	if (type == 'T')
 	{
-		a->sprites_count = (int)(size / sizeof(t_sprite));
 		a->sprites = malloc(size);
 		read(fd, a->sprites, size);
 	}
@@ -168,6 +191,11 @@ void 	gamedata_type_malloc(t_app *a, int fd, char type, uint64_t size)
 		a->sectors_count = (int)(size / sizeof(t_sector));
 		a->sectors = malloc(sizeof(t_sector) * MAX_SECTOR);
 		read(fd, a->sectors, size);
+	}
+	else if (type == 'A')
+	{
+		a->audio = malloc(sizeof(t_raw_sfx) * MAX_AUDIO);
+		read(fd, a->audio, size);
 	}
 }
 
@@ -197,9 +225,9 @@ void	gamedata_load(t_app *a)
 	int 	sep;
 
 #ifdef __APPLE__
-	data = open("GAME_DATA.BIN", O_RDONLY);
+	data = open("GAME_DATA", O_RDONLY);
 #else
-	data = open("GAME_DATA.BIN", O_BINARY | O_RDONLY);
+	data = open("GAME_DATA", O_BINARY | O_RDONLY);
 #endif
 	if (data == -1)
 		return ;
@@ -221,10 +249,84 @@ void	gamedata_load(t_app *a)
 	close(data);
 }
 
+void	map_load(t_app *a, char *name)
+{
+	int		data;
+	char	info[50];
+	char 	buff[2];
+	int 	sep;
+
+#ifdef __APPLE__
+	data = open(name, O_RDONLY);
+#else
+	data = open(name, O_BINARY | O_RDONLY);
+#endif
+	if (data == -1)
+		return ;
+	info[0] = '\0';
+	buff[1] = '\0';
+	sep = 0;
+	while (read(data, &buff[0], 1))
+	{
+		if (buff[0] == ':')
+			sep++;
+		ft_strcat(&info[0], &buff[0]);
+		if (sep == 2)
+		{
+			sep = 0;
+			gamedata_parse_info(a, data, &info[0]);
+			info[0] = '\0';
+		}
+	}
+	close(data);
+}
+
+void 	init_game_data(t_app *app)
+{
+	app->audio = (t_raw_sfx *)malloc(sizeof(t_raw_sfx) * MAX_AUDIO);
+	for (int i = 0; i < MAX_AUDIO; i++)
+	{
+		char	*file_name;
+		char	file_path[100];
+		file_path[0] = '\0';
+		file_name = ft_itoa(i);
+		ft_strcat(file_path, "resources/audio/");
+		ft_strcat(file_path, file_name);
+		ft_strdel(&file_name);
+		ft_strcat(file_path, ".ogg");
+		SDL_RWops	*raw = SDL_RWFromFile(file_path, "rb");
+		size_t size = SDL_RWsize(raw);
+		printf("%llu\n", size);
+		SDL_RWread(raw, &app->audio[i].mem[0], size, 1);
+		app->audio[i].size = size;
+		SDL_RWclose(raw);
+	}
+
+	app->sprites_count = 0;
+	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * MAX_SPRITE);
+	for (int i = 0; i < MAX_SPRITE; i++)
+	{
+		char	*file_name;
+		char	file_path[100];
+		file_path[0] = '\0';
+		file_name = ft_itoa(i);
+		ft_strcat(file_path, "resources/sprites/");
+		ft_strcat(file_path, file_name);
+		ft_strdel(&file_name);
+		ft_strcat(file_path, ".bmp");
+		bmp_load(app, file_path);
+	}
+}
+
+void 	init_map(t_app *app)
+{
+	app->sectors_count = 0;
+	app->sectors = (t_sector *)malloc(sizeof(t_sector) * MAX_SECTOR);
+}
+
 int		main(int argv, char**argc)
 {
 	t_app	*app;
-
 	printf("%d, %s\n", argv, argc[0]);
 	//getchar();
 	//if (!check_resources())
@@ -241,28 +343,26 @@ int		main(int argv, char**argc)
 	printf("SECTORS SIZE: %d MB.\n", (int)(sizeof(t_sector)*MAX_SECTOR/1000000));
 	printf("MEMORY: %d MB.\n", (int)(sizeof(*app)/1000000));
 
-//	app->sprites_count = 0;
-//	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * MAX_SPRITE);
-//	for (int i = 0; i < MAX_SPRITE; i++)
-//	{
-//		char	*file_name;
-//		char	file_path[100];
-//		file_path[0] = '\0';
-//		file_name = ft_itoa(i);
-//		ft_strcat(file_path, "resources/sprites/");
-//		ft_strcat(file_path, file_name);
-//		ft_strdel(&file_name);
-//		ft_strcat(file_path, ".bmp");
-//		bmp_load(app, file_path);
-//	}
-//
-//	app->sectors_count = 0;
-//	app->sectors = (t_sector *)malloc(sizeof(t_sector) * MAX_SECTOR);
+	app->game_data_init = 0;
+	app->map_init = 0;
 
-//	gamedata_save(app);
-//	free(app->sprites);
-//	free(app->sectors);
-	gamedata_load(app);
+	if (app->game_data_init)
+		init_game_data(app);
+	if (app->map_init)
+		init_map(app);
+
+	if (!app->game_data_init)
+		gamedata_load(app);
+	if (!app->map_init)
+		map_load(app, "test_map");
+
+	SDL_RWops	*raw;
+	app->sfx = (Mix_Music **)malloc(sizeof(Mix_Music *) * MAX_AUDIO);
+	for (int i = 0; i < MAX_AUDIO; i++)
+	{
+		raw = SDL_RWFromMem(&app->audio[i].mem[0], app->audio[i].size);
+		app->sfx[i] = Mix_LoadMUSType_RW(raw, MUS_OGG, 1);
+	}
 
 	double size = 100.0;
 	app->skybox.v[0] = new_vector(-size, -size, size);
@@ -277,6 +377,7 @@ int		main(int argv, char**argc)
 //	clock_t begin = clock();
 	start_the_game(app);
 	gamedata_save(app);
+	map_save(app, "test_map");
 //	clock_t end = clock();
 //	printf("UPDATE LOOP TIME -> %f\n", (double)(end - begin) / CLOCKS_PER_SEC);
 	quit_properly();
