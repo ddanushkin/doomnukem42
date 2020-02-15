@@ -151,7 +151,7 @@ void	gamedata_save(t_app *a)
 	int		data;
 
 #ifdef __APPLE__
-	data = open("GAME_DATA.BIN", O_RDWR | O_CREAT | O_TRUNC, 777);
+	data = open("GAME_DATA", O_RDWR | O_CREAT | O_TRUNC, 777);
 #else
 	data = open("GAME_DATA", O_BINARY | O_WRONLY | O_CREAT | O_TRUNC, 655);
 #endif
