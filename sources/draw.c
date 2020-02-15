@@ -62,10 +62,10 @@ void 	draw_points_sector(t_app *app, t_v3d *p, int size)
 		i = 0;
 		while (i < size - 1)
 		{
-			draw_line_3d(app, p[i], p[i + 1], 0xffffff);
+			draw_line_3d(app, p[i], p[i + 1], 0x5c5c5c);
 			i++;
 		}
-		draw_line_3d(app, p[size - 1], p[0], 0xffffff);
+		draw_line_3d(app, p[size - 1], p[0], 0x5c5c5c);
 	}
 }
 
@@ -88,7 +88,7 @@ void 	draw_points(t_app *app, t_v3d *p, int size)
 	int		i;
 
 	if (size == 1)
-		point_draw(app, p[0], 0xff00ff);
+		point_draw(app, p[0], 0xff0000);
 	else
 	{
 		i = 0;

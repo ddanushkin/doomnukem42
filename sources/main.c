@@ -83,12 +83,12 @@ void	start_the_game(t_app *app)
 			update_points_camera(app->camera);
 			process_points_inputs(app, app->timer->delta);
 			draw_cross(app, (int)app->cursor_x, (int)app->cursor_y, 8, 0xffffff);
-			draw_point_mode(app);
 			draw_sectors(app);
 			if (app->points_count > 3)
 				points_add_check(&app->points[0], &app->points_count);
 			if (app->points_count > 0)
 				draw_points(app, &app->points[0], app->points_count);
+			draw_point_mode(app);
 		}
 		else
 		{
@@ -125,14 +125,12 @@ int	check_resources(void)
 	return (ft_strequ(hash, RESOURCES_MD5));
 }
 
-void 	gamedata_write(int fd, void *mem, size_t type_size, size_t count)
+void 	gamedata_write(int fd, void *mem, size_t size, char *type)
 {
 	char	info[50];
-	size_t	size;
 
-	size = type_size * count;
 	info[0] = '\0';
-	ft_strcat(&info[0], "T:");
+	ft_strcat(&info[0], type);
 	ft_itoa2(size, &info[2]);
 	ft_strcat(&info[0], ":");
 	printf("WRITE_INFO: %s\n", info);
@@ -151,7 +149,8 @@ void	gamedata_save(t_app *a)
 #endif
 	if (data == -1)
 		return ;
-	gamedata_write(data, &a->sprites[0], sizeof(t_sprite), a->sprites_count);
+	gamedata_write(data, &a->sprites[0], sizeof(t_sprite) * MAX_SPRITE, "T:\0");
+	gamedata_write(data, &a->sectors[0], sizeof(t_sector) * a->sectors_count, "S:\0");
 	close(data);
 	usleep(10);
 }
@@ -160,12 +159,14 @@ void 	gamedata_type_malloc(t_app *a, int fd, char type, uint64_t size)
 {
 	if (type == 'T')
 	{
+		a->sprites_count = (int)(size / sizeof(t_sprite));
 		a->sprites = malloc(size);
 		read(fd, a->sprites, size);
 	}
 	else if (type == 'S')
 	{
-		a->sectors = malloc(size);
+		a->sectors_count = (int)(size / sizeof(t_sector));
+		a->sectors = malloc(sizeof(t_sector) * MAX_SECTOR);
 		read(fd, a->sectors, size);
 	}
 }
@@ -186,7 +187,6 @@ void 	gamedata_parse_info(t_app *a, int fd, char *info)
 	size = ft_atoi(&tmp[0]);
 	gamedata_type_malloc(a, fd, type, size);
 	read(fd, NULL, 1);
-	*info = '\0';
 }
 
 void	gamedata_load(t_app *a)
@@ -215,7 +215,7 @@ void	gamedata_load(t_app *a)
 		{
 			sep = 0;
 			gamedata_parse_info(a, data, &info[0]);
-			break ;
+			info[0] = '\0';
 		}
 	}
 	close(data);
@@ -241,27 +241,28 @@ int		main(int argv, char**argc)
 	printf("SECTORS SIZE: %d MB.\n", (int)(sizeof(t_sector)*MAX_SECTOR/1000000));
 	printf("MEMORY: %d MB.\n", (int)(sizeof(*app)/1000000));
 
-	app->sprites_count = 0;
-	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * 504);
-	for (int i = 0; i < 504; i++)
-	{
-		char	*file_name;
-		char	file_path[100];
-		file_path[0] = '\0';
-		file_name = ft_itoa(i);
-		ft_strcat(file_path, "resources/sprites/");
-		ft_strcat(file_path, file_name);
-		ft_strdel(&file_name);
-		ft_strcat(file_path, ".bmp");
-		bmp_load(app, file_path);
-	}
+//	app->sprites_count = 0;
+//	app->sprites = (t_sprite *)malloc(sizeof(t_sprite) * MAX_SPRITE);
+//	for (int i = 0; i < MAX_SPRITE; i++)
+//	{
+//		char	*file_name;
+//		char	file_path[100];
+//		file_path[0] = '\0';
+//		file_name = ft_itoa(i);
+//		ft_strcat(file_path, "resources/sprites/");
+//		ft_strcat(file_path, file_name);
+//		ft_strdel(&file_name);
+//		ft_strcat(file_path, ".bmp");
+//		bmp_load(app, file_path);
+//	}
+//
+//	app->sectors_count = 0;
+//	app->sectors = (t_sector *)malloc(sizeof(t_sector) * MAX_SECTOR);
 
-	gamedata_save(app);
-	free(app->sprites);
+//	gamedata_save(app);
+//	free(app->sprites);
+//	free(app->sectors);
 	gamedata_load(app);
-
-	app->sectors_count = 0;
-	app->sectors = (t_sector *)malloc(sizeof(t_sector) * MAX_SECTOR);
 
 	double size = 100.0;
 	app->skybox.v[0] = new_vector(-size, -size, size);
@@ -275,6 +276,7 @@ int		main(int argv, char**argc)
 
 //	clock_t begin = clock();
 	start_the_game(app);
+	gamedata_save(app);
 //	clock_t end = clock();
 //	printf("UPDATE LOOP TIME -> %f\n", (double)(end - begin) / CLOCKS_PER_SEC);
 	quit_properly();

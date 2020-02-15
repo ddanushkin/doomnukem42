@@ -66,9 +66,10 @@
 # define THREADS_N 8
 
 # define MAX_SECTOR 100
-# define MAX_WALL 500
+# define MAX_WALL 50
 # define MAX_DECOR 25
 # define MAX_OBJ 25
+# define MAX_SPRITE 504
 
 # ifndef MULTITHREAD
 #  ifdef __APPLE__

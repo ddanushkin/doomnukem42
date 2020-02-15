@@ -1,5 +1,13 @@
 #include "doom_nukem.h"
 
+void 	draw_point(t_app *app, int x, int y, Uint32 c)
+{
+	int		offset;
+
+	offset = y * SCREEN_W + x;
+	set_pixel_uint32(app->sdl->surface, offset, c);
+}
+
 void 	draw_grid_point(t_app *app, t_v3d *gp, Uint32 c)
 {
 	t_v3d	tmp;
@@ -9,9 +17,11 @@ void 	draw_grid_point(t_app *app, t_v3d *gp, Uint32 c)
 	{
 		tmp = matrix_transform(app->camera->screen_space, tmp);
 		vertex_perspective_divide(&tmp);
-		int offset = (int)tmp.y * SCREEN_W + (int)tmp.x;
-		if (tmp.z < app->depth_buffer[offset])
-			set_pixel_uint32(app->sdl->surface, offset, c);
+		draw_point(app, (int)tmp.x, (int)tmp.y, c);
+		draw_point(app, (int)tmp.x+1, (int)tmp.y+1, c);
+		draw_point(app, (int)tmp.x-1, (int)tmp.y-1, c);
+		draw_point(app, (int)tmp.x+1, (int)tmp.y-1, c);
+		draw_point(app, (int)tmp.x-1, (int)tmp.y+1, c);
 	}
 	gp->x += app->grid_size;
 }
@@ -35,7 +45,7 @@ void 	draw_point_mode(t_app *app)
 	{
 		while (x > 0)
 		{
-			draw_grid_point(app, &grid_point, 0xffffff);
+			draw_grid_point(app, &grid_point, 0x00ffff);
 			x--;
 		}
 		x = 100;

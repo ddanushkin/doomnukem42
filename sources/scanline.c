@@ -48,7 +48,7 @@ void 	scanline_draw(register t_sl_data *s, register uint32_t *t, register double
 	offset = s->offset;
 	while (i++ < s->end)
 	{
-		if (s->d < depth[offset])
+		if (s->d <= depth[offset])
 		{
 			c = t[((uint8_t)(s->y / s->z) << 8u) + (uint8_t)(s->x / s->z)];
 			if (c != TRANSPARENCY_COLOR)
