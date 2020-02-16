@@ -53,6 +53,12 @@ int 	point_exist(t_v3d *points, int size, t_v3d point)
 	return (0);
 }
 
+void 	points_mode_reset_camera_pos(t_v3d *pos)
+{
+	pos->x = 0.0;
+	pos->z = 0.0;
+}
+
 void	point_mode_mouse(t_app *app)
 {
 	t_v3d	new_point;
@@ -206,6 +212,8 @@ void	point_mode_inputs(t_app *app)
 		point_mode_mouse(app);
 	if (app->keys[SDL_SCANCODE_Q] && app->points_count >= 3)
 		point_mode_sector_save(app);
+	if (app->keys[SDL_SCANCODE_R])
+		points_mode_reset_camera_pos(&app->camera->pos);
 }
 
 void 	wall_offset_x(t_app *app, t_wall *w)
