@@ -78,7 +78,7 @@ void	draw_sectors(t_app *app)
 	while (i < app->sectors_count)
 	{
 		s = &app->sectors[i];
-		draw_points_sector(app, &s->points[0], s->points_count);
+		draw_points_sector(app, &s->fpts[0], s->pts_count);
 		i++;
 	}
 }

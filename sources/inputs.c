@@ -84,20 +84,82 @@ void	live_mode_toggle_fly(t_app *app)
 
 void	live_edit_change_floor_h(t_app *app)
 {
+	t_sector *s;
+
+	s = app->hit_sector;
 	if (app->keys[SDL_SCANCODE_MINUS])
-		app->hit_sector->floor_y -= 0.5;
+	{
+		sector_pts_h(&s->fpts[0], s->pts_count, -0.5);
+		s->floor_y -= 0.5;
+	}
 	else if (app->keys[SDL_SCANCODE_EQUALS])
-		app->hit_sector->floor_y += 0.5;
-	sector_update_height(app->hit_sector);
+	{
+		sector_pts_h(&s->fpts[0], s->pts_count, 0.5);
+		s->floor_y += 0.5;
+	}
+	if (app->keys[SDL_SCANCODE_MINUS] || app->keys[SDL_SCANCODE_EQUALS])
+		sector_update_height(s, &s->fpts[0], &s->cpts[0]);
 }
 
 void	live_edit_change_ceil_h(t_app *app)
 {
+	t_sector *s;
+
+	s = app->hit_sector;
 	if (app->keys[SDL_SCANCODE_MINUS])
-		app->hit_sector->ceil_y -= 0.5;
+	{
+		sector_pts_h(&s->cpts[0], s->pts_count, -0.5);
+		s->ceil_y -= 0.5;
+	}
 	else if (app->keys[SDL_SCANCODE_EQUALS])
-		app->hit_sector->ceil_y += 0.5;
-	sector_update_height(app->hit_sector);
+	{
+		sector_pts_h(&s->cpts[0], s->pts_count, 0.5);
+		s->ceil_y += 0.5;
+	}
+	if (app->keys[SDL_SCANCODE_MINUS] || app->keys[SDL_SCANCODE_EQUALS])
+		sector_update_height(s, &s->fpts[0], &s->cpts[0]);
+}
+
+void	live_edit_wall_bot(t_app *app)
+{
+	t_sector	*s;
+	t_wall		*w;
+
+	s = app->hit_sector;
+	w = app->hit_wall;
+	if (app->keys[SDL_SCANCODE_MINUS])
+	{
+		s->fpts[w->v[0].i].y -= 0.5;
+		s->fpts[w->v[2].i].y -= 0.5;
+	}
+	else if (app->keys[SDL_SCANCODE_EQUALS])
+	{
+		s->fpts[w->v[0].i].y += 0.5;
+		s->fpts[w->v[2].i].y += 0.5;
+	}
+	if (app->keys[SDL_SCANCODE_MINUS] || app->keys[SDL_SCANCODE_EQUALS])
+		sector_update_height(s, &s->fpts[0], &s->cpts[0]);
+}
+
+void	live_edit_wall_top(t_app *app)
+{
+	t_sector	*s;
+	t_wall		*w;
+
+	s = app->hit_sector;
+	w = app->hit_wall;
+	if (app->keys[SDL_SCANCODE_MINUS])
+	{
+		s->cpts[w->v[3].i].y -= 0.5;
+		s->cpts[w->v[1].i].y -= 0.5;
+	}
+	else if (app->keys[SDL_SCANCODE_EQUALS])
+	{
+		s->cpts[w->v[3].i].y += 0.5;
+		s->cpts[w->v[1].i].y += 0.5;
+	}
+	if (app->keys[SDL_SCANCODE_MINUS] || app->keys[SDL_SCANCODE_EQUALS])
+		sector_update_height(s, &s->fpts[0], &s->cpts[0]);
 }
 
 void	live_edit_change_shade(t_app *app)
@@ -208,8 +270,12 @@ void	live_mode_inputs(t_app *app)
 			live_edit_change_ceil_h(app);
 		else if (app->inputs->keyboard[SDL_SCANCODE_L])
 			live_edit_change_shade(app);
-		else if (app->keys[SDL_SCANCODE_T] && app->hit_type == wall)
+		else if (app->inputs->keyboard[SDL_SCANCODE_T] && app->hit_type == wall)
 			live_edit_add_decore(app);
+		else if (app->inputs->keyboard[SDL_SCANCODE_Q] && app->hit_type == wall)
+			live_edit_wall_top(app);
+		else if (app->inputs->keyboard[SDL_SCANCODE_E] && app->hit_type == wall)
+			live_edit_wall_bot(app);
 		if (app->keys[SDL_SCANCODE_R])
 			live_mode_toggle_fly(app);
 		if (app->keys[SDL_SCANCODE_I])

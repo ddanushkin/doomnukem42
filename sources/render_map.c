@@ -111,8 +111,7 @@ void 	render_billboard(t_app *app, t_wall *w)
 	v3 = matrix_transform(app->camera->transform, w->v[3]);
 	if (wall_outside(&v0, &v1, &v2, &v3))
 		return;
-	/* TODO: Set current sector shade! */
-	w->shade = 1.0;
+	w->shade = app->cs->shade;
 	w->inside = wall_inside(&v0, &v1, &v2, &v3);
 	app->rw = w;
 	render_triangle_0(app, v0, v1, v2);
@@ -170,9 +169,7 @@ void 	render_wall(register t_app *app, register t_wall *w)
 void 	render_sector(t_app *app, t_sector *s)
 {
 	int			j;
-	t_triangle	ceil_triangle;
 
-	app->cs = s;
 	j = 0;
 	app->render_type = obj;
 	while (j < s->objs_count)
@@ -185,18 +182,14 @@ void 	render_sector(t_app *app, t_sector *s)
 	app->render_type = decor;
 	while (j < s->decor_count)
 		render_wall(app, &s->decor[j++]);
-	if (s->ready && s->triangles_count > 0)
+	if (s->ready && s->trs_count > 0)
 	{
 		j = 0;
 		app->render_type = floor_ceil;
-		while (j < s->triangles_count)
+		while (j < s->trs_count)
 		{
-			render_floor_ceil(app, &s->triangles[j], &s->floor);
-			ceil_triangle = s->triangles[j++];
-			ceil_triangle.v[0].y += s->delta_y;
-			ceil_triangle.v[1].y += s->delta_y;
-			ceil_triangle.v[2].y += s->delta_y;
-			render_floor_ceil(app, &ceil_triangle, &s->ceil);
+			render_floor_ceil(app, &s->ftrs[j], &s->floor);
+			render_floor_ceil(app, &s->ctrs[j++], &s->ceil);
 		}
 	}
 }
@@ -211,6 +204,9 @@ void	render_map(t_app *app)
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
 	while (i < app->sectors_count)
+	{
+		app->cs = &app->sectors[i];
 		render_sector(app, &app->sectors[i++]);
+	}
 	render_skybox(app, app->skybox);
 }

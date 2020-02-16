@@ -108,6 +108,7 @@ typedef struct	s_v3d
 	double 		w;
 	double		tex_x;
 	double		tex_y;
+	int			i;
 }				t_v3d;
 
 typedef struct	s_wall
@@ -338,7 +339,6 @@ typedef struct	s_sector
 	t_wall		walls[MAX_WALL];
 	t_wall		objs[MAX_OBJ];
 	t_wall 		decor[MAX_DECOR];
-	t_triangle	triangles[MAX_WALL - 2];
 	t_wall		floor;
 	t_wall		ceil;
 	uint8_t 	shade;
@@ -347,7 +347,6 @@ typedef struct	s_sector
 	int 		objs_count;
 	int 		decor_count;
 	int 		decor_next;
-	int 		triangles_count;
 	double 		floor_y;
 	double 		ceil_y;
 	double 		delta_y;
@@ -356,8 +355,12 @@ typedef struct	s_sector
 	double 		z_min;
 	double 		x_max;
 	double 		z_max;
-	t_v3d		points[MAX_WALL];
-	int 		points_count;
+	t_v3d		fpts[MAX_WALL];
+	t_v3d		cpts[MAX_WALL];
+	t_triangle	ftrs[MAX_WALL - 2];
+	t_triangle	ctrs[MAX_WALL - 2];
+	int 		trs_count;
+	int 		pts_count;
 }				t_sector;
 
 typedef struct	s_skybox
@@ -511,6 +514,7 @@ int		switch_mode(t_app *app);
 double	triangle_area(t_v3d *a, t_v3d *b, t_v3d *c);
 int 	line_intersection(t_v3d v0, t_v3d v1, t_v3d v2, t_v3d v3);
 void	points_add_check(t_v3d *points, int *size);
+void 	sector_pts_h(t_v3d *pts, int size, double amount);
 
 void 	move(t_v3d *v, t_v3d dir, double amount);
 
@@ -562,7 +566,7 @@ int		find_linked_wall(t_sector *sector, t_v3d v, int skip);
 double	get_orientation(t_v3d *polygon, int size);
 int 	compare_vertex(t_v3d *v1, t_v3d *v2);
 void 	get_floor_poly(t_sector *cs);
-t_polygon	*points_to_list(t_sector *cs, t_v3d *points, int size);
+t_polygon	*points_to_list(t_sector *s);
 void 	sector_close(t_app *app, t_sector *s);
 void	draw_new_wall(t_app *app);
 void	save_new_wall(t_app *app);
@@ -574,7 +578,7 @@ uint32_t	wall_inside(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3);
 void	texture_change(t_app *app);
 void	texture_scale_y_change(t_app *app);
 void	texture_scale_x_change(t_app *app);
-void 	sector_update_height(t_sector *cs);
+void 	sector_update_height(t_sector *cs, t_v3d *fpts, t_v3d *cpts);
 
 t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection);
 

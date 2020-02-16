@@ -67,6 +67,7 @@ void	start_the_game(t_app *app)
 	switch_mode(app);
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
+	Mix_PlayMusic(app->bg[5], -1);
 	while (1)
 	{
 		get_delta_time(app->timer);
@@ -381,7 +382,7 @@ int		main(int argv, char**argc)
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
 
 	app->game_data_init = 0;
-	app->map_init = 0;
+	app->map_init = 1;
 	if (!app->game_data_init)
 		gamedata_load(app);
 	if (!app->map_init)
