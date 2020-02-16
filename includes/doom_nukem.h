@@ -71,7 +71,8 @@
 # define MAX_DECOR	25
 # define MAX_OBJ	25
 # define MAX_SPRITE 504
-# define MAX_AUDIO	107
+# define MAX_SFX	107
+# define MAX_BG		10
 
 # ifndef MULTITHREAD
 #  ifdef __APPLE__
@@ -427,6 +428,12 @@ typedef struct	s_raw_sfx
 	size_t			size;
 }				t_raw_sfx;
 
+typedef struct	s_raw_bg
+{
+	char			mem[1000000];
+	size_t			size;
+}				t_raw_bg;
+
 typedef struct	s_app
 {
 	t_timer		*timer;
@@ -475,7 +482,9 @@ typedef struct	s_app
 	t_sprite	*sprites;
 	int 		sprites_count;
 	t_raw_sfx	*audio;
+	t_raw_bg	*music;
 	Mix_Music	**sfx;
+	Mix_Music	**bg;
 	t_sector	*sectors;
 	int 		sectors_count;
 	uint32_t 	t[65536];

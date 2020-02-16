@@ -78,14 +78,32 @@ void	start_the_game(t_app *app)
 			continue ;
 		if (app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
 			break ;
+
+		if (app->keys[SDL_SCANCODE_1])
+			Mix_PlayMusic(app->bg[0], -1);
+		if (app->keys[SDL_SCANCODE_2])
+			Mix_PlayMusic(app->bg[1], -1);
+		if (app->keys[SDL_SCANCODE_3])
+			Mix_PlayMusic(app->bg[2], -1);
+		if (app->keys[SDL_SCANCODE_4])
+			Mix_PlayMusic(app->bg[3], -1);
+		if (app->keys[SDL_SCANCODE_5])
+			Mix_PlayMusic(app->bg[4], -1);
+		if (app->keys[SDL_SCANCODE_6])
+			Mix_PlayMusic(app->bg[5], -1);
+		if (app->keys[SDL_SCANCODE_7])
+			Mix_PlayMusic(app->bg[6], -1);
+		if (app->keys[SDL_SCANCODE_8])
+			Mix_PlayMusic(app->bg[7], -1);
+		if (app->keys[SDL_SCANCODE_9])
+			Mix_PlayMusic(app->bg[8], -1);
+		if (app->keys[SDL_SCANCODE_0])
+			Mix_PlayMusic(app->bg[9], -1);
+		if (app->keys[SDL_SCANCODE_MINUS])
+			Mix_HaltMusic();
+
 		if (app->point_mode)
 		{
-			if (app->keys[SDL_SCANCODE_1])
-				Mix_PlayMusic(app->sfx[0], 0);
-			if (app->keys[SDL_SCANCODE_2])
-				Mix_PlayMusic(app->sfx[1], 0);
-			if (app->keys[SDL_SCANCODE_3])
-				Mix_PlayMusic(app->sfx[2], 0);
 			point_mode_inputs(app);
 			update_points_camera(app->camera);
 			process_points_inputs(app, app->timer->delta);
@@ -158,7 +176,8 @@ void	gamedata_save(t_app *a)
 	if (data == -1)
 		return ;
 	gamedata_write(data, &a->sprites[0], sizeof(t_sprite) * MAX_SPRITE, "T:\0");
-	gamedata_write(data, &a->audio[0], sizeof(t_raw_sfx) * MAX_AUDIO, "A:\0");
+	gamedata_write(data, &a->audio[0], sizeof(t_raw_sfx) * MAX_SFX, "A:\0");
+	gamedata_write(data, &a->music[0], sizeof(t_raw_bg) * MAX_BG, "B:\0");
 	close(data);
 }
 
@@ -193,8 +212,13 @@ void 	gamedata_type_malloc(t_app *a, int fd, char type, uint64_t size)
 	}
 	else if (type == 'A')
 	{
-		a->audio = malloc(sizeof(t_raw_sfx) * MAX_AUDIO);
+		a->audio = malloc(sizeof(t_raw_sfx) * MAX_SFX);
 		read(fd, a->audio, size);
+	}
+	else if (type == 'B')
+	{
+		a->music = malloc(sizeof(t_raw_bg) * MAX_BG);
+		read(fd, a->music, size);
 	}
 }
 
@@ -282,8 +306,8 @@ void	map_load(t_app *a, char *name)
 
 void 	init_game_data(t_app *app)
 {
-	app->audio = (t_raw_sfx *)malloc(sizeof(t_raw_sfx) * MAX_AUDIO);
-	for (int i = 0; i < MAX_AUDIO; i++)
+	app->audio = (t_raw_sfx *)malloc(sizeof(t_raw_sfx) * MAX_SFX);
+	for (int i = 0; i < MAX_SFX; i++)
 	{
 		char	*file_name;
 		char	file_path[100];
@@ -295,9 +319,27 @@ void 	init_game_data(t_app *app)
 		ft_strcat(file_path, ".ogg");
 		SDL_RWops	*raw = SDL_RWFromFile(file_path, "rb");
 		size_t size = SDL_RWsize(raw);
-		printf("%llu\n", size);
 		SDL_RWread(raw, &app->audio[i].mem[0], size, 1);
 		app->audio[i].size = size;
+		SDL_RWclose(raw);
+	}
+
+	app->music = (t_raw_bg *)malloc(sizeof(t_raw_bg) * MAX_BG);
+	for (int i = 0; i < MAX_BG; i++)
+	{
+		char	*file_name;
+		char	file_path[100];
+		file_path[0] = '\0';
+		file_name = ft_itoa(i);
+		ft_strcat(file_path, "resources/music/");
+		ft_strcat(file_path, file_name);
+		ft_strdel(&file_name);
+		ft_strcat(file_path, ".ogg");
+		SDL_RWops	*raw = SDL_RWFromFile(file_path, "rb");
+		size_t size = SDL_RWsize(raw);
+		printf("%llu\n", size);
+		SDL_RWread(raw, &app->music[i].mem[0], size, 1);
+		app->music[i].size = size;
 		SDL_RWclose(raw);
 	}
 

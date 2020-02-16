@@ -58,11 +58,26 @@ void 	init_sfx(t_app *app)
 	int 		i;
 
 	i = 0;
-	app->sfx = (Mix_Music **)malloc(sizeof(Mix_Music *) * MAX_AUDIO);
-	while (i < MAX_AUDIO)
+	app->sfx = (Mix_Music **)malloc(sizeof(Mix_Music *) * MAX_SFX);
+	while (i < MAX_SFX)
 	{
 		raw = SDL_RWFromMem(&app->audio[i].mem[0], app->audio[i].size);
 		app->sfx[i] = Mix_LoadMUSType_RW(raw, MUS_OGG, 1);
+		i++;
+	}
+}
+
+void 	init_bg(t_app *app)
+{
+	SDL_RWops	*raw;
+	int 		i;
+
+	i = 0;
+	app->bg = (Mix_Music **)malloc(sizeof(Mix_Music *) * MAX_BG);
+	while (i < MAX_BG)
+	{
+		raw = SDL_RWFromMem(&app->music[i].mem[0], app->music[i].size);
+		app->bg[i] = Mix_LoadMUSType_RW(raw, MUS_OGG, 1);
 		i++;
 	}
 }
@@ -100,5 +115,6 @@ void	init_app(t_app *app)
 	init_projection_mat(app);
 	app->font = TTF_OpenFont("resources/calibrib.ttf", 14);
 	init_sfx(app);
+	init_bg(app);
 	init_skybox(app);
 }
