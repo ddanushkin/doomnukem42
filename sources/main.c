@@ -54,6 +54,8 @@ void	start_the_game(t_app *app)
 	app->y_acc = 0.0;
 	app->ground = 1;
 	app->height = 1.0;
+	app->falling = 0.0;
+	app->jumped = 0;
 	app->cursor_x = SCREEN_W * 0.5;
 	app->cursor_y = SCREEN_H * 0.5;
 	app->camera->pos.x = 0.0;
@@ -385,7 +387,7 @@ int		main(int argv, char**argc)
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
 
 	app->game_data_init = 0;
-	app->map_init = 0;
+	app->map_init = 1;
 	if (!app->game_data_init)
 		gamedata_load(app);
 	if (!app->map_init)

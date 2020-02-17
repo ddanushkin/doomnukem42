@@ -2,9 +2,9 @@
 
 void 	move_c(t_app *app, t_v3d *pos, t_v3d dir, double amount)
 {
-//	if (!app->camera->fly)
-//		check_collision(app, pos, v3d_mul_by(dir, amount));
-//	else
+	if (!app->camera->fly)
+		check_collision(app, pos, v3d_mul_by(dir, amount));
+	else
 		move(pos, dir, amount);
 }
 
@@ -161,22 +161,31 @@ void	process_inputs(t_app *app, double dt)
 	if (key[SDL_SCANCODE_D])
 		move_c(app, &c->pos, c->right, app->speed * dt);
 
-	double dy = (app->height - fabs(app->floor_point.y - c->pos.y)) * -1.0;
-	printf("dy -> %f\n", dy);
+	double dy;
 
-	if (dy > 0.0)
+	dy = (app->height - fabs(app->floor_point.y - c->pos.y)) * -1.0;
+	//printf("dy -> %f\n", dy);
+
+	if (dy > 0.0 && app->ground == 1)
 		app->ground = 0;
 
-	if (key[SDL_SCANCODE_SPACE] && app->ground)
+	if (app->ground == 0 && !app->jumped)
+		app->falling += dt;
+
+	//printf("[%d, %d, %f]\n", app->ground, app->jumped, app->falling);
+
+	if (app->keys[SDL_SCANCODE_SPACE] && !app->jumped && (app->ground || (app->falling > 0.0 && app->falling < 0.25)))
 	{
 		app->y_vel = 12.0;
+		app->jumped = 1;
 		app->ground = 0;
+		app->falling = 0.0;
 		printf("[%llu] jump\n", app->timer->frame);
 	}
 
 	if (!app->ground && !app->camera->fly)
 	{
-		app->y_acc += 0.5;
+		app->y_acc += 2.5 * dt;
 		app->y_vel -= app->y_acc;
 	}
 	if (app->ground)
@@ -185,35 +194,41 @@ void	process_inputs(t_app *app, double dt)
 		app->y_vel = 0.0;
 	}
 
-	if (app->y_vel != 0.0 && app->y_vel < -6.0)
-		app->y_vel = -6.0;
+	if (app->y_vel != 0.0 && app->y_vel < -12.0)
+		app->y_vel = -12.0;
 
 	if (!app->camera->fly)
 		c->pos.y += app->y_vel * dt;
 
+	dy = (app->height - fabs(app->floor_point.y - c->pos.y)) * -1.0;
 
 	if (dy < 0.0 && app->y_vel < 0.0)
 	{
-		printf("[out][%llu, %f]\n\n", app->timer->frame, app->camera->pos.y - app->floor_point.y);
+		printf("[out][%llu, %f]\n\n", app->timer->frame, dy);
 		c->pos.y = app->floor_point.y + app->height;
+		app->falling = 0.0;
+		app->jumped = 0;
 		app->ground = 1;
 	}
 
 	if (dy < 0.0 && app->y_vel == 0.0)
 	{
-		if (fabs(dy) < 0.51 && fabs(dy) >= 0.25)
+		if (fabs(dy) < 0.90 && fabs(dy) >= 0.25)
 		{
-			printf("[big][%llu, %f]\n\n", app->timer->frame, app->floor_dist);
-			app->y_vel = 6.0;
+			app->y_vel = 5.0;
+			printf("[big][%llu, %f, %f]\n\n", app->timer->frame, dy, app->y_vel);
 			app->ground = 0;
 		}
-		else if (fabs(dy) < 0.25)
+		else if (fabs(dy) < 0.25 && !app->camera->fly)
 		{
-			printf("[small][%llu, %f]\n\n", app->timer->frame, app->floor_dist);
+			printf("[small][%llu, %f]\n\n", app->timer->frame, dy);
 			c->pos.y = app->floor_point.y + app->height;
+			app->falling = 0;
+			app->jumped = 0;
 			app->ground = 1;
 		}
 	}
+
 }
 
 int		event_handling(t_app *app)

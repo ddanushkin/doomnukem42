@@ -14,11 +14,11 @@
 //# define	SCREEN_W 1920
 //# define	SCREEN_H 1080
 
-# define	SCREEN_W 1280
-# define	SCREEN_H 720
+//# define	SCREEN_W 1280
+//# define	SCREEN_H 720
 
-//# define	SCREEN_W 1024
-//# define	SCREEN_H 576
+# define	SCREEN_W 1024
+# define	SCREEN_H 576
 
 //# define	SCREEN_W 640
 //# define	SCREEN_H 360
@@ -511,6 +511,8 @@ typedef struct	s_app
 	uint32_t 	bclr[2];
 	int 		game_data_init;
 	int			map_init;
+	double 		falling;
+	int 		jumped;
 }				t_app;
 
 t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
