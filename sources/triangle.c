@@ -16,8 +16,8 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	vertex_perspective_divide(&v1);
 	vertex_perspective_divide(&v2);
 	vertex_perspective_divide(&v3);
-	if (((app->rw->flip && triangle_area(&v1, &v3, &v2) >= 0.0) ||
-		(!app->rw->flip && triangle_area(&v1, &v3, &v2) < 0.0)) && app->rw->type != decor)
+	if (app->rw->type != decor && !app->is_skybox && ((app->rw->flip && triangle_area(&v1, &v3, &v2) >= 0.0) ||
+		(!app->rw->flip && triangle_area(&v1, &v3, &v2) < 0.0)))
 		return;
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);

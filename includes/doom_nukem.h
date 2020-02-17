@@ -72,7 +72,7 @@
 # define MAX_OBJ	25
 # define MAX_SPRITE 504
 # define MAX_SFX	107
-# define MAX_BG		10
+# define MAX_BG		11
 
 # ifndef MULTITHREAD
 #  ifdef __APPLE__
@@ -437,6 +437,19 @@ typedef struct	s_raw_bg
 	size_t			size;
 }				t_raw_bg;
 
+typedef struct	s_wus
+{
+	double	dx;
+	double	dz;
+	double	dy;
+	double	v0;
+	double	v1;
+	double	v;
+	double	h0;
+	double	h1;
+	double	h;
+}				t_wus;
+
 typedef struct	s_app
 {
 	t_timer		*timer;
@@ -535,6 +548,8 @@ void	draw_sectors(t_app *app);
 void	wall_reset_tex(t_wall *w);
 t_wall	wall_new();
 void 	wall_update_scale(t_wall *w);
+double 	calc_tex(double min, double cur, double max);
+void 	wall_update_tex(t_wall *w);
 void	update_walls_data(t_app *app);
 t_edge	edge_new(t_gradient	g, t_v3d min, t_v3d max, int index);
 void	edge_step(t_edge *edge);

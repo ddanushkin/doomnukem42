@@ -34,7 +34,9 @@ void 	sector_update_height(t_sector *cs, t_v3d *fpts, t_v3d *cpts)
 		cs->walls[i].v[2].y = fpts[cs->walls[i].v[2].i].y;
 		cs->walls[i].v[3].y = cpts[cs->walls[i].v[3].i].y;
 		cs->walls[i].v[1].y = cpts[cs->walls[i].v[1].i].y;
-		wall_update_scale(&cs->walls[i++]);
+		wall_update_scale(&cs->walls[i]);
+		wall_update_tex(&cs->walls[i]);
+		i++;
 	}
 	i = 0;
 	while (i < cs->trs_count)
@@ -181,6 +183,8 @@ void 	sector_close(t_app *app, t_sector *s)
 	get_sector_min_max(s);
 	s->floor.sx = fabs(s->x_min - s->x_max) * 0.5;
 	s->floor.sy = fabs(s->z_min - s->z_max) * 0.5;
+	s->ceil.sx = fabs(s->x_min - s->x_max) * 0.5;
+	s->ceil.sy = fabs(s->z_min - s->z_max) * 0.5;
 	triangulate(&s->ftrs[0], &s->trs_count, points_to_list(s));
 	copy_triangles(s);
 	sector_make_walls(s);

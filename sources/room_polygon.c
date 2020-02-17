@@ -2,6 +2,8 @@
 
 double 	calc_tex(double min, double cur, double max)
 {
+	if (max - min == 0.0)
+		return (0.0);
 	return ((cur - min)/(max - min));
 }
 

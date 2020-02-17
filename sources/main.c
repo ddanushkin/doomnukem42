@@ -100,7 +100,9 @@ void	start_the_game(t_app *app)
 			Mix_PlayMusic(app->bg[8], -1);
 		if (app->keys[SDL_SCANCODE_0])
 			Mix_PlayMusic(app->bg[9], -1);
-		if (app->keys[SDL_SCANCODE_MINUS])
+		if (app->keys[SDL_SCANCODE_F1])
+			Mix_PlayMusic(app->bg[10], -1);
+		if (app->keys[SDL_SCANCODE_F2])
 			Mix_HaltMusic();
 
 		if (app->point_mode)

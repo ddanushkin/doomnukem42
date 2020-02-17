@@ -34,13 +34,48 @@ t_wall	wall_new()
 
 void 	wall_update_scale(t_wall *w)
 {
-	double	dx;
-	double	dz;
+	t_wus d;
 
-	dx = fabs(w->v[0].x - w->v[1].x);
-	dz = fabs(w->v[0].z - w->v[1].z);
-	w->sx = (dx + dz) * 0.5;
-	w->sy = fabs(w->v[0].y - w->v[1].y) * 0.5;
+	d.dx = fabs(w->v[0].x - w->v[3].x);
+	d.dz = fabs(w->v[0].z - w->v[3].z);
+	d.dy = fabs(w->v[0].y - w->v[3].y);
+	d.v0 = sqrt(d.dx * d.dx + d.dy * d.dy + d.dz * d.dz);
+	d.dx = fabs(w->v[2].x - w->v[1].x);
+	d.dz = fabs(w->v[2].z - w->v[1].z);
+	d.dy = fabs(w->v[2].y - w->v[1].y);
+	d.v1 = sqrt(d.dx * d.dx + d.dy * d.dy + d.dz * d.dz);
+	d.dx = fabs(w->v[0].x - w->v[2].x);
+	d.dz = fabs(w->v[0].z - w->v[2].z);
+	d.dy = fabs(w->v[0].y - w->v[2].y);
+	d.h0 = sqrt(d.dx * d.dx + d.dy * d.dy + d.dz * d.dz);
+	d.dx = fabs(w->v[3].x - w->v[1].x);
+	d.dz = fabs(w->v[3].z - w->v[1].z);
+	d.dy = fabs(w->v[3].y - w->v[1].y);
+	d.h1 = sqrt(d.dx * d.dx + d.dy * d.dy + d.dz * d.dz);
+	d.v = MAX(d.v0, d.v1);
+	d.h = MIN(d.h0, d.h1);
+	w->sy = d.v * 0.5;
+	w->sx = d.h * 0.5;
+}
+
+void 	wall_update_tex(t_wall *w)
+{
+	double	dy0;
+	double	dy1;
+
+	dy0 = fabs(w->v[0].y - w->v[3].y);
+	dy1 = fabs(w->v[2].y - w->v[1].y);
+	wall_reset_tex(w);
+	if (dy0 > dy1)
+	{
+		w->v[2].tex_y = calc_tex(w->v[0].y, w->v[2].y, w->v[3].y);
+		w->v[1].tex_y = calc_tex(w->v[0].y, w->v[1].y, w->v[3].y);
+	}
+	else
+	{
+		w->v[0].tex_y = calc_tex(w->v[2].y, w->v[0].y, w->v[1].y);
+		w->v[3].tex_y = calc_tex(w->v[2].y, w->v[3].y, w->v[1].y);
+	}
 }
 
 void	update_walls_data(t_app *app)
