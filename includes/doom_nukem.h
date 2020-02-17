@@ -264,6 +264,7 @@ typedef struct	s_camera
 	t_v3d		up;
 	t_v3d		right;
 	int			fly;
+	double 		prev_y;
 }				t_camera;
 
 typedef struct	s_timer
@@ -439,15 +440,15 @@ typedef struct	s_raw_bg
 
 typedef struct	s_wus
 {
-	double	dx;
-	double	dz;
-	double	dy;
-	double	v0;
-	double	v1;
-	double	v;
-	double	h0;
-	double	h1;
-	double	h;
+	double		dx;
+	double		dz;
+	double		dy;
+	double		v0;
+	double		v1;
+	double		v;
+	double		h0;
+	double		h1;
+	double		h;
 }				t_wus;
 
 typedef struct	s_app
@@ -465,6 +466,7 @@ typedef struct	s_app
 	t_wall		*hit_wall;
 	t_v3d		hit_point;
 	t_sector	*hit_sector;
+	t_sector	*floor_sector;
 	double 		hit_dist;
 	int 		edge_selected;
 	t_wall		edit_wall;
@@ -479,11 +481,11 @@ typedef struct	s_app
 	t_screen_chunk	*screen_chunk_array;
 	int 		is_skybox;
 	double		height;
-	double 		prev_y;
+	double 		y_vel;
+	double 		y_acc;
 	double 		speed;
 	double		acc;
-	double		fall;
-	double 		jump;
+	int 		ground;
 	t_v3d 		floor_point;
 	double		floor_dist;
 	int			point_mode;

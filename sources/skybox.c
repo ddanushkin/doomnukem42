@@ -94,6 +94,7 @@ void 	render_skybox(t_app *app, t_skybox s)
 	tr = get_transform_matrix(matrix_multiply(app->camera->projection, tr));
 	w = wall_new();
 	w.sprite = 100;
+	w.shade = 0;
 	app->rw = &w;
 	s.v[0] = matrix_transform(tr, s.v[0]);
 	s.v[1] = matrix_transform(tr, s.v[1]);

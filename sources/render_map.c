@@ -203,6 +203,7 @@ void	render_map(t_app *app)
 	app->floor_dist = 10000.0;
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
+	app->floor_sector = NULL;
 	while (i < app->sectors_count)
 	{
 		app->cs = &app->sectors[i];

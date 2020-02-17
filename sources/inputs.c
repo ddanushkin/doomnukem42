@@ -84,8 +84,6 @@ void	point_mode_sector_save(t_app *app)
 void	live_mode_toggle_fly(t_app *app)
 {
 	app->camera->fly = !app->camera->fly;
-	if (!app->camera->fly)
-		app->fall = app->camera->pos.y - app->floor_point.y - app->height;
 }
 
 void	live_edit_change_floor_h(t_app *app)
@@ -284,11 +282,11 @@ void	live_mode_inputs(t_app *app)
 			live_edit_wall_top(app);
 		else if (app->inputs->keyboard[SDL_SCANCODE_E] && app->hit_type == wall)
 			live_edit_wall_bot(app);
-		if (app->keys[SDL_SCANCODE_R])
-			live_mode_toggle_fly(app);
 		if (app->keys[SDL_SCANCODE_I])
 			live_edit_sector_io(app);
 		if (app->inputs->keyboard[SDL_SCANCODE_O])
 			live_mode_wall_offset(app);
 	}
+	if (app->keys[SDL_SCANCODE_R])
+		live_mode_toggle_fly(app);
 }

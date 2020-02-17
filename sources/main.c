@@ -50,8 +50,9 @@ void	start_the_game(t_app *app)
 	app->hit_sector = NULL;
 	app->speed = 4.54321;
 	app->acc = 0.0;
-	app->jump = 0.0;
-	app->fall = 0.0;
+	app->y_vel = 0.0;
+	app->y_acc = 0.0;
+	app->ground = 1;
 	app->height = 1.0;
 	app->cursor_x = SCREEN_W * 0.5;
 	app->cursor_y = SCREEN_H * 0.5;
@@ -67,7 +68,7 @@ void	start_the_game(t_app *app)
 	switch_mode(app);
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	Mix_PlayMusic(app->bg[5], -1);
+	//Mix_PlayMusic(app->bg[5], -1);
 	while (1)
 	{
 		get_delta_time(app->timer);
