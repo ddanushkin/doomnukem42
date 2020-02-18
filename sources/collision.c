@@ -1,27 +1,53 @@
 #include "doom_nukem.h"
 
-int is_colliding(t_v3d c0, double radius, t_v3d v0, t_v3d v1)
+void 		coll_t1_t2(t_coll_data	*c, t_v3d* v)
 {
-	double	dist;
-	double	u;
-	t_v3d	v1v0;
-	t_v3d	c0v0;
-	t_v3d	tmp;
+	double	min;
+	double	max;
+	int 	div;
 
-	v1v0 = v3d_sub(v1, v0);
-	c0v0 = v3d_sub(c0, v0);
-	u = (c0v0.x * v1v0.x + c0v0.z * v1v0.z) /
-		(v1v0.z * v1v0.z + v1v0.x * v1v0.x);
-	if (u >= 0.0 && u <= 1.0)
+	div = 0;
+	c->y = 0.0;
+	max = MAX(v[3].y, v[1].y);
+	min = MIN(v[3].y, v[1].y);
+	c->t1 = (-c->b - sqrt(c->d)) / (2.0 * c->a);
+	c->t2 = (-c->b + sqrt(c->d)) / (2.0 * c->a);
+	if (c->t1 < 1 && c->t1 > 0)
 	{
-		dist = (v0.x + v1v0.x * u - c0.x) * (v0.x + v1v0.x * u - c0.x) +
-			   (v0.z + v1v0.z * u - c0.z) * (v0.z + v1v0.z * u - c0.z);
-	} else
-	{
-		tmp = u < 0.0 ? v3d_sub(v0, c0) : v3d_sub(v1, c0);
-		dist = (tmp.x * tmp.x) + (tmp.z * tmp.z);
+		c->y += max * (1.0 - c->t1) + c->t1 * min;
+		c->coll = 1;
 	}
-	return (dist < (radius * radius));
+	if (c->y != 0.0)
+		div = 1;
+	if (c->t2 < 1 && c->t2 > 0)
+	{
+		c->y += max * (1.0 - c->t2) + c->t2 * min;
+		c->coll = 1;
+		if (div)
+			c->y *= 0.5;
+	}
+}
+
+t_coll_data	is_colliding(t_v3d c0, double radius, t_v3d* v)
+{
+	t_v3d		dp;
+	t_coll_data	c;
+
+	c.coll = 0;
+	c0.y = MIN(v[0].y, v[2].y) + fabs(v[0].y - v[2].y) * 0.5;
+	dp = v3d_sub(v[2], v[0]);
+	c.a = v3d_dot(dp, dp);
+	c.b = 2.0 *
+		(v3d_dot(v[0], dp) - dp.x * c0.x - dp.y * c0.y - dp.z * c0.z);
+	c.c = v[0].x * v[0].x -
+		2 * v[0].x * c0.x + c0.x * c0.x + v[0].y * v[0].y -
+		2 * v[0].y * c0.y + c0.y * c0.y + v[0].z * v[0].z -
+		2 * v[0].z * c0.z + c0.z * c0.z - radius * radius;
+	c.d = c.b * c.b - 4 * c.a * c.c;
+	if (c.d < 0)
+		return (c);
+	coll_t1_t2(&c, v);
+	return (c);
 }
 
 t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2)
@@ -31,18 +57,20 @@ t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2)
 
 int		wall_check_collision(t_wall *w, t_v3d *pos, t_v3d *f)
 {
-	int		collide;
-	t_v3d	normal;
+	t_coll_data	c;
+	t_v3d		normal;
 
-	collide = is_colliding(v3d_sum(*pos, *f), 0.15, w->v[2], w->v[0]);
-	if (collide)
+	c = is_colliding(*pos, 0.15, &w->v[0]);
+	if (c.coll && (pos->y - 0.3) >= c.y)
+		return (0);
+	if (c.coll)
 	{
 		normal = get_triangle_normal(w->v[1], w->v[2], w->v[0]);
 		normal = v3d_mul_by(normal, v3d_dot(*f, normal));
 		*f = v3d_sub(*f, normal);
 		*pos = v3d_sub(*pos, normal);
 	}
-	return (collide);
+	return (c.coll);
 }
 
 void 	stop_collision(t_v3d *pos, t_v3d prev)
@@ -68,7 +96,7 @@ void 	check_collision(t_app *app, t_v3d *pos, t_v3d dir)
 		while (j < app->sectors[i].walls_count)
 		{
 			w = &app->sectors[i].walls[j++];
-			if (w->active)
+			if (w->active && (pos->y + 0.25) > MIN(w->v[0].y, w->v[2].y))
 				count += wall_check_collision(w, pos, &dir);
 			if (count >= 2)
 				return (stop_collision(pos, prev));

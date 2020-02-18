@@ -66,6 +66,8 @@
 # define SDL_MOUSE_SCROLL_DOWN 5
 # define THREADS_N 8
 
+# define PLAYER_HEIGHT 1.0
+
 # define MAX_SECTOR 100
 # define MAX_WALL	50
 # define MAX_DECOR	25
@@ -451,6 +453,18 @@ typedef struct	s_wus
 	double		h;
 }				t_wus;
 
+typedef struct	s_coll_data
+{
+	double		a;
+	double		b;
+	double		c;
+	double		d;
+	double		t1;
+	double		t2;
+	double		y;
+	int 		coll;
+}				t_coll_data;
+
 typedef struct	s_app
 {
 	t_timer		*timer;
@@ -513,6 +527,7 @@ typedef struct	s_app
 	int			map_init;
 	double 		falling;
 	int 		jumped;
+	t_v3d 		move;
 }				t_app;
 
 t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);

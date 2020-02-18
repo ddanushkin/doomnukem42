@@ -152,6 +152,7 @@ void	process_inputs(t_app *app, double dt)
 		c->rot.x += (double)mouse->y * mouse_speed;
 	if (!app->point_mode)
 		c->rot.x = CLAMP(c->rot.x, -1.45, 1.45);
+
 	if (key[SDL_SCANCODE_W])
 		move_c(app, &c->pos, c->forward, app->speed * dt);
 	if (key[SDL_SCANCODE_S])
@@ -161,8 +162,20 @@ void	process_inputs(t_app *app, double dt)
 	if (key[SDL_SCANCODE_D])
 		move_c(app, &c->pos, c->right, app->speed * dt);
 
-	double dy;
+	if (key[SDL_SCANCODE_LCTRL] && app->height > 0.5)
+	{
+		app->height -= 2.5 * dt;
+		if (app->height < 0.5)
+			app->height = 0.5;
+	}
+	else if(!key[SDL_SCANCODE_LCTRL] && app->height < PLAYER_HEIGHT)
+	{
+		app->height += 2.5 * dt;
+		if (app->height > PLAYER_HEIGHT)
+			app->height = PLAYER_HEIGHT;
+	}
 
+	double	dy;
 	dy = (app->height - fabs(app->floor_point.y - c->pos.y)) * -1.0;
 	//printf("dy -> %f\n", dy);
 
@@ -213,7 +226,7 @@ void	process_inputs(t_app *app, double dt)
 
 	if (dy < 0.0 && app->y_vel == 0.0)
 	{
-		if (fabs(dy) < 0.90 && fabs(dy) >= 0.25)
+		if (fabs(dy) < 0.7 && fabs(dy) >= 0.25)
 		{
 			app->y_vel = 5.0;
 			printf("[big][%llu, %f, %f]\n\n", app->timer->frame, dy, app->y_vel);
@@ -228,7 +241,6 @@ void	process_inputs(t_app *app, double dt)
 			app->ground = 1;
 		}
 	}
-
 }
 
 int		event_handling(t_app *app)
