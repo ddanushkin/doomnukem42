@@ -480,7 +480,6 @@ typedef struct	s_app
 	t_wall		*hit_wall;
 	t_v3d		hit_point;
 	t_sector	*hit_sector;
-	t_sector	*floor_sector;
 	double 		hit_dist;
 	int 		edge_selected;
 	t_wall		edit_wall;
@@ -502,6 +501,10 @@ typedef struct	s_app
 	int 		ground;
 	t_v3d 		floor_point;
 	double		floor_dist;
+	t_sector	*floor_sector;
+	t_v3d 		ceil_point;
+	double		ceil_dist;
+	t_sector	*ceil_sector;
 	int			point_mode;
 	t_v3d		points[MAX_WALL];
 	int			points_count;
@@ -583,6 +586,7 @@ void	polygon_add(t_polygon **poly, t_v3d v);
 void	scan_triangle(t_v3d min, t_v3d mid, t_v3d max, t_render *r);
 int		ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 int		ray_floor(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
+int		ray_ceil(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void	vr_list_add(t_vr_list **list, t_v3d v);
 void 	vr_list_free(t_vr_list **list);
 t_vr_list	*vr_list_last(t_vr_list *head);

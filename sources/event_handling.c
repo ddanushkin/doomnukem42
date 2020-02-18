@@ -162,21 +162,23 @@ void	process_inputs(t_app *app, double dt)
 	if (key[SDL_SCANCODE_D])
 		move_c(app, &c->pos, c->right, app->speed * dt);
 
+	int head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < app->height;
+//	if (app->ceil_sector)
+//		printf("diff -> [%f]\n\n", fabs(c->pos.y - app->ceil_point.y));
+
 	if (key[SDL_SCANCODE_LCTRL] && app->height > 0.5)
-	{
 		app->height -= 2.5 * dt;
-		if (app->height < 0.5)
-			app->height = 0.5;
-	}
-	else if(!key[SDL_SCANCODE_LCTRL] && app->height < PLAYER_HEIGHT)
-	{
+	else if(!key[SDL_SCANCODE_LCTRL] && app->height < PLAYER_HEIGHT && !head_too_high)
 		app->height += 2.5 * dt;
-		if (app->height > PLAYER_HEIGHT)
-			app->height = PLAYER_HEIGHT;
-	}
+
+	if (head_too_high)
+		app->height -= (app->height - fabs(app->floor_point.y + app->height - app->ceil_point.y)) * dt;
+
+	app->height = CLAMP(app->height, 0.5, PLAYER_HEIGHT);
 
 	double	dy;
 	dy = (app->height - fabs(app->floor_point.y - c->pos.y)) * -1.0;
+
 	//printf("dy -> %f\n", dy);
 
 	if (dy > 0.0 && app->ground == 1)
@@ -201,6 +203,10 @@ void	process_inputs(t_app *app, double dt)
 		app->y_acc += 2.5 * dt;
 		app->y_vel -= app->y_acc;
 	}
+
+	if (!app->camera->fly && app->y_vel > 0.0 && head_too_high)
+		app->y_vel *= -1;
+
 	if (app->ground)
 	{
 		app->y_acc = 0.0;

@@ -96,7 +96,7 @@ void 	check_collision(t_app *app, t_v3d *pos, t_v3d dir)
 		while (j < app->sectors[i].walls_count)
 		{
 			w = &app->sectors[i].walls[j++];
-			if (w->active && (pos->y + 0.25) > MIN(w->v[0].y, w->v[2].y))
+			if ((w->active && (pos->y + 0.25) > MIN(w->v[0].y, w->v[2].y)))
 				count += wall_check_collision(w, pos, &dir);
 			if (count >= 2)
 				return (stop_collision(pos, prev));

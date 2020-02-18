@@ -136,6 +136,8 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 		app->hit_first = 1;
 	if (!app->camera->fly)
 		ray_floor(app, tr->v[0], tr->v[1], tr->v[2]);
+	if (!app->camera->fly)
+		ray_ceil(app, tr->v[0], tr->v[1], tr->v[2]);
 }
 
 void 	render_wall(register t_app *app, register t_wall *w)
@@ -201,9 +203,11 @@ void	render_map(t_app *app)
 	i = 0;
 	app->hit_dist = 10000.0;
 	app->floor_dist = 10000.0;
+	app->ceil_dist = 10000.0;
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
 	app->floor_sector = NULL;
+	app->ceil_sector = NULL;
 	while (i < app->sectors_count)
 	{
 		app->cs = &app->sectors[i];
