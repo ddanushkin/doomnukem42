@@ -17,11 +17,11 @@
 //# define	SCREEN_W 1280
 //# define	SCREEN_H 720
 
-# define	SCREEN_W 1024
-# define	SCREEN_H 576
+//# define	SCREEN_W 1024
+//# define	SCREEN_H 576
 
-//# define	SCREEN_W 640
-//# define	SCREEN_H 360
+# define	SCREEN_W 640
+# define	SCREEN_H 360
 
 //# define	SCREEN_W 480
 //# define	SCREEN_H 270
@@ -129,6 +129,7 @@ typedef struct	s_wall
 	int 		decor;
 	int			active;
 	int			flip;
+//	uint8_t		lm[65536];
 	enum e_hit_type	type;
 }				t_wall;
 

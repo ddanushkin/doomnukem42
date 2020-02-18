@@ -232,7 +232,7 @@ void	process_inputs(t_app *app, double dt)
 
 	if (dy < 0.0 && app->y_vel == 0.0)
 	{
-		if (fabs(dy) < 0.7 && fabs(dy) >= 0.25)
+		if (fabs(dy) < 0.85 && fabs(dy) >= 0.25)
 		{
 			app->y_vel = 5.0;
 			printf("[big][%llu, %f, %f]\n\n", app->timer->frame, dy, app->y_vel);
@@ -243,10 +243,12 @@ void	process_inputs(t_app *app, double dt)
 			printf("[small][%llu, %f]\n\n", app->timer->frame, dy);
 			c->pos.y = app->floor_point.y + app->height;
 			app->falling = 0;
-			app->jumped = 0;
 			app->ground = 1;
 		}
 	}
+
+//	if (!app->camera->fly && prev.y != c->pos.y)
+//		check_collision(app, &c->pos, v3d_mul_by(new_vector(0.0, 1.0, 0.0), app->y_vel * dt));
 }
 
 int		event_handling(t_app *app)
