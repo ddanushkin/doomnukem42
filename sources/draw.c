@@ -71,8 +71,8 @@ void	clip_point_by_z(t_v3d *v)
 
 void 	draw_line_3d(t_app *app, t_v3d start, t_v3d end, uint32_t c)
 {
-	t_v3d		tmp1;
-	t_v3d		tmp2;
+	t_v3d	tmp1;
+	t_v3d	tmp2;
 
 	tmp1 = start;
 	tmp2 = end;
@@ -80,21 +80,6 @@ void 	draw_line_3d(t_app *app, t_v3d start, t_v3d end, uint32_t c)
 	tmp2.y = 0.0;
 	tmp1 = matrix_transform(app->camera->transform, tmp1);
 	tmp2 = matrix_transform(app->camera->transform, tmp2);
-
-//	if (fabs(tmp1.x) > tmp1.w)
-//		clip_point_by_x(&tmp1);
-//	if (fabs(tmp1.z) > tmp1.w)
-//		clip_point_by_z(&tmp1);
-//	if (fabs(tmp1.y) > tmp1.w)
-//		clip_point_by_y(&tmp1);
-//
-//	if (fabs(tmp2.x) > tmp2.w)
-//		clip_point_by_x(&tmp1);
-//	if (fabs(tmp2.z) > tmp2.w)
-//		clip_point_by_z(&tmp1);
-//	if (fabs(tmp2.y) > tmp2.w)
-//		clip_point_by_y(&tmp1);
-
 	if (vertex_inside(&tmp1) &&
 		vertex_inside(&tmp2))
 	{

@@ -14,14 +14,14 @@
 //# define	SCREEN_W 1920
 //# define	SCREEN_H 1080
 
-//# define	SCREEN_W 1280
-//# define	SCREEN_H 720
+# define	SCREEN_W 1280
+# define	SCREEN_H 720
 
 //# define	SCREEN_W 1024
 //# define	SCREEN_H 576
 
-# define	SCREEN_W 640
-# define	SCREEN_H 360
+//# define	SCREEN_W 640
+//# define	SCREEN_H 360
 
 //# define	SCREEN_W 480
 //# define	SCREEN_H 270
@@ -67,6 +67,7 @@
 # define THREADS_N 8
 
 # define PLAYER_HEIGHT 1.0
+# define PLAYER_SPEED 5.0
 
 # define MAX_SECTOR 100
 # define MAX_WALL	50
@@ -531,7 +532,8 @@ typedef struct	s_app
 	int			map_init;
 	double 		falling;
 	int 		jumped;
-	t_v3d 		move;
+	t_v3d		last_dir;
+	int 		si;
 }				t_app;
 
 t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
@@ -547,7 +549,7 @@ void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
 void 	point_draw(t_app *app, t_v3d p, Uint32 c);
 t_v3d	point_save(t_app *app, double x, double z, int grid);
 int		switch_mode(t_app *app);
-double	triangle_area(t_v3d *a, t_v3d *b, t_v3d *c);
+double	tr_area(t_v3d *a, t_v3d *b, t_v3d *c);
 int 	line_intersection(t_v3d v0, t_v3d v1, t_v3d v2, t_v3d v3);
 void	points_add_check(t_v3d *points, int *size);
 void 	sector_pts_h(t_v3d *pts, int size, double amount);

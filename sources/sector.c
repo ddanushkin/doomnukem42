@@ -55,7 +55,7 @@ void 	sector_update_height(t_sector *cs, t_v3d *fpts, t_v3d *cpts)
 	cs->delta_y = cs->ceil_y - cs->floor_y;
 }
 
-void 	sector_copy_points(t_sector *s, t_v3d *p, int len)
+void 	sector_copy_v_1(t_sector *s, t_v3d *p, int len)
 {
 	int		i;
 
@@ -71,6 +71,35 @@ void 	sector_copy_points(t_sector *s, t_v3d *p, int len)
 		i++;
 	}
 	s->pts_count = len;
+}
+
+void 	sector_copy_v_2(t_sector *s, t_v3d *p, int len)
+{
+	int		i;
+	int 	j;
+
+	i = len - 1;
+	j = 0;
+	while (i >= 0)
+	{
+		s->fpts[j] = p[i];
+		s->fpts[j].y = s->floor_y;
+		s->fpts[j].i = i;
+		s->cpts[j] = p[i];
+		s->cpts[j].y = s->ceil_y;
+		s->cpts[j].i = i;
+		i--;
+		j++;
+	}
+	s->pts_count = len;
+}
+
+void 	sector_copy_points(t_sector *s, t_v3d *p, int len)
+{
+	if (get_orientation(p, len) < 0)
+		sector_copy_v_1(s, p, len);
+	else
+		sector_copy_v_2(s, p, len);
 }
 
 void 	get_sector_min_max(t_sector *s)
@@ -149,7 +178,9 @@ void 	copy_triangles(t_sector *s)
 	i = 0;
 	while (i < s->trs_count)
 	{
+		SWAP(s->ftrs[i].v[0], s->ftrs[i].v[2], t_v3d);
 		tr = s->ftrs[i];
+		SWAP(tr.v[0], tr.v[2], t_v3d);
 		tr.v[0].y = s->ceil_y;
 		tr.v[1].y = s->ceil_y;
 		tr.v[2].y = s->ceil_y;

@@ -124,6 +124,8 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 	t_v3d	v1;
 	t_v3d	v2;
 
+	if (!w->active)
+		return ;
 	v0 = matrix_transform(app->camera->transform, tr->v[0]);
 	v1 = matrix_transform(app->camera->transform, tr->v[1]);
 	v2 = matrix_transform(app->camera->transform, tr->v[2]);
@@ -131,13 +133,11 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 				(vertex_inside(&v1) << 16u) +
 				(vertex_inside(&v2) << 8u) + 1u;
 	app->rw = w;
-	render_triangle_0(app, v0, v1, v2);
-	if (!app->edge_selected && ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]))
+	if (ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]))
 		app->hit_first = 1;
 	if (!app->camera->fly)
-		ray_floor(app, tr->v[0], tr->v[1], tr->v[2]);
-	if (!app->camera->fly)
 		ray_ceil(app, tr->v[0], tr->v[1], tr->v[2]);
+	render_triangle_0(app, v0, v1, v2);
 }
 
 void 	render_wall(register t_app *app, register t_wall *w)
@@ -159,19 +159,23 @@ void 	render_wall(register t_app *app, register t_wall *w)
 	app->rw = w;
 	render_triangle_0(app, v0, v1, v2);
 	render_triangle_1(app, v0, v3, v1);
-	if (!app->edge_selected)
-	{
-		if (ray_intersect(app, w->v[0], w->v[1], w->v[2]))
-			app->hit_first = 1;
-		else if (ray_intersect(app, w->v[0], w->v[3], w->v[1]))
-			app->hit_first = 0;
-	}
+	if (ray_intersect(app, w->v[0], w->v[1], w->v[2]))
+		app->hit_first = 1;
+	else if (ray_intersect(app, w->v[0], w->v[3], w->v[1]))
+		app->hit_first = 0;
 }
 
 void 	render_sector(t_app *app, t_sector *s)
 {
 	int			j;
 
+	j = 0;
+	while (j < s->trs_count)
+	{
+		ray_floor(app, s->ftrs[j].v[0], s->ftrs[j].v[1], s->ftrs[j].v[2]);
+		ray_floor(app, s->ctrs[j].v[0], s->ctrs[j].v[1], s->ctrs[j].v[2]);
+		j++;
+	}
 	j = 0;
 	app->render_type = obj;
 	while (j < s->objs_count)
@@ -184,15 +188,12 @@ void 	render_sector(t_app *app, t_sector *s)
 	app->render_type = decor;
 	while (j < s->decor_count)
 		render_wall(app, &s->decor[j++]);
-	if (s->ready && s->trs_count > 0)
+	j = 0;
+	app->render_type = floor_ceil;
+	while (j < s->trs_count)
 	{
-		j = 0;
-		app->render_type = floor_ceil;
-		while (j < s->trs_count)
-		{
-			render_floor_ceil(app, &s->ftrs[j], &s->floor);
-			render_floor_ceil(app, &s->ctrs[j++], &s->ceil);
-		}
+		render_floor_ceil(app, &s->ftrs[j], &s->floor);
+		render_floor_ceil(app, &s->ctrs[j++], &s->ceil);
 	}
 }
 
@@ -213,5 +214,5 @@ void	render_map(t_app *app)
 		app->cs = &app->sectors[i];
 		render_sector(app, &app->sectors[i++]);
 	}
-	render_skybox(app, app->skybox);
+	//render_skybox(app, app->skybox);
 }

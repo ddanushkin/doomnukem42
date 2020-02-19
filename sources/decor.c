@@ -31,7 +31,7 @@ void 	decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam)
 	w = &cs->decor[cs->decor_next];
 	*w = wall_new();
 	w->type = decor;
-	if (triangle_area(&hit_w->v[0], &hit_w->v[1], &hit_w->v[2]) >= 0.0)
+	if (tr_area(&hit_w->v[0], &hit_w->v[1], &hit_w->v[2]) >= 0.0)
 		w->flip = 1;
 	w->shade = cs->shade;
 	dx = hit_w->v[1].x - hit_w->v[0].x;

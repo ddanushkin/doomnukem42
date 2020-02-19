@@ -196,9 +196,6 @@ void 	sector_flip_walls(t_sector *s)
 
 void	live_edit_sector_io(t_app *app)
 {
-	sector_flip_walls(app->hit_sector);
-	app->hit_sector->floor.flip = !app->hit_sector->floor.flip;
-	app->hit_sector->ceil.flip = !app->hit_sector->ceil.flip;
 	app->hit_sector->inside = !app->hit_sector->inside;
 }
 

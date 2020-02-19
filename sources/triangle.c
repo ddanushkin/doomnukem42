@@ -1,6 +1,6 @@
 #include "doom_nukem.h"
 
-double	triangle_area(t_v3d *a, t_v3d *b, t_v3d *c)
+double	tr_area(t_v3d *a, t_v3d *b, t_v3d *c)
 {
 	return ((b->x - a->x) * (c->y - a->y) -
 			(c->x - a->x) * (b->y - a->y));
@@ -9,6 +9,7 @@ double	triangle_area(t_v3d *a, t_v3d *b, t_v3d *c)
 void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 {
 	t_render	r;
+	double		ta;
 
 	v1 = matrix_transform(app->camera->screen_space, v1);
 	v2 = matrix_transform(app->camera->screen_space, v2);
@@ -16,8 +17,10 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	vertex_perspective_divide(&v1);
 	vertex_perspective_divide(&v2);
 	vertex_perspective_divide(&v3);
-	if (app->rw->type != decor && !app->is_skybox && ((app->rw->flip && triangle_area(&v1, &v3, &v2) >= 0.0) ||
-		(!app->rw->flip && triangle_area(&v1, &v3, &v2) < 0.0)))
+
+	ta = tr_area(&v1, &v2, &v3);
+	if (!app->is_skybox && app->rw->type != decor &&
+		(app->cs->inside ? ta < 0.0 : ta >= 0.0))
 		return;
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
@@ -26,7 +29,7 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
 	r.t = &app->sprites[app->rw->sprite].pixels[0];
-	r.handedness = triangle_area(&v1, &v3, &v2) >= 0.0;
+	r.handedness = tr_area(&v1, &v3, &v2) >= 0.0;
 	r.depth = &app->depth_buffer[0];
 	r.screen = &app->screen[0];
 	r.scale_x = app->rw->sx;

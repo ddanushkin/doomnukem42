@@ -48,7 +48,7 @@ void	start_the_game(t_app *app)
 {
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
-	app->speed = 4.54321;
+	app->speed = PLAYER_SPEED;
 	app->acc = 0.0;
 	app->y_vel = 0.0;
 	app->y_acc = 0.0;
@@ -66,6 +66,12 @@ void	start_the_game(t_app *app)
 	app->bflag = 0;
 	app->bclr[0] = 0xff0000;
 	app->bclr[1] = 0x00ff00;
+	app->si = 0;
+
+	double	dt;
+
+	dt = 0.0;
+
 	prepare_chunks(app);
 	switch_mode(app);
 
@@ -108,6 +114,15 @@ void	start_the_game(t_app *app)
 		if (app->keys[SDL_SCANCODE_F2])
 			Mix_HaltMusic();
 
+		if (app->keys[SDL_SCANCODE_F5])
+			app->si--;
+		if (app->keys[SDL_SCANCODE_F6])
+			app->si++;
+		if (app->si < 0)
+			app->si = MAX_SFX - 1;
+		if (app->si >= MAX_SFX)
+			app->si = 0;
+
 		if (app->point_mode)
 		{
 			point_mode_inputs(app);
@@ -120,19 +135,29 @@ void	start_the_game(t_app *app)
 			if (app->points_count > 0)
 				draw_points(app, &app->points[0], app->points_count);
 			draw_point_mode(app);
+			update_fps_text(app);
+			update_walls_data(app);
+			SDL_UpdateWindowSurface(app->sdl->window);
+			reset_screen(app);
 		}
 		else
 		{
+			dt += app->timer->delta;
 			live_mode_inputs(app);
 			update_camera(app, app->camera);
 			process_inputs(app, app->timer->delta);
-			render_map(app);
-			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
+			if (dt > 0.033)
+			{
+				app->timer->delta = 0.033;
+				render_map(app);
+				draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
+				dt = 0.0;
+				update_fps_text(app);
+				update_walls_data(app);
+				SDL_UpdateWindowSurface(app->sdl->window);
+				reset_screen(app);
+			}
 		}
-		update_fps_text(app);
-		update_walls_data(app);
-		SDL_UpdateWindowSurface(app->sdl->window);
-		reset_screen(app);
 	}
 	TTF_CloseFont(app->font);
 	TTF_Quit();

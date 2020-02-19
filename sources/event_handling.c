@@ -45,12 +45,17 @@ t_mat4x4 view_matrix(t_v3d eye, double pitch, double yaw)
 
 void	get_head(t_app *app)
 {
-	if (app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc < 1.4)
-		app->acc += 0.25;
-	if (!app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc > 1.0)
-		app->acc -= 0.50;
-	app->acc = CLAMP(app->acc, 0.5, 1.4);
-	app->speed = 4.54321 * app->acc;
+	if (app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc < 3.5)
+		app->acc += 5.5 * app->timer->delta;
+	if (!app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc > 0)
+		app->acc -= 5.5 * app->timer->delta;
+
+	if (app->acc < 0.0)
+		app->acc = 0.0;
+	if (app->acc > 3.5)
+		app->acc = 3.5;
+
+	app->speed = PLAYER_SPEED + app->acc;
 }
 
 void 	update_points_camera(t_camera *c)
@@ -88,9 +93,11 @@ void 	update_camera(t_app *app, t_camera *c)
 	if (acos(c->dir.z) > 1.570796 && c->quad != 0 && c->quad != 4)
 		c->quad = 8 - c->quad;
 	c->right = new_vector(c->view.m[0], c->view.m[1], c->view.m[2]);
-	c->forward = new_vector(c->view.m[8], c->view.m[9], c->view.m[10]);
+
 	if (!c->fly)
-		c->forward.y = 0.0;
+		c->forward = new_vector(sin(app->camera->rot.y), 0, cos(app->camera->rot.y));
+	else
+		c->forward = new_vector(c->view.m[8], c->view.m[9], c->view.m[10]);
 }
 
 
@@ -150,17 +157,18 @@ void	process_inputs(t_app *app, double dt)
 		c->rot.y += (double)mouse->x * mouse_speed;
 	if (mouse->y)
 		c->rot.x += (double)mouse->y * mouse_speed;
-	if (!app->point_mode)
+	if (!app->point_mode && !app->camera->fly)
 		c->rot.x = CLAMP(c->rot.x, -1.45, 1.45);
 
+	app->last_dir = new_vector(0.0, 0.0, 0.0);
 	if (key[SDL_SCANCODE_W])
-		move_c(app, &c->pos, c->forward, app->speed * dt);
+		app->last_dir = v3d_sum(app->last_dir, v3d_mul_by(c->forward, app->speed * dt));
 	if (key[SDL_SCANCODE_S])
-		move_c(app, &c->pos, c->forward, -app->speed * dt);
+		app->last_dir = v3d_sum(app->last_dir, v3d_mul_by(c->forward, -app->speed * dt));
 	if (key[SDL_SCANCODE_A])
-		move_c(app, &c->pos, c->right, -app->speed * dt);
+		app->last_dir = v3d_sum(app->last_dir, v3d_mul_by(c->right, -app->speed * dt));
 	if (key[SDL_SCANCODE_D])
-		move_c(app, &c->pos, c->right, app->speed * dt);
+		app->last_dir = v3d_sum(app->last_dir, v3d_mul_by(c->right, app->speed * dt));
 
 	int head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < app->height;
 //	if (app->ceil_sector)
@@ -191,6 +199,8 @@ void	process_inputs(t_app *app, double dt)
 
 	if (app->keys[SDL_SCANCODE_SPACE] && !app->jumped && (app->ground || (app->falling > 0.0 && app->falling < 0.25)))
 	{
+		Mix_VolumeMusic(5);
+//		Mix_PlayMusic(app->sfx[app->si], 0);
 		app->y_vel = 12.0;
 		app->jumped = 1;
 		app->ground = 0;
@@ -200,8 +210,8 @@ void	process_inputs(t_app *app, double dt)
 
 	if (!app->ground && !app->camera->fly)
 	{
-		app->y_acc += 2.5 * dt;
-		app->y_vel -= app->y_acc;
+		app->y_acc += 0.01;
+		app->y_vel -= app->y_acc * dt;
 	}
 
 	if (!app->camera->fly && app->y_vel > 0.0 && head_too_high)
@@ -246,9 +256,10 @@ void	process_inputs(t_app *app, double dt)
 			app->ground = 1;
 		}
 	}
-
-//	if (!app->camera->fly && prev.y != c->pos.y)
-//		check_collision(app, &c->pos, v3d_mul_by(new_vector(0.0, 1.0, 0.0), app->y_vel * dt));
+	if (!app->camera->fly)
+		check_collision(app, &c->pos, app->last_dir);
+	else
+		c->pos = v3d_sum(c->pos, app->last_dir);
 }
 
 int		event_handling(t_app *app)
