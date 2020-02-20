@@ -201,7 +201,7 @@ void	process_inputs(t_app *app, double dt)
 	{
 		Mix_VolumeMusic(5);
 //		Mix_PlayMusic(app->sfx[app->si], 0);
-		app->y_vel = 12.0;
+		app->y_vel = 6.0;
 		app->jumped = 1;
 		app->ground = 0;
 		app->falling = 0.0;
@@ -210,8 +210,11 @@ void	process_inputs(t_app *app, double dt)
 
 	if (!app->ground && !app->camera->fly)
 	{
-		app->y_acc += 0.01;
+		if (app->y_acc == 0.0)
+			app->y_acc = 15.8;
 		app->y_vel -= app->y_acc * dt;
+		if (app->y_vel <= 0)
+			app->y_acc += 15.8 * dt;
 	}
 
 	if (!app->camera->fly && app->y_vel > 0.0 && head_too_high)
@@ -223,9 +226,6 @@ void	process_inputs(t_app *app, double dt)
 		app->y_vel = 0.0;
 	}
 
-	if (app->y_vel != 0.0 && app->y_vel < -12.0)
-		app->y_vel = -12.0;
-
 	if (!app->camera->fly)
 		c->pos.y += app->y_vel * dt;
 
@@ -234,28 +234,28 @@ void	process_inputs(t_app *app, double dt)
 	if (dy < 0.0 && app->y_vel < 0.0)
 	{
 		printf("[out][%llu, %f]\n\n", app->timer->frame, dy);
+		//app->y_vel = fabs(dy);
 		c->pos.y = app->floor_point.y + app->height;
 		app->falling = 0.0;
 		app->jumped = 0;
 		app->ground = 1;
 	}
-
-	if (dy < 0.0 && app->y_vel == 0.0)
+	else if (dy < 0.0 && app->y_vel == 0.0)
 	{
 		if (fabs(dy) < 0.85 && fabs(dy) >= 0.25)
 		{
-			app->y_vel = 5.0;
+			app->y_vel = fabs(dy) * 2;
 			printf("[big][%llu, %f, %f]\n\n", app->timer->frame, dy, app->y_vel);
 			app->ground = 0;
 		}
 		else if (fabs(dy) < 0.25 && !app->camera->fly)
 		{
 			printf("[small][%llu, %f]\n\n", app->timer->frame, dy);
-			c->pos.y = app->floor_point.y + app->height;
-			app->falling = 0;
-			app->ground = 1;
+			app->y_vel = fabs(dy) * 2;
+			app->ground = 0;
 		}
 	}
+
 	if (!app->camera->fly)
 		check_collision(app, &c->pos, app->last_dir);
 	else

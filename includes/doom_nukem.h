@@ -14,11 +14,11 @@
 //# define	SCREEN_W 1920
 //# define	SCREEN_H 1080
 
-# define	SCREEN_W 1280
-# define	SCREEN_H 720
+//# define	SCREEN_W 1280
+//# define	SCREEN_H 720
 
-//# define	SCREEN_W 1024
-//# define	SCREEN_H 576
+# define	SCREEN_W 1024
+# define	SCREEN_H 576
 
 //# define	SCREEN_W 640
 //# define	SCREEN_H 360
@@ -503,6 +503,7 @@ typedef struct	s_app
 	int 		ground;
 	t_v3d 		floor_point;
 	double		floor_dist;
+	double		prev_dy;
 	t_sector	*floor_sector;
 	t_v3d 		ceil_point;
 	double		ceil_dist;
