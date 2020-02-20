@@ -231,29 +231,28 @@ void	process_inputs(t_app *app, double dt)
 
 	dy = (app->height - fabs(app->floor_point.y - c->pos.y)) * -1.0;
 
-	if (dy < 0.0 && app->y_vel < 0.0)
+	if (dy < 0.0 && app->y_vel == 0.0)
 	{
-		printf("[out][%llu, %f]\n\n", app->timer->frame, dy);
-		//app->y_vel = fabs(dy);
-		c->pos.y = app->floor_point.y + app->height;
-		app->falling = 0.0;
-		app->jumped = 0;
-		app->ground = 1;
-	}
-	else if (dy < 0.0 && app->y_vel == 0.0)
-	{
-		if (fabs(dy) < 0.85 && fabs(dy) >= 0.25)
+		if (fabs(dy) < 0.85 && fabs(dy) >= 0)
 		{
-			app->y_vel = fabs(dy) * 2;
+			app->y_vel = fabs(dy) * 8;
 			printf("[big][%llu, %f, %f]\n\n", app->timer->frame, dy, app->y_vel);
 			app->ground = 0;
 		}
-		else if (fabs(dy) < 0.25 && !app->camera->fly)
-		{
-			printf("[small][%llu, %f]\n\n", app->timer->frame, dy);
-			app->y_vel = fabs(dy) * 2;
-			app->ground = 0;
-		}
+//		else if (fabs(dy) < 0.25 && !app->camera->fly)
+//		{
+//			printf("[small][%llu, %f]\n\n", app->timer->frame, dy);
+//			app->y_vel = 1 + fabs(dy);
+//			app->ground = 0;
+//		}
+	}
+	else if (dy < 0.0 && app->y_vel < 0.0)
+	{
+		printf("[out][%llu, %f]\n\n", app->timer->frame, dy);
+		app->y_vel += (1 + fabs(dy)) * 2;
+		app->falling = 0.0;
+		app->jumped = 0;
+		app->ground = 1;
 	}
 
 	if (!app->camera->fly)
