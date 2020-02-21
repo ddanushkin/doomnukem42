@@ -89,8 +89,8 @@ int		wall_check_collision(t_wall *w, t_v3d *pos, t_v3d *f, t_v3d n)
 	t_v3d	new_pos;
 
 	new_pos = v3d_sum(*pos, *f);
-	res = (is_separated(w->v[0], w->v[1], w->v[2], new_pos, 0.15) ||
-			is_separated(w->v[0], w->v[3], w->v[1], new_pos, 0.15));
+	res = (is_separated(w->v[0], w->v[1], w->v[2], new_pos, 0.1) ||
+			is_separated(w->v[0], w->v[3], w->v[1], new_pos, 0.1));
 	if (res)
 		*f = v3d_sub(*f, v3d_mul_by(n, v3d_dot(n, *f)));
 	return (res);

@@ -28,7 +28,7 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 		SWAP(v1, v2, t_v3d);
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
-	r.t = &app->sprites[app->rw->sprite].pixels[0];
+	r.t = &app->sprites[app->rw->sprite % MAX_SPRITE].pixels[0];
 	r.handedness = tr_area(&v1, &v3, &v2) >= 0.0;
 	r.depth = &app->depth_buffer[0];
 	r.screen = &app->screen[0];

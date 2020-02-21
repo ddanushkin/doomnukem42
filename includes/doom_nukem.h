@@ -114,6 +114,18 @@ typedef struct	s_v3d
 	int			i;
 }				t_v3d;
 
+typedef struct	s_animation
+{
+	int 		play;
+	int 		delayed;
+	int			loop;
+	double 		delay;
+	double 		speed;
+	double 		counter;
+	int 		frame_nbr;
+	int 		frame_cur;
+}				t_animation;
+
 typedef struct	s_wall
 {
 	t_v3d 		v[4];
@@ -535,6 +547,7 @@ typedef struct	s_app
 	int 		jumped;
 	t_v3d		last_dir;
 	int 		si;
+	t_animation	*a;
 }				t_app;
 
 t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
@@ -686,5 +699,8 @@ double		v3d_dot(t_v3d v1, t_v3d v2);
 
 void		bmp_load(t_app *app, char *path);
 void		obj_load(char *path, t_mesh *mesh);
+
+void		animation_next_frame(t_animation *anim, double dt);
+void		animation_play(t_animation *anim);
 
 #endif

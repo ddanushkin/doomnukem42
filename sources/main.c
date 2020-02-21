@@ -76,11 +76,22 @@ void	start_the_game(t_app *app)
 	prepare_chunks(app);
 	switch_mode(app);
 
+	t_animation a;
+
+	a.speed = 1.5;
+	a.frame_nbr = 5;
+	a.loop = 0;
+	a.delayed = 0;
+	a.play = 0;
+
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	//Mix_PlayMusic(app->bg[5], -1);
+	app->a = &a;
 	while (1)
 	{
 		get_delta_time(app->timer);
+		animation_next_frame(&a, app->timer->delta);
+		printf("frame -> %d\n", a.frame_cur);
 		ft_bzero(&app->keys, sizeof(uint8_t) * 512);
 		ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
 		if (!event_handling(app))
@@ -141,6 +152,8 @@ void	start_the_game(t_app *app)
 		}
 		else
 		{
+			if (!a.play)
+				animation_play(&a);
 			dt += app->timer->delta;
 			live_mode_inputs(app);
 			update_camera(app, app->camera);

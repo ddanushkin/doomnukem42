@@ -170,24 +170,10 @@ void	process_inputs(t_app *app, double dt)
 	if (key[SDL_SCANCODE_D])
 		app->last_dir = v3d_sum(app->last_dir, v3d_mul_by(c->right, app->speed * dt));
 
-	int head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < app->height;
-//	if (app->ceil_sector)
-//		printf("diff -> [%f]\n\n", fabs(c->pos.y - app->ceil_point.y));
-
-	if (key[SDL_SCANCODE_LCTRL] && app->height > 0.5)
-		app->height -= 2.5 * dt;
-	else if(!key[SDL_SCANCODE_LCTRL] && app->height < PLAYER_HEIGHT && !head_too_high)
-		app->height += 2.5 * dt;
-
-	if (head_too_high)
-		app->height -= (app->height - fabs(app->floor_point.y + app->height - app->ceil_point.y)) * dt;
-
-	app->height = CLAMP(app->height, 0.5, PLAYER_HEIGHT);
+	//printf("dy -> %f\n", dy);
 
 	double	dy;
 	dy = (app->height - fabs(app->floor_point.y - c->pos.y)) * -1.0;
-
-	//printf("dy -> %f\n", dy);
 
 	if (dy > 0.0 && app->ground == 1)
 		app->ground = 0;
@@ -217,23 +203,17 @@ void	process_inputs(t_app *app, double dt)
 			app->y_acc += 15.8 * dt;
 	}
 
-	if (!app->camera->fly && app->y_vel > 0.0 && head_too_high)
-		app->y_vel *= -1;
-
 	if (app->ground)
 	{
 		app->y_acc = 0.0;
 		app->y_vel = 0.0;
 	}
 
-	if (!app->camera->fly)
-		c->pos.y += app->y_vel * dt;
-
 	dy = (app->height - fabs(app->floor_point.y - c->pos.y)) * -1.0;
 
 	if (dy < 0.0 && app->y_vel == 0.0)
 	{
-		if (fabs(dy) < 0.85 && fabs(dy) >= 0)
+		if (fabs(dy) < 0.85 && fabs(dy) >= 0.25)
 		{
 			app->y_vel = fabs(dy) * 8;
 			printf("[big][%llu, %f, %f]\n\n", app->timer->frame, dy, app->y_vel);
@@ -246,7 +226,8 @@ void	process_inputs(t_app *app, double dt)
 //			app->ground = 0;
 //		}
 	}
-	else if (dy < 0.0 && app->y_vel < 0.0)
+
+	if (dy < 0.0 && app->y_vel < 0.0)
 	{
 		printf("[out][%llu, %f]\n\n", app->timer->frame, dy);
 		app->y_vel += (1 + fabs(dy)) * 2;
@@ -256,9 +237,26 @@ void	process_inputs(t_app *app, double dt)
 	}
 
 	if (!app->camera->fly)
+		c->pos.y += app->y_vel * dt;
+
+	if (!app->camera->fly)
 		check_collision(app, &c->pos, app->last_dir);
 	else
 		c->pos = v3d_sum(c->pos, app->last_dir);
+
+	int head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < app->height;
+//	if (app->ceil_sector)
+//		printf("diff -> [%f]\n\n", fabs(c->pos.y - app->ceil_point.y));
+
+	if (!app->camera->fly && app->y_vel > 0.0 && head_too_high)
+		app->y_vel *= -1;
+
+	if ((key[SDL_SCANCODE_LCTRL] && app->height > 0.5) || head_too_high)
+		app->height -= 2.5 * dt;
+	else if(!key[SDL_SCANCODE_LCTRL] && app->height < PLAYER_HEIGHT)
+		app->height += 2.5 * dt;
+
+	app->height = CLAMP(app->height, 0.5, PLAYER_HEIGHT);
 }
 
 int		event_handling(t_app *app)

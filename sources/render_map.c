@@ -192,8 +192,11 @@ void 	render_sector(t_app *app, t_sector *s)
 	app->render_type = floor_ceil;
 	while (j < s->trs_count)
 	{
-		render_floor_ceil(app, &s->ftrs[j], &s->floor);
-		render_floor_ceil(app, &s->ctrs[j++], &s->ceil);
+		if (s->floor.active)
+			render_floor_ceil(app, &s->ftrs[j], &s->floor);
+		if (s->ceil.active)
+			render_floor_ceil(app, &s->ctrs[j], &s->ceil);
+		j++;
 	}
 }
 
