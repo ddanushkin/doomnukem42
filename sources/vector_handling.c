@@ -44,7 +44,7 @@ t_v3d v3d_mul_by(t_v3d v, double k)
 	return result;
 }
 
-t_v3d vector_div_by(t_v3d v, double k)
+t_v3d v3d_div_by(t_v3d v, double k)
 {
 	t_v3d result;
 

@@ -21,9 +21,7 @@ static	void	init_sdl(t_sdl *sdl)
 	SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
 	TTF_Init();
 	Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
-
-//	Mix_Music *music = Mix_LoadMUSType_RW(rw, MUS_MP3, 1);
-//	printf("mix -> %d\n", Mix_PlayMusic(music, -1));
+	Mix_AllocateChannels(16);
 	sdl->window = SDL_CreateWindow(
 			WIN_TITLE,
 			SDL_WINDOWPOS_CENTERED,
@@ -58,11 +56,11 @@ void 	init_sfx(t_app *app)
 	int 		i;
 
 	i = 0;
-	app->sfx = (Mix_Music **)malloc(sizeof(Mix_Music *) * MAX_SFX);
+	app->sfx = (Mix_Chunk **)malloc(sizeof(Mix_Chunk *) * MAX_SFX);
 	while (i < MAX_SFX)
 	{
 		raw = SDL_RWFromMem(&app->audio[i].mem[0], app->audio[i].size);
-		app->sfx[i] = Mix_LoadMUSType_RW(raw, MUS_OGG, 1);
+		app->sfx[i] = Mix_LoadWAV_RW(raw, 1);
 		i++;
 	}
 }

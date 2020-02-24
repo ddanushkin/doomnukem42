@@ -97,7 +97,7 @@ t_v3d 	normalize(t_v3d v)
 	res = new_vector(0, 0, 0);
 	len = sqrt(v.x * v.x + v.z * v.z);
 	if (len != 0)
-		res = vector_div_by(v, len);
+		res = v3d_div_by(v, len);
 	return (res);
 }
 

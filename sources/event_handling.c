@@ -13,29 +13,35 @@ void 	move(t_v3d *v, t_v3d dir, double amount)
 	*v = v3d_sum(*v, v3d_mul_by(dir, amount));
 }
 
-t_mat4x4 view_matrix(t_v3d eye, double pitch, double yaw)
+void		view_matrix_data_calc(t_vm_data *d, double pitch, double yaw)
 {
-	double		cosPitch = cos(pitch);
-	double		sinPitch = sin(pitch);
-	double		cosYaw = cos(yaw);
-	double		sinYaw = sin(yaw);
-	t_v3d		xaxis = new_vector(cosYaw, 0.0, -sinYaw);
-	t_v3d		yaxis = new_vector(sinYaw * sinPitch, cosPitch, cosYaw * sinPitch);
-	t_v3d		zaxis = new_vector(sinYaw * cosPitch, -sinPitch, cosPitch * cosYaw);
+	d->cosp = cos(pitch);
+	d->sinp = sin(pitch);
+	d->cosy = cos(yaw);
+	d->siny = sin(yaw);
+	d->xa = new_vector(d->cosy, 0.0, -d->siny);
+	d->ya = new_vector(d->siny * d->sinp, d->cosp, d->cosy * d->sinp);
+	d->za = new_vector(d->siny * d->cosp, -d->sinp, d->cosp * d->cosy);
+}
+
+t_mat4x4	view_matrix(t_v3d eye, double pitch, double yaw)
+{
+	t_vm_data	vmd;
 	t_mat4x4	view;
 
-	view.m[0] = xaxis.x;
-	view.m[1] = xaxis.y;
-	view.m[2] = xaxis.z;
-	view.m[3] = -v3d_dot(xaxis, eye);
-	view.m[4] = yaxis.x;
-	view.m[5] = yaxis.y;
-	view.m[6] = yaxis.z;
-	view.m[7] = -v3d_dot(yaxis, eye);
-	view.m[8] = zaxis.x;
-	view.m[9] = zaxis.y;
-	view.m[10] = zaxis.z;
-	view.m[11] = -v3d_dot(zaxis, eye);
+	view_matrix_data_calc(&vmd, pitch, yaw);
+	view.m[0] = vmd.xa.x;
+	view.m[1] = vmd.xa.y;
+	view.m[2] = vmd.xa.z;
+	view.m[3] = -v3d_dot(vmd.xa, eye);
+	view.m[4] = vmd.ya.x;
+	view.m[5] = vmd.ya.y;
+	view.m[6] = vmd.ya.z;
+	view.m[7] = -v3d_dot(vmd.ya, eye);
+	view.m[8] = vmd.za.x;
+	view.m[9] = vmd.za.y;
+	view.m[10] = vmd.za.z;
+	view.m[11] = -v3d_dot(vmd.za, eye);
 	view.m[12] = 0.0;
 	view.m[13] = 0.0;
 	view.m[14] = 0.0;
@@ -219,12 +225,6 @@ void	process_inputs(t_app *app, double dt)
 			printf("[big][%llu, %f, %f]\n\n", app->timer->frame, dy, app->y_vel);
 			app->ground = 0;
 		}
-//		else if (fabs(dy) < 0.25 && !app->camera->fly)
-//		{
-//			printf("[small][%llu, %f]\n\n", app->timer->frame, dy);
-//			app->y_vel = 1 + fabs(dy);
-//			app->ground = 0;
-//		}
 	}
 
 	if (dy < 0.0 && app->y_vel < 0.0)
@@ -245,8 +245,6 @@ void	process_inputs(t_app *app, double dt)
 		c->pos = v3d_sum(c->pos, app->last_dir);
 
 	int head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < app->height;
-//	if (app->ceil_sector)
-//		printf("diff -> [%f]\n\n", fabs(c->pos.y - app->ceil_point.y));
 
 	if (!app->camera->fly && app->y_vel > 0.0 && head_too_high)
 		app->y_vel *= -1;

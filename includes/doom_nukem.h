@@ -126,6 +126,17 @@ typedef struct	s_animation
 	int 		frame_cur;
 }				t_animation;
 
+typedef struct	s_vm_data
+{
+	double		cosp;
+	double		sinp;
+	double		cosy;
+	double		siny;
+	t_v3d		xa;
+	t_v3d		ya;
+	t_v3d		za;
+}				t_vm_data;
+
 typedef struct	s_wall
 {
 	t_v3d 		v[4];
@@ -444,7 +455,7 @@ typedef struct	s_thr_data
 
 typedef struct	s_raw_sfx
 {
-	char			mem[24000];
+	char			mem[150000];
 	size_t			size;
 }				t_raw_sfx;
 
@@ -533,7 +544,7 @@ typedef struct	s_app
 	int 		sprites_count;
 	t_raw_sfx	*audio;
 	t_raw_bg	*music;
-	Mix_Music	**sfx;
+	Mix_Chunk	**sfx;
 	Mix_Music	**bg;
 	t_sector	*sectors;
 	int 		sectors_count;
@@ -691,9 +702,9 @@ t_v3d		new_vector(double x, double y, double z);
 t_v3d		v3d_sum(t_v3d vector1, t_v3d vector2);
 t_v3d		v3d_sub(t_v3d vector1, t_v3d vector2);
 t_v3d		v3d_mul_by(t_v3d v, double k);
-t_v3d		vector_div_by(t_v3d v, double k);
-t_v3d		vector_normalise(t_v3d v);
-double		vector_length(t_v3d v);
+t_v3d		v3d_div_by(t_v3d v, double k);
+t_v3d		v3d_normalise(t_v3d v);
+double		v3d_length(t_v3d v);
 t_v3d		v3d_cross(t_v3d v1, t_v3d v2);
 double		v3d_dot(t_v3d v1, t_v3d v2);
 

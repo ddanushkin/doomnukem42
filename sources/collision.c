@@ -2,7 +2,7 @@
 
 t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2)
 {
-	return (vector_normalise(v3d_cross(v3d_sub(v0, v1), v3d_sub(v0, v2))));
+	return (v3d_normalise(v3d_cross(v3d_sub(v0, v1), v3d_sub(v0, v2))));
 }
 
 int is_separated(
@@ -94,11 +94,6 @@ int		wall_check_collision(t_wall *w, t_v3d *pos, t_v3d *f, t_v3d n)
 	if (res)
 		*f = v3d_sub(*f, v3d_mul_by(n, v3d_dot(n, *f)));
 	return (res);
-}
-
-void 	stop_collision(t_v3d *pos, t_v3d prev)
-{
-	*pos = prev;
 }
 
 void 	check_collision(t_app *app, t_v3d *pos, t_v3d dir)

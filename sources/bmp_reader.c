@@ -1,43 +1,5 @@
 #include "doom_nukem.h"
 
-t_color 		sprite_get_color_by_offset(t_sprite *sprite, int offset)
-{
-	return (color_new(
-			sprite->pixels[offset],
-			sprite->pixels[offset + 1],
-			sprite->pixels[offset + 2]));
-}
-
-void			sprite_reverse(t_sprite *sprite, t_bmp_header h)
-{
-	int		row;
-	int		si;
-	int		ei;
-	t_color	sc;
-	t_color	ec;
-
-	row = 0;
-	while (row < h.height_px)
-	{
-		si = row * h.width_px * 3;
-		ei = si + h.width_px * 3 - 1;
-		while (si < ei)
-		{
-			sc = sprite_get_color_by_offset(sprite, si);
-			ec = sprite_get_color_by_offset(sprite, ei - 2);
-			sprite->pixels[si] = ec.r;
-			sprite->pixels[si + 1] = ec.g;
-			sprite->pixels[si + 2] = ec.b;
-			sprite->pixels[ei - 2] = sc.r;
-			sprite->pixels[ei - 1] = sc.g;
-			sprite->pixels[ei] = sc.b;
-			si += 3;
-			ei -= 3;
-		}
-		row++;
-	}
-}
-
 void			bpm_read_pixels(int fd, t_bmp_header h, t_sprite *sprite)
 {
 	size_t	len;

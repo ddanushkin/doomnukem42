@@ -33,42 +33,6 @@ int		line_intersection(t_v3d v0, t_v3d v1, t_v3d v2, t_v3d v3)
 	return 0;
 }
 
-void	clip_point_by_x(t_v3d *v)
-{
-	double	prev;
-	double	factor;
-
-	prev = v->x;
-	v->x = SIGNF(v->x) * v->w;
-	factor = v->x / prev;
-	v->z *= factor;
-	v->y *= factor;
-}
-
-void	clip_point_by_y(t_v3d *v)
-{
-	double	prev;
-	double	factor;
-
-	prev = v->y;
-	v->y = SIGNF(v->y) * v->w;
-	factor = v->y / prev;
-	v->z *= factor;
-	v->x *= factor;
-}
-
-void	clip_point_by_z(t_v3d *v)
-{
-	double	prev;
-	double	factor;
-
-	prev = v->z;
-	v->z = SIGNF(v->z) * v->w;
-	factor = v->z / prev;
-	v->x *= factor;
-	v->y *= factor;
-}
-
 void 	draw_line_3d(t_app *app, t_v3d start, t_v3d end, uint32_t c)
 {
 	t_v3d	tmp1;

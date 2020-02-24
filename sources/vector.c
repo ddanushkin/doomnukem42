@@ -1,16 +1,16 @@
 #include "doom_nukem.h"
 
-double 		vector_length(t_v3d v)
+double 		v3d_length(t_v3d v)
 {
 	return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
 }
 
-t_v3d	vector_normalise(t_v3d v)
+t_v3d	v3d_normalise(t_v3d v)
 {
 	t_v3d	result;
 	double	length;
 
-	length = vector_length(v);
+	length = v3d_length(v);
 	result.x = v.x / length;
 	result.y = v.y / length;
 	result.z = v.z / length;

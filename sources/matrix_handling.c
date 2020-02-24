@@ -80,8 +80,8 @@ t_v3d	matrix_transform(t_mat4x4 mat, t_v3d v)
 t_mat4x4	matrix_rotation_z(double angle)
 {
 	t_mat4x4	mat;
-	double temp_cos;
-	double temp_sin;
+	double		temp_cos;
+	double		temp_sin;
 
 	temp_cos = cos(angle);
 	temp_sin = sin(angle);
@@ -107,8 +107,8 @@ t_mat4x4	matrix_rotation_z(double angle)
 t_mat4x4	matrix_rotation_y(double angle)
 {
 	t_mat4x4	mat;
-	double temp_cos;
-	double temp_sin;
+	double		temp_cos;
+	double		temp_sin;
 
 	temp_cos = cos(angle);
 	temp_sin = sin(angle);
@@ -134,8 +134,8 @@ t_mat4x4	matrix_rotation_y(double angle)
 t_mat4x4	matrix_rotation_x(double angle)
 {
 	t_mat4x4	mat;
-	double temp_cos;
-	double temp_sin;
+	double		temp_cos;
+	double		temp_sin;
 
 	temp_cos = cos(angle);
 	temp_sin = sin(angle);

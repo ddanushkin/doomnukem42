@@ -77,13 +77,3 @@ void 	wall_update_tex(t_wall *w)
 		w->v[3].tex_y = calc_tex(w->v[2].y, w->v[3].y, w->v[1].y);
 	}
 }
-
-void	update_walls_data(t_app *app)
-{
-	char	*fps_text;
-
-	fps_text = ft_itoa(app->triangles_counter);
-	print_to_screen(app, 0, 15, fps_text);
-	ft_strdel(&fps_text);
-	app->triangles_counter = 0;
-}

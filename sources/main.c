@@ -91,7 +91,6 @@ void	start_the_game(t_app *app)
 	{
 		get_delta_time(app->timer);
 		animation_next_frame(&a, app->timer->delta);
-		printf("frame -> %d\n", a.frame_cur);
 		ft_bzero(&app->keys, sizeof(uint8_t) * 512);
 		ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
 		if (!event_handling(app))
@@ -102,29 +101,19 @@ void	start_the_game(t_app *app)
 			break ;
 
 		if (app->keys[SDL_SCANCODE_1])
-			Mix_PlayMusic(app->bg[0], -1);
+		{
+			Mix_PlayChannel(-1, app->sfx[0], 0);
+			printf("%s\n", SDL_GetError());
+		}
 		if (app->keys[SDL_SCANCODE_2])
-			Mix_PlayMusic(app->bg[1], -1);
+		{
+			Mix_PlayChannel(-1, app->sfx[1], 0);
+			printf("%s\n", SDL_GetError());
+		}
 		if (app->keys[SDL_SCANCODE_3])
-			Mix_PlayMusic(app->bg[2], -1);
+			Mix_PlayMusic(app->bg[0], 0);
 		if (app->keys[SDL_SCANCODE_4])
-			Mix_PlayMusic(app->bg[3], -1);
-		if (app->keys[SDL_SCANCODE_5])
-			Mix_PlayMusic(app->bg[4], -1);
-		if (app->keys[SDL_SCANCODE_6])
-			Mix_PlayMusic(app->bg[5], -1);
-		if (app->keys[SDL_SCANCODE_7])
-			Mix_PlayMusic(app->bg[6], -1);
-		if (app->keys[SDL_SCANCODE_8])
-			Mix_PlayMusic(app->bg[7], -1);
-		if (app->keys[SDL_SCANCODE_9])
-			Mix_PlayMusic(app->bg[8], -1);
-		if (app->keys[SDL_SCANCODE_0])
-			Mix_PlayMusic(app->bg[9], -1);
-		if (app->keys[SDL_SCANCODE_F1])
-			Mix_PlayMusic(app->bg[10], -1);
-		if (app->keys[SDL_SCANCODE_F2])
-			Mix_HaltMusic();
+			Mix_PlayMusic(app->bg[1], 0);
 
 		if (app->keys[SDL_SCANCODE_F5])
 			app->si--;
@@ -356,7 +345,7 @@ void 	init_game_data(t_app *app)
 		ft_strcat(file_path, "resources/audio/");
 		ft_strcat(file_path, file_name);
 		ft_strdel(&file_name);
-		ft_strcat(file_path, ".ogg");
+		ft_strcat(file_path, ".wav");
 		SDL_RWops	*raw = SDL_RWFromFile(file_path, "rb");
 		size_t size = SDL_RWsize(raw);
 		SDL_RWread(raw, &app->audio[i].mem[0], size, 1);
@@ -439,4 +428,3 @@ int		main(int argv, char**argc)
 	quit_properly();
 	return (0);
 }
-

@@ -15,4 +15,3 @@ t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection)
 					matrix_translation(0, 0, 0),
 					matrix_rotation(0.0, 0.0, 0.0))));
 }
-
