@@ -136,6 +136,8 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 	if (ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]))
 		app->hit_first = 1;
 	if (!app->camera->fly)
+		ray_floor(app, tr->v[0], tr->v[1], tr->v[2]);
+	if (!app->camera->fly)
 		ray_ceil(app, tr->v[0], tr->v[1], tr->v[2]);
 	render_triangle_0(app, v0, v1, v2);
 }
@@ -169,13 +171,6 @@ void 	render_sector(t_app *app, t_sector *s)
 {
 	int			j;
 
-	j = 0;
-	while (j < s->trs_count)
-	{
-		ray_floor(app, s->ftrs[j].v[0], s->ftrs[j].v[1], s->ftrs[j].v[2]);
-		ray_floor(app, s->ctrs[j].v[0], s->ctrs[j].v[1], s->ctrs[j].v[2]);
-		j++;
-	}
 	j = 0;
 	app->render_type = obj;
 	while (j < s->objs_count)

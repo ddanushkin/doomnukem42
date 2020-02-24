@@ -377,7 +377,7 @@ void 	init_game_data(t_app *app)
 		ft_strcat(file_path, ".ogg");
 		SDL_RWops	*raw = SDL_RWFromFile(file_path, "rb");
 		size_t size = SDL_RWsize(raw);
-		printf("%llu\n", size);
+		printf("%zu\n", size);
 		SDL_RWread(raw, &app->music[i].mem[0], size, 1);
 		app->music[i].size = size;
 		SDL_RWclose(raw);
@@ -419,7 +419,6 @@ int		main(int argv, char**argc)
 	app->camera = (t_camera *)malloc(sizeof(t_camera));
 	app->camera->up = new_vector(0.0, 1.0, 0.0);
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
-
 	app->game_data_init = 0;
 	app->map_init = 0;
 	if (!app->game_data_init)
