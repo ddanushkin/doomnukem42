@@ -144,17 +144,16 @@ void	start_the_game(t_app *app)
 			if (!a.play)
 				animation_play(&a);
 			dt += app->timer->delta;
+			if (dt < 0.0166)
+				SDL_Delay((0.0166 - dt) * 1000);
+			app->timer->delta = 0.0166 * 0.5;
 			live_mode_inputs(app);
 			update_camera(app, app->camera);
 			process_inputs(app, app->timer->delta);
-			if (dt > 0.0166)
-			{
-				dt = 0.0;
-				render_map(app);
-				draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
-				SDL_UpdateWindowSurface(app->sdl->window);
-				reset_screen(app);
-			}
+			render_map(app);
+			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
+			SDL_UpdateWindowSurface(app->sdl->window);
+			reset_screen(app);
 		}
 	}
 	TTF_CloseFont(app->font);
@@ -422,7 +421,8 @@ int		main(int argv, char**argc)
 	init_app(app);
 	start_the_game(app);
 
-	gamedata_save(app);
+	if (app->game_data_init)
+		gamedata_save(app);
 	map_save(app, "test_map");
 
 	quit_properly();

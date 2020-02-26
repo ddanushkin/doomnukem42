@@ -296,11 +296,11 @@ typedef struct	s_camera
 
 typedef struct	s_timer
 {
-	Uint64		prev;
-	Uint64		fps;
+	uint32_t	prev;
+	uint64_t	fps;
 	double		delta;
 	double		time;
-	Uint64		frame;
+	uint64_t	frame;
 }				t_timer;
 
 typedef struct	s_inputs
@@ -335,6 +335,32 @@ typedef struct	s_polygon
 	int 				is_ear;
 	double 				angle;
 }				t_polygon;
+
+typedef struct	s_ray
+{
+	t_v3d		p;
+	t_v3d		d;
+	t_v3d		point;
+	double 		dist;
+	double 		hit_dist;
+}				t_ray;
+
+typedef struct	s_sep_data
+{
+	double	rr;
+	t_v3d	v;
+	double	d;
+	double	e;
+	double	aa;
+	double	ab;
+	double	ac;
+	double	bb;
+	double	bc;
+	double	cc;
+	t_v3d	dab;
+	t_v3d	dbc;
+	t_v3d	dca;
+}				t_sep_data;
 
 typedef struct 	s_intersect
 {
@@ -578,6 +604,7 @@ double	tr_area(t_v3d *a, t_v3d *b, t_v3d *c);
 int 	line_intersection(t_v3d v0, t_v3d v1, t_v3d v2, t_v3d v3);
 void	points_add_check(t_v3d *points, int *size);
 void 	sector_pts_h(t_v3d *pts, int size, double amount);
+int		tr_coll(t_v3d pos, double radius, t_v3d v1, t_v3d v2, t_v3d v3);
 
 void 	move(t_v3d *v, t_v3d dir, double amount);
 

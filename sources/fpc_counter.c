@@ -13,11 +13,11 @@ void	update_fps_text(t_app *app)
 
 void	get_delta_time(t_timer *timer)
 {
-	double current;
+	uint32_t current;
 
 	timer->frame++;
-	current = SDL_GetPerformanceCounter();
-	timer->delta = (current - timer->prev) / (double)SDL_GetPerformanceFrequency();
+	current = SDL_GetTicks();
+	timer->delta = (double)(current - timer->prev) * 0.001;
 	timer->prev = current;
 	timer->time += timer->delta;
 }
