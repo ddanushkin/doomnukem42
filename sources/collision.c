@@ -83,16 +83,51 @@ int is_separated(
 	return 1;
 }
 
-int		wall_check_collision(t_wall *w, t_v3d *pos, t_v3d *f, t_v3d n)
+double signed_tetra_volume(t_v3d a, t_v3d b, t_v3d c, t_v3d d)
 {
-	int 	res;
-	t_v3d	new_pos;
+	return (SIGNF(
+			v3d_dot(
+					v3d_cross(v3d_sub(b, a), v3d_sub(c, a)),
+					v3d_sub(d, a))*0.166666));
+}
 
-	new_pos = v3d_sum(*pos, *f);
-	res = (is_separated(w->v[0], w->v[1], w->v[2], new_pos, 0.1) ||
-			is_separated(w->v[0], w->v[3], w->v[1], new_pos, 0.1));
+int line_triangle(t_v3d p1, t_v3d p2, t_v3d p3, t_v3d q1, t_v3d q2)
+{
+	double	s1;
+	double	s2;
+	double	s3;
+	double	s4;
+	double	s5;
+
+	q2.y = q1.y;
+	s1 = signed_tetra_volume(q1, p1, p2, p3);
+	s2 = signed_tetra_volume(q2, p1, p2, p3);
+	if (s1 != s2)
+	{
+		s3 = signed_tetra_volume(q1, q2, p1, p2);
+		s4 = signed_tetra_volume(q1, q2, p2, p3);
+		s5 = signed_tetra_volume(q1, q2, p3, p1);
+		if (s3 == s4 && s4 == s5)
+			return (1);
+	}
+	return (0);
+}
+
+int		wall_check_collision(t_app *app, t_wall *w, t_v3d *pos, t_v3d *f)
+{
+	int		res;
+	t_v3d	new_pos;
+	t_v3d	n;
+
+	new_pos = v3d_sum(*pos, v3d_mul_by(*f, 1.0/app->timer->delta*0.05));
+	new_pos.y -= (app->height - 0.55);
+	res = (line_triangle(w->v[0], w->v[1], w->v[2], new_pos, *pos) ||
+		   line_triangle(w->v[0], w->v[3], w->v[1], new_pos, *pos));
 	if (res)
+	{
+		n = get_triangle_normal(w->v[0], w->v[1], w->v[2]);
 		*f = v3d_sub(*f, v3d_mul_by(n, v3d_dot(n, *f)));
+	}
 	return (res);
 }
 
@@ -112,9 +147,14 @@ void 	check_collision(t_app *app, t_v3d *pos, t_v3d dir)
 		while (j < app->sectors[i].walls_count)
 		{
 			w = &app->sectors[i].walls[j];
-			n = get_triangle_normal(w->v[3], w->v[0], w->v[2]);
 			if ((w->active && (pos->y + 0.25) > MIN(w->v[0].y, w->v[2].y)))
-				count += wall_check_collision(w, pos, &dir, n);
+			{
+				if(wall_check_collision(app, w, pos, &dir))
+				{
+					i = -1;
+					break;
+				}
+			}
 			j++;
 		}
 		i++;
