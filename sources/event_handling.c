@@ -1,13 +1,5 @@
 #include <doom_nukem.h>
 
-void 	move_c(t_app *app, t_v3d *pos, t_v3d dir, double amount)
-{
-	if (!app->camera->fly)
-		check_collision(app, pos, v3d_mul_by(dir, amount));
-	else
-		move(pos, dir, amount);
-}
-
 void 	move(t_v3d *v, t_v3d dir, double amount)
 {
 	*v = v3d_sum(*v, v3d_mul_by(dir, amount));
@@ -147,6 +139,36 @@ void	process_points_inputs(t_app *app, double delta_time)
 	cursor_clamp(app);
 }
 
+void	update_floor_dist(t_app *app, t_v3d new_pos)
+{
+	int			i;
+	int			j;
+	t_sector	*s;
+
+	i = 0;
+	while (i < app->sectors_count)
+	{
+		s = &app->sectors[i];
+		app->cs = s;
+		j = 0;
+		while (j < s->trs_count)
+		{
+			if (s->floor.active)
+			{
+				ray_floor(app, new_pos, s->ftrs[j]);
+				ray_ceil(app, new_pos, s->ftrs[j]);
+			}
+			if (s->ceil.active)
+			{
+				ray_floor(app, new_pos, s->ctrs[j]);
+				ray_ceil(app, new_pos, s->ctrs[j]);
+			}
+			j++;
+		}
+		i++;
+	}
+}
+
 void	process_inputs(t_app *app, double dt)
 {
 	t_mouse_state	*mouse;
@@ -176,19 +198,6 @@ void	process_inputs(t_app *app, double dt)
 	if (key[SDL_SCANCODE_D])
 		app->last_dir = v3d_sum(app->last_dir, v3d_mul_by(c->right, app->speed * dt));
 
-	//printf("dy -> %f\n", dy);
-
-	double	dy;
-	dy = (app->height - fabs(app->floor_point.y - c->pos.y)) * -1.0;
-
-	if (dy > 0.0 && app->ground == 1)
-		app->ground = 0;
-
-	if (app->ground == 0 && !app->jumped)
-		app->falling += dt;
-
-	//printf("[%d, %d, %f]\n", app->ground, app->jumped, app->falling);
-
 	if (app->keys[SDL_SCANCODE_SPACE] && !app->jumped && (app->ground || (app->falling > 0.0 && app->falling < 0.25)))
 	{
 		Mix_VolumeMusic(5);
@@ -197,63 +206,60 @@ void	process_inputs(t_app *app, double dt)
 		app->jumped = 1;
 		app->ground = 0;
 		app->falling = 0.0;
-		printf("[%llu] jump\n", app->timer->frame);
 	}
 
-	if (!app->ground && !app->camera->fly)
+	if (!app->camera->fly)
 	{
-		if (app->y_acc == 0.0)
-			app->y_acc = 15.8;
-		app->y_vel -= app->y_acc * dt;
-		if (app->y_vel <= 0)
-			app->y_acc += 15.8 * dt;
-	}
+		c->pos.y += app->y_vel * dt;
+		app->floor_dist = 10000.0;
+		app->ceil_dist = 10000.0;
+		app->floor_sector = NULL;
+		app->ceil_sector = NULL;
+		update_floor_dist(app, c->pos);
+		app->prev_dy = app->floor_dist;
+		check_collision(app, &c->pos, app->last_dir);
+		app->floor_dist = 10000.0;
+		app->ceil_dist = 10000.0;
+		app->floor_sector = NULL;
+		app->ceil_sector = NULL;
+		update_floor_dist(app, c->pos);
 
-	if (app->ground)
-	{
-		app->y_acc = 0.0;
-		app->y_vel = 0.0;
-	}
-
-	dy = (app->height - fabs(app->floor_point.y - c->pos.y)) * -1.0;
-
-	if (dy < 0.0 && app->y_vel == 0.0)
-	{
-		if (fabs(dy) < 0.85 && fabs(dy) >= 0.25)
-		{
-			app->y_vel = fabs(dy) * 8;
-			printf("[big][%llu, %f, %f]\n\n", app->timer->frame, dy, app->y_vel);
+		if (app->floor_dist > app->height)
 			app->ground = 0;
+
+		double dy = app->height - app->floor_dist;
+
+		if (dy >= 0.0 && dy < 0.85)
+		{
+			app->ground = 1;
+			app->falling = 0.0;
+			app->jumped = 0;
+			app->y_vel = 0.0;
+			app->y_acc = 0.0;
+			c->pos.y += app->height - app->floor_dist;
+		}
+
+		if (!app->ground)
+		{
+			if (app->y_acc == 0.0)
+				app->y_acc = 15.8;
+			app->y_vel -= app->y_acc * dt;
+			if (app->y_vel <= 0)
+				app->y_acc += 15.8 * dt;
+			app->falling += dt;
 		}
 	}
 
-	if (dy < 0.0 && app->y_vel < 0.0)
-	{
-		printf("[out][%llu, %f]\n\n", app->timer->frame, dy);
-		app->y_vel += (1 + fabs(dy)) * 2;
-		app->falling = 0.0;
-		app->jumped = 0;
-		app->ground = 1;
-	}
-
-	if (!app->camera->fly)
-		c->pos.y += app->y_vel * dt;
-
-	if (!app->camera->fly)
-		check_collision(app, &c->pos, app->last_dir);
-	else
+	if (app->camera->fly)
 		c->pos = v3d_sum(c->pos, app->last_dir);
 
 	int head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < app->height;
-
 	if (!app->camera->fly && app->y_vel > 0.0 && head_too_high)
 		app->y_vel *= -1;
-
 	if ((key[SDL_SCANCODE_LCTRL] && app->height > 0.5) || head_too_high)
 		app->height -= 2.5 * dt;
 	else if(!key[SDL_SCANCODE_LCTRL] && app->height < PLAYER_HEIGHT)
 		app->height += 2.5 * dt;
-
 	app->height = CLAMP(app->height, 0.5, PLAYER_HEIGHT);
 }
 

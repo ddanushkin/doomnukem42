@@ -53,7 +53,7 @@ void	start_the_game(t_app *app)
 	app->y_vel = 0.0;
 	app->y_acc = 0.0;
 	app->ground = 1;
-	app->height = 1.0;
+	app->height = PLAYER_HEIGHT;
 	app->falling = 0.0;
 	app->jumped = 0;
 	app->cursor_x = SCREEN_W * 0.5;
@@ -68,10 +68,6 @@ void	start_the_game(t_app *app)
 	app->bclr[1] = 0x00ff00;
 	app->si = 0;
 	app->prev_dy = app->height;
-
-	double	dt;
-
-	dt = 0.0;
 
 	prepare_chunks(app);
 	switch_mode(app);
@@ -143,18 +139,13 @@ void	start_the_game(t_app *app)
 		{
 			if (!a.play)
 				animation_play(&a);
-			dt += app->timer->delta;
 			live_mode_inputs(app);
 			update_camera(app, app->camera);
 			process_inputs(app, app->timer->delta);
-			if (dt > 0.0166)
-			{
-				dt = 0.0;
-				render_map(app);
-				draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
-				SDL_UpdateWindowSurface(app->sdl->window);
-				reset_screen(app);
-			}
+			render_map(app);
+			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
+			SDL_UpdateWindowSurface(app->sdl->window);
+			reset_screen(app);
 		}
 	}
 	TTF_CloseFont(app->font);
@@ -409,7 +400,7 @@ int		main(int argv, char**argc)
 	app->camera->up = new_vector(0.0, 1.0, 0.0);
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
 	app->game_data_init = 0;
-	app->map_init = 0;
+	app->map_init = 1;
 	if (!app->game_data_init)
 		gamedata_load(app);
 	if (!app->map_init)

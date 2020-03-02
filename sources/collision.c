@@ -126,6 +126,8 @@ int		wall_check_collision(t_app *app, t_wall *w, t_v3d *pos, t_v3d *f)
 	if (res)
 	{
 		n = get_triangle_normal(w->v[0], w->v[1], w->v[2]);
+		if (isnan(n.x) || isnan(n.y) || isnan(n.z))
+			return (0);
 		*f = v3d_sub(*f, v3d_mul_by(n, v3d_dot(n, *f)));
 	}
 	return (res);
@@ -136,11 +138,8 @@ void 	check_collision(t_app *app, t_v3d *pos, t_v3d dir)
 	int		i;
 	int		j;
 	t_wall	*w;
-	int		count;
-	t_v3d	n;
 
 	i = 0;
-	count = 0;
 	while (i < app->sectors_count)
 	{
 		j = 0;

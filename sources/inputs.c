@@ -27,7 +27,7 @@ int		switch_mode(t_app *app)
 		id = app->sectors_count - 1;
 		camera_live_mode(&app->camera->rot);
 		app->camera->pos = point_save(app, app->cursor_x, app->cursor_y, 0);
-		app->camera->pos.y = app->sectors[id].floor_y + 1.0;
+		app->camera->pos.y = app->sectors[id].floor_y + PLAYER_HEIGHT;
 	}
 	return (1);
 }
@@ -93,16 +93,23 @@ void	live_edit_change_floor_h(t_app *app)
 	s = app->hit_sector;
 	if (app->keys[SDL_SCANCODE_MINUS])
 	{
+		if (fabs(s->ceil_y - (s->floor_y - 0.5)) <= 0.0)
+			return ;
 		sector_pts_h(&s->fpts[0], s->pts_count, -0.5);
 		s->floor_y -= 0.5;
 	}
 	else if (app->keys[SDL_SCANCODE_EQUALS])
 	{
+		if (fabs(s->ceil_y - (s->floor_y + 0.5)) <= 0.0)
+			return ;
 		sector_pts_h(&s->fpts[0], s->pts_count, 0.5);
 		s->floor_y += 0.5;
 	}
 	if (app->keys[SDL_SCANCODE_MINUS] || app->keys[SDL_SCANCODE_EQUALS])
+	{
 		sector_update_height(s, &s->fpts[0], &s->cpts[0]);
+		s->delta_y = fabs(s->ceil_y - s->floor_y);
+	}
 }
 
 void	live_edit_change_ceil_h(t_app *app)
@@ -112,16 +119,23 @@ void	live_edit_change_ceil_h(t_app *app)
 	s = app->hit_sector;
 	if (app->keys[SDL_SCANCODE_MINUS])
 	{
+		if (fabs((s->ceil_y - 0.5) - s->floor_y) <= 0.0)
+			return ;
 		sector_pts_h(&s->cpts[0], s->pts_count, -0.5);
 		s->ceil_y -= 0.5;
 	}
 	else if (app->keys[SDL_SCANCODE_EQUALS])
 	{
+		if (fabs((s->ceil_y + 0.5) - s->floor_y) <= 0.0)
+			return ;
 		sector_pts_h(&s->cpts[0], s->pts_count, 0.5);
 		s->ceil_y += 0.5;
 	}
 	if (app->keys[SDL_SCANCODE_MINUS] || app->keys[SDL_SCANCODE_EQUALS])
+	{
 		sector_update_height(s, &s->fpts[0], &s->cpts[0]);
+		s->delta_y = fabs(s->ceil_y - s->floor_y);
+	}
 }
 
 void	live_edit_wall_bot(t_app *app)
@@ -182,16 +196,28 @@ void	live_edit_add_decore(t_app *app)
 				   app->camera);
 }
 
-void 	sector_flip_walls(t_sector *s)
+void	live_edit_toggle_door(t_app *app)
 {
-	int i;
+	int			i;
+	t_sector	*s;
 
+	s = app->hit_sector;
+	s->door = !s->door;
 	i = 0;
 	while (i < s->walls_count)
 	{
-		s->walls[i].flip = !s->walls[i].flip;
+		s->walls[i].sprite = s->door ? 228 : 103;
 		i++;
 	}
+	s->floor.sprite = s->door ? 226 : 278;
+	s->ceil.sprite = s->door ? 226 : 399;
+	s->door_anim = 0;
+}
+
+void	live_edit_door_open(t_app *app)
+{
+	if (app->hit_sector->door)
+		app->hit_sector->door_anim = 1;
 }
 
 void	live_edit_sector_io(t_app *app)
@@ -283,6 +309,10 @@ void	live_mode_inputs(t_app *app)
 			live_edit_sector_io(app);
 		if (app->inputs->keyboard[SDL_SCANCODE_O])
 			live_mode_wall_offset(app);
+		if (app->hit_sector && app->keys[SDL_SCANCODE_F1])
+			live_edit_toggle_door(app);
+		if (app->keys[SDL_SCANCODE_V])
+			live_edit_door_open(app);
 	}
 	if (app->keys[SDL_SCANCODE_R])
 		live_mode_toggle_fly(app);

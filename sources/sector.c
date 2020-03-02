@@ -52,7 +52,6 @@ void 	sector_update_height(t_sector *cs, t_v3d *fpts, t_v3d *cpts)
 	i = 0;
 	while (i < cs->objs_count)
 		cs->objs[i++].pos.y = cs->floor_y;
-	cs->delta_y = cs->ceil_y - cs->floor_y;
 }
 
 void 	sector_copy_v_1(t_sector *s, t_v3d *p, int len)
@@ -202,7 +201,7 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->ceil.sprite = 399;
 	s->floor_y = 0.0;
 	s->ceil_y = 2.0;
-	s->delta_y = s->ceil_y - s->floor_y;
+	s->delta_y = fabs(s->ceil_y - s->floor_y);
 	s->walls_count = 0;
 	s->objs_count = 0;
 	s->objs_count = 0;
@@ -210,6 +209,10 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->decor_next = 0;
 	s->shade = 0;
 	s->inside = 0;
+	s->door_anim = 0;
+	s->door = 0;
+	s->door_h = s->delta_y;
+	s->door_dir = -1.0;
 	sector_copy_points(s, &app->points[0], app->points_count);
 	get_sector_min_max(s);
 	s->floor.sx = fabs(s->x_min - s->x_max) * 0.5;
@@ -220,7 +223,6 @@ void 	sector_close(t_app *app, t_sector *s)
 	copy_triangles(s);
 	sector_make_walls(s);
 	sector_update_shade(s);
-	s->ready = 1;
 	app->cs = s;
 	app->sectors_count++;
 	app->points_count = 0;

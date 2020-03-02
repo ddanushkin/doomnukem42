@@ -106,7 +106,6 @@ void	init_app(t_app *app)
 	app->timer->delta = 0.0;
 	app->timer->time = 0.0;
 	app->timer->frame = 0;
-	app->edge_selected = 0;
 	app->grid_size = 0.5;
 	app->triangles_counter = 0;
 	init_camera(app->camera);
