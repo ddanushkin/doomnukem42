@@ -76,7 +76,8 @@ void 	billboard_switch_sprite(t_app *app, t_wall *w)
 {
 	int quad;
 
-	quad = app->camera->quad;
+	quad = app->camera->quad + w->ori;
+	quad %= 8;
 	if (quad == 2)
 		w->sprite = 499;
 	if (quad == 6)
@@ -104,7 +105,8 @@ void 	render_billboard(t_app *app, t_wall *w)
 	t_v3d v3;
 
 	billboard_face_player(app, w);
-	billboard_switch_sprite(app, w);
+	if (w->rotate)
+		billboard_switch_sprite(app, w);
 	v0 = matrix_transform(app->camera->transform, w->v[0]);
 	v1 = matrix_transform(app->camera->transform, w->v[1]);
 	v2 = matrix_transform(app->camera->transform, w->v[2]);
@@ -116,6 +118,8 @@ void 	render_billboard(t_app *app, t_wall *w)
 	app->rw = w;
 	render_triangle_0(app, v0, v1, v2);
 	render_triangle_1(app, v0, v3, v1);
+	if (!ray_intersect(app, w->v[0], w->v[1], w->v[2]))
+		ray_intersect(app, w->v[0], w->v[3], w->v[1]);
 }
 
 void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
@@ -190,9 +194,9 @@ void 	render_sector(t_app *app, t_sector *s)
 {
 	int			j;
 
-	j = 0;
 	if (s->door && s->door_anim)
 		update_door(app, s, app->timer->delta);
+	j = 0;
 	app->render_type = obj;
 	while (j < s->objs_count)
 		render_billboard(app, &s->objs[j++]);

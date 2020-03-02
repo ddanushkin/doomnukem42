@@ -155,6 +155,12 @@ typedef struct	s_wall
 	int			active;
 	int			flip;
 	enum e_hit_type	type;
+	t_animation	anim;
+	int 		anim_auto;
+	int 		collect;
+	int 		use;
+	int 		rotate;
+	int 		ori;
 }				t_wall;
 
 typedef struct	s_v2d

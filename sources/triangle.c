@@ -19,7 +19,9 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	vertex_perspective_divide(&v3);
 
 	ta = tr_area(&v1, &v2, &v3);
-	if (!app->is_skybox && app->rw->type != decor &&
+	if (!app->is_skybox &&
+		app->rw->type != decor &&
+		app->rw->type != obj &&
 		(app->cs->inside ? ta < 0.0 : ta >= 0.0))
 		return;
 	if (v3.y < v2.y)

@@ -204,7 +204,6 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->delta_y = fabs(s->ceil_y - s->floor_y);
 	s->walls_count = 0;
 	s->objs_count = 0;
-	s->objs_count = 0;
 	s->decor_count = 0;
 	s->decor_next = 0;
 	s->shade = 0;

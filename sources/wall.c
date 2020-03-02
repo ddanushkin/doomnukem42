@@ -30,6 +30,11 @@ t_wall	wall_new()
 	w.is_exit = 0;
 	w.ox = 0.0;
 	w.oy = 0.0;
+	w.anim_auto = 0;
+	w.rotate = 0;
+	w.collect = 0;
+	w.use = 0;
+	w.ori = 0;
 	return (w);
 }
 
