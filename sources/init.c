@@ -22,6 +22,7 @@ static	void	init_sdl(t_sdl *sdl)
 	TTF_Init();
 	Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
 	Mix_AllocateChannels(16);
+	Mix_VolumeMusic(MIX_MAX_VOLUME/8);
 	sdl->window = SDL_CreateWindow(
 			WIN_TITLE,
 			SDL_WINDOWPOS_CENTERED,

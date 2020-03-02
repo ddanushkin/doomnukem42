@@ -503,6 +503,7 @@ typedef struct	s_map_data
 {
 	t_v3d		start_pos;
 	int 		start_set;
+	int 		music_id;
 }				t_map_data;
 
 typedef struct	s_app

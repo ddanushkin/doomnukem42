@@ -95,31 +95,6 @@ void	start_the_game(t_app *app)
 			continue ;
 		if (app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
 			break ;
-
-		if (app->keys[SDL_SCANCODE_1])
-		{
-			Mix_PlayChannel(-1, app->sfx[0], 0);
-			printf("%s\n", SDL_GetError());
-		}
-		if (app->keys[SDL_SCANCODE_2])
-		{
-			Mix_PlayChannel(-1, app->sfx[1], 0);
-			printf("%s\n", SDL_GetError());
-		}
-		if (app->keys[SDL_SCANCODE_3])
-			Mix_PlayMusic(app->bg[0], 0);
-		if (app->keys[SDL_SCANCODE_4])
-			Mix_PlayMusic(app->bg[1], 0);
-
-		if (app->keys[SDL_SCANCODE_F5])
-			app->si--;
-		if (app->keys[SDL_SCANCODE_F6])
-			app->si++;
-		if (app->si < 0)
-			app->si = MAX_SFX - 1;
-		if (app->si >= MAX_SFX)
-			app->si = 0;
-
 		if (app->point_mode)
 		{
 			point_mode_inputs(app);
@@ -397,6 +372,7 @@ void 	init_map(t_app *app)
 {
 	app->sectors_count = 0;
 	app->md.start_set = 0;
+	app->md.music_id = 8;
 	app->sectors = (t_sector *)malloc(sizeof(t_sector) * MAX_SECTOR);
 }
 

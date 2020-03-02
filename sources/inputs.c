@@ -19,11 +19,13 @@ int		switch_mode(t_app *app)
 {
 	double	temp_y;
 
+	Mix_HaltMusic();
 	app->point_mode = !app->point_mode;
 	if (app->point_mode)
 		camera_point_mode(&app->camera->pos, &app->camera->rot);
 	else
 	{
+		Mix_PlayMusic(app->bg[app->md.music_id], -1);
 		temp_y = app->camera->pos.y;
 		app->camera->pos = point_2d_to_3d(app, app->cursor_x, app->cursor_y, 0);
 		app->camera->pos.y = temp_y;
@@ -248,8 +250,42 @@ void	live_edit_toggle_door(t_app *app)
 void	live_edit_door_open(t_app *app)
 {
 	if (app->hit_sector->door)
+	{
 		app->hit_sector->door_anim = 1;
+		Mix_PlayChannel(2, app->sfx[26], 0);
+		Mix_PlayChannel(1, app->sfx[35], -1);
+	}
 }
+
+void	live_edit_set_bg(t_app *app)
+{
+	int		prev;
+
+	prev = app->md.music_id;
+	if (app->keys[SDL_SCANCODE_0])
+		app->md.music_id = 0;
+	else if (app->keys[SDL_SCANCODE_1])
+		app->md.music_id = 1;
+	else if (app->keys[SDL_SCANCODE_2])
+		app->md.music_id = 2;
+	else if (app->keys[SDL_SCANCODE_3])
+		app->md.music_id = 3;
+	else if (app->keys[SDL_SCANCODE_4])
+		app->md.music_id = 4;
+	else if (app->keys[SDL_SCANCODE_5])
+		app->md.music_id = 5;
+	else if (app->keys[SDL_SCANCODE_6])
+		app->md.music_id = 6;
+	else if (app->keys[SDL_SCANCODE_7])
+		app->md.music_id = 7;
+	else if (app->keys[SDL_SCANCODE_8])
+		app->md.music_id = 8;
+	else if (app->keys[SDL_SCANCODE_9])
+		app->md.music_id = 9;
+	if (prev != app->md.music_id)
+		Mix_PlayMusic(app->bg[app->md.music_id], -1);
+}
+
 
 void	live_edit_sector_io(t_app *app)
 {
@@ -350,6 +386,8 @@ void	live_mode_inputs(t_app *app)
 			live_edit_use_exit(app);
 		if (app->keys[SDL_SCANCODE_V])
 			live_edit_door_open(app);
+		if (app->inputs->keyboard[SDL_SCANCODE_M])
+			live_edit_set_bg(app);
 	}
 	if (app->keys[SDL_SCANCODE_R])
 		live_mode_toggle_fly(app);

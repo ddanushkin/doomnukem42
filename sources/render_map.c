@@ -160,7 +160,7 @@ void 	render_wall(register t_app *app, register t_wall *w)
 		ray_intersect(app, w->v[0], w->v[3], w->v[1]);
 }
 
-void	update_door(t_sector *s, double dt)
+void	update_door(t_app *app, t_sector *s, double dt)
 {
 	double amount;
 
@@ -172,12 +172,16 @@ void	update_door(t_sector *s, double dt)
 		s->floor_y = s->ceil_y - 0.15;
 		s->door_anim = 0;
 		s->door_dir *= -1.0;
+		Mix_HaltChannel(1);
+		Mix_PlayChannel(2, app->sfx[25], 0);
 	}
 	else if (s->door_dir > 0.0 && fabs(s->ceil_y - s->floor_y) >= s->delta_y)
 	{
 		s->floor_y = s->ceil_y - s->delta_y;
 		s->door_anim = 0;
 		s->door_dir *= -1.0;
+		Mix_HaltChannel(1);
+		Mix_PlayChannel(2, app->sfx[25], 0);
 	}
 	sector_update_height(s, &s->fpts[0], &s->cpts[0]);
 }
@@ -188,7 +192,7 @@ void 	render_sector(t_app *app, t_sector *s)
 
 	j = 0;
 	if (s->door && s->door_anim)
-		update_door(s, app->timer->delta);
+		update_door(app, s, app->timer->delta);
 	app->render_type = obj;
 	while (j < s->objs_count)
 		render_billboard(app, &s->objs[j++]);
