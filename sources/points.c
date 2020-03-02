@@ -37,6 +37,19 @@ void 	point_draw(t_app *app, t_v3d p, Uint32 c)
 	}
 }
 
+t_v3d	point_3d_to_2d(t_app *app, t_v3d p)
+{
+	p = matrix_transform(app->camera->transform, p);
+	if (vertex_inside(&p))
+	{
+		p = matrix_transform(app->camera->screen_space, p);
+		vertex_perspective_divide(&p);
+		return (p);
+	}
+	else
+		return (new_vector(-1.0, -1.0, 0.0));
+}
+
 t_v3d	point_2d_to_3d(t_app *app, double x, double z, int grid)
 {
 	double angle;

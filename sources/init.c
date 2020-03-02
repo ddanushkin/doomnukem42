@@ -50,6 +50,14 @@ void	init_camera(t_camera *camera)
 	camera->fly = 0;
 }
 
+void 	init_font(t_app *app)
+{
+	SDL_RWops	*raw;
+
+	raw = SDL_RWFromMem(&app->fonts.mem[0], app->fonts.size);
+	app->font = TTF_OpenFontRW(raw, 1, 16);
+}
+
 void 	init_sfx(t_app *app)
 {
 	SDL_RWops	*raw;
@@ -110,7 +118,7 @@ void	init_app(t_app *app)
 	app->triangles_counter = 0;
 	init_camera(app->camera);
 	init_projection_mat(app);
-	app->font = TTF_OpenFont("resources/calibrib.ttf", 14);
+	init_font(app);
 	init_sfx(app);
 	init_bg(app);
 	init_skybox(app);

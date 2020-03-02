@@ -204,6 +204,29 @@ void	live_edit_add_decore(t_app *app)
 				   app->camera);
 }
 
+void	live_edit_set_exit(t_app *app)
+{
+	if (app->hit_type == decor)
+		app->hit_wall->is_exit = !app->hit_wall->is_exit;
+}
+
+void	live_edit_set_start(t_app *app)
+{
+	if (!app->camera->fly && app->floor_sector)
+	{
+		app->md.start_pos = app->camera->pos;
+		app->md.start_set = 1;
+	}
+}
+
+void	live_edit_use_exit(t_app *app)
+{
+	if (app->hit_type == decor &&
+		app->hit_wall->is_exit &&
+		app->hit_dist <= fabs(0.5))
+		exit(0);
+}
+
 void	live_edit_toggle_door(t_app *app)
 {
 	int			i;
@@ -317,8 +340,14 @@ void	live_mode_inputs(t_app *app)
 			live_edit_sector_io(app);
 		if (app->inputs->keyboard[SDL_SCANCODE_O])
 			live_mode_wall_offset(app);
-		if (app->hit_sector && app->keys[SDL_SCANCODE_F1])
+		if (app->hit_wall && app->keys[SDL_SCANCODE_F1])
+			live_edit_set_exit(app);
+		if (app->hit_sector && app->keys[SDL_SCANCODE_F2])
 			live_edit_toggle_door(app);
+		if (app->keys[SDL_SCANCODE_F5])
+			live_edit_set_start(app);
+		if (app->hit_wall && app->keys[SDL_SCANCODE_E])
+			live_edit_use_exit(app);
 		if (app->keys[SDL_SCANCODE_V])
 			live_edit_door_open(app);
 	}

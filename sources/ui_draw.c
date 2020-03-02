@@ -7,7 +7,7 @@ void 	print_to_screen(t_app *app, int x, int y, char *text)
 	SDL_Rect	rect;
 	Uint32 		c;
 
-	c = 0xffffff;
+	c = 0x0000ff;
 	font_color = (SDL_Color *)(&c);
 	font_surface = TTF_RenderText_Solid(app->font, text, *font_color);
 	rect.x = x;

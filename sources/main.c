@@ -132,6 +132,8 @@ void	start_the_game(t_app *app)
 			if (app->points_count > 0)
 				draw_points(app, &app->points[0], app->points_count);
 			draw_point_mode(app);
+			draw_exit(app);
+			draw_start(app);
 			SDL_UpdateWindowSurface(app->sdl->window);
 			reset_screen(app);
 		}
@@ -198,6 +200,7 @@ void	gamedata_save(t_app *a)
 	gamedata_write(data, &a->sprites[0], sizeof(t_sprite) * MAX_SPRITE, "T:\0");
 	gamedata_write(data, &a->audio[0], sizeof(t_raw_sfx) * MAX_SFX, "A:\0");
 	gamedata_write(data, &a->music[0], sizeof(t_raw_bg) * MAX_BG, "B:\0");
+	gamedata_write(data, &a->fonts, sizeof(t_raw_font), "F:\0");
 	close(data);
 }
 
@@ -213,6 +216,7 @@ void	map_save(t_app *a, char *name)
 	if (data == -1)
 		return ;
 	gamedata_write(data, &a->sectors[0], sizeof(t_sector) * a->sectors_count, "S:\0");
+	gamedata_write(data, &a->md, sizeof(t_map_data), "D:\0");
 	close(data);
 	usleep(10);
 }
@@ -240,6 +244,10 @@ void 	gamedata_type_malloc(t_app *a, int fd, char type, uint64_t size)
 		a->music = malloc(sizeof(t_raw_bg) * MAX_BG);
 		read(fd, a->music, size);
 	}
+	else if (type == 'F')
+		read(fd, &a->fonts, size);
+	else if (type == 'D')
+		read(fd, &a->md, size);
 }
 
 void 	gamedata_parse_info(t_app *a, int fd, char *info)
@@ -326,6 +334,12 @@ void	map_load(t_app *a, char *name)
 
 void 	init_game_data(t_app *app)
 {
+	SDL_RWops	*raw = SDL_RWFromFile("resources/calibri.ttf", "rb");
+	size_t size = SDL_RWsize(raw);
+	SDL_RWread(raw, &app->fonts.mem[0], size, 1);
+	app->fonts.size = size;
+	SDL_RWclose(raw);
+
 	app->audio = (t_raw_sfx *)malloc(sizeof(t_raw_sfx) * MAX_SFX);
 	for (int i = 0; i < MAX_SFX; i++)
 	{
@@ -337,8 +351,8 @@ void 	init_game_data(t_app *app)
 		ft_strcat(file_path, file_name);
 		ft_strdel(&file_name);
 		ft_strcat(file_path, ".wav");
-		SDL_RWops	*raw = SDL_RWFromFile(file_path, "rb");
-		size_t size = SDL_RWsize(raw);
+		raw = SDL_RWFromFile(file_path, "rb");
+		size = SDL_RWsize(raw);
 		SDL_RWread(raw, &app->audio[i].mem[0], size, 1);
 		app->audio[i].size = size;
 		SDL_RWclose(raw);
@@ -355,8 +369,8 @@ void 	init_game_data(t_app *app)
 		ft_strcat(file_path, file_name);
 		ft_strdel(&file_name);
 		ft_strcat(file_path, ".ogg");
-		SDL_RWops	*raw = SDL_RWFromFile(file_path, "rb");
-		size_t size = SDL_RWsize(raw);
+		raw = SDL_RWFromFile(file_path, "rb");
+		size = SDL_RWsize(raw);
 		printf("%zu\n", size);
 		SDL_RWread(raw, &app->music[i].mem[0], size, 1);
 		app->music[i].size = size;
@@ -382,6 +396,7 @@ void 	init_game_data(t_app *app)
 void 	init_map(t_app *app)
 {
 	app->sectors_count = 0;
+	app->md.start_set = 0;
 	app->sectors = (t_sector *)malloc(sizeof(t_sector) * MAX_SECTOR);
 }
 

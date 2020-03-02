@@ -151,9 +151,9 @@ typedef struct	s_wall
 	double		shade;
 	uint32_t 	inside;
 	int 		decor;
+	int 		is_exit;
 	int			active;
 	int			flip;
-//	uint8_t		lm[65536];
 	enum e_hit_type	type;
 }				t_wall;
 
@@ -462,6 +462,12 @@ typedef struct	s_raw_sfx
 	size_t			size;
 }				t_raw_sfx;
 
+typedef struct	s_raw_font
+{
+	char			mem[1650000];
+	size_t			size;
+}				t_raw_font;
+
 typedef struct	s_raw_bg
 {
 	char			mem[1000000];
@@ -492,6 +498,12 @@ typedef struct	s_coll_data
 	double		y;
 	int 		coll;
 }				t_coll_data;
+
+typedef struct	s_map_data
+{
+	t_v3d		start_pos;
+	int 		start_set;
+}				t_map_data;
 
 typedef struct	s_app
 {
@@ -536,6 +548,7 @@ typedef struct	s_app
 	int				points_count;
 	double 			cursor_x;
 	double 			cursor_y;
+	t_map_data		md;
 	uint8_t 		keys[512];
 	uint8_t 		mouse[6];
 	uint32_t 		*screen;
@@ -543,6 +556,7 @@ typedef struct	s_app
 	int 			sprites_count;
 	t_raw_sfx		*audio;
 	t_raw_bg		*music;
+	t_raw_font		fonts;
 	Mix_Chunk		**sfx;
 	Mix_Music		**bg;
 	t_sector		*sectors;
@@ -572,6 +586,8 @@ void 		camera_live_mode(t_v3d *rot);
 void 		camera_point_mode(t_v3d *pos, t_v3d *rot);
 void 		point_draw(t_app *app, t_v3d p, Uint32 c);
 t_v3d		point_2d_to_3d(t_app *app, double x, double z, int grid);
+t_v3d		point_3d_to_2d(t_app *app, t_v3d p);
+int 		point_in_screen(t_v3d p);
 int			switch_mode(t_app *app);
 double		tr_area(t_v3d *a, t_v3d *b, t_v3d *c);
 int 		line_intersection(t_v3d v0, t_v3d v1, t_v3d v2, t_v3d v3);
@@ -607,7 +623,9 @@ void		edge_step(t_edge *edge);
 double 		gradient_calc_x_step(double coords[3], t_triangle tr,double one_over_dx);
 double 		gradient_calc_y_step(double coords[3], t_triangle tr, double one_over_dy);
 t_gradient	gradient_new(t_v3d min, t_v3d mid, t_v3d max);
-void 	draw_grid(t_app *app);
+void 		draw_grid(t_app *app);
+void 		draw_exit(t_app *app);
+void 		draw_start(t_app *app);
 void 		print_to_screen(t_app *app, int x, int y, char *text);
 Uint8		vertex_inside(t_v3d *v);
 void		vertex_perspective_divide(t_v3d *v);
