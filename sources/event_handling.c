@@ -211,17 +211,11 @@ void	process_inputs(t_app *app, double dt)
 	if (!app->camera->fly)
 	{
 		c->pos.y += app->y_vel * dt;
-		app->floor_dist = 10000.0;
-		app->ceil_dist = 10000.0;
-		app->floor_sector = NULL;
-		app->ceil_sector = NULL;
+		app_reset_floor_ceil_hit(app);
 		update_floor_dist(app, c->pos);
 		app->prev_dy = app->floor_dist;
 		check_collision(app, &c->pos, app->last_dir);
-		app->floor_dist = 10000.0;
-		app->ceil_dist = 10000.0;
-		app->floor_sector = NULL;
-		app->ceil_sector = NULL;
+		app_reset_floor_ceil_hit(app);
 		update_floor_dist(app, c->pos);
 
 		if (app->floor_dist > app->height)

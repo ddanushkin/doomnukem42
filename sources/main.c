@@ -400,7 +400,7 @@ int		main(int argv, char**argc)
 	app->camera->up = new_vector(0.0, 1.0, 0.0);
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
 	app->game_data_init = 0;
-	app->map_init = 1;
+	app->map_init = 0;
 	if (!app->game_data_init)
 		gamedata_load(app);
 	if (!app->map_init)

@@ -17,17 +17,25 @@ void 	camera_live_mode(t_v3d *rot)
 
 int		switch_mode(t_app *app)
 {
-	int	id;
+	double	temp_y;
 
 	app->point_mode = !app->point_mode;
 	if (app->point_mode)
 		camera_point_mode(&app->camera->pos, &app->camera->rot);
 	else
 	{
-		id = app->sectors_count - 1;
-		camera_live_mode(&app->camera->rot);
-		app->camera->pos = point_save(app, app->cursor_x, app->cursor_y, 0);
-		app->camera->pos.y = app->sectors[id].floor_y + PLAYER_HEIGHT;
+		temp_y = app->camera->pos.y;
+		app->camera->pos = point_2d_to_3d(app, app->cursor_x, app->cursor_y, 0);
+		app->camera->pos.y = temp_y;
+		app_reset_floor_ceil_hit(app);
+		update_floor_dist(app, app->camera->pos);
+		if (app->floor_sector != NULL)
+		{
+			app->camera->pos.y = app->floor_point.y + PLAYER_HEIGHT;
+			camera_live_mode(&app->camera->rot);
+		}
+		else
+			app->camera->fly = 1;
 	}
 	return (1);
 }
@@ -65,7 +73,7 @@ void	point_mode_mouse(t_app *app)
 
 	if (app->mouse[SDL_MOUSE_LEFT])
 	{
-		new_point = point_save(app, app->cursor_x, app->cursor_y, 1);
+		new_point = point_2d_to_3d(app, app->cursor_x, app->cursor_y, 1);
 		if (!point_exist(&app->points[0], app->points_count, new_point))
 		{
 			app->points[app->points_count] = new_point;

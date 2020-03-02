@@ -37,7 +37,7 @@ void 	point_draw(t_app *app, t_v3d p, Uint32 c)
 	}
 }
 
-t_v3d	point_save(t_app *app, double x, double z, int grid)
+t_v3d	point_2d_to_3d(t_app *app, double x, double z, int grid)
 {
 	double angle;
 
