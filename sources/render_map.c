@@ -133,12 +133,7 @@ void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
 				(vertex_inside(&v1) << 16u) +
 				(vertex_inside(&v2) << 8u) + 1u;
 	app->rw = w;
-	if (ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]))
-		app->hit_first = 1;
-	if (!app->camera->fly)
-		ray_floor(app, tr->v[0], tr->v[1], tr->v[2]);
-	if (!app->camera->fly)
-		ray_ceil(app, tr->v[0], tr->v[1], tr->v[2]);
+	ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]);
 	render_triangle_0(app, v0, v1, v2);
 }
 
@@ -161,10 +156,30 @@ void 	render_wall(register t_app *app, register t_wall *w)
 	app->rw = w;
 	render_triangle_0(app, v0, v1, v2);
 	render_triangle_1(app, v0, v3, v1);
-	if (ray_intersect(app, w->v[0], w->v[1], w->v[2]))
-		app->hit_first = 1;
-	else if (ray_intersect(app, w->v[0], w->v[3], w->v[1]))
-		app->hit_first = 0;
+	if (!ray_intersect(app, w->v[0], w->v[1], w->v[2]))
+		ray_intersect(app, w->v[0], w->v[3], w->v[1]);
+}
+
+void	update_door(t_sector *s, double dt)
+{
+	double amount;
+
+	amount = 2.5 * s->door_dir * dt;
+	sector_pts_h(&s->fpts[0], s->pts_count, -amount);
+	s->floor_y -= amount;
+	if (s->door_dir < 0.0 && fabs(s->ceil_y - s->floor_y) <= 0.15)
+	{
+		s->floor_y = s->ceil_y - 0.15;
+		s->door_anim = 0;
+		s->door_dir *= -1.0;
+	}
+	else if (s->door_dir > 0.0 && fabs(s->ceil_y - s->floor_y) >= s->delta_y)
+	{
+		s->floor_y = s->ceil_y - s->delta_y;
+		s->door_anim = 0;
+		s->door_dir *= -1.0;
+	}
+	sector_update_height(s, &s->fpts[0], &s->cpts[0]);
 }
 
 void 	render_sector(t_app *app, t_sector *s)
@@ -172,6 +187,8 @@ void 	render_sector(t_app *app, t_sector *s)
 	int			j;
 
 	j = 0;
+	if (s->door && s->door_anim)
+		update_door(s, app->timer->delta);
 	app->render_type = obj;
 	while (j < s->objs_count)
 		render_billboard(app, &s->objs[j++]);
@@ -201,12 +218,8 @@ void	render_map(t_app *app)
 
 	i = 0;
 	app->hit_dist = 10000.0;
-	app->floor_dist = 10000.0;
-	app->ceil_dist = 10000.0;
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
-	app->floor_sector = NULL;
-	app->ceil_sector = NULL;
 	while (i < app->sectors_count)
 	{
 		app->cs = &app->sectors[i];

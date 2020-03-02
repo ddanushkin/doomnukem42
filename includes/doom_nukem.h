@@ -296,11 +296,11 @@ typedef struct	s_camera
 
 typedef struct	s_timer
 {
-	uint32_t	prev;
-	uint64_t	fps;
+	Uint64		prev;
+	Uint64		fps;
 	double		delta;
 	double		time;
-	uint64_t	frame;
+	Uint64		frame;
 }				t_timer;
 
 typedef struct	s_inputs
@@ -335,32 +335,6 @@ typedef struct	s_polygon
 	int 				is_ear;
 	double 				angle;
 }				t_polygon;
-
-typedef struct	s_ray
-{
-	t_v3d		p;
-	t_v3d		d;
-	t_v3d		point;
-	double 		dist;
-	double 		hit_dist;
-}				t_ray;
-
-typedef struct	s_sep_data
-{
-	double	rr;
-	t_v3d	v;
-	double	d;
-	double	e;
-	double	aa;
-	double	ab;
-	double	ac;
-	double	bb;
-	double	bc;
-	double	cc;
-	t_v3d	dab;
-	t_v3d	dbc;
-	t_v3d	dca;
-}				t_sep_data;
 
 typedef struct 	s_intersect
 {
@@ -404,7 +378,6 @@ typedef struct	s_sector
 	double 		floor_y;
 	double 		ceil_y;
 	double 		delta_y;
-	int			ready;
 	double 		x_min;
 	double 		z_min;
 	double 		x_max;
@@ -415,6 +388,10 @@ typedef struct	s_sector
 	t_triangle	ctrs[MAX_WALL - 2];
 	int 		trs_count;
 	int 		pts_count;
+	int 		door;
+	double		door_h;
+	int 		door_anim;
+	double 		door_dir;
 }				t_sector;
 
 typedef struct	s_skybox
@@ -518,160 +495,155 @@ typedef struct	s_coll_data
 
 typedef struct	s_app
 {
-	t_timer		*timer;
-	t_camera	*camera;
-	t_mat4x4	projection_mat;
-	t_sdl		*sdl;
-	t_inputs	*inputs;
-	double		*depth_buffer;
-	TTF_Font	*font;
+	t_timer			*timer;
+	t_camera		*camera;
+	t_mat4x4		projection_mat;
+	t_sdl			*sdl;
+	t_inputs		*inputs;
+	double			*depth_buffer;
+	TTF_Font		*font;
 	enum e_hit_type	hit_type;
 	enum e_hit_type	render_type;
-	int 		hit_first;
-	t_wall		*hit_wall;
-	t_v3d		hit_point;
-	t_sector	*hit_sector;
-	double 		hit_dist;
-	int 		edge_selected;
-	t_wall		edit_wall;
-	t_sector	*cs;
-	double 		grid_size;
-	t_wall		*rw;
-	int 		triangles_counter;
-	t_skybox	skybox;
+	t_wall			*hit_wall;
+	t_v3d			hit_point;
+	t_sector		*hit_sector;
+	double 			hit_dist;
+	t_sector		*cs;
+	double 			grid_size;
+	t_wall			*rw;
+	int 			triangles_counter;
+	t_skybox		skybox;
 	t_depth_chunk	depth_chunk;
 	t_depth_chunk	*depth_chunk_array;
 	t_screen_chunk	screen_chunk;
 	t_screen_chunk	*screen_chunk_array;
-	int 		is_skybox;
-	double		height;
-	double 		y_vel;
-	double 		y_acc;
-	double 		speed;
-	double		acc;
-	int 		ground;
-	t_v3d 		floor_point;
-	double		floor_dist;
-	double		prev_dy;
-	t_sector	*floor_sector;
-	t_v3d 		ceil_point;
-	double		ceil_dist;
-	t_sector	*ceil_sector;
-	int			point_mode;
-	t_v3d		points[MAX_WALL];
-	int			points_count;
-	double 		cursor_x;
-	double 		cursor_y;
-	uint8_t 	keys[512];
-	uint8_t 	mouse[6];
-	uint32_t 	*screen;
-//	save to binary below
-	t_sprite	*sprites;
-	int 		sprites_count;
-	t_raw_sfx	*audio;
-	t_raw_bg	*music;
-	Mix_Chunk	**sfx;
-	Mix_Music	**bg;
-	t_sector	*sectors;
-	int 		sectors_count;
-	uint32_t 	t[65536];
-	double 		bad_close;
-	int			bflag;
-	uint32_t 	bclr[2];
-	int 		game_data_init;
-	int			map_init;
-	double 		falling;
-	int 		jumped;
-	t_v3d		last_dir;
-	int 		si;
-	t_animation	*a;
+	int 			is_skybox;
+	double			height;
+	double 			y_vel;
+	double 			y_acc;
+	double 			speed;
+	double			acc;
+	int 			ground;
+	t_v3d 			floor_point;
+	double			floor_dist;
+	double			prev_dy;
+	t_sector		*floor_sector;
+	t_v3d 			ceil_point;
+	double			ceil_dist;
+	t_sector		*ceil_sector;
+	int				point_mode;
+	t_v3d			points[MAX_WALL];
+	int				points_count;
+	double 			cursor_x;
+	double 			cursor_y;
+	uint8_t 		keys[512];
+	uint8_t 		mouse[6];
+	uint32_t 		*screen;
+	t_sprite		*sprites;
+	int 			sprites_count;
+	t_raw_sfx		*audio;
+	t_raw_bg		*music;
+	Mix_Chunk		**sfx;
+	Mix_Music		**bg;
+	t_sector		*sectors;
+	int 			sectors_count;
+	uint32_t 		t[65536];
+	double 			bad_close;
+	int				bflag;
+	uint32_t 		bclr[2];
+	int 			game_data_init;
+	int				map_init;
+	double 			falling;
+	int 			jumped;
+	t_v3d			last_dir;
+	int 			si;
+	t_animation		*a;
 }				t_app;
 
-t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
-void 	check_collision(t_app *app, t_v3d *pos, t_v3d f);
-void 	create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
-void 	join_tr_thrd(t_app *app);
-void	sector_update_shade(t_sector *s);
-void 	fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, double *sh);
-void	update_wall_shade(t_sprite *sprites, t_sector *s, t_wall *w);
-void 	decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam);
-void 	camera_live_mode(t_v3d *rot);
-void 	camera_point_mode(t_v3d *pos, t_v3d *rot);
-void 	point_draw(t_app *app, t_v3d p, Uint32 c);
-t_v3d	point_save(t_app *app, double x, double z, int grid);
-int		switch_mode(t_app *app);
-double	tr_area(t_v3d *a, t_v3d *b, t_v3d *c);
-int 	line_intersection(t_v3d v0, t_v3d v1, t_v3d v2, t_v3d v3);
-void	points_add_check(t_v3d *points, int *size);
-void 	sector_pts_h(t_v3d *pts, int size, double amount);
-int		tr_coll(t_v3d pos, double radius, t_v3d v1, t_v3d v2, t_v3d v3);
+t_v3d 		get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
+void 		check_collision(t_app *app, t_v3d *pos, t_v3d f);
+void 		create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
+void 		join_tr_thrd(t_app *app);
+void		sector_update_shade(t_sector *s);
+void 		fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, double *sh);
+void		update_wall_shade(t_sprite *sprites, t_sector *s, t_wall *w);
+void 		decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam);
+void 		camera_live_mode(t_v3d *rot);
+void 		camera_point_mode(t_v3d *pos, t_v3d *rot);
+void 		point_draw(t_app *app, t_v3d p, Uint32 c);
+t_v3d		point_save(t_app *app, double x, double z, int grid);
+int			switch_mode(t_app *app);
+double		tr_area(t_v3d *a, t_v3d *b, t_v3d *c);
+int 		line_intersection(t_v3d v0, t_v3d v1, t_v3d v2, t_v3d v3);
+void		points_add_check(t_v3d *points, int *size);
+void 		sector_pts_h(t_v3d *pts, int size, double amount);
 
-void 	move(t_v3d *v, t_v3d dir, double amount);
+void 		move(t_v3d *v, t_v3d dir, double amount);
 
-void 	draw_line_3d(t_app *app, t_v3d start, t_v3d end, uint32_t c);
-void 	draw_point_mode(t_app *app);
-void 	draw_grid_point(t_app *app, t_v3d *gp, Uint32 c);
-void	triangulate(t_triangle *trs, int *trs_size, t_polygon *polygon);
+void 		draw_line_3d(t_app *app, t_v3d start, t_v3d end, uint32_t c);
+void 		draw_point_mode(t_app *app);
+void 		draw_grid_point(t_app *app, t_v3d *gp, Uint32 c);
+void		triangulate(t_triangle *trs, int *trs_size, t_polygon *polygon);
 
-void	process_inputs(t_app *app, double delta_time);
-void	process_points_inputs(t_app *app, double delta_time);
-void 	update_camera(t_app *app, t_camera *camera);
-void 	update_points_camera(t_camera *c);
-void	point_mode_inputs(t_app *app);
-void	live_mode_inputs(t_app *app);
-void 	draw_points(t_app *app, t_v3d *p, int size);
-void	draw_sectors(t_app *app);
+void		process_inputs(t_app *app, double delta_time);
+void		process_points_inputs(t_app *app, double delta_time);
+void 		update_camera(t_app *app, t_camera *camera);
+void 		update_points_camera(t_camera *c);
+void		point_mode_inputs(t_app *app);
+void		live_mode_inputs(t_app *app);
+void 		draw_points(t_app *app, t_v3d *p, int size);
+void		draw_sectors(t_app *app);
 
-void	wall_reset_tex(t_wall *w);
-t_wall	wall_new();
-void 	wall_update_scale(t_wall *w);
-double 	calc_tex(double min, double cur, double max);
-void 	wall_update_tex(t_wall *w);
-void	update_walls_data(t_app *app);
-t_edge	edge_new(t_gradient	g, t_v3d min, t_v3d max, int index);
-void	edge_step(t_edge *edge);
-double 		gradient_calc_x_step(double coords[3], t_triangle tr, double one_over_dx);
+void		wall_reset_tex(t_wall *w);
+t_wall		wall_new();
+void 		wall_update_scale(t_wall *w);
+double 		calc_tex(double min, double cur, double max);
+void 		wall_update_tex(t_wall *w);
+void		update_walls_data(t_app *app);
+t_edge		edge_new(t_gradient	g, t_v3d min, t_v3d max, int index);
+void		edge_step(t_edge *edge);
+double 		gradient_calc_x_step(double coords[3], t_triangle tr,double one_over_dx);
 double 		gradient_calc_y_step(double coords[3], t_triangle tr, double one_over_dy);
 t_gradient	gradient_new(t_v3d min, t_v3d mid, t_v3d max);
 void 	draw_grid(t_app *app);
-void 	print_to_screen(t_app *app, int x, int y, char *text);
-Uint8	vertex_inside(t_v3d *v);
-void	vertex_perspective_divide(t_v3d *v);
-void	polygon_add(t_polygon **poly, t_v3d v);
-void	scan_triangle(t_v3d min, t_v3d mid, t_v3d max, t_render *r);
-int		ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
-int		ray_floor(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
-int		ray_ceil(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
-void	vr_list_add(t_vr_list **list, t_v3d v);
-void 	vr_list_free(t_vr_list **list);
+void 		print_to_screen(t_app *app, int x, int y, char *text);
+Uint8		vertex_inside(t_v3d *v);
+void		vertex_perspective_divide(t_v3d *v);
+void		polygon_add(t_polygon **poly, t_v3d v);
+void		scan_triangle(t_v3d min, t_v3d mid, t_v3d max, t_render *r);
+int			ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
+int			ray_floor(t_app *app, t_v3d pos, t_triangle tr);
+int			ray_ceil(t_app *app, t_v3d pos, t_triangle tr);
+void		vr_list_add(t_vr_list **list, t_v3d v);
+void 		vr_list_free(t_vr_list **list);
 t_vr_list	*vr_list_last(t_vr_list *head);
-void 	clip_fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
-void	render_triangle_0(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
-void	render_triangle_1(t_app *app, t_v3d v0, t_v3d v3, t_v3d v1);
-void 	get_sector_min_max(t_sector *cs);
-void 	render_wall(t_app *app, t_wall *w);
-void 	render_billboard(t_app *app, t_wall *w);
-void	render_map(t_app *app);
-void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
-void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color);
-void	update_fps_text(t_app *app);
-int		find_linked_wall(t_sector *sector, t_v3d v, int skip);
-double	get_orientation(t_v3d *polygon, int size);
-int 	compare_vertex(t_v3d *v1, t_v3d *v2);
-void 	get_floor_poly(t_sector *cs);
+void 		clip_fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
+void		render_triangle_0(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
+void		render_triangle_1(t_app *app, t_v3d v0, t_v3d v3, t_v3d v1);
+void 		get_sector_min_max(t_sector *cs);
+void 		render_wall(t_app *app, t_wall *w);
+void 		render_billboard(t_app *app, t_wall *w);
+void		render_map(t_app *app);
+void 		fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
+void 		draw_cross(t_app *app, int x, int y, double size, Uint32 color);
+void		update_fps_text(t_app *app);
+int			find_linked_wall(t_sector *sector, t_v3d v, int skip);
+double		get_orientation(t_v3d *polygon, int size);
+int 		compare_vertex(t_v3d *v1, t_v3d *v2);
+void 		get_floor_poly(t_sector *cs);
 t_polygon	*points_to_list(t_sector *s);
-void 	sector_close(t_app *app, t_sector *s);
-void	draw_new_wall(t_app *app);
-void	save_new_wall(t_app *app);
-void 	draw_edge(t_app *app, t_v3d edge);
-void 	render_skybox(t_app *app, t_skybox s);
-Uint8 wall_outside(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3);
+void 		sector_close(t_app *app, t_sector *s);
+void		draw_new_wall(t_app *app);
+void		save_new_wall(t_app *app);
+void		draw_edge(t_app *app, t_v3d edge);
+void		render_skybox(t_app *app, t_skybox s);
+uint8_t		wall_outside(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3);
 uint32_t	wall_inside(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3);
 
-void	texture_change(t_app *app);
-void	texture_scale_y_change(t_app *app);
-void	texture_scale_x_change(t_app *app);
-void 	sector_update_height(t_sector *cs, t_v3d *fpts, t_v3d *cpts);
+void		texture_change(t_app *app);
+void		texture_scale_y_change(t_app *app);
+void		texture_scale_x_change(t_app *app);
+void 		sector_update_height(t_sector *cs, t_v3d *fpts, t_v3d *cpts);
 
 t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection);
 
@@ -696,7 +668,7 @@ void		sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_
 
 void		get_ticks(t_timer *timer);
 void		get_delta_time(t_timer *timer);
-void 	show_edge(t_app *app);
+void 		show_edge(t_app *app);
 
 void		get_color(SDL_Surface *surface, int x, int y, t_color c);
 t_color		color_new(int r, int g, int b);
