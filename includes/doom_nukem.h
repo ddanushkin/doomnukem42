@@ -68,6 +68,7 @@
 
 # define PLAYER_HEIGHT 1.0
 # define PLAYER_SPEED 5.0
+# define USE_DIST 1.25
 
 # define MAX_SECTOR 100
 # define MAX_WALL	50

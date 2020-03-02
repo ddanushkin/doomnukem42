@@ -225,7 +225,7 @@ void	live_edit_use_exit(t_app *app)
 {
 	if (app->hit_type == decor &&
 		app->hit_wall->is_exit &&
-		app->hit_dist <= fabs(0.5))
+		app->hit_dist <= USE_DIST)
 		exit(0);
 }
 
@@ -249,7 +249,7 @@ void	live_edit_toggle_door(t_app *app)
 
 void	live_edit_door_open(t_app *app)
 {
-	if (app->hit_sector->door)
+	if (app->hit_sector->door && app->hit_dist <= USE_DIST)
 	{
 		app->hit_sector->door_anim = 1;
 		Mix_PlayChannel(2, app->sfx[26], 0);
@@ -364,7 +364,6 @@ void 	live_mode_add_billboard(t_app *app)
 
 void	live_edit_rotate_obj(t_app *app)
 {
-	printf("!\n");
 	if (app->keys[SDL_SCANCODE_PAGEUP])
 		app->hit_wall->ori++;
 	if (app->keys[SDL_SCANCODE_PAGEDOWN])

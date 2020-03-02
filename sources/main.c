@@ -44,6 +44,19 @@ Uint8 	vertex_inside(t_v3d *v)
 			fabs(v->z) <= w);
 }
 
+void 	draw_action_text(t_app *app)
+{
+	if (app->hit_wall && app->hit_dist <= USE_DIST)
+	{
+		if (app->hit_sector->door && !app->hit_sector->door_anim)
+			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "USE DOOR");
+		if (app->hit_wall->is_exit)
+			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "FINISH LEVEL");
+		if (app->hit_type == obj)
+			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "SPEAK");
+	}
+}
+
 void	start_the_game(t_app *app)
 {
 	app->hit_wall = NULL;
@@ -120,6 +133,7 @@ void	start_the_game(t_app *app)
 			update_camera(app, app->camera);
 			process_inputs(app, app->timer->delta);
 			render_map(app);
+			draw_action_text(app);
 			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
 			SDL_UpdateWindowSurface(app->sdl->window);
 			reset_screen(app);
@@ -309,7 +323,7 @@ void	map_load(t_app *a, char *name)
 
 void 	init_game_data(t_app *app)
 {
-	SDL_RWops	*raw = SDL_RWFromFile("resources/calibri.ttf", "rb");
+	SDL_RWops	*raw = SDL_RWFromFile("resources/calibrib.ttf", "rb");
 	size_t size = SDL_RWsize(raw);
 	SDL_RWread(raw, &app->fonts.mem[0], size, 1);
 	app->fonts.size = size;
