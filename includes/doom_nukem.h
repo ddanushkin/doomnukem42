@@ -73,6 +73,7 @@
 # define MAX_SECTOR 100
 # define MAX_WALL	50
 # define MAX_DECOR	25
+# define MAX_NPC	25
 # define MAX_OBJ	25
 # define MAX_SPRITE 504
 # define MAX_SFX	107
@@ -88,6 +89,7 @@ enum e_hit_type
 {
 	wall,
 	decor,
+	npc,
 	obj,
 	floor_ceil
 };
@@ -372,13 +374,15 @@ typedef struct	s_light
 typedef struct	s_sector
 {
 	t_wall		walls[MAX_WALL];
-	t_wall		objs[MAX_OBJ];
+	t_wall		npc[MAX_NPC];
+	t_wall		obj[MAX_OBJ];
 	t_wall 		decor[MAX_DECOR];
 	t_wall		floor;
 	t_wall		ceil;
 	uint8_t 	shade;
 	int 		inside;
 	int 		walls_count;
+	int 		npcs_count;
 	int 		objs_count;
 	int 		decor_count;
 	int 		decor_next;

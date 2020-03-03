@@ -96,7 +96,7 @@ void	live_mode_toggle_fly(t_app *app)
 	app->camera->fly = !app->camera->fly;
 }
 
-void	live_edit_change_floor_h(t_app *app)
+void	live_mode_change_floor_h(t_app *app)
 {
 	t_sector *s;
 
@@ -122,7 +122,7 @@ void	live_edit_change_floor_h(t_app *app)
 	}
 }
 
-void	live_edit_change_ceil_h(t_app *app)
+void	live_mode_change_ceil_h(t_app *app)
 {
 	t_sector *s;
 
@@ -148,7 +148,7 @@ void	live_edit_change_ceil_h(t_app *app)
 	}
 }
 
-void	live_edit_wall_bot(t_app *app)
+void	live_mode_wall_bot(t_app *app)
 {
 	t_sector	*s;
 	t_wall		*w;
@@ -169,7 +169,7 @@ void	live_edit_wall_bot(t_app *app)
 		sector_update_height(s, &s->fpts[0], &s->cpts[0]);
 }
 
-void	live_edit_wall_top(t_app *app)
+void	live_mode_wall_top(t_app *app)
 {
 	t_sector	*s;
 	t_wall		*w;
@@ -190,7 +190,7 @@ void	live_edit_wall_top(t_app *app)
 		sector_update_height(s, &s->fpts[0], &s->cpts[0]);
 }
 
-void	live_edit_change_shade(t_app *app)
+void	live_mode_change_shade(t_app *app)
 {
 	if (app->keys[SDL_SCANCODE_MINUS] && app->hit_wall->shade > 0)
 		app->hit_wall->shade--;
@@ -198,7 +198,7 @@ void	live_edit_change_shade(t_app *app)
 		app->hit_wall->shade++;
 }
 
-void	live_edit_add_decore(t_app *app)
+void	live_mode_add_decore(t_app *app)
 {
 		decore_add(app->hit_point,
 				   app->hit_sector,
@@ -206,13 +206,13 @@ void	live_edit_add_decore(t_app *app)
 				   app->camera);
 }
 
-void	live_edit_set_exit(t_app *app)
+void	live_mode_set_exit(t_app *app)
 {
 	if (app->hit_type == decor)
 		app->hit_wall->is_exit = !app->hit_wall->is_exit;
 }
 
-void	live_edit_set_start(t_app *app)
+void	live_mode_set_start(t_app *app)
 {
 	if (!app->camera->fly && app->floor_sector)
 	{
@@ -221,7 +221,7 @@ void	live_edit_set_start(t_app *app)
 	}
 }
 
-void	live_edit_use_exit(t_app *app)
+void	live_mode_use_exit(t_app *app)
 {
 	if (app->hit_type == decor &&
 		app->hit_wall->is_exit &&
@@ -229,7 +229,7 @@ void	live_edit_use_exit(t_app *app)
 		exit(0);
 }
 
-void	live_edit_toggle_door(t_app *app)
+void	live_mode_toggle_door(t_app *app)
 {
 	int			i;
 	t_sector	*s;
@@ -247,7 +247,7 @@ void	live_edit_toggle_door(t_app *app)
 	s->door_anim = 0;
 }
 
-void	live_edit_door_open(t_app *app)
+void	live_mode_door_open(t_app *app)
 {
 	if (app->hit_sector->door && app->hit_dist <= USE_DIST)
 	{
@@ -257,7 +257,7 @@ void	live_edit_door_open(t_app *app)
 	}
 }
 
-void	live_edit_set_bg(t_app *app)
+void	live_mode_set_bg(t_app *app)
 {
 	int		prev;
 
@@ -287,7 +287,7 @@ void	live_edit_set_bg(t_app *app)
 }
 
 
-void	live_edit_sector_io(t_app *app)
+void	live_mode_sector_io(t_app *app)
 {
 	app->hit_sector->inside = !app->hit_sector->inside;
 }
@@ -346,7 +346,23 @@ void 	live_mode_wall_offset(t_app *app)
 	wall_offset_y(app, app->hit_wall);
 }
 
-void 	live_mode_add_billboard(t_app *app)
+void 	live_mode_add_obj(t_app *app)
+{
+	t_wall	obj;
+
+	if (app->floor_sector == NULL && app->camera->fly)
+		return ;
+	obj = wall_new();
+	obj.pos = app->floor_point;
+	obj.size = 1.0;
+	obj.sprite = 145;
+	obj.rotate = 0;
+	app->floor_sector->obj[app->floor_sector->objs_count] = obj;
+	app->floor_sector->objs_count++;
+	app->floor_sector->objs_count %= MAX_OBJ;
+}
+
+void 	live_mode_add_npc(t_app *app)
 {
 	t_wall	obj;
 
@@ -357,12 +373,12 @@ void 	live_mode_add_billboard(t_app *app)
 	obj.size = 1.0;
 	obj.sprite = 499;
 	obj.rotate = 1;
-	app->floor_sector->objs[app->floor_sector->objs_count] = obj;
-	app->floor_sector->objs_count++;
-	app->floor_sector->objs_count %= MAX_OBJ;
+	app->floor_sector->npc[app->floor_sector->npcs_count] = obj;
+	app->floor_sector->npcs_count++;
+	app->floor_sector->npcs_count %= MAX_NPC;
 }
 
-void	live_edit_rotate_obj(t_app *app)
+void	live_mode_rotate_npc(t_app *app)
 {
 	if (app->keys[SDL_SCANCODE_PAGEUP])
 		app->hit_wall->ori++;
@@ -370,6 +386,8 @@ void	live_edit_rotate_obj(t_app *app)
 		app->hit_wall->ori--;
 	if (app->hit_wall->ori > 7)
 		app->hit_wall->ori = 0;
+	if (app->hit_wall->ori < 0)
+		app->hit_wall->ori = 7;
 }
 
 void	live_mode_inputs(t_app *app)
@@ -387,38 +405,40 @@ void	live_mode_inputs(t_app *app)
 		else if (app->keys[SDL_SCANCODE_TAB] && (app->hit_type == wall || app->hit_type == floor_ceil))
 			app->hit_wall->flip = !app->hit_wall->flip;
 		else if (app->inputs->keyboard[SDL_SCANCODE_F])
-			live_edit_change_floor_h(app);
+			live_mode_change_floor_h(app);
 		else if (app->inputs->keyboard[SDL_SCANCODE_C])
-			live_edit_change_ceil_h(app);
+			live_mode_change_ceil_h(app);
 		else if (app->inputs->keyboard[SDL_SCANCODE_L])
-			live_edit_change_shade(app);
+			live_mode_change_shade(app);
 		else if (app->inputs->keyboard[SDL_SCANCODE_T] && app->hit_type == wall)
-			live_edit_add_decore(app);
+			live_mode_add_decore(app);
 		else if (app->inputs->keyboard[SDL_SCANCODE_Q] && app->hit_type == wall)
-			live_edit_wall_top(app);
+			live_mode_wall_top(app);
 		else if (app->inputs->keyboard[SDL_SCANCODE_E] && app->hit_type == wall)
-			live_edit_wall_bot(app);
+			live_mode_wall_bot(app);
 		if (app->keys[SDL_SCANCODE_I])
-			live_edit_sector_io(app);
+			live_mode_sector_io(app);
 		if (app->inputs->keyboard[SDL_SCANCODE_O])
 			live_mode_wall_offset(app);
 		if (app->hit_wall && app->keys[SDL_SCANCODE_F1])
-			live_edit_set_exit(app);
+			live_mode_set_exit(app);
 		if (app->hit_sector && app->keys[SDL_SCANCODE_F2])
-			live_edit_toggle_door(app);
+			live_mode_toggle_door(app);
 		if (app->hit_wall && app->keys[SDL_SCANCODE_E])
-			live_edit_use_exit(app);
+			live_mode_use_exit(app);
 		if (app->keys[SDL_SCANCODE_V])
-			live_edit_door_open(app);
+			live_mode_door_open(app);
 		if (app->inputs->keyboard[SDL_SCANCODE_M])
-			live_edit_set_bg(app);
-		if (app->hit_type == obj && app->inputs->keyboard[SDL_SCANCODE_RSHIFT])
-			live_edit_rotate_obj(app);
+			live_mode_set_bg(app);
+		if (app->hit_type == npc && app->inputs->keyboard[SDL_SCANCODE_RSHIFT])
+			live_mode_rotate_npc(app);
 	}
 	if (app->keys[SDL_SCANCODE_R])
 		live_mode_toggle_fly(app);
 	if (app->keys[SDL_SCANCODE_B])
-		live_mode_add_billboard(app);
+		live_mode_add_npc(app);
+	if (app->keys[SDL_SCANCODE_O])
+		live_mode_add_obj(app);
 	if (app->keys[SDL_SCANCODE_F5])
-		live_edit_set_start(app);
+		live_mode_set_start(app);
 }

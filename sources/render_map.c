@@ -77,7 +77,7 @@ void 	billboard_switch_sprite(t_app *app, t_wall *w)
 	int quad;
 
 	quad = app->camera->quad + w->ori;
-	quad %= 8;
+	quad = (quad % 8 + 8) % 8;
 	if (quad == 2)
 		w->sprite = 499;
 	if (quad == 6)
@@ -197,17 +197,21 @@ void 	render_sector(t_app *app, t_sector *s)
 	if (s->door && s->door_anim)
 		update_door(app, s, app->timer->delta);
 	j = 0;
+	app->render_type = npc;
+	while (j < s->npcs_count)
+		render_billboard(app, &s->npc[j++]);
+	j = 0;
 	app->render_type = obj;
 	while (j < s->objs_count)
-		render_billboard(app, &s->objs[j++]);
-	j = 0;
-	app->render_type = wall;
-	while (j < s->walls_count)
-		render_wall(app, &s->walls[j++]);
+		render_billboard(app, &s->obj[j++]);
 	j = 0;
 	app->render_type = decor;
 	while (j < s->decor_count)
 		render_wall(app, &s->decor[j++]);
+	j = 0;
+	app->render_type = wall;
+	while (j < s->walls_count)
+		render_wall(app, &s->walls[j++]);
 	j = 0;
 	app->render_type = floor_ceil;
 	while (j < s->trs_count)

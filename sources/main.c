@@ -52,7 +52,7 @@ void 	draw_action_text(t_app *app)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "USE DOOR");
 		if (app->hit_wall->is_exit)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "FINISH LEVEL");
-		if (app->hit_type == obj)
+		if (app->hit_type == npc)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "SPEAK");
 	}
 }

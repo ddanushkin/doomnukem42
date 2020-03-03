@@ -50,8 +50,8 @@ void 	sector_update_height(t_sector *cs, t_v3d *fpts, t_v3d *cpts)
 		i++;
 	}
 	i = 0;
-	while (i < cs->objs_count)
-		cs->objs[i++].pos.y = cs->floor_y;
+	while (i < cs->npcs_count)
+		cs->npc[i++].pos.y = cs->floor_y;
 }
 
 void 	sector_copy_v_1(t_sector *s, t_v3d *p, int len)
@@ -203,7 +203,7 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->ceil_y = 2.0;
 	s->delta_y = fabs(s->ceil_y - s->floor_y);
 	s->walls_count = 0;
-	s->objs_count = 0;
+	s->npcs_count = 0;
 	s->decor_count = 0;
 	s->decor_next = 0;
 	s->shade = 0;
