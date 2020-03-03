@@ -7,7 +7,7 @@ void	skybox_front_back(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[2];
 	w->v[3] = s->v[3];
 	wall_reset_tex(w);
-	w->sprite = 498;
+	w->sprite = 481;
 	if (!wall_outside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]))
 	{
 		w->inside = wall_inside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]);
@@ -19,7 +19,7 @@ void	skybox_front_back(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[6];
 	w->v[3] = s->v[7];
 	wall_reset_tex(w);
-	w->sprite = 495;
+	w->sprite = 478;
 	if (wall_outside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]))
 		return;
 	w->inside = wall_inside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]);
@@ -34,7 +34,7 @@ void	skybox_left_right(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[0];
 	w->v[3] = s->v[7];
 	wall_reset_tex(w);
-	w->sprite = 493;
+	w->sprite = 476;
 	if (!wall_outside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]))
 	{
 		w->inside = wall_inside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]);
@@ -46,7 +46,7 @@ void	skybox_left_right(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[6];
 	w->v[3] = s->v[1];
 	wall_reset_tex(w);
-	w->sprite = 496;
+	w->sprite = 479;
 	if (wall_outside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]))
 		return;
 	w->inside = wall_inside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]);
@@ -61,7 +61,7 @@ void	skybox_top_bottom(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[1];
 	w->v[3] = s->v[7];
 	wall_reset_tex(w);
-	w->sprite = 497;
+	w->sprite = 480;
 	if (!wall_outside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]))
 	{
 		w->inside = wall_inside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]);
@@ -73,7 +73,7 @@ void	skybox_top_bottom(t_app *app, t_skybox *s, t_wall *w)
 	w->v[2] = s->v[6];
 	w->v[3] = s->v[0];
 	wall_reset_tex(w);
-	w->sprite = 494;
+	w->sprite = 477;
 	if (wall_outside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]))
 		return;
 	w->inside = wall_inside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]);

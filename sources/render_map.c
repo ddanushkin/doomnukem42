@@ -79,15 +79,15 @@ void 	billboard_switch_sprite(t_app *app, t_wall *w)
 	quad = app->camera->quad + w->ori;
 	quad = (quad % 8 + 8) % 8;
 	if (quad == 2)
-		w->sprite = 499;
+		w->sprite = 482;
 	if (quad == 6)
-		w->sprite = 503;
+		w->sprite = 486;
 	if (quad == 5 || quad == 7)
-		w->sprite = 502;
+		w->sprite = 485;
 	if (quad == 1 || quad == 3)
-		w->sprite = 500;
+		w->sprite = 483;
 	if (quad == 4 || quad == 0)
-		w->sprite = 501;
+		w->sprite = 484;
 	if (quad == 1 || quad == 0 || quad == 7)
 	{
 		SWAP(w->v[3].tex_x, w->v[1].tex_x, double);

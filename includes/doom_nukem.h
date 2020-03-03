@@ -70,14 +70,21 @@
 # define PLAYER_SPEED 5.0
 # define USE_DIST 1.25
 
-# define MAX_SECTOR 100
-# define MAX_WALL	50
-# define MAX_DECOR	25
-# define MAX_NPC	25
-# define MAX_OBJ	25
-# define MAX_SPRITE 504
-# define MAX_SFX	107
-# define MAX_BG		11
+# define WALL_SPRITE	162
+# define OBJ_SPRITE		358
+# define DECOR_SPRITE	372
+# define FLOOR_SPRITE	151
+# define CEIL_SPRITE	171
+# define LAST_TEX		476
+
+# define MAX_SECTOR		100
+# define MAX_WALL		50
+# define MAX_DECOR		25
+# define MAX_NPC		25
+# define MAX_OBJ		25
+# define MAX_SPRITE		487
+# define MAX_SFX		107
+# define MAX_BG			11
 
 # ifndef MULTITHREAD
 #  ifdef __APPLE__

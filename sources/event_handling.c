@@ -245,7 +245,11 @@ void	process_inputs(t_app *app, double dt)
 	}
 
 	if (app->camera->fly)
+	{
+		app->y_vel = 0.0;
+		app->y_acc = 0.0;
 		c->pos = v3d_sum(c->pos, app->last_dir);
+	}
 
 	int head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < app->height;
 	if (!app->camera->fly && app->y_vel > 0.0 && head_too_high)

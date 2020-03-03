@@ -23,7 +23,7 @@ t_wall	wall_new()
 	wall_reset_tex(&w);
 	w.sx = 1.0;
 	w.sy = 1.0;
-	w.sprite = 103;
+	w.sprite = WALL_SPRITE;
 	w.decor = 0;
 	w.active = 1;
 	w.flip = 1;

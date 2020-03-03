@@ -43,7 +43,7 @@ void 	decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam)
 	calc_top_point(&lp, &tp, dx, dz);
 	decore_set_pos(w, lp, tp, cam->forward);
 	wall_reset_tex(w);
-	w->sprite = 323;
+	w->sprite = DECOR_SPRITE;
 	if (cs->decor_count != 25)
 		cs->decor_count++;
 	cs->decor_next = (cs->decor_next + 1) % 25;

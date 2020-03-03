@@ -14,7 +14,10 @@ for filename in os.listdir(path_originals):
 	for y in range(original_image.size[1]):
 		for x in range(original_image.size[0]):
 			if pixels[x, y][3] < 255:
-				pixels[x, y] = (255, 0, 255, 255)
+				if (pixels[x, y][3] == 0):
+					pixels[x, y] = (255, 0, 255, 255)
+				else:
+					pixels[x, y] = (pixels[x, y][0], pixels[x, y][1], pixels[x, y][2], 255)
 	new_image = Image.new("RGBA", original_image.size, (255, 0, 255))
 	new_image.paste(original_image, (0, 0), original_image)
 	new_image.convert('RGBA').save(path_results + str(filename_counter) + ".bmp", "BMP")

@@ -359,7 +359,7 @@ void 	live_mode_add_obj(t_app *app)
 	obj = wall_new();
 	obj.pos = app->floor_point;
 	obj.size = 1.0;
-	obj.sprite = 145;
+	obj.sprite = OBJ_SPRITE;
 	obj.rotate = 0;
 	obj.shade = 0;
 	app->floor_sector->obj[app->floor_sector->objs_count] = obj;
@@ -376,7 +376,7 @@ void 	live_mode_add_npc(t_app *app)
 	obj = wall_new();
 	obj.pos = app->floor_point;
 	obj.size = 1.0;
-	obj.sprite = 499;
+	obj.sprite = 482;
 	obj.rotate = 1;
 	obj.shade = 0;
 	app->floor_sector->npc[app->floor_sector->npcs_count] = obj;

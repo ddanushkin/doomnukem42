@@ -198,10 +198,10 @@ void 	sector_close(t_app *app, t_sector *s)
 		return ;
 	}
 	s->floor = wall_new();
-	s->floor.sprite = 278;
+	s->floor.sprite = FLOOR_SPRITE;
 	s->ceil = s->floor;
 	s->floor.flip = 0;
-	s->ceil.sprite = 399;
+	s->ceil.sprite = CEIL_SPRITE;
 	s->floor_y = 0.0;
 	s->ceil_y = 2.0;
 	s->delta_y = fabs(s->ceil_y - s->floor_y);

@@ -7,7 +7,7 @@ void	texture_change(t_app *app)
 	else if (app->keys[SDL_SCANCODE_EQUALS])
 		app->hit_wall->sprite++;
 	app->hit_wall->sprite =
-			(app->hit_wall->sprite % 493 + 493) % 493;
+			(app->hit_wall->sprite % LAST_TEX + LAST_TEX) % LAST_TEX;
 }
 
 void	texture_scale_y_change(t_app *app)
