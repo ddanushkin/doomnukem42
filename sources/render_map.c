@@ -113,7 +113,6 @@ void 	render_billboard(t_app *app, t_wall *w)
 	v3 = matrix_transform(app->camera->transform, w->v[3]);
 	if (wall_outside(&v0, &v1, &v2, &v3))
 		return;
-	w->shade = app->cs->shade;
 	w->inside = wall_inside(&v0, &v1, &v2, &v3);
 	app->rw = w;
 	render_triangle_0(app, v0, v1, v2);
@@ -237,5 +236,5 @@ void	render_map(t_app *app)
 		app->cs = &app->sectors[i];
 		render_sector(app, &app->sectors[i++]);
 	}
-	//render_skybox(app, app->skybox);
+	render_skybox(app, app->skybox);
 }

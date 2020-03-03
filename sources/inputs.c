@@ -192,10 +192,14 @@ void	live_mode_wall_top(t_app *app)
 
 void	live_mode_change_shade(t_app *app)
 {
-	if (app->keys[SDL_SCANCODE_MINUS] && app->hit_wall->shade > 0)
-		app->hit_wall->shade--;
-	else if (app->keys[SDL_SCANCODE_EQUALS] && app->hit_wall->shade < 6)
+	if (app->keys[SDL_SCANCODE_MINUS])
 		app->hit_wall->shade++;
+	else if (app->keys[SDL_SCANCODE_EQUALS])
+		app->hit_wall->shade--;
+	if (app->hit_wall->shade < 0)
+		app->hit_wall->shade = 6;
+	if (app->hit_wall->shade > 6)
+		app->hit_wall->shade = 0;
 }
 
 void	live_mode_add_decore(t_app *app)
@@ -357,6 +361,7 @@ void 	live_mode_add_obj(t_app *app)
 	obj.size = 1.0;
 	obj.sprite = 145;
 	obj.rotate = 0;
+	obj.shade = 0;
 	app->floor_sector->obj[app->floor_sector->objs_count] = obj;
 	app->floor_sector->objs_count++;
 	app->floor_sector->objs_count %= MAX_OBJ;
@@ -373,6 +378,7 @@ void 	live_mode_add_npc(t_app *app)
 	obj.size = 1.0;
 	obj.sprite = 499;
 	obj.rotate = 1;
+	obj.shade = 0;
 	app->floor_sector->npc[app->floor_sector->npcs_count] = obj;
 	app->floor_sector->npcs_count++;
 	app->floor_sector->npcs_count %= MAX_NPC;

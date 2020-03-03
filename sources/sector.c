@@ -52,6 +52,9 @@ void 	sector_update_height(t_sector *cs, t_v3d *fpts, t_v3d *cpts)
 	i = 0;
 	while (i < cs->npcs_count)
 		cs->npc[i++].pos.y = cs->floor_y;
+	i = 0;
+	while (i < cs->objs_count)
+		cs->obj[i++].pos.y = cs->floor_y;
 }
 
 void 	sector_copy_v_1(t_sector *s, t_v3d *p, int len)
