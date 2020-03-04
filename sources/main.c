@@ -94,6 +94,7 @@ void	state_reset(t_app *app)
 	app->jumped = 0;
 	app->lava_timer = 0.0;
 	app->prev_dy = app->height;
+	app->head_too_high = 0;
 }
 
 void	start_the_game(t_app *app)
@@ -436,7 +437,7 @@ int		main(int argv, char**argc)
 	app->camera = (t_camera *)malloc(sizeof(t_camera));
 	app->camera->up = new_vector(0.0, 1.0, 0.0);
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
-	app->game_data_init = 0;
+	app->game_data_init = 1;
 	app->map_init = 0;
 	if (!app->game_data_init)
 		gamedata_load(app);

@@ -66,7 +66,7 @@
 # define SDL_MOUSE_SCROLL_DOWN 5
 # define THREADS_N 8
 
-# define PLAYER_HEIGHT 1.0
+# define PLAYER_HEIGHT 1.1
 # define PLAYER_SPEED 5.0
 # define USE_DIST 1.25
 # define LAVA_TIMER 0.5
@@ -599,6 +599,7 @@ typedef struct	s_app
 	t_v3d			last_dir;
 	t_animation		*a;
 	double 			lava_timer;
+	int				head_too_high;
 	double 			temp;
 }				t_app;
 

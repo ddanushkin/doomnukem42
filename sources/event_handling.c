@@ -290,23 +290,15 @@ void	process_inputs(t_app *app, double dt)
 		update_floor_dist(app, c->pos);
 	}
 
-
-	int head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < 0.15;
-	if (!app->camera->fly && app->y_vel > 0.0 && head_too_high)
+	if (!app->head_too_high)
+		app->head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < 0.1;
+	if (!app->camera->fly && app->y_vel > 0.0 && app->head_too_high)
 		app->y_vel *= -1;
-	if ((key[SDL_SCANCODE_LCTRL]) && app->height > 0.5)
+	if ((key[SDL_SCANCODE_LCTRL] || app->head_too_high) && app->height > PLAYER_HEIGHT * 0.5)
 		app->height -= 2.5 * dt;
-	else if(!key[SDL_SCANCODE_LCTRL] && app->height < PLAYER_HEIGHT)
-	{
-		printf("!%f\n", app->timer->time);
+	if(!key[SDL_SCANCODE_LCTRL] && app->height < PLAYER_HEIGHT)
 		app->height += 2.5 * dt;
-	}
-	if (app->y_vel >= 0.0 && head_too_high)
-	{
-		printf("!!!%f\n", app->timer->time);
-		app->height -= fabs(c->pos.y - app->ceil_point.y) * 2 * dt;
-	}
-	app->height = CLAMP(app->height, 0.5, PLAYER_HEIGHT);
+	app->height = CLAMP(app->height, PLAYER_HEIGHT * 0.5, PLAYER_HEIGHT);
 }
 
 int		event_handling(t_app *app)
