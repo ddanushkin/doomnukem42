@@ -44,31 +44,63 @@ Uint8 	vertex_inside(t_v3d *v)
 			fabs(v->z) <= w);
 }
 
+void 	draw_hud(t_app *app)
+{
+	char hp[4];
+	hp[0] = '\0';
+	ft_itoa2(app->hp, &hp[0]);
+	font_set(app, 0, 0x0000ff);
+	print_to_screen(app, 100, SCREEN_H - 100, &hp[0]);
+	font_reset(app);
+}
+
 void 	draw_action_text(t_app *app)
 {
 	if (app->hit_wall && app->hit_dist <= USE_DIST)
 	{
+		font_set(app, 0, 0x0000FF);
 		if (app->hit_sector->door && !app->hit_sector->door_anim)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "USE DOOR");
 		if (app->hit_wall->is_exit)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "FINISH LEVEL");
 		if (app->hit_type == npc)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "SPEAK");
+		font_reset(app);
 	}
 }
 
-void	start_the_game(t_app *app)
+void 	font_reset(t_app *app)
 {
-	app->hit_wall = NULL;
-	app->hit_sector = NULL;
+	app->font_size = 0;
+	app->font_color = 0xffffff;
+}
+
+void 	font_set(t_app *app, int size, uint32_t color)
+{
+	app->font_size = size;
+	app->font_color = color;
+}
+
+void	state_reset(t_app *app)
+{
 	app->speed = PLAYER_SPEED;
 	app->acc = 0.0;
 	app->y_vel = 0.0;
 	app->y_acc = 0.0;
 	app->ground = 1;
 	app->height = PLAYER_HEIGHT;
+	app->hp = 100;
 	app->falling = 0.0;
 	app->jumped = 0;
+	app->lava_timer = 0.0;
+	app->prev_dy = app->height;
+}
+
+void	start_the_game(t_app *app)
+{
+	app->hit_wall = NULL;
+	app->hit_sector = NULL;
+	state_reset(app);
 	app->cursor_x = SCREEN_W * 0.5;
 	app->cursor_y = SCREEN_H * 0.5;
 	app->camera->pos.x = 0.0;
@@ -79,8 +111,6 @@ void	start_the_game(t_app *app)
 	app->bflag = 0;
 	app->bclr[0] = 0xff0000;
 	app->bclr[1] = 0x00ff00;
-	app->si = 0;
-	app->prev_dy = app->height;
 
 	prepare_chunks(app);
 	switch_mode(app);
@@ -94,7 +124,6 @@ void	start_the_game(t_app *app)
 	a.play = 0;
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	//Mix_PlayMusic(app->bg[5], -1);
 	app->a = &a;
 	while (1)
 	{
@@ -120,8 +149,10 @@ void	start_the_game(t_app *app)
 			if (app->points_count > 0)
 				draw_points(app, &app->points[0], app->points_count);
 			draw_point_mode(app);
+			font_set(app, 0, 0x0000FF);
 			draw_exit(app);
 			draw_start(app);
+			font_reset(app);
 			SDL_UpdateWindowSurface(app->sdl->window);
 			reset_screen(app);
 		}
@@ -133,6 +164,7 @@ void	start_the_game(t_app *app)
 			update_camera(app, app->camera);
 			process_inputs(app, app->timer->delta);
 			render_map(app);
+			draw_hud(app);
 			draw_action_text(app);
 			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
 			SDL_UpdateWindowSurface(app->sdl->window);
@@ -141,6 +173,7 @@ void	start_the_game(t_app *app)
 	}
 	TTF_CloseFont(app->font);
 	TTF_Quit();
+	Mix_Quit();
 	SDL_Quit();
 	SDL_DestroyWindow(app->sdl->window);
 }
@@ -360,7 +393,6 @@ void 	init_game_data(t_app *app)
 		ft_strcat(file_path, ".ogg");
 		raw = SDL_RWFromFile(file_path, "rb");
 		size = SDL_RWsize(raw);
-		printf("%zu\n", size);
 		SDL_RWread(raw, &app->music[i].mem[0], size, 1);
 		app->music[i].size = size;
 		SDL_RWclose(raw);
@@ -404,8 +436,8 @@ int		main(int argv, char**argc)
 	app->camera = (t_camera *)malloc(sizeof(t_camera));
 	app->camera->up = new_vector(0.0, 1.0, 0.0);
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
-	app->game_data_init = 1;
-	app->map_init = 1;
+	app->game_data_init = 0;
+	app->map_init = 0;
 	if (!app->game_data_init)
 		gamedata_load(app);
 	if (!app->map_init)

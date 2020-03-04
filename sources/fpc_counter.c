@@ -7,7 +7,9 @@ void	update_fps_text(t_app *app)
 	if(fmod(app->timer->time, 0.25) >= 0.24)
 		app->timer->fps = 1.0 / app->timer->delta;
 	fps_text = ft_itoa(app->timer->fps);
+	font_set(app, 0, 0xffffff);
 	print_to_screen(app, 0, 0, fps_text);
+	font_reset(app);
 	ft_strdel(&fps_text);
 }
 

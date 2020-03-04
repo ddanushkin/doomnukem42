@@ -2,20 +2,18 @@
 
 void 	print_to_screen(t_app *app, int x, int y, char *text)
 {
-	SDL_Color	*font_color;
-	SDL_Surface	*font_surface;
+	SDL_Color	*color;
+	SDL_Surface	*surface;
 	SDL_Rect	rect;
-	Uint32 		c;
 
-	c = 0x0000ff;
-	font_color = (SDL_Color *)(&c);
-	font_surface = TTF_RenderText_Solid(app->font, text, *font_color);
+	color = (SDL_Color *)(&app->font_color);
+	surface = TTF_RenderText_Solid(app->font, text, *color);
 	rect.x = x;
 	rect.y = y;
-	rect.w = font_surface->w;
-	rect.h = font_surface->h;
-	SDL_BlitSurface(font_surface, &font_surface->clip_rect, app->sdl->surface, &rect);
-	SDL_FreeSurface(font_surface);
+	rect.w = surface->w;
+	rect.h = surface->h;
+	SDL_BlitSurface(surface, &surface->clip_rect, app->sdl->surface, &rect);
+	SDL_FreeSurface(surface);
 }
 
 void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color)

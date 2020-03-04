@@ -69,12 +69,16 @@
 # define PLAYER_HEIGHT 1.0
 # define PLAYER_SPEED 5.0
 # define USE_DIST 1.25
+# define LAVA_TIMER 0.5
 
 # define WALL_SPRITE	162
 # define OBJ_SPRITE		358
 # define DECOR_SPRITE	372
 # define FLOOR_SPRITE	151
 # define CEIL_SPRITE	171
+# define LAVA_SPRITE	60
+# define DOOR_SIDE		227
+# define DOOR_TOP_BOT	229
 # define LAST_TEX		476
 
 # define MAX_SECTOR		100
@@ -407,6 +411,7 @@ typedef struct	s_sector
 	int 		trs_count;
 	int 		pts_count;
 	int 		door;
+	int			lava;
 	double		door_h;
 	int 		door_anim;
 	double 		door_dir;
@@ -549,6 +554,9 @@ typedef struct	s_app
 	t_screen_chunk	screen_chunk;
 	t_screen_chunk	*screen_chunk_array;
 	int 			is_skybox;
+	int 			hp;
+	int 			font_size;
+	uint32_t 		font_color;
 	double			height;
 	double 			y_vel;
 	double 			y_acc;
@@ -589,8 +597,9 @@ typedef struct	s_app
 	double 			falling;
 	int 			jumped;
 	t_v3d			last_dir;
-	int 			si;
 	t_animation		*a;
+	double 			lava_timer;
+	double 			temp;
 }				t_app;
 
 t_v3d 		get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
@@ -614,6 +623,9 @@ void		points_add_check(t_v3d *points, int *size);
 void 		sector_pts_h(t_v3d *pts, int size, double amount);
 void		update_floor_dist(t_app *app, t_v3d new_pos);
 void 		app_reset_floor_ceil_hit(t_app *app);
+void 		font_reset(t_app *app);
+void 		font_set(t_app *app, int size, uint32_t color);
+void		state_reset(t_app *app);
 
 void 		move(t_v3d *v, t_v3d dir, double amount);
 

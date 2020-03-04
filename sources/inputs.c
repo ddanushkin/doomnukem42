@@ -38,6 +38,11 @@ int		switch_mode(t_app *app)
 		}
 		else
 			app->camera->fly = 1;
+		if (app->md.start_set)
+		{
+			app->camera->pos = app->md.start_pos;
+			app->camera->fly = 0;
+		}
 	}
 	return (1);
 }
@@ -233,6 +238,15 @@ void	live_mode_use_exit(t_app *app)
 		exit(0);
 }
 
+void	live_mode_toggle_lava(t_app *app)
+{
+	int r;
+
+	app->hit_sector->lava = !app->hit_sector->lava;
+	r = app->hit_sector->lava;
+	app->hit_sector->floor.sprite = r ? LAVA_SPRITE : FLOOR_SPRITE;
+}
+
 void	live_mode_toggle_door(t_app *app)
 {
 	int			i;
@@ -243,11 +257,11 @@ void	live_mode_toggle_door(t_app *app)
 	i = 0;
 	while (i < s->walls_count)
 	{
-		s->walls[i].sprite = s->door ? 228 : 103;
+		s->walls[i].sprite = s->door ? DOOR_SIDE : WALL_SPRITE;
 		i++;
 	}
-	s->floor.sprite = s->door ? 226 : 278;
-	s->ceil.sprite = s->door ? 226 : 399;
+	s->floor.sprite = s->door ? DOOR_TOP_BOT : FLOOR_SPRITE;
+	s->ceil.sprite = s->door ? DOOR_TOP_BOT : CEIL_SPRITE;
 	s->door_anim = 0;
 }
 
@@ -255,6 +269,11 @@ void	live_mode_door_open(t_app *app)
 {
 	if (app->hit_sector->door && app->hit_dist <= USE_DIST)
 	{
+		if (app->hit_sector->door_anim)
+		{
+			app->hit_sector->door_dir *= -1;
+			Mix_PlayChannel(1, app->sfx[35], -1);
+		}
 		app->hit_sector->door_anim = 1;
 		Mix_PlayChannel(2, app->sfx[26], 0);
 		Mix_PlayChannel(1, app->sfx[35], -1);
@@ -289,7 +308,6 @@ void	live_mode_set_bg(t_app *app)
 	if (prev != app->md.music_id)
 		Mix_PlayMusic(app->bg[app->md.music_id], -1);
 }
-
 
 void	live_mode_sector_io(t_app *app)
 {
@@ -430,6 +448,8 @@ void	live_mode_inputs(t_app *app)
 			live_mode_set_exit(app);
 		if (app->hit_sector && app->keys[SDL_SCANCODE_F2])
 			live_mode_toggle_door(app);
+		if (app->hit_sector && app->keys[SDL_SCANCODE_F3])
+			live_mode_toggle_lava(app);
 		if (app->hit_wall && app->keys[SDL_SCANCODE_E])
 			live_mode_use_exit(app);
 		if (app->keys[SDL_SCANCODE_V])

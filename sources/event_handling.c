@@ -200,8 +200,7 @@ void	process_inputs(t_app *app, double dt)
 
 	if (app->keys[SDL_SCANCODE_SPACE] && !app->jumped && (app->ground || (app->falling > 0.0 && app->falling < 0.25)))
 	{
-		Mix_VolumeMusic(5);
-//		Mix_PlayMusic(app->sfx[app->si], 0);
+		Mix_PlayChannel(3, app->sfx[38], 0);
 		app->y_vel = 6.0;
 		app->jumped = 1;
 		app->ground = 0;
@@ -210,54 +209,103 @@ void	process_inputs(t_app *app, double dt)
 
 	if (!app->camera->fly)
 	{
-		c->pos.y += app->y_vel * dt;
 		app_reset_floor_ceil_hit(app);
 		update_floor_dist(app, c->pos);
-		app->prev_dy = app->floor_dist;
+		app->prev_dy = app->floor_point.y;
+
+		if (app->y_vel != 0.0)
+			app->temp += app->y_vel * dt;
+
+		if (app->temp <= 0.0 && app->y_vel < 0.0)
+		{
+			if (app->falling > 0.25)
+				Mix_PlayChannel(3, app->sfx[70], 0);
+			if (app->falling > 0.55)
+			{
+				Mix_PlayChannel(4, app->sfx[51], 0);
+				app->hp -= (int)(app->falling * 50);
+			}
+			app->temp = 0;
+			app->y_acc = 0.0;
+			app->y_vel = 0.0;
+			app->ground = 1;
+			app->falling = 0.0;
+			app->jumped = 0;
+		}
+
 		check_collision(app, &c->pos, app->last_dir);
 		app_reset_floor_ceil_hit(app);
 		update_floor_dist(app, c->pos);
 
-		if (app->floor_dist > app->height)
-			app->ground = 0;
+		double dy = app->floor_point.y - app->prev_dy;
 
-		double dy = app->height - app->floor_dist;
+		if (dy != 0.0)
+			app->temp += -dy;
 
-		if (dy >= 0.0 && dy < 0.85)
+		if (dy > 0.25 && dy <= 0.55 && app->y_vel == 0.0)
 		{
-			app->ground = 1;
-			app->falling = 0.0;
-			app->jumped = 0;
-			app->y_vel = 0.0;
-			app->y_acc = 0.0;
-			c->pos.y += app->height - app->floor_dist;
+			app->y_vel = dy * 8;
+			app->y_acc = 12.0;
 		}
 
-		if (!app->ground)
+		c->pos.y = app->floor_point.y + app->height + app->temp;
+
+		if (app->temp != 0.0)
 		{
 			if (app->y_acc == 0.0)
 				app->y_acc = 15.8;
 			app->y_vel -= app->y_acc * dt;
 			if (app->y_vel <= 0)
 				app->y_acc += 15.8 * dt;
-			app->falling += dt;
+			if (app->y_vel < 0.0)
+				app->falling += dt;
 		}
 	}
+
+	if (!app->camera->fly && app->floor_sector &&
+		app->floor_sector->lava && app->floor_dist <= app->height &&
+		app->floor_point.y < app->floor_sector->ceil_y)
+	{
+		app->lava_timer -= dt;
+		if (app->lava_timer <= 0.0)
+		{
+			app->hp -= 20;
+			Mix_PlayChannel(5, app->sfx[36], 0);
+			Mix_PlayChannel(6, app->sfx[94], 0);
+			app->y_vel = 6.0;
+			app->jumped = 1;
+			app->ground = 0;
+			app->falling = 0.0;
+			app->lava_timer = LAVA_TIMER;
+		}
+	} else
+		app->lava_timer = 0.0;
 
 	if (app->camera->fly)
 	{
 		app->y_vel = 0.0;
 		app->y_acc = 0.0;
 		c->pos = v3d_sum(c->pos, app->last_dir);
+		app_reset_floor_ceil_hit(app);
+		update_floor_dist(app, c->pos);
 	}
 
-	int head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < app->height;
+
+	int head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < 0.15;
 	if (!app->camera->fly && app->y_vel > 0.0 && head_too_high)
 		app->y_vel *= -1;
-	if ((key[SDL_SCANCODE_LCTRL] && app->height > 0.5) || head_too_high)
+	if ((key[SDL_SCANCODE_LCTRL]) && app->height > 0.5)
 		app->height -= 2.5 * dt;
 	else if(!key[SDL_SCANCODE_LCTRL] && app->height < PLAYER_HEIGHT)
+	{
+		printf("!%f\n", app->timer->time);
 		app->height += 2.5 * dt;
+	}
+	if (app->y_vel >= 0.0 && head_too_high)
+	{
+		printf("!!!%f\n", app->timer->time);
+		app->height -= fabs(c->pos.y - app->ceil_point.y) * 2 * dt;
+	}
 	app->height = CLAMP(app->height, 0.5, PLAYER_HEIGHT);
 }
 
@@ -289,6 +337,14 @@ int		event_handling(t_app *app)
 			app->mouse[e.button.button] = 1;
 		if (event == SDL_KEYDOWN)
 			app->keys[e.key.keysym.scancode] = 1;
+	}
+	if (app->hp <= 0)
+	{
+		state_reset(app);
+		if (app->md.start_set)
+			app->camera->pos = app->md.start_pos;
+		else
+			app->camera->fly = 1;
 	}
 	return (1);
 }

@@ -215,6 +215,7 @@ void 	sector_close(t_app *app, t_sector *s)
 	s->door = 0;
 	s->door_h = s->delta_y;
 	s->door_dir = -1.0;
+	s->lava = 0;
 	sector_copy_points(s, &app->points[0], app->points_count);
 	get_sector_min_max(s);
 	s->floor.sx = fabs(s->x_min - s->x_max) * 0.5;
