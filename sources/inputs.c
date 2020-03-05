@@ -311,7 +311,9 @@ void	live_mode_set_bg(t_app *app)
 
 void	live_mode_sector_io(t_app *app)
 {
-	app->hit_sector->inside = !app->hit_sector->inside;
+	app->hit_sector->inside++;
+	if (app->hit_sector->inside == 3)
+		app->hit_sector->inside = 0;
 }
 
 void	point_mode_inputs(t_app *app)
@@ -461,7 +463,7 @@ void	live_mode_inputs(t_app *app)
 	}
 	if (app->keys[SDL_SCANCODE_R])
 		live_mode_toggle_fly(app);
-	if (app->keys[SDL_SCANCODE_B])
+	if (app->keys[SDL_SCANCODE_N])
 		live_mode_add_npc(app);
 	if (app->keys[SDL_SCANCODE_O])
 		live_mode_add_obj(app);

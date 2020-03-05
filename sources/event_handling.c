@@ -292,6 +292,12 @@ void	process_inputs(t_app *app, double dt)
 
 	if (!app->head_too_high)
 		app->head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < 0.1;
+	if (app->head_too_high && app->ceil_sector->door && app->ceil_sector->door_anim)
+	{
+		app->hp -= 50;
+		Mix_PlayChannel(3, app->sfx[22], 0);
+		Mix_PlayChannel(4, app->sfx[10], 0);
+	}
 	if (!app->camera->fly && app->y_vel > 0.0 && app->head_too_high)
 		app->y_vel *= -1;
 	if ((key[SDL_SCANCODE_LCTRL] || app->head_too_high) && app->height > PLAYER_HEIGHT * 0.5)

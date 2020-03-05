@@ -113,6 +113,8 @@ void	init_app(t_app *app)
 	app->timer->prev = 0;
 	app->timer->delta = 0;
 	app->timer->fps = 0;
+	app->timer->fps_count = 0;
+	app->timer->fps_sum = 0;
 	app->timer->delta = 0.0;
 	app->timer->time = 0.0;
 	app->timer->frame = 0;

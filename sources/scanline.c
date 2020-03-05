@@ -35,7 +35,7 @@ uint32_t	shade(uint8_t shade, uint32_t c)
 	r = ((c >> 16) & 0xFF) >> shade;
 	g = ((c >> 8) & 0xFF) >> shade;
 	b = (c & 0xFF) >> shade;
-	return ((0xFFu << 25u) | (r << 16u) | (g << 8u) | b);
+	return ((r << 16u) | (g << 8u) | b);
 }
 
 void 	scanline_draw(register t_sl_data *s, register uint32_t *t, register double *depth, register uint32_t *screen)
@@ -54,10 +54,7 @@ void 	scanline_draw(register t_sl_data *s, register uint32_t *t, register double
 			if (c != TRANSPARENCY_COLOR)
 			{
 				depth[offset] = s->d;
-				if (s->shade != 0)
-					screen[offset] = shade(s->shade, c);
-				else
-					screen[offset] = c;
+				screen[offset] = s->shade != 0 ? shade(s->shade, c) : c;
 			}
 		}
 		s->x += s->xs;

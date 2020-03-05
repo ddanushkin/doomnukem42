@@ -318,6 +318,8 @@ typedef struct	s_timer
 {
 	Uint64		prev;
 	Uint64		fps;
+	Uint64		fps_count;
+	Uint64		fps_sum;
 	double		delta;
 	double		time;
 	Uint64		frame;

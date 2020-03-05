@@ -166,6 +166,7 @@ void	start_the_game(t_app *app)
 			process_inputs(app, app->timer->delta);
 			render_map(app);
 			draw_hud(app);
+			update_fps_text(app);
 			draw_action_text(app);
 			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
 			SDL_UpdateWindowSurface(app->sdl->window);

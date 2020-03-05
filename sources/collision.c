@@ -55,10 +55,6 @@ int 	height_collision(t_app *app, t_wall *w, t_v3d *pos, t_v3d *f)
 	return (r);
 }
 
-int		tr_check_collision(t_app *app, t_triangle tr, t_v3d *pos, t_v3d *f)
-{
-}
-
 int		wall_check_collision(t_app *app, t_wall *w, t_v3d *pos, t_v3d *f)
 {
 	int		res;

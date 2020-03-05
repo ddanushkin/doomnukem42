@@ -2,15 +2,16 @@
 
 void	update_fps_text(t_app *app)
 {
-	char	*fps_text;
+	char	fps_text[10];
 
-	if(fmod(app->timer->time, 0.25) >= 0.24)
-		app->timer->fps = 1.0 / app->timer->delta;
-	fps_text = ft_itoa(app->timer->fps);
+	fps_text[0] = '\0';
+	app->timer->fps_sum += (uint64_t)(1.0 / app->timer->delta);
+	app->timer->fps_count++;
+	app->timer->fps = app->timer->fps_sum / app->timer->fps_count;
+	ft_itoa2(app->timer->fps, fps_text);
 	font_set(app, 0, 0xffffff);
 	print_to_screen(app, 0, 0, fps_text);
 	font_reset(app);
-	ft_strdel(&fps_text);
 }
 
 void	get_delta_time(t_timer *timer)
