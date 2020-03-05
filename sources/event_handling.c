@@ -292,7 +292,7 @@ void	process_inputs(t_app *app, double dt)
 
 	if (!app->head_too_high)
 		app->head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < 0.1;
-	if (app->head_too_high && app->ceil_sector->door && app->ceil_sector->door_anim)
+	if (app->head_too_high && app->ceil_sector && app->ceil_sector->door && app->ceil_sector->door_anim)
 	{
 		app->hp -= 50;
 		Mix_PlayChannel(3, app->sfx[22], 0);

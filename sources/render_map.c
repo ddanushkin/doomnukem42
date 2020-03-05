@@ -215,6 +215,12 @@ void 	render_sector(t_app *app, t_sector *s)
 	app->render_type = floor_ceil;
 	while (j < s->trs_count)
 	{
+		if (s->lava)
+		{
+			s->ftrs[j].v[0].tex_x += 0.1 * app->timer->delta;
+			s->ftrs[j].v[1].tex_x += 0.1 * app->timer->delta;
+			s->ftrs[j].v[2].tex_x += 0.1 * app->timer->delta;
+		}
 		if (s->floor.active)
 			render_floor_ceil(app, &s->ftrs[j], &s->floor);
 		if (s->ceil.active)

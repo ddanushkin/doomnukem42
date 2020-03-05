@@ -14,6 +14,5 @@ void	exit_with_status(int status, char *fnf_path)
 
 void	quit_properly()
 {
-	//getchar();
 	exit(0);
 }

@@ -199,7 +199,7 @@ int	check_resources(void)
 
 void 	gamedata_write(int fd, void *mem, size_t size, char *type)
 {
-	char	info[50];
+	char	info[100];
 
 	info[0] = '\0';
 	ft_strcat(&info[0], type);
@@ -210,17 +210,20 @@ void 	gamedata_write(int fd, void *mem, size_t size, char *type)
 	write(fd, mem, size);
 }
 
-void	gamedata_save(t_app *a)
+void	gamedata_save(t_app *a, char *name)
 {
 	int		data;
 
 #ifdef __APPLE__
-	data = open("GAME_DATA", O_RDWR | O_CREAT | O_TRUNC, 777);
+	data = open(name, O_RDWR | O_CREAT | O_TRUNC, 777);
 #else
-	data = open("GAME_DATA", O_BINARY | O_WRONLY | O_CREAT | O_TRUNC, 655);
+	data = open(name, O_BINARY | O_WRONLY | O_CREAT | O_TRUNC, 655);
 #endif
 	if (data == -1)
+	{
+		printf("!\n");
 		return ;
+	}
 	gamedata_write(data, &a->sprites[0], sizeof(t_sprite) * MAX_SPRITE, "T:\0");
 	gamedata_write(data, &a->audio[0], sizeof(t_raw_sfx) * MAX_SFX, "A:\0");
 	gamedata_write(data, &a->music[0], sizeof(t_raw_bg) * MAX_BG, "B:\0");
@@ -428,7 +431,6 @@ int		main(int argv, char**argc)
 {
 	t_app	*app;
 	printf("%d, %s\n", argv, argc[0]);
-	//getchar();
 	//if (!check_resources())
 	//	exit_with_status(STATUS_BAD_RESOURCES, NULL);
 	app = (t_app *)malloc(sizeof(t_app));
@@ -438,7 +440,7 @@ int		main(int argv, char**argc)
 	app->camera = (t_camera *)malloc(sizeof(t_camera));
 	app->camera->up = new_vector(0.0, 1.0, 0.0);
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
-	app->game_data_init = 1;
+	app->game_data_init = 0;
 	app->map_init = 0;
 	if (!app->game_data_init)
 		gamedata_load(app);
@@ -452,7 +454,8 @@ int		main(int argv, char**argc)
 	init_app(app);
 	start_the_game(app);
 
-	gamedata_save(app);
+	if (app->game_data_init)
+		gamedata_save(app, "GAME_DATA");
 	map_save(app, "test_map");
 
 	quit_properly();
