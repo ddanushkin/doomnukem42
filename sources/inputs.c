@@ -207,18 +207,42 @@ void	live_mode_change_shade(t_app *app)
 		app->hit_wall->shade = 0;
 }
 
-void	live_mode_add_decore(t_app *app)
+void	live_mode_add_decor(t_app *app, int healer)
 {
-		decore_add(app->hit_point,
-				   app->hit_sector,
-				   app->hit_wall,
-				   app->camera);
+	t_wall	*h;
+
+	h = decor_add(app->hit_point,
+			  app->hit_sector,
+			  app->hit_wall,
+			  app->camera);
+	if (app->hit_sector->decor_count != 25)
+		app->hit_sector->decor_count++;
+	app->hit_sector->decor_next = (app->hit_sector->decor_next + 1) % 25;
+	h->healer = healer;
+	if (healer)
+	{
+		h->sprite = HEALER_SPRITE;
+		h->healer_cap = 100;
+	}
 }
 
 void	live_mode_set_exit(t_app *app)
 {
 	if (app->hit_type == decor)
 		app->hit_wall->is_exit = !app->hit_wall->is_exit;
+}
+
+void	live_mode_toggle_healer(t_app *app)
+{
+	if (app->hit_type == decor)
+		app->hit_wall->healer = !app->hit_wall->healer;
+	if (app->hit_wall->healer)
+	{
+		app->hit_wall->sprite = HEALER_SPRITE;
+		app->hit_wall->healer_cap = 100;
+	}
+	else
+		app->hit_wall->sprite = DECOR_SPRITE;
 }
 
 void	live_mode_set_start(t_app *app)
@@ -233,13 +257,26 @@ void	live_mode_set_start(t_app *app)
 void	live_mode_use_wall(t_app *app)
 {
 	if (app->hit_type == decor &&
-		app->hit_wall->is_exit &&
-		app->hit_dist <= USE_DIST)
+		app->hit_wall->is_exit)
 		exit(0);
-	if (app->hit_wall->is_card && app->hit_dist <= USE_DIST)
+	if (app->hit_wall->is_card)
 	{
 		app->md.card_picked = 1;
 		Mix_PlayChannel(9, app->sfx[89], 0);
+	}
+	if (app->hit_type == decor && app->hit_wall->healer)
+	{
+		if(app->hit_wall->healer_cap <= 0)
+			Mix_PlayChannel(9, app->sfx[39], 0);
+		else if (app->heal_tick > 0)
+			app->heal_tick -= app->timer->delta;
+		else if (app->hit_wall->healer_cap > 0 && app->heal_tick <= 0.0)
+		{
+			Mix_PlayChannel(9, app->sfx[9], 0);
+			app->hp++;
+			app->hit_wall->healer_cap--;
+			app->heal_tick = HEAL_TIMER;
+		}
 	}
 }
 
@@ -478,7 +515,9 @@ void	live_mode_inputs(t_app *app)
 		else if (app->inputs->keyboard[SDL_SCANCODE_L])
 			live_mode_change_shade(app);
 		else if (app->inputs->keyboard[SDL_SCANCODE_T] && app->hit_type == wall)
-			live_mode_add_decore(app);
+			live_mode_add_decor(app, 0);
+		else if (app->inputs->keyboard[SDL_SCANCODE_H] && app->hit_type == wall)
+			live_mode_add_decor(app, 1);
 		else if (app->inputs->keyboard[SDL_SCANCODE_Q] && app->hit_type == wall)
 			live_mode_wall_top(app);
 		else if (app->inputs->keyboard[SDL_SCANCODE_E] && app->hit_type == wall)
@@ -493,9 +532,11 @@ void	live_mode_inputs(t_app *app)
 			live_mode_toggle_door(app);
 		if (app->hit_sector && app->keys[SDL_SCANCODE_F3])
 			live_mode_toggle_lava(app);
+		if (app->keys[SDL_SCANCODE_F6])
+			live_mode_toggle_healer(app);
 		if (app->keys[SDL_SCANCODE_E])
 			live_mode_door_open(app);
-		if (app->keys[SDL_SCANCODE_E])
+		if (app->keys[SDL_SCANCODE_E] && app->hit_dist <= USE_DIST)
 			live_mode_use_wall(app);
 		if (app->inputs->keyboard[SDL_SCANCODE_M])
 			live_mode_set_bg(app);

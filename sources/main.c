@@ -55,6 +55,10 @@ void 	draw_action_text(t_app *app)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "USE DOOR");
 		else if (app->hit_wall->is_exit)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "FINISH LEVEL");
+		else if (app->hit_wall->healer && app->hit_wall->healer_cap > 0)
+			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "RESTORE HEALTH");
+		else if (app->hit_wall->healer && app->hit_wall->healer_cap <= 0)
+			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "OUT OF POWER");
 		else if (app->hit_type == npc)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "SPEAK");
 		font_reset(app);
@@ -88,6 +92,7 @@ void	state_reset(t_app *app)
 	app->prev_dy = app->height;
 	app->head_too_high = 0;
 	app->md.card_picked = 0;
+	app->heal_tick = 0.0;
 }
 
 void	start_the_game(t_app *app)

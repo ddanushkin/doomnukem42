@@ -35,6 +35,7 @@ t_wall	wall_new()
 	w.collect = 0;
 	w.is_card = 0;
 	w.use = 0;
+	w.healer = 0;
 	w.ori = 0;
 	return (w);
 }

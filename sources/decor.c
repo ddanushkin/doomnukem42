@@ -1,6 +1,6 @@
 #include "doom_nukem.h"
 
-void 	decore_set_pos(t_wall *decor, t_v3d lp, t_v3d tp, t_v3d forward)
+void 	decor_set_pos(t_wall *decor, t_v3d lp, t_v3d tp, t_v3d forward)
 {
 	decor->v[0] = lp;
 	decor->v[1] = tp;
@@ -21,7 +21,7 @@ void	calc_top_point(t_v3d *lp, t_v3d *tp, double dx, double dz)
 	tp->y = lp->y + DECOR_LEN;
 }
 
-void 	decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam)
+t_wall 	*decor_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam)
 {
 	t_wall	*w;
 	double	dz;
@@ -41,10 +41,8 @@ void 	decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam)
 	lp.z -= (tp.z - lp.z) * 0.5;
 	lp.y -= DECOR_LEN_HALF;
 	calc_top_point(&lp, &tp, dx, dz);
-	decore_set_pos(w, lp, tp, cam->forward);
+	decor_set_pos(w, lp, tp, cam->forward);
 	wall_reset_tex(w);
 	w->sprite = DECOR_SPRITE;
-	if (cs->decor_count != 25)
-		cs->decor_count++;
-	cs->decor_next = (cs->decor_next + 1) % 25;
+	return (w);
 }

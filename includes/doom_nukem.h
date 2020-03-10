@@ -70,6 +70,7 @@
 # define PLAYER_SPEED 5.0
 # define USE_DIST 1.25
 # define LAVA_TIMER 0.5
+# define HEAL_TIMER 0.025
 
 # define WALL_SPRITE	162
 # define OBJ_SPRITE		358
@@ -80,6 +81,7 @@
 # define DOOR_SIDE		227
 # define DOOR_TOP_BOT	229
 # define LAST_TEX		476
+# define HEALER_SPRITE	105
 
 # define MAX_SECTOR		100
 # define MAX_WALL		50
@@ -187,9 +189,10 @@ typedef struct	s_wall
 	int 		collect;
 	int 		is_card;
 	int 		use;
+	int			healer;
+	int 		healer_cap;
 	int 		rotate;
 	int 		ori;
-
 }				t_wall;
 
 typedef struct	s_v2d
@@ -624,6 +627,7 @@ typedef struct	s_app
 	t_hud_data 		hp_hud;
 	t_hud_data 		time_hud;
 	t_wall			card_w;
+	double 			heal_tick;
 }				t_app;
 
 t_v3d 		get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
@@ -633,7 +637,7 @@ void 		join_tr_thrd(t_app *app);
 void		sector_update_shade(t_sector *s);
 void 		fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, double *sh);
 void		update_wall_shade(t_sprite *sprites, t_sector *s, t_wall *w);
-void 		decore_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam);
+t_wall		*decor_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam);
 void 		camera_live_mode(t_v3d *rot);
 void 		camera_point_mode(t_v3d *pos, t_v3d *rot);
 void 		point_draw(t_app *app, t_v3d p, Uint32 c);
