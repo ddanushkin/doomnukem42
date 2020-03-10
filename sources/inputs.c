@@ -534,12 +534,12 @@ void	live_mode_inputs(t_app *app)
 			live_mode_toggle_door(app);
 		if (app->hit_sector && app->keys[SDL_SCANCODE_F3])
 			live_mode_toggle_lava(app);
-		if (app->keys[SDL_SCANCODE_F6])
+		if (app->keys[SDL_SCANCODE_F7] && app->hit_type == decor)
 			live_mode_toggle_healer(app);
-		if (app->keys[SDL_SCANCODE_E])
-			live_mode_door_open(app);
 		if (app->keys[SDL_SCANCODE_E] && app->hit_dist <= USE_DIST)
 			live_mode_use_wall(app);
+		if (app->keys[SDL_SCANCODE_E])
+			live_mode_door_open(app);
 		if (app->inputs->keyboard[SDL_SCANCODE_M])
 			live_mode_set_bg(app);
 		if (app->hit_type == npc && app->inputs->keyboard[SDL_SCANCODE_RSHIFT])

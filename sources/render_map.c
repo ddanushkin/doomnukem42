@@ -246,6 +246,7 @@ void	render_map(t_app *app)
 	{
 		app->render_type = obj;
 		render_billboard(app, &app->card_w);
+		app->hit_sector = NULL;
 	}
 	render_skybox(app, app->skybox);
 }
