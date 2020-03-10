@@ -275,6 +275,8 @@ void	live_mode_use_wall(t_app *app)
 			Mix_PlayChannel(9, app->sfx[9], 0);
 			app->hp++;
 			app->hit_wall->healer_cap--;
+			if (app->hit_wall->healer_cap % 20 == 0)
+				app->hit_wall->sprite--;
 			app->heal_tick = HEAL_TIMER;
 		}
 	}
