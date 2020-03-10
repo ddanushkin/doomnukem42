@@ -172,20 +172,18 @@ void	start_the_game(t_app *app)
 	SDL_DestroyWindow(app->sdl->window);
 }
 
-/* TODO: rewrite for GAME_DATA*/
 int	check_resources(void)
 {
 	int		fd;
 	char 	hash[33];
 
-	system("tar c ./resources/ | md5 > resources_hash");
-	fd = open("resources_hash", O_RDONLY);
+	system("md5 -q GAME_DATA > .md5_hash");
+	fd = open(".md5_hash", O_RDONLY);
 	if (fd < 3)
-		exit_with_status(STATUS_FILE_NOT_FOUND, "resources_hash");
+		exit_with_status(STATUS_FILE_NOT_FOUND, ".md5_hash");
 	hash[32] = '\0';
 	read(fd, hash, 32);
 	close(fd);
-	printf("%s\n", hash);
 	return (ft_strequ(hash, RESOURCES_MD5));
 }
 
@@ -426,8 +424,8 @@ int		main(int argv, char**argc)
 	t_app	*app;
 
 	printf("%d, %s\n", argv, argc[0]);
-	//if (!check_resources())
-	//	exit_with_status(STATUS_BAD_RESOURCES, NULL);
+//	if (!check_resources())
+//		exit_with_status(STATUS_BAD_RESOURCES, NULL);
 	app = (t_app *)malloc(sizeof(t_app));
 	app->sdl = (t_sdl *)malloc(sizeof(t_sdl));
 	app->inputs = (t_inputs *)malloc(sizeof(t_inputs));

@@ -46,7 +46,7 @@
 # define TO_RAD(a) (a * M_PI / 180.0)
 # define TO_DEG(a) (a * 180.0 / M_PI)
 
-# define RESOURCES_MD5 "92e21b66507aebb010adb353fc83badb"
+# define RESOURCES_MD5 "308e4f5eda0502b663ce403aa8b71726"
 
 # define STATUS_OK 0
 # define STATUS_FILE_NOT_FOUND 1
