@@ -28,38 +28,44 @@ void 	scanline_calc(t_sl_data *d, t_edge *left, t_edge *right, t_render *r)
 
 uint32_t	shade(uint8_t shade, uint32_t c)
 {
-	uint8_t		r;
-	uint8_t		g;
-	uint8_t		b;
+	int		r;
+	int		g;
+	int		b;
 
-	r = ((c >> 16) & 0xFF) >> shade;
-	g = ((c >> 8) & 0xFF) >> shade;
-	b = (c & 0xFF) >> shade;
+	r = (int)((c >> 16) & 0xFF) - shade;
+	if (r < 0)
+		r = 0;
+	g = (int)((c >> 8) & 0xFF) - shade;
+	if (g < 0)
+		g = 0;
+	b = (int)(c & 0xFF) - shade;
+	if (b < 0)
+		b = 0;
 	return ((r << 16u) | (g << 8u) | b);
 }
 
 void 	scanline_draw(register t_sl_data *s, register uint32_t *t, register double *depth, register uint32_t *screen)
 {
-	int			i;
 	int			offset;
 	uint32_t	c;
+	double 		tmp_z;
 
-	i = s->start;
 	offset = s->offset;
-	while (i++ < s->end)
+	while (s->start++ < s->end)
 	{
 		if (depth[offset] - s->d > 0.00001)
 		{
-			c = t[((uint8_t)(s->y / s->z) << 8u) + (uint8_t)(s->x / s->z)];
+			tmp_z = 1.0 / s->z;
+			c = t[((uint8_t)(s->y * tmp_z) << 8u) + (uint8_t)(s->x * tmp_z)];
 			if (c != TRANSPARENCY_COLOR)
 			{
 				depth[offset] = s->d;
 				screen[offset] = s->shade != 0 ? shade(s->shade, c) : c;
 			}
 		}
+		s->z += s->zs;
 		s->x += s->xs;
 		s->y += s->ys;
-		s->z += s->zs;
 		s->d += s->ds;
 		offset++;
 	}

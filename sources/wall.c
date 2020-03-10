@@ -33,6 +33,7 @@ t_wall	wall_new()
 	w.anim_auto = 0;
 	w.rotate = 0;
 	w.collect = 0;
+	w.is_card = 0;
 	w.use = 0;
 	w.ori = 0;
 	return (w);

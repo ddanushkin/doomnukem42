@@ -242,5 +242,10 @@ void	render_map(t_app *app)
 		app->cs = &app->sectors[i];
 		render_sector(app, &app->sectors[i++]);
 	}
+	if (app->md.card_set && !app->md.card_picked)
+	{
+		app->render_type = obj;
+		render_billboard(app, &app->card_w);
+	}
 	render_skybox(app, app->skybox);
 }

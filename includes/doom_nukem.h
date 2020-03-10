@@ -90,6 +90,19 @@
 # define MAX_SFX		107
 # define MAX_BG			11
 
+# define HUD_CARD_SPRITE 234
+# define HUD_CARD_HOLDER 232
+# define HUD_CARD_POS_X	(SCREEN_W - 100 - 64)
+# define HUD_CARD_POS_Y	(SCREEN_H - 100 - 64)
+
+# define HUD_HP_HOLDER	105
+# define HUD_HP_POS_X	100
+# define HUD_HP_POS_Y	(SCREEN_H - 100 - 64)
+
+# define HUD_TIME_HOLDER 42
+# define HUD_TIME_POS_X	(SCREEN_W / 2 - 32)
+# define HUD_TIME_POS_Y	(SCREEN_H - 100 - 64)
+
 # ifndef MULTITHREAD
 #  ifdef __APPLE__
 #    define MULTITHREAD
@@ -172,9 +185,11 @@ typedef struct	s_wall
 	t_animation	anim;
 	int 		anim_auto;
 	int 		collect;
+	int 		is_card;
 	int 		use;
 	int 		rotate;
 	int 		ori;
+
 }				t_wall;
 
 typedef struct	s_v2d
@@ -413,11 +428,23 @@ typedef struct	s_sector
 	int 		trs_count;
 	int 		pts_count;
 	int 		door;
+	int 		need_card;
 	int			lava;
 	double		door_h;
 	int 		door_anim;
 	double 		door_dir;
 }				t_sector;
+
+typedef struct	s_hud_image
+{
+	int 		x;
+	int 		y;
+	uint8_t 	w;
+	uint8_t 	h;
+	double 		x_rat;
+	double 		y_rat;
+	uint32_t 	*image;
+}				t_hud_data;
 
 typedef struct	s_skybox
 {
@@ -512,23 +539,14 @@ typedef struct	s_wus
 	double		h;
 }				t_wus;
 
-typedef struct	s_coll_data
-{
-	double		a;
-	double		b;
-	double		c;
-	double		d;
-	double		t1;
-	double		t2;
-	double		y;
-	int 		coll;
-}				t_coll_data;
-
 typedef struct	s_map_data
 {
 	t_v3d		start_pos;
 	int 		start_set;
 	int 		music_id;
+	int 		card_set;
+	t_v3d 		card_pos;
+	int 		card_picked;
 }				t_map_data;
 
 typedef struct	s_app
@@ -599,10 +617,13 @@ typedef struct	s_app
 	double 			falling;
 	int 			jumped;
 	t_v3d			last_dir;
-	t_animation		*a;
 	double 			lava_timer;
 	int				head_too_high;
 	double 			temp;
+	t_hud_data 		card_hud;
+	t_hud_data 		hp_hud;
+	t_hud_data 		time_hud;
+	t_wall			card_w;
 }				t_app;
 
 t_v3d 		get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
@@ -629,6 +650,9 @@ void 		app_reset_floor_ceil_hit(t_app *app);
 void 		font_reset(t_app *app);
 void 		font_set(t_app *app, int size, uint32_t color);
 void		state_reset(t_app *app);
+
+void	draw_hud(t_app *app);
+t_hud_data	hud_image_new(int x, int y, int w, int h);
 
 void 		move(t_v3d *v, t_v3d dir, double amount);
 

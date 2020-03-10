@@ -202,8 +202,8 @@ void	live_mode_change_shade(t_app *app)
 	else if (app->keys[SDL_SCANCODE_EQUALS])
 		app->hit_wall->shade--;
 	if (app->hit_wall->shade < 0)
-		app->hit_wall->shade = 6;
-	if (app->hit_wall->shade > 6)
+		app->hit_wall->shade = 255;
+	if (app->hit_wall->shade > 255)
 		app->hit_wall->shade = 0;
 }
 
@@ -230,12 +230,17 @@ void	live_mode_set_start(t_app *app)
 	}
 }
 
-void	live_mode_use_exit(t_app *app)
+void	live_mode_use_wall(t_app *app)
 {
 	if (app->hit_type == decor &&
 		app->hit_wall->is_exit &&
 		app->hit_dist <= USE_DIST)
 		exit(0);
+	if (app->hit_wall->is_card && app->hit_dist <= USE_DIST)
+	{
+		app->md.card_picked = 1;
+		Mix_PlayChannel(9, app->sfx[89], 0);
+	}
 }
 
 void	live_mode_toggle_lava(t_app *app)
@@ -254,6 +259,7 @@ void	live_mode_toggle_door(t_app *app)
 
 	s = app->hit_sector;
 	s->door = !s->door;
+	s->need_card = 0;
 	i = 0;
 	while (i < s->walls_count)
 	{
@@ -267,17 +273,28 @@ void	live_mode_toggle_door(t_app *app)
 
 void	live_mode_door_open(t_app *app)
 {
-	if (app->hit_sector->door && app->hit_dist <= USE_DIST)
+	if (!app->hit_sector || !app->hit_sector->door || app->hit_dist > USE_DIST)
+		return;
+	if (app->hit_sector->need_card && !app->md.card_picked)
 	{
-		if (app->hit_sector->door_anim)
-		{
-			app->hit_sector->door_dir *= -1;
-			Mix_PlayChannel(1, app->sfx[35], -1);
-		}
-		app->hit_sector->door_anim = 1;
-		Mix_PlayChannel(2, app->sfx[26], 0);
+		Mix_PlayChannel(9, app->sfx[39], 0);
+		return;
+	}
+	if (app->hit_sector->need_card)
+	{
+		Mix_PlayChannel(9, app->sfx[100], 0);
+		app->hit_sector->need_card = 0;
+		app->md.card_picked = 0;
+		app->md.card_set = 0;
+	}
+	if (app->hit_sector->door_anim)
+	{
+		app->hit_sector->door_dir *= -1;
 		Mix_PlayChannel(1, app->sfx[35], -1);
 	}
+	app->hit_sector->door_anim = 1;
+	Mix_PlayChannel(2, app->sfx[26], 0);
+	Mix_PlayChannel(1, app->sfx[35], -1);
 }
 
 void	live_mode_set_bg(t_app *app)
@@ -374,7 +391,7 @@ void 	live_mode_add_obj(t_app *app)
 {
 	t_wall	obj;
 
-	if (app->floor_sector == NULL && app->camera->fly)
+	if (app->floor_sector == NULL || app->camera->fly)
 		return ;
 	obj = wall_new();
 	obj.pos = app->floor_point;
@@ -387,11 +404,35 @@ void 	live_mode_add_obj(t_app *app)
 	app->floor_sector->objs_count %= MAX_OBJ;
 }
 
+void 	live_mode_add_card(t_app *app)
+{
+	t_wall	obj;
+
+	if (app->floor_sector == NULL || app->camera->fly)
+		return ;
+	if (app->md.card_set && app->hit_sector->door)
+	{
+		app->hit_sector->need_card = 1;
+		return ;
+	}
+	obj = wall_new();
+	obj.pos = app->floor_point;
+	obj.size = 0.5;
+	obj.sprite = HUD_CARD_SPRITE;
+	obj.is_card = 1;
+	obj.collect = 1;
+	obj.rotate = 0;
+	obj.shade = 0;
+	app->card_w = obj;
+	app->md.card_set = 1;
+	app->md.card_pos = obj.pos;
+}
+
 void 	live_mode_add_npc(t_app *app)
 {
 	t_wall	obj;
 
-	if (app->floor_sector == NULL && app->camera->fly)
+	if (app->floor_sector == NULL || app->camera->fly)
 		return ;
 	obj = wall_new();
 	obj.pos = app->floor_point;
@@ -452,10 +493,10 @@ void	live_mode_inputs(t_app *app)
 			live_mode_toggle_door(app);
 		if (app->hit_sector && app->keys[SDL_SCANCODE_F3])
 			live_mode_toggle_lava(app);
-		if (app->hit_wall && app->keys[SDL_SCANCODE_E])
-			live_mode_use_exit(app);
-		if (app->keys[SDL_SCANCODE_V])
+		if (app->keys[SDL_SCANCODE_E])
 			live_mode_door_open(app);
+		if (app->keys[SDL_SCANCODE_E])
+			live_mode_use_wall(app);
 		if (app->inputs->keyboard[SDL_SCANCODE_M])
 			live_mode_set_bg(app);
 		if (app->hit_type == npc && app->inputs->keyboard[SDL_SCANCODE_RSHIFT])
@@ -469,4 +510,6 @@ void	live_mode_inputs(t_app *app)
 		live_mode_add_obj(app);
 	if (app->keys[SDL_SCANCODE_F5])
 		live_mode_set_start(app);
+	if (app->keys[SDL_SCANCODE_F6])
+		live_mode_add_card(app);
 }

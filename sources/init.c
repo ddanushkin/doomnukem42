@@ -126,4 +126,7 @@ void	init_app(t_app *app)
 	init_sfx(app);
 	init_bg(app);
 	init_skybox(app);
+	app->card_hud = hud_image_new(HUD_CARD_POS_X, HUD_CARD_POS_Y, 64, 64);
+	app->hp_hud = hud_image_new(HUD_HP_POS_X, HUD_HP_POS_Y, 64, 64);
+	app->time_hud = hud_image_new(HUD_TIME_POS_X, HUD_TIME_POS_Y, 64, 64);
 }

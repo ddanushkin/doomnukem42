@@ -44,26 +44,18 @@ Uint8 	vertex_inside(t_v3d *v)
 			fabs(v->z) <= w);
 }
 
-void 	draw_hud(t_app *app)
-{
-	char hp[4];
-	hp[0] = '\0';
-	ft_itoa2(app->hp, &hp[0]);
-	font_set(app, 0, 0x0000ff);
-	print_to_screen(app, 100, SCREEN_H - 100, &hp[0]);
-	font_reset(app);
-}
-
 void 	draw_action_text(t_app *app)
 {
 	if (app->hit_wall && app->hit_dist <= USE_DIST)
 	{
 		font_set(app, 0, 0x0000FF);
-		if (app->hit_sector->door && !app->hit_sector->door_anim)
+		if (app->hit_wall->is_card)
+			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "PICK UP");
+		else if (app->hit_sector->door && !app->hit_sector->door_anim)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "USE DOOR");
-		if (app->hit_wall->is_exit)
+		else if (app->hit_wall->is_exit)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "FINISH LEVEL");
-		if (app->hit_type == npc)
+		else if (app->hit_type == npc)
 			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "SPEAK");
 		font_reset(app);
 	}
@@ -95,6 +87,7 @@ void	state_reset(t_app *app)
 	app->lava_timer = 0.0;
 	app->prev_dy = app->height;
 	app->head_too_high = 0;
+	app->md.card_picked = 0;
 }
 
 void	start_the_game(t_app *app)
@@ -116,20 +109,21 @@ void	start_the_game(t_app *app)
 	prepare_chunks(app);
 	switch_mode(app);
 
-	t_animation a;
-
-	a.speed = 1.5;
-	a.frame_nbr = 5;
-	a.loop = 0;
-	a.delayed = 0;
-	a.play = 0;
+//	t_animation a;
+//	a.speed = 1.5;
+//	a.frame_nbr = 5;
+//	a.loop = 0;
+//	a.delayed = 0;
+//	a.play = 0;
+//	app->a = &a;
+//	animation_next_frame(&a, app->timer->delta);
+//	if (!a.play)
+//		animation_play(&a);
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	app->a = &a;
 	while (1)
 	{
 		get_delta_time(app->timer);
-		animation_next_frame(&a, app->timer->delta);
 		ft_bzero(&app->keys, sizeof(uint8_t) * 512);
 		ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
 		if (!event_handling(app))
@@ -159,8 +153,6 @@ void	start_the_game(t_app *app)
 		}
 		else
 		{
-			if (!a.play)
-				animation_play(&a);
 			live_mode_inputs(app);
 			update_camera(app, app->camera);
 			process_inputs(app, app->timer->delta);
@@ -424,12 +416,15 @@ void 	init_map(t_app *app)
 	app->sectors_count = 0;
 	app->md.start_set = 0;
 	app->md.music_id = 8;
+	app->md.card_set = 0;
+	app->md.card_picked = 0;
 	app->sectors = (t_sector *)malloc(sizeof(t_sector) * MAX_SECTOR);
 }
 
 int		main(int argv, char**argc)
 {
 	t_app	*app;
+
 	printf("%d, %s\n", argv, argc[0]);
 	//if (!check_resources())
 	//	exit_with_status(STATUS_BAD_RESOURCES, NULL);
@@ -440,8 +435,8 @@ int		main(int argv, char**argc)
 	app->camera = (t_camera *)malloc(sizeof(t_camera));
 	app->camera->up = new_vector(0.0, 1.0, 0.0);
 	app->depth_buffer = (double *)malloc(sizeof(double) * SCREEN_W * SCREEN_H);
-	app->game_data_init = 0;
-	app->map_init = 0;
+	app->game_data_init = 1;
+	app->map_init = 1;
 	if (!app->game_data_init)
 		gamedata_load(app);
 	if (!app->map_init)

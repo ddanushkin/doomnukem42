@@ -8,6 +8,11 @@ void	update_fps_text(t_app *app)
 	app->timer->fps_sum += (uint64_t)(1.0 / app->timer->delta);
 	app->timer->fps_count++;
 	app->timer->fps = app->timer->fps_sum / app->timer->fps_count;
+	if (app->timer->fps_count >= 120)
+	{
+		app->timer->fps_count = 0;
+		app->timer->fps_sum = 0;
+	}
 	ft_itoa2(app->timer->fps, fps_text);
 	font_set(app, 0, 0xffffff);
 	print_to_screen(app, 0, 0, fps_text);

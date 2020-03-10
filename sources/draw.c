@@ -150,6 +150,13 @@ void 	draw_start(t_app *app)
 		p = new_vector(app->md.start_pos.x, 0.0, app->md.start_pos.z);
 		p = point_3d_to_2d(app, p);
 		if (point_in_screen(p))
-			return (print_to_screen(app, p.x, p.y, "START\0"));
+			print_to_screen(app, p.x, p.y, "START\0");
+	}
+	if (app->md.card_set)
+	{
+		p = new_vector(app->md.card_pos.x, 0.0, app->md.card_pos.z);
+		p = point_3d_to_2d(app, p);
+		if (point_in_screen(p))
+			print_to_screen(app, p.x, p.y, "CARD\0");
 	}
 }
