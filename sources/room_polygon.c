@@ -1,13 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   room_polygon.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:41 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 16:34:01 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-double 	calc_tex(double min, double cur, double max)
+double		calc_tex(double min, double cur, double max)
 {
 	if (max - min == 0.0)
 		return (0.0);
-	return ((cur - min)/(max - min));
+	return ((cur - min) / (max - min));
 }
 
-void	push_vertex(t_sector *cs, t_polygon **polygon, int i)
+void		push_vertex(t_sector *cs, t_polygon **polygon, int i)
 {
 	t_v3d *v;
 

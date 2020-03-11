@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   hud_image.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:33 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 15:37:35 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
 t_hud_data	hud_image_new(int x, int y, int w, int h)
@@ -10,10 +22,10 @@ t_hud_data	hud_image_new(int x, int y, int w, int h)
 	d.h = h;
 	d.y_rat = 256 / (double)d.h;
 	d.x_rat = 256 / (double)d.w;
-	return d;
+	return (d);
 }
 
-void	draw_hud_image(uint32_t *screen, t_hud_data d, uint32_t *img)
+void		draw_hud_image(uint32_t *screen, t_hud_data d, uint32_t *img)
 {
 	int img_y;
 	int img_x;
@@ -36,7 +48,7 @@ void	draw_hud_image(uint32_t *screen, t_hud_data d, uint32_t *img)
 	}
 }
 
-void 	draw_hud_text(t_app *app, int data, int x, int y)
+void		draw_hud_text(t_app *app, int data, int x, int y)
 {
 	char text[5];
 
@@ -49,7 +61,7 @@ void 	draw_hud_text(t_app *app, int data, int x, int y)
 	font_reset(app);
 }
 
-void	draw_hud(t_app *app)
+void		draw_hud(t_app *app)
 {
 	t_sprite *s;
 	uint32_t *p;
@@ -63,5 +75,6 @@ void	draw_hud(t_app *app)
 	draw_hud_image(p, app->hp_hud, &s[HUD_HP_HOLDER].pixels[0]);
 	draw_hud_text(app, app->hp, 120, SCREEN_H - 155);
 	draw_hud_image(p, app->time_hud, &s[HUD_TIME_HOLDER].pixels[0]);
-	draw_hud_text(app, (int)app->timer->time, SCREEN_W / 2 - 10, SCREEN_H - 130);
+	draw_hud_text(app,
+			(int)app->timer->time, SCREEN_W / 2 - 10, SCREEN_H - 130);
 }

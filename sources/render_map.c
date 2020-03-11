@@ -1,57 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   render_map.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:40 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 16:33:03 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-uint32_t	wall_inside(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3)
-{
-	return ((vertex_inside(v0) << 24u) +
-			(vertex_inside(v1) << 16u) +
-			(vertex_inside(v2) << 8u) +
-			vertex_inside(v3));
-}
-
-Uint8 	wall_outside_x(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3)
-{
-	return ((v0->x > v0->w &&
-			 v1->x > v1->w &&
-			 v2->x > v2->w &&
-			 v3->x > v3->w) ||
-			(v0->x < -v0->w &&
-			 v1->x < -v1->w &&
-			 v2->x < -v2->w &&
-			 v3->x < -v3->w));
-}
-
-Uint8 	wall_outside_y(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3)
-{
-	return ((v0->y > v0->w &&
-			v1->y > v1->w &&
-			v2->y > v2->w &&
-			v3->y > v3->w) ||
-			(v0->y < -v0->w &&
-			 v1->y < -v1->w &&
-			 v2->y < -v2->w &&
-			 v3->y < -v3->w));
-}
-
-Uint8 	wall_outside_z(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3)
-{
-	return ((v0->z > v0->w &&
-			 v1->z > v1->w &&
-			 v2->z > v2->w &&
-			 v3->z > v3->w) ||
-			(v0->z < -v0->w &&
-			 v1->z < -v1->w &&
-			 v2->z < -v2->w &&
-			 v3->z < -v3->w));
-}
-
-Uint8 wall_outside(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3)
-{
-	return (wall_outside_x(v0, v1, v2, v3) ||
-			wall_outside_y(v0, v1, v2, v3) ||
-			wall_outside_z(v0, v1, v2, v3));
-}
-
-void 	billboard_face_player(t_app *app, t_wall *w)
+void	billboard_face_player(t_app *app, t_wall *w)
 {
 	t_camera	*c;
 	double		half_size;
@@ -72,9 +33,9 @@ void 	billboard_face_player(t_app *app, t_wall *w)
 	wall_reset_tex(w);
 }
 
-void 	billboard_switch_sprite(t_app *app, t_wall *w)
+void	billboard_switch_sprite(t_app *app, t_wall *w)
 {
-	int quad;
+	int		quad;
 
 	quad = app->camera->quad + w->ori;
 	quad = (quad % 8 + 8) % 8;
@@ -97,12 +58,12 @@ void 	billboard_switch_sprite(t_app *app, t_wall *w)
 	}
 }
 
-void 	render_billboard(t_app *app, t_wall *w)
+void	render_billboard(t_app *app, t_wall *w)
 {
-	t_v3d v0;
-	t_v3d v1;
-	t_v3d v2;
-	t_v3d v3;
+	t_v3d	v0;
+	t_v3d	v1;
+	t_v3d	v2;
+	t_v3d	v3;
 
 	billboard_face_player(app, w);
 	if (w->rotate)
@@ -112,7 +73,7 @@ void 	render_billboard(t_app *app, t_wall *w)
 	v2 = matrix_transform(app->camera->transform, w->v[2]);
 	v3 = matrix_transform(app->camera->transform, w->v[3]);
 	if (wall_outside(&v0, &v1, &v2, &v3))
-		return;
+		return ;
 	w->inside = wall_inside(&v0, &v1, &v2, &v3);
 	app->rw = w;
 	render_triangle_0(app, v0, v1, v2);
@@ -121,26 +82,7 @@ void 	render_billboard(t_app *app, t_wall *w)
 		ray_intersect(app, w->v[0], w->v[3], w->v[1]);
 }
 
-void 	render_floor_ceil(t_app *app, t_triangle *tr, t_wall *w)
-{
-	t_v3d	v0;
-	t_v3d	v1;
-	t_v3d	v2;
-
-	if (!w->active)
-		return ;
-	v0 = matrix_transform(app->camera->transform, tr->v[0]);
-	v1 = matrix_transform(app->camera->transform, tr->v[1]);
-	v2 = matrix_transform(app->camera->transform, tr->v[2]);
-	w->inside = (vertex_inside(&v0) << 24u) +
-				(vertex_inside(&v1) << 16u) +
-				(vertex_inside(&v2) << 8u) + 1u;
-	app->rw = w;
-	ray_intersect(app, tr->v[0], tr->v[1], tr->v[2]);
-	render_triangle_0(app, v0, v1, v2);
-}
-
-void 	render_wall(register t_app *app, register t_wall *w)
+void	render_wall(register t_app *app, register t_wall *w)
 {
 	t_v3d	v0;
 	t_v3d	v1;
@@ -154,79 +96,13 @@ void 	render_wall(register t_app *app, register t_wall *w)
 	v2 = matrix_transform(app->camera->transform, w->v[2]);
 	v3 = matrix_transform(app->camera->transform, w->v[3]);
 	if (wall_outside(&v0, &v1, &v2, &v3))
-		return;
+		return ;
 	w->inside = wall_inside(&v0, &v1, &v2, &v3);
 	app->rw = w;
 	render_triangle_0(app, v0, v1, v2);
 	render_triangle_1(app, v0, v3, v1);
 	if (!ray_intersect(app, w->v[0], w->v[1], w->v[2]))
 		ray_intersect(app, w->v[0], w->v[3], w->v[1]);
-}
-
-void	update_door(t_app *app, t_sector *s, double dt)
-{
-	double amount;
-
-	amount = 2.5 * s->door_dir * dt;
-	sector_pts_h(&s->fpts[0], s->pts_count, -amount);
-	s->floor_y -= amount;
-	if (s->door_dir < 0.0 && fabs(s->ceil_y - s->floor_y) <= 0.15)
-	{
-		s->floor_y = s->ceil_y - 0.15;
-		s->door_anim = 0;
-		s->door_dir *= -1.0;
-		Mix_HaltChannel(1);
-		Mix_PlayChannel(2, app->sfx[25], 0);
-	}
-	else if (s->door_dir > 0.0 && fabs(s->ceil_y - s->floor_y) >= s->delta_y)
-	{
-		s->floor_y = s->ceil_y - s->delta_y;
-		s->door_anim = 0;
-		s->door_dir *= -1.0;
-		Mix_HaltChannel(1);
-		Mix_PlayChannel(2, app->sfx[25], 0);
-	}
-	sector_update_height(s, &s->fpts[0], &s->cpts[0]);
-}
-
-void 	render_sector(t_app *app, t_sector *s)
-{
-	int			j;
-
-	if (s->door && s->door_anim)
-		update_door(app, s, app->timer->delta);
-	j = 0;
-	app->render_type = npc;
-	while (j < s->npcs_count)
-		render_billboard(app, &s->npc[j++]);
-	j = 0;
-	app->render_type = obj;
-	while (j < s->objs_count)
-		render_billboard(app, &s->obj[j++]);
-	j = 0;
-	app->render_type = decor;
-	while (j < s->decor_count)
-		render_wall(app, &s->decor[j++]);
-	j = 0;
-	app->render_type = wall;
-	while (j < s->walls_count)
-		render_wall(app, &s->walls[j++]);
-	j = 0;
-	app->render_type = floor_ceil;
-	while (j < s->trs_count)
-	{
-		if (s->lava)
-		{
-			s->ftrs[j].v[0].tex_x += 0.1 * app->timer->delta;
-			s->ftrs[j].v[1].tex_x += 0.1 * app->timer->delta;
-			s->ftrs[j].v[2].tex_x += 0.1 * app->timer->delta;
-		}
-		if (s->floor.active)
-			render_floor_ceil(app, &s->ftrs[j], &s->floor);
-		if (s->ceil.active)
-			render_floor_ceil(app, &s->ctrs[j], &s->ceil);
-		j++;
-	}
 }
 
 void	render_map(t_app *app)
@@ -237,16 +113,16 @@ void	render_map(t_app *app)
 	app->hit_dist = 10000.0;
 	app->hit_wall = NULL;
 	app->hit_sector = NULL;
+	if (app->md.card_set && !app->md.card_picked)
+	{
+		app->cs = &app->sectors[app->md.card_sector];
+		app->render_type = obj;
+		render_billboard(app, &app->card_w);
+	}
 	while (i < app->sectors_count)
 	{
 		app->cs = &app->sectors[i];
 		render_sector(app, &app->sectors[i++]);
-	}
-	if (app->md.card_set && !app->md.card_picked)
-	{
-		app->render_type = obj;
-		render_billboard(app, &app->card_w);
-		app->hit_sector = NULL;
 	}
 	render_skybox(app, app->skybox);
 }

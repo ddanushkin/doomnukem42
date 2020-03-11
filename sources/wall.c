@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   wall.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:54 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 17:11:27 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
 void	wall_reset_tex(t_wall *w)
@@ -12,7 +24,7 @@ void	wall_reset_tex(t_wall *w)
 	w->v[3].tex_y = 1.0;
 }
 
-t_wall	wall_new()
+t_wall	wall_new(void)
 {
 	t_wall	w;
 
@@ -40,7 +52,7 @@ t_wall	wall_new()
 	return (w);
 }
 
-void 	wall_update_scale(t_wall *w)
+void	wall_update_scale(t_wall *w)
 {
 	t_wus d;
 
@@ -66,7 +78,7 @@ void 	wall_update_scale(t_wall *w)
 	w->sx = d.h * 0.5;
 }
 
-void 	wall_update_tex(t_wall *w)
+void	wall_update_tex(t_wall *w)
 {
 	double	dy0;
 	double	dy1;

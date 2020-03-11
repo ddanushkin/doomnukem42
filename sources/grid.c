@@ -1,14 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   grid.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:33 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 15:36:31 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-void 	draw_point(t_app *app, int x, int y, Uint32 c)
+void	draw_point(t_app *app, int x, int y, Uint32 c)
 {
 	int		offset;
 
 	offset = y * SCREEN_W + x;
-	set_pixel_uint32(app->sdl->surface, offset, c);
+	pixel_set(app->sdl->surface, offset, c);
 }
 
-void 	draw_grid_point(t_app *app, t_v3d *gp, Uint32 c)
+void	draw_grid_point(t_app *app, t_v3d *gp, Uint32 c)
 {
 	t_v3d	tmp;
 
@@ -22,7 +34,7 @@ void 	draw_grid_point(t_app *app, t_v3d *gp, Uint32 c)
 	gp->x += app->grid_size;
 }
 
-void 	draw_point_mode(t_app *app)
+void	draw_point_mode(t_app *app)
 {
 	int		x;
 	int		z;
@@ -45,7 +57,7 @@ void 	draw_point_mode(t_app *app)
 			x--;
 		}
 		x = 100;
-		grid_point.x = tmp.x - 50.0 * app->grid_size;;
+		grid_point.x = tmp.x - 50.0 * app->grid_size;
 		grid_point.z += app->grid_size;
 		z--;
 	}

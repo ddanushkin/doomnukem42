@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   vertex_list.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:53 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 17:12:08 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-void	vr_list_add(t_vr_list **list, t_v3d v)
+void		vr_list_add(t_vr_list **list, t_v3d v)
 {
 	t_vr_list	*head;
 
@@ -23,7 +35,7 @@ void	vr_list_add(t_vr_list **list, t_v3d v)
 	}
 }
 
-void 	vr_list_free(t_vr_list **list)
+void		vr_list_free(t_vr_list **list)
 {
 	t_vr_list *tmp;
 

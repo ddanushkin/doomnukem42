@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   skybox.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:44 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 15:34:10 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
 void	skybox_front_back(t_app *app, t_skybox *s, t_wall *w)
@@ -21,7 +33,7 @@ void	skybox_front_back(t_app *app, t_skybox *s, t_wall *w)
 	wall_reset_tex(w);
 	w->sprite = 478;
 	if (wall_outside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]))
-		return;
+		return ;
 	w->inside = wall_inside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]);
 	render_triangle_0(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle_1(app, w->v[0], w->v[3], w->v[1]);
@@ -48,7 +60,7 @@ void	skybox_left_right(t_app *app, t_skybox *s, t_wall *w)
 	wall_reset_tex(w);
 	w->sprite = 479;
 	if (wall_outside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]))
-		return;
+		return ;
 	w->inside = wall_inside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]);
 	render_triangle_0(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle_1(app, w->v[0], w->v[3], w->v[1]);
@@ -75,13 +87,13 @@ void	skybox_top_bottom(t_app *app, t_skybox *s, t_wall *w)
 	wall_reset_tex(w);
 	w->sprite = 477;
 	if (wall_outside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]))
-		return;
+		return ;
 	w->inside = wall_inside(&w->v[0], &w->v[1], &w->v[2], &w->v[3]);
 	render_triangle_0(app, w->v[0], w->v[1], w->v[2]);
 	render_triangle_1(app, w->v[0], w->v[3], w->v[1]);
 }
 
-void 	render_skybox(t_app *app, t_skybox s)
+void	render_skybox(t_app *app, t_skybox s)
 {
 	t_wall		w;
 	t_mat4x4	tr;

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   points.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:39 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 16:27:08 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
 void	points_add_check(t_v3d *points, int *size)
@@ -24,16 +36,18 @@ void	points_add_check(t_v3d *points, int *size)
 	}
 }
 
-void 	point_draw(t_app *app, t_v3d p, Uint32 c)
+void	point_draw(t_app *app, t_v3d p, Uint32 c)
 {
+	int		offset;
+
 	p = matrix_transform(app->camera->transform, p);
 	if (vertex_inside(&p))
 	{
 		p = matrix_transform(app->camera->screen_space, p);
 		vertex_perspective_divide(&p);
-		int offset = (int)p.y * SCREEN_W + (int)p.x;
+		offset = (int)p.y * SCREEN_W + (int)p.x;
 		if (p.z < app->depth_buffer[offset])
-			set_pixel_uint32(app->sdl->surface, offset, c);
+			pixel_set(app->sdl->surface, offset, c);
 	}
 }
 

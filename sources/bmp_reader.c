@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   bmp_reader.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:22 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 13:05:02 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
 void			bpm_read_pixels(int fd, t_bmp_header h, t_sprite *sprite)
@@ -33,11 +45,11 @@ t_bmp_header	bmp_read_header(int fd)
 	return (h);
 }
 
-void	bmp_load(t_app *app, char *path)
+void			bmp_load(t_app *app, char *path)
 {
 	int				fd;
-
 	t_bmp_header	header;
+
 	fd = open(path, O_RDONLY);
 	if (fd < 3)
 		exit_with_status(STATUS_FILE_NOT_FOUND, path);

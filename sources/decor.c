@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   decor.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:26 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 14:29:58 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-void 	decor_set_pos(t_wall *decor, t_v3d lp, t_v3d tp, t_v3d forward)
+void	decor_set_pos(t_wall *decor, t_v3d lp, t_v3d tp, t_v3d forward)
 {
 	decor->v[0] = lp;
 	decor->v[1] = tp;
@@ -16,12 +28,12 @@ void 	decor_set_pos(t_wall *decor, t_v3d lp, t_v3d tp, t_v3d forward)
 
 void	calc_top_point(t_v3d *lp, t_v3d *tp, double dx, double dz)
 {
-	tp->x = ((lp->x / DECOR_LEN) + dx / sqrt(dx*dx+dz*dz)) * DECOR_LEN;
-	tp->z = ((lp->z / DECOR_LEN) + dz / sqrt(dx*dx+dz*dz)) * DECOR_LEN;
+	tp->x = ((lp->x / DECOR_LEN) + dx / sqrt(dx * dx + dz * dz)) * DECOR_LEN;
+	tp->z = ((lp->z / DECOR_LEN) + dz / sqrt(dx * dx + dz * dz)) * DECOR_LEN;
 	tp->y = lp->y + DECOR_LEN;
 }
 
-t_wall 	*decor_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam)
+t_wall	*decor_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam)
 {
 	t_wall	*w;
 	double	dz;

@@ -1,32 +1,34 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   collision.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:25 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 13:22:57 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-t_v3d 	get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2)
-{
-	return (v3d_normalise(v3d_cross(v3d_sub(v0, v1), v3d_sub(v0, v2))));
-}
-
-double signed_tetra_volume(t_v3d ba, t_v3d ca, t_v3d da)
-{
-	return (SIGNF(v3d_dot(v3d_cross(ba, ca), da)*0.166666));
-}
-
-int line_triangle(t_v3d p1, t_v3d p2, t_v3d p3, t_v3d q1, t_v3d q2)
+int		line_triangle(t_v3d p1, t_v3d p2, t_v3d p3, t_pos_temp q)
 {
 	double	c[5];
 	t_v3d	s[7];
 
-	q2.y = q1.y;
-	s[0] = v3d_sub(p1, q1);
-	s[1] = v3d_sub(p2, q1);
-	s[2] = v3d_sub(p3, q1);
-	s[3] = v3d_sub(p1, q2);
-	s[4] = v3d_sub(p2, q2);
-	s[5] = v3d_sub(p3, q2);
+	q.pos1.y = q.pos2.y;
+	s[0] = v3d_sub(p1, q.pos1);
+	s[1] = v3d_sub(p2, q.pos1);
+	s[2] = v3d_sub(p3, q.pos1);
+	s[3] = v3d_sub(p1, q.pos2);
+	s[4] = v3d_sub(p2, q.pos2);
+	s[5] = v3d_sub(p3, q.pos2);
 	c[0] = signed_tetra_volume(s[0], s[1], s[2]);
 	c[1] = signed_tetra_volume(s[3], s[4], s[5]);
 	if (c[0] != c[1])
 	{
-		s[6] = v3d_sub(q2, q1);
+		s[6] = v3d_sub(q.pos2, q.pos1);
 		c[2] = signed_tetra_volume(s[6], s[0], s[1]);
 		c[3] = signed_tetra_volume(s[6], s[1], s[2]);
 		c[4] = signed_tetra_volume(s[6], s[2], s[0]);
@@ -36,22 +38,24 @@ int line_triangle(t_v3d p1, t_v3d p2, t_v3d p3, t_v3d q1, t_v3d q2)
 	return (0);
 }
 
-int 	height_collision(t_app *app, t_wall *w, t_v3d *pos, t_v3d *f)
+int		height_collision(t_app *app, t_wall *w, t_v3d *pos, t_v3d *f)
 {
-	double 	y;
-	t_v3d	new_pos;
-	int		r;
+	double		y;
+	int			r;
+	t_pos_temp	pos_temp;
 
-	new_pos = v3d_sum(*pos, v3d_mul_by(*f, 1.0/app->timer->delta*0.05));
-	y = new_pos.y;
-	r = line_triangle(w->v[0], w->v[1], w->v[2], new_pos, *pos);
-	r = r ? r : line_triangle(w->v[0], w->v[3], w->v[1], new_pos, *pos);
-	new_pos.y = y - app->height + 0.55;
-	r = r ? r : line_triangle(w->v[0], w->v[1], w->v[2], new_pos, *pos);
-	r = r ? r : line_triangle(w->v[0], w->v[3], w->v[1], new_pos, *pos);
-	new_pos.y = y - (app->height * 0.5);
-	r = r ? r : line_triangle(w->v[0], w->v[1], w->v[2], new_pos, *pos);
-	r = r ? r : line_triangle(w->v[0], w->v[3], w->v[1], new_pos, *pos);
+	pos_temp.pos1 = v3d_sum(*pos,
+			v3d_mul_by(*f, 1.0 / app->timer->delta * 0.05));
+	pos_temp.pos2 = *pos;
+	y = pos_temp.pos1.y;
+	r = line_triangle(w->v[0], w->v[1], w->v[2], pos_temp);
+	r = r ? r : line_triangle(w->v[0], w->v[3], w->v[1], pos_temp);
+	pos_temp.pos1.y = y - app->height + 0.55;
+	r = r ? r : line_triangle(w->v[0], w->v[1], w->v[2], pos_temp);
+	r = r ? r : line_triangle(w->v[0], w->v[3], w->v[1], pos_temp);
+	pos_temp.pos1.y = y - (app->height * 0.5);
+	r = r ? r : line_triangle(w->v[0], w->v[1], w->v[2], pos_temp);
+	r = r ? r : line_triangle(w->v[0], w->v[3], w->v[1], pos_temp);
 	return (r);
 }
 
@@ -77,7 +81,7 @@ void	check_slope_collision(t_app *app, t_v3d *pos, t_v3d *f)
 	t_triangle	*tr_arr;
 	t_v3d		new_pos;
 
-	app->head_too_high = 0;
+	app->hth = 0;
 	if (!app->ceil_sector || fabs(pos->y - app->ceil_point.y) > PLAYER_HEIGHT)
 		return ;
 	new_pos = v3d_sum(*pos, v3d_mul_by(*f, 1.0 / app->timer->delta * 0.05));
@@ -89,9 +93,9 @@ void	check_slope_collision(t_app *app, t_v3d *pos, t_v3d *f)
 	while (i < app->ceil_sector->trs_count)
 	{
 		if (line_triangle(tr_arr[i].v[0], tr_arr[i].v[1], tr_arr[i].v[2],
-				new_pos, *pos))
+	(t_pos_temp){new_pos, *pos}))
 		{
-			app->head_too_high = 1;
+			app->hth = 1;
 			*f = new_vector(0.0, 0.0, 0.0);
 			return ;
 		}
@@ -99,7 +103,7 @@ void	check_slope_collision(t_app *app, t_v3d *pos, t_v3d *f)
 	}
 }
 
-void 	check_collision(t_app *app, t_v3d *pos, t_v3d dir)
+void	check_collision(t_app *app, t_v3d *pos, t_v3d dir)
 {
 	int		i;
 	int		j;
@@ -115,7 +119,7 @@ void 	check_collision(t_app *app, t_v3d *pos, t_v3d dir)
 			if (w->active && wall_check_collision(app, w, pos, &dir))
 			{
 				i = -1;
-				break;
+				break ;
 			}
 			j++;
 		}

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   triangle.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:45 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 16:57:44 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
 double	tr_area(t_v3d *a, t_v3d *b, t_v3d *c)
@@ -6,10 +18,20 @@ double	tr_area(t_v3d *a, t_v3d *b, t_v3d *c)
 			(c->x - a->x) * (b->y - a->y));
 }
 
-void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
+int		tr_invisible(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
+{
+	double		ta;
+
+	ta = tr_area(&v1, &v2, &v3);
+	return (app->is_skybox &&
+			!app->cs->door &&
+			(app->render_type == wall || app->render_type == floor_ceil) &&
+			app->cs->inside != 2 && (app->cs->inside ? ta < 0.0 : ta >= 0.0));
+}
+
+void	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 {
 	t_render	r;
-	double		ta;
 
 	v1 = matrix_transform(app->camera->screen_space, v1);
 	v2 = matrix_transform(app->camera->screen_space, v2);
@@ -17,14 +39,8 @@ void 	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	vertex_perspective_divide(&v1);
 	vertex_perspective_divide(&v2);
 	vertex_perspective_divide(&v3);
-
-	ta = tr_area(&v1, &v2, &v3);
-	if (!app->is_skybox &&
-		!app->cs->door &&
-		(app->render_type == wall || app->render_type == floor_ceil) &&
-		app->cs->inside != 2 &&
-		(app->cs->inside ? ta < 0.0 : ta >= 0.0))
-		return;
+	if (!tr_invisible(app, v1, v2, v3))
+		return ;
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
 	if (v2.y < v1.y)

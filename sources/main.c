@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:36 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 17:07:44 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
 void	prepare_chunks(t_app *app)
@@ -34,7 +46,7 @@ void	reset_screen(t_app *app)
 	}
 }
 
-Uint8 	vertex_inside(t_v3d *v)
+uint8_t 	vertex_inside(t_v3d *v)
 {
 	double	w;
 
@@ -90,7 +102,7 @@ void	state_reset(t_app *app)
 	app->jumped = 0;
 	app->lava_timer = 0.0;
 	app->prev_dy = app->height;
-	app->head_too_high = 0;
+	app->hth = 0;
 	app->md.card_picked = 0;
 	app->heal_tick = 0.0;
 }
@@ -110,21 +122,8 @@ void	start_the_game(t_app *app)
 	app->bflag = 0;
 	app->bclr[0] = 0xff0000;
 	app->bclr[1] = 0x00ff00;
-
 	prepare_chunks(app);
 	switch_mode(app);
-
-//	t_animation a;
-//	a.speed = 1.5;
-//	a.frame_nbr = 5;
-//	a.loop = 0;
-//	a.delayed = 0;
-//	a.play = 0;
-//	app->a = &a;
-//	animation_next_frame(&a, app->timer->delta);
-//	if (!a.play)
-//		animation_play(&a);
-
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	while (1)
 	{

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   errors.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:29 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 14:29:58 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
 void	exit_with_status(int status, char *fnf_path)
@@ -12,7 +24,7 @@ void	exit_with_status(int status, char *fnf_path)
 	exit(0);
 }
 
-void	quit_properly()
+void	quit_properly(void)
 {
 	exit(0);
 }

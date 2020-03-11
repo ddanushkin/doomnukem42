@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ui_draw.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:49 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 17:17:14 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-void 	print_to_screen(t_app *app, int x, int y, char *text)
+void	print_to_screen(t_app *app, int x, int y, char *text)
 {
 	SDL_Color	*color;
 	SDL_Surface	*surface;
@@ -16,7 +28,7 @@ void 	print_to_screen(t_app *app, int x, int y, char *text)
 	SDL_FreeSurface(surface);
 }
 
-void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color)
+void	draw_cross(t_app *app, int x, int y, double size)
 {
 	int	len;
 	int	i;
@@ -32,8 +44,8 @@ void 	draw_cross(t_app *app, int x, int y, double size, Uint32 color)
 	start_y = y - (int)(len * 0.5);
 	while (i <= len)
 	{
-		set_pixel_uint32(app->sdl->surface, (start_y + i) * SCREEN_W + x, color);
-		set_pixel_uint32(app->sdl->surface, y * SCREEN_W + (start_x + i), color);
+		pixel_set(app->sdl->surface, (start_y + i) * SCREEN_W + x, 0xffffff);
+		pixel_set(app->sdl->surface, y * SCREEN_W + (start_x + i), 0xffffff);
 		i++;
 	}
 }

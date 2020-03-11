@@ -68,6 +68,7 @@
 
 # define PLAYER_HEIGHT 1.1
 # define PLAYER_SPEED 5.0
+# define MOUSE_SPEED 1.2123
 # define USE_DIST 1.25
 # define LAVA_TIMER 0.5
 # define HEAL_TIMER 0.025
@@ -436,6 +437,7 @@ typedef struct	s_sector
 	double		door_h;
 	int 		door_anim;
 	double 		door_dir;
+	int			id;
 }				t_sector;
 
 typedef struct	s_hud_image
@@ -529,6 +531,12 @@ typedef struct	s_raw_bg
 	size_t			size;
 }				t_raw_bg;
 
+typedef struct	s_pos_temp
+{
+	t_v3d		pos1;
+	t_v3d		pos2;
+}				t_pos_temp;
+
 typedef struct	s_wus
 {
 	double		dx;
@@ -548,6 +556,7 @@ typedef struct	s_map_data
 	int 		start_set;
 	int 		music_id;
 	int 		card_set;
+	int 		card_sector;
 	t_v3d 		card_pos;
 	int 		card_picked;
 }				t_map_data;
@@ -556,7 +565,7 @@ typedef struct	s_app
 {
 	t_timer			*timer;
 	t_camera		*camera;
-	t_mat4x4		projection_mat;
+	t_mat4x4		proj_mat;
 	t_sdl			*sdl;
 	t_inputs		*inputs;
 	double			*depth_buffer;
@@ -619,9 +628,9 @@ typedef struct	s_app
 	int				map_init;
 	double 			falling;
 	int 			jumped;
-	t_v3d			last_dir;
+	t_v3d			ld;
 	double 			lava_timer;
-	int				head_too_high;
+	int				hth;
 	double 			temp;
 	t_hud_data 		card_hud;
 	t_hud_data 		hp_hud;
@@ -630,7 +639,46 @@ typedef struct	s_app
 	double 			heal_tick;
 }				t_app;
 
-t_v3d 		get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
+void		init_sdl(t_sdl *sdl);
+void 		init_font(t_app *app);
+void 		init_sfx(t_app *app);
+void 		init_bg(t_app *app);
+int			switch_mode(t_app *app);
+void		point_mode_inputs(t_app *app);
+void		live_mode_change_shade(t_app *app);
+void		live_mode_use_wall(t_app *app);
+void		live_mode_door_open(t_app *app);
+void		live_mode_sector_io(t_app *app);
+void		live_mode_rotate_npc(t_app *app);
+void	live_mode_change_floor_h(t_app *app);
+void	live_mode_change_ceil_h(t_app *app);
+void	live_mode_wall_offset(t_app *app);
+void	live_mode_wall_bot(t_app *app);
+void	live_mode_wall_top(t_app *app);
+void	live_mode_set_exit(t_app *app);
+void	live_mode_set_start(t_app *app);
+void	live_mode_set_bg(t_app *app);
+void	live_mode_toggle_healer(t_app *app);
+void	live_mode_toggle_door(t_app *app);
+void	live_mode_toggle_lava(t_app *app);
+void	live_mode_add_decor(t_app *app, int healer);
+void	live_mode_add_obj(t_app *app);
+void	live_mode_add_card(t_app *app);
+void	live_mode_add_npc(t_app *app);
+void 	render_sector(t_app *app, t_sector *s);
+void 	sector_new(t_app *app, t_sector *s);
+double	get_angle(t_v3d v0, t_v3d v1, t_v3d v2);
+int 	is_inside(t_v3d p, t_v3d p1, t_v3d p2, t_v3d p3);
+int		is_convex(t_v3d p1, t_v3d p2, t_v3d p3);
+void	polygon_delete(t_polygon **p, t_polygon *del);
+int 	polygon_size(t_polygon *p);
+void 	sector_copy_v_1(t_sector *s, t_v3d *p, int len);
+void 	sector_copy_v_2(t_sector *s, t_v3d *p, int len);
+void		scanline_threads(register t_render *r, int size);
+void		ray_floor_ceil(t_app *app, t_v3d p, t_triangle tr);
+void		get_quad(t_camera *c);
+void		floor_is_lava(t_app *app, t_camera *c, double dt);
+void		get_speed(t_app *app);
 void 		check_collision(t_app *app, t_v3d *pos, t_v3d f);
 void 		create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void 		join_tr_thrd(t_app *app);
@@ -648,14 +696,24 @@ int			switch_mode(t_app *app);
 double		tr_area(t_v3d *a, t_v3d *b, t_v3d *c);
 int 		line_intersection(t_v3d v0, t_v3d v1, t_v3d v2, t_v3d v3);
 void		points_add_check(t_v3d *points, int *size);
+int			point_on_line(t_v3d v0, t_v3d v1, t_v3d p);
 void 		sector_pts_h(t_v3d *pts, int size, double amount);
 void		update_floor_dist(t_app *app, t_v3d new_pos);
 void 		app_reset_floor_ceil_hit(t_app *app);
 void 		font_reset(t_app *app);
 void 		font_set(t_app *app, int size, uint32_t color);
 void		state_reset(t_app *app);
+int			hit_fill_data(t_app *app, double distance);
+int			hit_fill_floor(t_app *app, t_v3d pos, t_v3d dir, double distance);
+int			hit_fill_ceil(t_app *app, t_v3d pos, t_v3d dir, double distance);
+void		player_crouch(t_app *app, t_camera *c, const uint8_t *key, double dt);
+void		floor_collision(t_app *app, t_camera *c, double dt);
+void		player_fly(t_app *app, t_camera *c);
+void		player_jump(t_app *app);
+void		player_movement(t_app *app, t_camera *c, const uint8_t *key, double dt);
+void		view_rotation(t_mouse_state	*mouse, t_camera *c, double ms);
 
-void	draw_hud(t_app *app);
+void		draw_hud(t_app *app);
 t_hud_data	hud_image_new(int x, int y, int w, int h);
 
 void 		move(t_v3d *v, t_v3d dir, double amount);
@@ -668,6 +726,7 @@ void		triangulate(t_triangle *trs, int *trs_size, t_polygon *polygon);
 void		process_inputs(t_app *app, double delta_time);
 void		process_points_inputs(t_app *app, double delta_time);
 void 		update_camera(t_app *app, t_camera *camera);
+t_mat4x4	view_matrix(t_v3d eye, double pitch, double yaw);
 void 		update_points_camera(t_camera *c);
 void		point_mode_inputs(t_app *app);
 void		live_mode_inputs(t_app *app);
@@ -702,7 +761,7 @@ t_vr_list	*vr_list_last(t_vr_list *head);
 void 		clip_fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
 void		render_triangle_0(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
 void		render_triangle_1(t_app *app, t_v3d v0, t_v3d v3, t_v3d v1);
-void 		get_sector_min_max(t_sector *cs);
+void 		sector_min_max(t_sector *s);
 void 		render_wall(t_app *app, t_wall *w);
 void 		render_billboard(t_app *app, t_wall *w);
 void		render_map(t_app *app);
@@ -743,10 +802,12 @@ t_mat4x4	matrix_rotation(double x, double y, double z);
 
 void		set_color(t_color *color, int r, int g, int b);
 uint32_t	sprite_get_color(t_sprite *s, int offset);
-void		set_pixel_uint32(SDL_Surface *surface, int offset, Uint32 c);
+void		pixel_set(SDL_Surface *surface, int offset, Uint32 c);
 void		set_pixel(SDL_Surface *surface, int x, int y, t_color c);
 void		draw_line(t_app *app, t_v3d *start, t_v3d *end, uint32_t color);
 void		sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_x, int size_y);
+t_v3d		get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
+double		signed_tetra_volume(t_v3d ba, t_v3d ca, t_v3d da);
 
 void		get_ticks(t_timer *timer);
 void		get_delta_time(t_timer *timer);
@@ -765,7 +826,7 @@ int			event_handling(t_app *app);
 void		mouse_update(t_app *app);
 
 t_mat4x4	matrix_screen_space();
-t_mat4x4	matrix_perspective(double fov, double aps_ratio, double z_near, double z_far);
+t_mat4x4	matrix_persp(double fov, double ar, double z_near, double z_far);
 t_mat4x4	matrix_translation(double x, double y, double z);
 t_mat4x4	matrix_multiply(t_mat4x4 m1, t_mat4x4 m2);
 t_v3d		matrix_transform(t_mat4x4 mat, t_v3d v);

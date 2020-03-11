@@ -1,37 +1,29 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:34 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 16:23:55 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
 void	init_projection_mat(t_app *app)
 {
-	t_camera *camera;
+	t_camera *c;
 
-	camera = app->camera;
-	ft_bzero(&app->projection_mat, sizeof(t_mat4x4));
-	app->projection_mat.m[0] = camera->asp_ratio * camera->for_rad;
-	app->projection_mat.m[5] = camera->for_rad;
-	app->projection_mat.m[10] = camera->z_far / (camera->z_far - camera->z_near);
-	app->projection_mat.m[14] = (-camera->z_far * camera->z_near) / (camera->z_far - camera->z_near);
-	app->projection_mat.m[11] = 1.0;
-	app->projection_mat.m[15] = 0.0;
-}
-
-static	void	init_sdl(t_sdl *sdl)
-{
-	sdl->width = SCREEN_W;
-	sdl->height = SCREEN_H;
-	SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
-	TTF_Init();
-	Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
-	Mix_AllocateChannels(16);
-	Mix_VolumeMusic(MIX_MAX_VOLUME/8);
-	Mix_Volume(-1, MIX_MAX_VOLUME/8);
-	sdl->window = SDL_CreateWindow(
-			WIN_TITLE,
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
-			sdl->width,
-			sdl->height,
-			SDL_WINDOW_OPENGL);
-	sdl->surface = SDL_GetWindowSurface(sdl->window);
+	c = app->camera;
+	ft_bzero(&app->proj_mat, sizeof(t_mat4x4));
+	app->proj_mat.m[0] = c->asp_ratio * c->for_rad;
+	app->proj_mat.m[5] = c->for_rad;
+	app->proj_mat.m[10] = c->z_far / (c->z_far - c->z_near);
+	app->proj_mat.m[14] = (-c->z_far * c->z_near) / (c->z_far - c->z_near);
+	app->proj_mat.m[11] = 1.0;
+	app->proj_mat.m[15] = 0.0;
 }
 
 void	init_camera(t_camera *camera)
@@ -43,7 +35,7 @@ void	init_camera(t_camera *camera)
 	camera->for_rad = 1.0 / tan(camera->fov * 0.5 / 180.0 * 3.14159);
 	camera->pos = new_vector(1.0, 1.0, -10);
 	camera->rot = new_vector(0.0, 0.0, 0.0);
-	camera->projection = matrix_perspective(
+	camera->projection = matrix_persp(
 			camera->fov,
 			(double)SCREEN_W / (double)SCREEN_H,
 			0.05,
@@ -52,45 +44,7 @@ void	init_camera(t_camera *camera)
 	camera->fly = 0;
 }
 
-void 	init_font(t_app *app)
-{
-	SDL_RWops	*raw;
-
-	raw = SDL_RWFromMem(&app->fonts.mem[0], app->fonts.size);
-	app->font = TTF_OpenFontRW(raw, 1, 16);
-}
-
-void 	init_sfx(t_app *app)
-{
-	SDL_RWops	*raw;
-	int 		i;
-
-	i = 0;
-	app->sfx = (Mix_Chunk **)malloc(sizeof(Mix_Chunk *) * MAX_SFX);
-	while (i < MAX_SFX)
-	{
-		raw = SDL_RWFromMem(&app->audio[i].mem[0], app->audio[i].size);
-		app->sfx[i] = Mix_LoadWAV_RW(raw, 1);
-		i++;
-	}
-}
-
-void 	init_bg(t_app *app)
-{
-	SDL_RWops	*raw;
-	int 		i;
-
-	i = 0;
-	app->bg = (Mix_Music **)malloc(sizeof(Mix_Music *) * MAX_BG);
-	while (i < MAX_BG)
-	{
-		raw = SDL_RWFromMem(&app->music[i].mem[0], app->music[i].size);
-		app->bg[i] = Mix_LoadMUSType_RW(raw, MUS_OGG, 1);
-		i++;
-	}
-}
-
-void 	init_skybox(t_app *app)
+void	init_skybox(t_app *app)
 {
 	double size;
 

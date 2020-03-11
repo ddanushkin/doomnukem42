@@ -1,20 +1,34 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   gradient.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:31 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 15:34:55 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-double 		gradient_calc_x_step(double coords[3], t_triangle tr, double one_over_dx)
+double		gradient_calc_x_step(double coords[3], t_triangle tr,
+		double one_over_dx)
 {
 	return (((coords[1] - coords[2]) * (tr.v[0].y - tr.v[2].y) -
 			(coords[0] - coords[2]) * (tr.v[1].y - tr.v[2].y)) *
 			one_over_dx);
 }
 
-double 		gradient_calc_y_step(double coords[3], t_triangle tr, double one_over_dy)
+double		gradient_calc_y_step(double coords[3], t_triangle tr,
+		double one_over_dy)
 {
 	return (((coords[1] - coords[2]) * (tr.v[0].x - tr.v[2].x) -
 			(coords[0] - coords[2]) * (tr.v[1].x - tr.v[2].x)) *
 			one_over_dy);
 }
 
-void 		gradient_set_steps(t_gradient *g, t_v3d min, t_v3d mid, t_v3d max)
+void		gradient_set_steps(t_gradient *g, t_v3d min, t_v3d mid, t_v3d max)
 {
 	t_triangle tr;
 
@@ -47,7 +61,7 @@ t_gradient	gradient_new(t_v3d min, t_v3d mid, t_v3d max)
 	g.depth[0] = min.z;
 	g.depth[1] = mid.z;
 	g.depth[2] = max.z;
-	g.one_over_dx  = 1.0 / (
+	g.one_over_dx = 1.0 / (
 					(mid.x - max.x) * (min.y - max.y) -
 					(min.x - max.x) * (mid.y - max.y));
 	g.one_over_dy = -g.one_over_dx;

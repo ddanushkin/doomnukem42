@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   draw_line.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:27 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 17:21:14 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-static void	dx_dom(t_app *app, t_line *l)
+void	dx_dom(t_app *app, t_line *l)
 {
 	double		stack;
 	int			i;
@@ -16,18 +28,17 @@ static void	dx_dom(t_app *app, t_line *l)
 			stack -= l->dir.x;
 			l->cur.y += l->inc.y;
 		}
-		if (!(l->cur.x >= SCREEN_W || l->cur.x < 0)
-		&& !(l->cur.y >= SCREEN_H || l->cur.y < 0))
-			set_pixel_uint32(app->sdl->surface,
-					(int)l->cur.y * SCREEN_W + (int)l->cur.x,
-					l->color);
+		if (!(l->cur.x >= SCREEN_W || l->cur.x < 0) &&
+		!(l->cur.y >= SCREEN_H || l->cur.y < 0))
+			pixel_set(app->sdl->surface,
+			(int)l->cur.y * SCREEN_W + (int)l->cur.x, l->color);
 	}
 }
 
-static void	dy_dom(t_app *app, t_line *l)
+void	dy_dom(t_app *app, t_line *l)
 {
-	double		stack;
-	int			i;
+	double	stack;
+	int		i;
 
 	stack = l->dir.y / 2.0;
 	i = 0;
@@ -40,17 +51,16 @@ static void	dy_dom(t_app *app, t_line *l)
 			stack -= l->dir.y;
 			l->cur.x += l->inc.x;
 		}
-		if (!(l->cur.x >= SCREEN_W || l->cur.x < 0)
-		&& !(l->cur.y >= SCREEN_H || l->cur.y < 0))
-			set_pixel_uint32(app->sdl->surface,
-							 (int)l->cur.y * SCREEN_W + (int)l->cur.x,
-							 l->color);
+		if (!(l->cur.x >= SCREEN_W || l->cur.x < 0) &&
+		!(l->cur.y >= SCREEN_H || l->cur.y < 0))
+			pixel_set(app->sdl->surface,
+			(int)l->cur.y * SCREEN_W + (int)l->cur.x, l->color);
 	}
 }
 
-void		draw_line(t_app *app, t_v3d *start, t_v3d *end, uint32_t color)
+void	draw_line(t_app *app, t_v3d *start, t_v3d *end, uint32_t color)
 {
-	t_line line;
+	t_line	line;
 
 	line.cur.x = CLAMP(start->x, 0, SCREEN_W - 1);
 	line.cur.y = CLAMP(start->y, 0, SCREEN_H - 1);

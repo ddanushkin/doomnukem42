@@ -1,105 +1,37 @@
-#include <doom_nukem.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   event_handling.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:29 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 15:30:08 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-void 	move(t_v3d *v, t_v3d dir, double amount)
+#include "doom_nukem.h"
+
+void	update_camera(t_app *app, t_camera *c)
 {
-	*v = v3d_sum(*v, v3d_mul_by(dir, amount));
-}
-
-void		view_matrix_data_calc(t_vm_data *d, double pitch, double yaw)
-{
-	d->cosp = cos(pitch);
-	d->sinp = sin(pitch);
-	d->cosy = cos(yaw);
-	d->siny = sin(yaw);
-	d->xa = new_vector(d->cosy, 0.0, -d->siny);
-	d->ya = new_vector(d->siny * d->sinp, d->cosp, d->cosy * d->sinp);
-	d->za = new_vector(d->siny * d->cosp, -d->sinp, d->cosp * d->cosy);
-}
-
-t_mat4x4	view_matrix(t_v3d eye, double pitch, double yaw)
-{
-	t_vm_data	vmd;
-	t_mat4x4	view;
-
-	view_matrix_data_calc(&vmd, pitch, yaw);
-	view.m[0] = vmd.xa.x;
-	view.m[1] = vmd.xa.y;
-	view.m[2] = vmd.xa.z;
-	view.m[3] = -v3d_dot(vmd.xa, eye);
-	view.m[4] = vmd.ya.x;
-	view.m[5] = vmd.ya.y;
-	view.m[6] = vmd.ya.z;
-	view.m[7] = -v3d_dot(vmd.ya, eye);
-	view.m[8] = vmd.za.x;
-	view.m[9] = vmd.za.y;
-	view.m[10] = vmd.za.z;
-	view.m[11] = -v3d_dot(vmd.za, eye);
-	view.m[12] = 0.0;
-	view.m[13] = 0.0;
-	view.m[14] = 0.0;
-	view.m[15] = 1.0;
-	return (view);
-}
-
-void	get_head(t_app *app)
-{
-	if (app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc < 3.5)
-		app->acc += 5.5 * app->timer->delta;
-	if (!app->inputs->keyboard[SDL_SCANCODE_LSHIFT] && app->acc > 0)
-		app->acc -= 5.5 * app->timer->delta;
-
-	if (app->acc < 0.0)
-		app->acc = 0.0;
-	if (app->acc > 3.5)
-		app->acc = 3.5;
-
-	app->speed = PLAYER_SPEED + app->acc;
-}
-
-void 	update_points_camera(t_camera *c)
-{
+	get_speed(app);
 	c->view = view_matrix(c->pos, c->rot.x, c->rot.y);
 	c->view_projection = matrix_multiply(c->projection, c->view);
 	c->transform = get_transform_matrix(c->view_projection);
 	c->dir.x = c->view.m[8];
 	c->dir.y = c->view.m[9];
 	c->dir.z = c->view.m[10];
-}
-
-void 	update_camera(t_app *app, t_camera *c)
-{
-	double	x_acos;
-
-	get_head(app);
-	c->view = view_matrix(app->camera->pos, c->rot.x, c->rot.y);
-	c->view_projection = matrix_multiply(c->projection, c->view);
-	c->transform = get_transform_matrix(c->view_projection);
-	c->dir.x = c->view.m[8];
-	c->dir.y = c->view.m[9];
-	c->dir.z = c->view.m[10];
-	x_acos = acos(c->dir.x);
-	if (x_acos < 0.392699)
-		c->quad = 0;
-	else if (x_acos >= 0.392699 && x_acos < 1.178097)
-		c->quad = 1;
-	else if (x_acos >= 1.178097 && x_acos < 1.963495)
-		c->quad = 2;
-	else if (x_acos >= 1.963495 && x_acos < 2.748893)
-		c->quad = 3;
-	else if (x_acos >= 2.748893)
-		c->quad = 4;
+	get_quad(c);
 	if (acos(c->dir.z) > 1.570796 && c->quad != 0 && c->quad != 4)
 		c->quad = 8 - c->quad;
 	c->right = new_vector(c->view.m[0], c->view.m[1], c->view.m[2]);
-
 	if (!c->fly)
-		c->forward = new_vector(sin(app->camera->rot.y), 0, cos(app->camera->rot.y));
+		c->forward = new_vector(sin(c->rot.y), 0, cos(c->rot.y));
 	else
 		c->forward = new_vector(c->view.m[8], c->view.m[9], c->view.m[10]);
 }
 
-
-void 	cursor_clamp(t_app *app)
+void	cursor_clamp(t_app *app)
 {
 	if (app->cursor_x >= (double)SCREEN_W)
 		app->cursor_x = 0.0;
@@ -154,15 +86,9 @@ void	update_floor_dist(t_app *app, t_v3d new_pos)
 		while (j < s->trs_count)
 		{
 			if (s->floor.active)
-			{
-				ray_floor(app, new_pos, s->ftrs[j]);
-				ray_ceil(app, new_pos, s->ftrs[j]);
-			}
+				ray_floor_ceil(app, new_pos, s->ftrs[j]);
 			if (s->ceil.active)
-			{
-				ray_floor(app, new_pos, s->ctrs[j]);
-				ray_ceil(app, new_pos, s->ctrs[j]);
-			}
+				ray_floor_ceil(app, new_pos, s->ctrs[j]);
 			j++;
 		}
 		i++;
@@ -174,175 +100,21 @@ void	process_inputs(t_app *app, double dt)
 	t_mouse_state	*mouse;
 	const uint8_t	*key;
 	t_camera		*c;
-	double			mouse_speed = 1.2123 * dt;
+	double			mouse_speed;
 
+	mouse_speed = MOUSE_SPEED * dt;
 	c = app->camera;
 	key = app->inputs->keyboard;
 	mouse = &app->inputs->mouse;
-	if (mouse->x && mouse->y)
-		mouse_speed = mouse_speed / 1.414;
-	if (mouse->x)
-		c->rot.y += (double)mouse->x * mouse_speed;
-	if (mouse->y)
-		c->rot.x += (double)mouse->y * mouse_speed;
-	if (!app->point_mode && !app->camera->fly)
-		c->rot.x = CLAMP(c->rot.x, -1.45, 1.45);
-
-	app->last_dir = new_vector(0.0, 0.0, 0.0);
-	if (key[SDL_SCANCODE_W])
-		app->last_dir = v3d_sum(app->last_dir, v3d_mul_by(c->forward, app->speed * dt));
-	if (key[SDL_SCANCODE_S])
-		app->last_dir = v3d_sum(app->last_dir, v3d_mul_by(c->forward, -app->speed * dt));
-	if (key[SDL_SCANCODE_A])
-		app->last_dir = v3d_sum(app->last_dir, v3d_mul_by(c->right, -app->speed * dt));
-	if (key[SDL_SCANCODE_D])
-		app->last_dir = v3d_sum(app->last_dir, v3d_mul_by(c->right, app->speed * dt));
-
-	if (app->keys[SDL_SCANCODE_SPACE] && !app->jumped && (app->ground || (app->falling > 0.0 && app->falling < 0.25)))
-	{
-		Mix_PlayChannel(3, app->sfx[38], 0);
-		app->y_vel = 6.0;
-		app->jumped = 1;
-		app->ground = 0;
-		app->falling = 0.0;
-	}
-
-	if (!app->camera->fly)
-	{
-		app_reset_floor_ceil_hit(app);
-		update_floor_dist(app, c->pos);
-		app->prev_dy = app->floor_point.y;
-
-		if (app->y_vel != 0.0)
-			app->temp += app->y_vel * dt;
-
-		if (app->temp <= 0.0 && app->y_vel < 0.0)
-		{
-			if (app->falling > 0.25)
-				Mix_PlayChannel(3, app->sfx[70], 0);
-			if (app->falling > 0.55)
-			{
-				Mix_PlayChannel(4, app->sfx[51], 0);
-				app->hp -= (int)(app->falling * 50);
-			}
-			app->temp = 0;
-			app->y_acc = 0.0;
-			app->y_vel = 0.0;
-			app->ground = 1;
-			app->falling = 0.0;
-			app->jumped = 0;
-		}
-
-		check_collision(app, &c->pos, app->last_dir);
-		app_reset_floor_ceil_hit(app);
-		update_floor_dist(app, c->pos);
-
-		double dy = app->floor_point.y - app->prev_dy;
-
-		if (dy != 0.0)
-			app->temp += -dy;
-
-		if (dy > 0.25 && dy <= 0.55 && app->y_vel == 0.0)
-		{
-			app->y_vel = dy * 8;
-			app->y_acc = 12.0;
-		}
-
-		c->pos.y = app->floor_point.y + app->height + app->temp;
-
-		if (app->temp != 0.0)
-		{
-			if (app->y_acc == 0.0)
-				app->y_acc = 15.8;
-			app->y_vel -= app->y_acc * dt;
-			if (app->y_vel <= 0)
-				app->y_acc += 15.8 * dt;
-			if (app->y_vel < 0.0)
-				app->falling += dt;
-		}
-	}
-
-	if (!app->camera->fly && app->floor_sector &&
-		app->floor_sector->lava && app->floor_dist <= app->height &&
-		app->floor_point.y < app->floor_sector->ceil_y)
-	{
-		app->lava_timer -= dt;
-		if (app->lava_timer <= 0.0)
-		{
-			app->hp -= 20;
-			Mix_PlayChannel(5, app->sfx[36], 0);
-			Mix_PlayChannel(6, app->sfx[94], 0);
-			app->y_vel = 6.0;
-			app->jumped = 1;
-			app->ground = 0;
-			app->falling = 0.0;
-			app->lava_timer = LAVA_TIMER;
-		}
-	} else
-		app->lava_timer = 0.0;
-
+	view_rotation(mouse, c, mouse_speed);
+	player_movement(app, c, key, dt);
+	if (app->keys[SDL_SCANCODE_SPACE] && !app->jumped &&
+		(app->ground || (app->falling > 0.0 && app->falling < 0.25)))
+		player_jump(app);
+	if (!c->fly)
+		floor_collision(app, c, dt);
+	floor_is_lava(app, c, dt);
 	if (app->camera->fly)
-	{
-		app->y_vel = 0.0;
-		app->y_acc = 0.0;
-		c->pos = v3d_sum(c->pos, app->last_dir);
-		app_reset_floor_ceil_hit(app);
-		update_floor_dist(app, c->pos);
-	}
-
-	if (!app->head_too_high)
-		app->head_too_high = app->ceil_sector && fabs(c->pos.y - app->ceil_point.y) < 0.1;
-	if (app->head_too_high && app->ceil_sector && app->ceil_sector->door && app->ceil_sector->door_anim)
-	{
-		app->hp -= 50;
-		Mix_PlayChannel(3, app->sfx[22], 0);
-		Mix_PlayChannel(4, app->sfx[10], 0);
-	}
-	if (!app->camera->fly && app->y_vel > 0.0 && app->head_too_high)
-		app->y_vel *= -1;
-	if ((key[SDL_SCANCODE_LCTRL] || app->head_too_high) && app->height > PLAYER_HEIGHT * 0.5)
-		app->height -= 2.5 * dt;
-	if(!key[SDL_SCANCODE_LCTRL] && app->height < PLAYER_HEIGHT)
-		app->height += 2.5 * dt;
-	app->height = CLAMP(app->height, PLAYER_HEIGHT * 0.5, PLAYER_HEIGHT);
-}
-
-int		event_handling(t_app *app)
-{
-	SDL_Event	e;
-	Uint32		event;
-
-	app->inputs->mouse.x = 0;
-	app->inputs->mouse.y = 0;
-	while (SDL_PollEvent(&e))
-	{
-		event = e.type;
-		if (event == SDL_QUIT)
-			return(0);
-		if (event == SDL_MOUSEMOTION)
-		{
-			app->inputs->mouse.x = e.motion.xrel;
-			app->inputs->mouse.y = e.motion.yrel;
-		}
-		if (event == SDL_MOUSEWHEEL)
-		{
-			if (e.wheel.y > 0)
-				app->mouse[SDL_MOUSE_SCROLL_UP] = 1;
-			else if (e.wheel.y < 0)
-				app->mouse[SDL_MOUSE_SCROLL_DOWN] = 1;
-		}
-		if (event == SDL_MOUSEBUTTONDOWN)
-			app->mouse[e.button.button] = 1;
-		if (event == SDL_KEYDOWN)
-			app->keys[e.key.keysym.scancode] = 1;
-	}
-	if (app->hp <= 0)
-	{
-		state_reset(app);
-		if (app->md.start_set)
-			app->camera->pos = app->md.start_pos;
-		else
-			app->camera->fly = 1;
-	}
-	return (1);
+		player_fly(app, c);
+	player_crouch(app, c, key, dt);
 }

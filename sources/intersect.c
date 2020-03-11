@@ -1,108 +1,55 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   intersect.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 14:41:31 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 16:17:37 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-int	hit_fill_data(t_app *app, double distance)
+double	norm2(t_v3d v)
 {
-	app->hit_point = v3d_sum(
-			app->camera->pos,
-			v3d_mul_by(app->camera->dir, distance));
-	app->hit_dist = distance;
-	app->hit_wall = app->rw;
-	app->hit_sector = app->cs;
-	app->hit_type = app->render_type;
-	return (1);
+	return (v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
-int	hit_fill_floor(t_app *app, t_v3d pos, t_v3d dir, double distance)
+int		point_on_line(t_v3d v0, t_v3d v1, t_v3d p)
 {
-	app->floor_point = v3d_sum(pos, v3d_mul_by(dir, distance));
-	app->floor_dist = distance;
-	app->floor_sector = app->cs;
-	return (1);
+	if (v0.x == p.x)
+		return (v1.x == p.x);
+	if (v0.z == p.z)
+		return (v1.z == p.z);
+	return ((v0.x - p.x) * (v0.z - p.z) == (p.x - v1.x) * (p.z - v1.z));
 }
 
-int	hit_fill_ceil(t_app *app, t_v3d pos, t_v3d dir, double distance)
+int		line_intersection(t_v3d v0, t_v3d v1, t_v3d v2, t_v3d v3)
 {
-	app->ceil_point = v3d_sum(pos, v3d_mul_by(dir, distance));
-	app->ceil_dist = distance;
-	app->ceil_sector = app->cs;
-	return (1);
-}
+	t_v3d	da;
+	t_v3d	db;
+	double	s;
+	double	t;
+	t_v3d	tmp;
 
-int		ray_intersect(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2)
-{
-	t_intersect	i;
-
-	i.v0v1 = v3d_sub(v1, v0);
-	i.v0v2 = v3d_sub(v2, v0);
-	i.pvec = v3d_cross(app->camera->dir, i.v0v2);
-	i.det = v3d_dot(i.v0v1, i.pvec);
-	if (fabs(i.det) < 0.0)
-		return 0;
-	i.det = 1 / i.det;
-	i.tvec = v3d_sub(app->camera->pos, v0);
-	i.u = v3d_dot(i.tvec, i.pvec) * i.det;
-	if (i.u < 0 || i.u > 1)
-		return 0;
-	i.qvec = v3d_cross(i.tvec, i.v0v1);
-	i.v = v3d_dot(app->camera->dir, i.qvec) * i.det;
-	if (i.v < 0 || i.u + i.v > 1)
-		return 0;
-	i.t = v3d_dot(i.v0v2, i.qvec) * i.det;
-	if (i.t < app->hit_dist && i.t > 0.0)
-		return (hit_fill_data(app, i.t));
-	return 0;
-}
-
-int		ray_ceil(t_app *app, t_v3d pos, t_triangle tr)
-{
-	t_intersect	i;
-	t_v3d		dir;
-
-	dir = new_vector(0.0, 1.0, 0.0);
-	i.v0v1 = v3d_sub(tr.v[1], tr.v[0]);
-	i.v0v2 = v3d_sub(tr.v[2], tr.v[0]);
-	i.pvec = v3d_cross(dir, i.v0v2);
-	i.det = v3d_dot(i.v0v1, i.pvec);
-	if (fabs(i.det) < 0.0)
-		return 0;
-	i.det = 1 / i.det;
-	i.tvec = v3d_sub(pos, tr.v[0]);
-	i.u = v3d_dot(i.tvec, i.pvec) * i.det;
-	if (i.u < 0 || i.u > 1)
-		return 0;
-	i.qvec = v3d_cross(i.tvec, i.v0v1);
-	i.v = v3d_dot(dir, i.qvec) * i.det;
-	if (i.v < 0 || i.u + i.v > 1)
-		return 0;
-	i.t = v3d_dot(i.v0v2, i.qvec) * i.det;
-	if (i.t < app->ceil_dist && i.t > 0.0)
-		return (hit_fill_ceil(app, pos, dir, i.t));
-	return 0;
-}
-
-int		ray_floor(t_app *app, t_v3d pos, t_triangle tr)
-{
-	t_intersect	i;
-	t_v3d		dir;
-
-	dir = new_vector(0.0, -1.0, 0.0);
-	i.v0v1 = v3d_sub(tr.v[1], tr.v[0]);
-	i.v0v2 = v3d_sub(tr.v[2], tr.v[0]);
-	i.pvec = v3d_cross(dir, i.v0v2);
-	i.det = v3d_dot(i.v0v1, i.pvec);
-	if (fabs(i.det) < 0.0)
-		return 0;
-	i.det = 1 / i.det;
-	i.tvec = v3d_sub(pos, tr.v[0]);
-	i.u = v3d_dot(i.tvec, i.pvec) * i.det;
-	if (i.u < 0 || i.u > 1)
-		return 0;
-	i.qvec = v3d_cross(i.tvec, i.v0v1);
-	i.v = v3d_dot(dir, i.qvec) * i.det;
-	if (i.v < 0 || i.u + i.v > 1)
-		return 0;
-	i.t = v3d_dot(i.v0v2, i.qvec) * i.det;
-	if (i.t < app->floor_dist && i.t > 0.0)
-		return (hit_fill_floor(app, pos, dir, i.t));
-	return 0;
+	da = v3d_sub(v1, v0);
+	db = v3d_sub(v3, v2);
+	if (v3d_dot(v3d_sub(v2, v0), v3d_cross(da, db)) != 0.0)
+		return (0);
+	s = v3d_dot(v3d_cross(v3d_sub(v2, v0), db),
+				v3d_cross(da, db)) / norm2(v3d_cross(da, db));
+	t = v3d_dot(v3d_cross(v3d_sub(v2, v0), da),
+				v3d_cross(da, db)) / norm2(v3d_cross(da, db));
+	if ((s >= 0.0 && s <= 1.0) && (t >= 0.0 && t <= 1.0))
+	{
+		tmp = v3d_mul_by(v3d_sum(v0, da), s);
+		if ((tmp.x == v0.x && tmp.z == v0.z) ||
+			(tmp.x == v1.x && tmp.z == v1.z) ||
+			(tmp.x == v3.x && tmp.z == v3.z))
+			return (0);
+		return (1);
+	}
+	return (0);
 }

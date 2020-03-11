@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   edge.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/03/11 13:03:28 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/11 14:43:38 by lglover          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom_nukem.h"
 
-t_edge	edge_new(t_gradient	g, t_v3d min, t_v3d max, int index)
+t_edge	edge_new(t_gradient g, t_v3d min, t_v3d max, int index)
 {
 	t_edge		e;
 	double		y_dist;
