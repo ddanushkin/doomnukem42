@@ -9,8 +9,6 @@
 # include <SDL_ttf.h>
 # include <SDL_mixer.h>
 
-# define	PRINT_DEBUG 0
-
 //# define	SCREEN_W 1920
 //# define	SCREEN_H 1080
 
@@ -34,7 +32,6 @@
 
 # define	WIN_TITLE "DOOM-NUKEM"
 # define	TRANSPARENCY_COLOR 0xffff00ff
-# define	OUTLINE_COLOR new_color(0, 0, 0)
 
 # define MIN(a,b) (((a)<(b))?(a):(b))
 # define MAX(a,b) (((a)>(b))?(a):(b))
@@ -57,7 +54,6 @@
 # define MSG_BAD_RESOURCES "BAD RESOURCES!"
 # define DECOR_LEN 0.35355339059327379
 # define DECOR_LEN_HALF 0.17677669529663689
-# define IF_MOVE (key[SDL_SCANCODE_W] || key[SDL_SCANCODE_A] || key[SDL_SCANCODE_S] || key[SDL_SCANCODE_D])
 
 # define SDL_MOUSE_LEFT 1
 # define SDL_MOUSE_RIGHT 3
@@ -121,378 +117,303 @@ enum e_hit_type
 	floor_ceil
 };
 
-typedef struct	s_color
+typedef struct		s_mat4x4
 {
-	uint8_t		r;
-	uint8_t		g;
-	uint8_t		b;
-}				t_color;
+	double			m[16];
+}					t_mat4x4;
 
-typedef struct	s_mat4x4
+typedef struct		s_v3d
 {
-	double m[16];
-}				t_mat4x4;
+	double			x;
+	double			y;
+	double			z;
+	double 			w;
+	double			tex_x;
+	double			tex_y;
+	int				i;
+}					t_v3d;
 
-typedef struct	s_v3d
+typedef struct		s_vm_data
 {
-	double		x;
-	double		y;
-	double		z;
-	double 		w;
-	double		tex_x;
-	double		tex_y;
-	int			i;
-}				t_v3d;
+	double			cosp;
+	double			sinp;
+	double			cosy;
+	double			siny;
+	t_v3d			xa;
+	t_v3d			ya;
+	t_v3d			za;
+}					t_vm_data;
 
-typedef struct	s_animation
+typedef struct		s_wall
 {
-	int 		play;
-	int 		delayed;
-	int			loop;
-	double 		delay;
-	double 		speed;
-	double 		counter;
-	int 		frame_nbr;
-	int 		frame_cur;
-}				t_animation;
-
-typedef struct	s_vm_data
-{
-	double		cosp;
-	double		sinp;
-	double		cosy;
-	double		siny;
-	t_v3d		xa;
-	t_v3d		ya;
-	t_v3d		za;
-}				t_vm_data;
-
-typedef struct	s_wall
-{
-	t_v3d 		v[4];
-	int			sprite;
-	double 		sx;
-	double 		sy;
-	double		ox;
-	double		oy;
-	t_v3d		pos;
-	t_v3d		quad;
-	double 		size;
-	double		shade;
-	uint32_t 	inside;
-	int 		decor;
-	int 		is_exit;
-	int			active;
-	int			flip;
+	t_v3d 			v[4];
+	int				sprite;
+	double 			sx;
+	double 			sy;
+	double			ox;
+	double			oy;
+	t_v3d			pos;
+	t_v3d			quad;
+	double 			size;
+	double			shade;
+	uint32_t 		inside;
+	int 			decor;
+	int 			is_exit;
+	int				active;
+	int				flip;
 	enum e_hit_type	type;
-	t_animation	anim;
-	int 		anim_auto;
-	int 		collect;
-	int 		is_card;
-	int 		use;
-	int			healer;
-	int 		healer_cap;
-	int 		rotate;
-	int 		ori;
-}				t_wall;
+	int 			collect;
+	int 			is_card;
+	int 			use;
+	int				healer;
+	int 			healer_cap;
+	int 			rotate;
+	int 			ori;
+}					t_wall;
 
-typedef struct	s_v2d
+typedef struct		s_bmp_header
 {
-	double		u;
-	double		v;
-	double		w;
-}				t_v2d;
+	uint16_t		type;
+	uint32_t		size;
+	uint16_t		reserved1;
+	uint16_t		reserved2;
+	uint32_t		offset;
+	uint32_t		dib_header_size;
+	int32_t			width_px;
+	int32_t			height_px;
+	uint16_t		num_planes;
+	uint16_t		bits_per_pixel;
+	uint32_t		compression;
+	uint32_t		image_size_bytes;
+	int32_t			x_resolution_ppm;
+	int32_t			y_resolution_ppm;
+	uint32_t		num_colors;
+	uint32_t		important_colors;
+}					t_bmp_header;
 
-typedef struct	s_bmp_header
-{
-	uint16_t	type;
-	uint32_t	size;
-	uint16_t	reserved1;
-	uint16_t	reserved2;
-	uint32_t	offset;
-	uint32_t	dib_header_size;
-	int32_t		width_px;
-	int32_t		height_px;
-	uint16_t	num_planes;
-	uint16_t	bits_per_pixel;
-	uint32_t	compression;
-	uint32_t	image_size_bytes;
-	int32_t		x_resolution_ppm;
-	int32_t		y_resolution_ppm;
-	uint32_t	num_colors;
-	uint32_t	important_colors;
-}				t_bmp_header;
-
-typedef struct	s_sprite
+typedef struct		s_sprite
 {
 	t_bmp_header	header;
 	uint32_t		pixels[65536];
-}				t_sprite;
+}					t_sprite;
 
-typedef struct	s_edge
+typedef struct		s_edge
 {
-	double		x;
-	double		x_step;
-	int 		y_start;
-	int 		y_end;
-	double		tex_x;
-	double		tex_x_step;
-	double		tex_y;
-	double		tex_y_step;
-	double		tex_z;
-	double		tex_z_step;
-	double		depth;
-	double		depth_step;
-}				t_edge;
+	double			x;
+	double			x_step;
+	int 			y_start;
+	int 			y_end;
+	double			tex_x;
+	double			tex_x_step;
+	double			tex_y;
+	double			tex_y_step;
+	double			tex_z;
+	double			tex_z_step;
+	double			depth;
+	double			depth_step;
+}					t_edge;
 
-typedef struct	s_gradient
+typedef struct		s_gradient
 {
-	double		x[3];
-	double		y[3];
-	double		z[3];
-	double		depth[3];
-	double		x_x_step;
-	double		x_y_step;
-	double		y_x_step;
-	double		y_y_step;
-	double		z_x_step;
-	double		z_y_step;
-	double		one_over_dx;
-	double		one_over_dy;
-	double 		d_x_step;
-	double 		d_y_step;
-}				t_gradient;
+	double			x[3];
+	double			y[3];
+	double			z[3];
+	double			depth[3];
+	double			x_x_step;
+	double			x_y_step;
+	double			y_x_step;
+	double			y_y_step;
+	double			z_x_step;
+	double			z_y_step;
+	double			one_over_dx;
+	double			one_over_dy;
+	double 			d_x_step;
+	double 			d_y_step;
+}					t_gradient;
 
-typedef struct	s_triangle
+typedef struct		s_triangle
 {
-	int			iv[3];
-	int			it[3];
-	int			in[3];
-	t_v3d		v[3];
-	t_v2d		t[3];
-	t_v3d		n[3];
-	t_color		color;
-}				t_triangle;
+	t_v3d			v[3];
+}					t_triangle;
 
-typedef struct	s_tex_v
+
+typedef struct		s_line
 {
-	int			x;
-	int			y;
-	int			z;
-	double		u;
-	double		v;
-	double		w;
-	t_sprite	*s;
-}				t_tex_v;
+	t_v3d			cur;
+	t_v3d			dir;
+	t_v3d			inc;
+	uint32_t 		color;
+}					t_line;
 
-typedef struct	s_mesh
+typedef struct		s_mouse_state
 {
-	t_v3d		*vo;
-	t_v3d		*vb;
-	t_v2d		*tx;
-	t_triangle	*tr;
-	int 		v_count;
-	int 		tx_count;
-	int 		tr_count;
-}				t_mesh;
+	int 			x;
+	int 			y;
+}					t_mouse_state;
 
-typedef struct	s_line
+typedef struct		s_camera
 {
-	t_v3d		cur;
-	t_v3d		dir;
-	t_v3d		inc;
-	uint32_t 	color;
-}				t_line;
+	double 			z_near;
+	double 			z_far;
+	double 			fov;
+	double 			for_rad;
+	double 			asp_ratio;
+	t_v3d			pos;
+	t_v3d			rot;
+	t_v3d			dir;
+	t_mat4x4		view;
+	t_mat4x4		projection;
+	t_mat4x4		view_projection;
+	t_mat4x4		transform;
+	t_mat4x4		screen_space;
+	int 			quad;
+	t_v3d			forward;
+	t_v3d			up;
+	t_v3d			right;
+	int				fly;
+	double 			prev_y;
+}					t_camera;
 
-typedef struct	s_mouse_state
+typedef struct		s_timer
 {
-	int 		x;
-	int 		y;
-}				t_mouse_state;
+	Uint64			prev;
+	Uint64			fps;
+	Uint64			fps_count;
+	Uint64			fps_sum;
+	double			delta;
+	double			time;
+	Uint64			frame;
+}					t_timer;
 
-typedef struct	s_camera
-{
-	double 		z_near;
-	double 		z_far;
-	double 		fov;
-	double 		for_rad;
-	double 		asp_ratio;
-	t_v3d		pos;
-	t_v3d		rot;
-	t_v3d		dir;
-	t_mat4x4	view;
-	t_mat4x4	projection;
-	t_mat4x4	view_projection;
-	t_mat4x4	transform;
-	t_mat4x4	screen_space;
-	int 		quad;
-	t_v3d		forward;
-	t_v3d		up;
-	t_v3d		right;
-	int			fly;
-	double 		prev_y;
-}				t_camera;
-
-typedef struct	s_timer
-{
-	Uint64		prev;
-	Uint64		fps;
-	Uint64		fps_count;
-	Uint64		fps_sum;
-	double		delta;
-	double		time;
-	Uint64		frame;
-}				t_timer;
-
-typedef struct	s_inputs
+typedef struct		s_inputs
 {
 	const Uint8		*keyboard;
 	t_mouse_state	mouse;
 	int				x;
 	int				y;
-}				t_inputs;
+}					t_inputs;
 
-typedef struct	s_sdl
+typedef struct		s_sdl
 {
-	SDL_Event		event;
 	SDL_Window		*window;
 	SDL_Surface		*surface;
-	SDL_Surface		*screen;
 	int				height;
 	int				width;
-}				t_sdl;
+}					t_sdl;
 
-typedef struct	s_vr_list
+typedef struct			s_vr_list
 {
 	t_v3d				v;
 	struct s_vr_list	*next;
-}				t_vr_list;
+}						t_vr_list;
 
-typedef struct	s_polygon
+typedef struct			s_polygon
 {
 	t_v3d				v;
 	struct s_polygon	*next;
 	struct s_polygon	*prev;
 	int 				is_ear;
 	double 				angle;
-}				t_polygon;
+}						t_polygon;
 
-typedef struct 	s_intersect
+typedef struct 		s_intersect
 {
-	t_v3d		v0v1;
-	t_v3d		v0v2;
-	t_v3d		qvec;
-	t_v3d		tvec;
-	t_v3d		pvec;
-	double		u;
-	double		v;
-	double		t;
-	double		det;
-}				t_intersect;
+	t_v3d			v0v1;
+	t_v3d			v0v2;
+	t_v3d			qvec;
+	t_v3d			tvec;
+	t_v3d			pvec;
+	double			u;
+	double			v;
+	double			t;
+	double			det;
+}					t_intersect;
 
-typedef struct	s_clip_data
+typedef struct		s_clip_data
 {
-	t_v3d		v;
-	Uint8		is_inside;
-	double 		value;
-}				t_clip_data;
+	t_v3d			v;
+	Uint8			is_inside;
+	double 			value;
+}					t_clip_data;
 
-typedef struct	s_light
+typedef struct		s_sector
 {
-	t_v3d		pos;
-	double		power;
-}				t_light;
+	t_wall			walls[MAX_WALL];
+	t_wall			npc[MAX_NPC];
+	t_wall			obj[MAX_OBJ];
+	t_wall 			decor[MAX_DECOR];
+	t_wall			floor;
+	t_wall			ceil;
+	uint8_t 		shade;
+	int 			inside;
+	int 			walls_count;
+	int 			npcs_count;
+	int 			objs_count;
+	int 			decor_count;
+	int 			decor_next;
+	double 			floor_y;
+	double 			ceil_y;
+	double 			delta_y;
+	double 			x_min;
+	double 			z_min;
+	double 			x_max;
+	double 			z_max;
+	t_v3d			fpts[MAX_WALL];
+	t_v3d			cpts[MAX_WALL];
+	t_triangle		ftrs[MAX_WALL - 2];
+	t_triangle		ctrs[MAX_WALL - 2];
+	int 			trs_count;
+	int 			pts_count;
+	int 			door;
+	int 			need_card;
+	int				lava;
+	int 			door_anim;
+	double 			door_dir;
+	int				id;
+}					t_sector;
 
-typedef struct	s_sector
+typedef struct		s_hud_image
 {
-	t_wall		walls[MAX_WALL];
-	t_wall		npc[MAX_NPC];
-	t_wall		obj[MAX_OBJ];
-	t_wall 		decor[MAX_DECOR];
-	t_wall		floor;
-	t_wall		ceil;
-	uint8_t 	shade;
-	int 		inside;
-	int 		walls_count;
-	int 		npcs_count;
-	int 		objs_count;
-	int 		decor_count;
-	int 		decor_next;
-	double 		floor_y;
-	double 		ceil_y;
-	double 		delta_y;
-	double 		x_min;
-	double 		z_min;
-	double 		x_max;
-	double 		z_max;
-	t_v3d		fpts[MAX_WALL];
-	t_v3d		cpts[MAX_WALL];
-	t_triangle	ftrs[MAX_WALL - 2];
-	t_triangle	ctrs[MAX_WALL - 2];
-	int 		trs_count;
-	int 		pts_count;
-	int 		door;
-	int 		need_card;
-	int			lava;
-	double		door_h;
-	int 		door_anim;
-	double 		door_dir;
-	int			id;
-}				t_sector;
+	int 			x;
+	int 			y;
+	uint8_t 		w;
+	uint8_t 		h;
+	double 			x_rat;
+	double 			y_rat;
+}					t_hud_data;
 
-typedef struct	s_hud_image
+typedef struct		s_skybox
 {
-	int 		x;
-	int 		y;
-	uint8_t 	w;
-	uint8_t 	h;
-	double 		x_rat;
-	double 		y_rat;
-	uint32_t 	*image;
-}				t_hud_data;
+	t_v3d			v[8];
+}					t_skybox;
 
-typedef struct	s_skybox
+typedef struct		s_depth_chunk
 {
-	t_v3d		v[8];
-	int			sprite_index;
-	double 		value;
-}				t_skybox;
+	double			z[SCREEN_W];
+}					t_depth_chunk;
 
-typedef struct	s_depth_chunk
+typedef struct		s_screen_chunk
 {
-	double		z[SCREEN_W];
-}				t_depth_chunk;
+	Uint32			z[SCREEN_W];
+}					t_screen_chunk;
 
-typedef struct	s_screen_chunk
+typedef struct		s_sl_data
 {
-	Uint32		z[SCREEN_W];
-}				t_screen_chunk;
+	double			x;
+	double			xs;
+	double			y;
+	double			ys;
+	double			z;
+	double			zs;
+	double			d;
+	double			ds;
+	int				start;
+	int				end;
+	int				offset;
+	uint8_t 		shade;
+}					t_sl_data;
 
-typedef struct	s_tr_thr_data
-{
-	struct	s_app	*app;
-	t_v3d 			v0;
-	t_v3d 			v1;
-	t_v3d 			v2;
-}				t_tr_thr_data;
-
-typedef struct	s_sl_data
-{
-	double		x;
-	double		xs;
-	double		y;
-	double		ys;
-	double		z;
-	double		zs;
-	double		d;
-	double		ds;
-	int			start;
-	int			end;
-	int			offset;
-	uint8_t 	shade;
-}				t_sl_data;
-
-typedef struct	s_render
+typedef struct		s_render
 {
 	int 			handedness;
 	uint32_t		*t;
@@ -504,64 +425,64 @@ typedef struct	s_render
 	double 			scale_x;
 	double 			scale_y;
 	uint8_t 		shade;
-}				t_render;
+}					t_render;
 
-typedef struct	s_thr_data
+typedef struct		s_thr_data
 {
-	t_render	*r;
-	int			start;
-	int 		end;
-}				t_thr_data;
+	t_render		*r;
+	int				start;
+	int 			end;
+}					t_thr_data;
 
-typedef struct	s_raw_sfx
+typedef struct		s_raw_sfx
 {
 	char			mem[150000];
 	size_t			size;
-}				t_raw_sfx;
+}					t_raw_sfx;
 
-typedef struct	s_raw_font
+typedef struct		s_raw_font
 {
 	char			mem[1650000];
 	size_t			size;
-}				t_raw_font;
+}					t_raw_font;
 
-typedef struct	s_raw_bg
+typedef struct		s_raw_bg
 {
 	char			mem[1000000];
 	size_t			size;
-}				t_raw_bg;
+}					t_raw_bg;
 
-typedef struct	s_pos_temp
+typedef struct		s_pos_temp
 {
-	t_v3d		pos1;
-	t_v3d		pos2;
-}				t_pos_temp;
+	t_v3d			pos1;
+	t_v3d			pos2;
+}					t_pos_temp;
 
-typedef struct	s_wus
+typedef struct		s_wus
 {
-	double		dx;
-	double		dz;
-	double		dy;
-	double		v0;
-	double		v1;
-	double		v;
-	double		h0;
-	double		h1;
-	double		h;
-}				t_wus;
+	double			dx;
+	double			dz;
+	double			dy;
+	double			v0;
+	double			v1;
+	double			v;
+	double			h0;
+	double			h1;
+	double			h;
+}					t_wus;
 
-typedef struct	s_map_data
+typedef struct		s_map_data
 {
-	t_v3d		start_pos;
-	int 		start_set;
-	int 		music_id;
-	int 		card_set;
-	int 		card_sector;
-	t_v3d 		card_pos;
-	int 		card_picked;
-}				t_map_data;
+	t_v3d			start_pos;
+	int 			start_set;
+	int 			music_id;
+	int 			card_set;
+	int 			card_sector;
+	t_v3d 			card_pos;
+	int 			card_picked;
+}					t_map_data;
 
-typedef struct	s_app
+typedef struct		s_app
 {
 	t_timer			*timer;
 	t_camera		*camera;
@@ -637,7 +558,7 @@ typedef struct	s_app
 	t_hud_data 		time_hud;
 	t_wall			card_w;
 	double 			heal_tick;
-}				t_app;
+}					t_app;
 
 void		init_sdl(t_sdl *sdl);
 void 		init_font(t_app *app);
@@ -650,30 +571,30 @@ void		live_mode_use_wall(t_app *app);
 void		live_mode_door_open(t_app *app);
 void		live_mode_sector_io(t_app *app);
 void		live_mode_rotate_npc(t_app *app);
-void	live_mode_change_floor_h(t_app *app);
-void	live_mode_change_ceil_h(t_app *app);
-void	live_mode_wall_offset(t_app *app);
-void	live_mode_wall_bot(t_app *app);
-void	live_mode_wall_top(t_app *app);
-void	live_mode_set_exit(t_app *app);
-void	live_mode_set_start(t_app *app);
-void	live_mode_set_bg(t_app *app);
-void	live_mode_toggle_healer(t_app *app);
-void	live_mode_toggle_door(t_app *app);
-void	live_mode_toggle_lava(t_app *app);
-void	live_mode_add_decor(t_app *app, int healer);
-void	live_mode_add_obj(t_app *app);
-void	live_mode_add_card(t_app *app);
-void	live_mode_add_npc(t_app *app);
-void 	render_sector(t_app *app, t_sector *s);
-void 	sector_new(t_app *app, t_sector *s);
-double	get_angle(t_v3d v0, t_v3d v1, t_v3d v2);
-int 	is_inside(t_v3d p, t_v3d p1, t_v3d p2, t_v3d p3);
-int		is_convex(t_v3d p1, t_v3d p2, t_v3d p3);
-void	polygon_delete(t_polygon **p, t_polygon *del);
-int 	polygon_size(t_polygon *p);
-void 	sector_copy_v_1(t_sector *s, t_v3d *p, int len);
-void 	sector_copy_v_2(t_sector *s, t_v3d *p, int len);
+void		live_mode_change_floor_h(t_app *app);
+void		live_mode_change_ceil_h(t_app *app);
+void		live_mode_wall_offset(t_app *app);
+void		live_mode_wall_bot(t_app *app);
+void		live_mode_wall_top(t_app *app);
+void		live_mode_set_exit(t_app *app);
+void		live_mode_set_start(t_app *app);
+void		live_mode_set_bg(t_app *app);
+void		live_mode_toggle_healer(t_app *app);
+void		live_mode_toggle_door(t_app *app);
+void		live_mode_toggle_lava(t_app *app);
+void		live_mode_add_decor(t_app *app, int healer);
+void		live_mode_add_obj(t_app *app);
+void		live_mode_add_card(t_app *app);
+void		live_mode_add_npc(t_app *app);
+void 		render_sector(t_app *app, t_sector *s);
+void 		sector_new(t_app *app, t_sector *s);
+double		get_angle(t_v3d v0, t_v3d v1, t_v3d v2);
+int 		is_inside(t_v3d p, t_v3d p1, t_v3d p2, t_v3d p3);
+int			is_convex(t_v3d p1, t_v3d p2, t_v3d p3);
+void		polygon_delete(t_polygon **p, t_polygon *del);
+int 		polygon_size(t_polygon *p);
+void 		sector_copy_v_1(t_sector *s, t_v3d *p, int len);
+void 		sector_copy_v_2(t_sector *s, t_v3d *p, int len);
 t_mat4x4	matrix_rotation_z(double angle);
 t_mat4x4	matrix_rotation_y(double angle);
 t_mat4x4	matrix_rotation_x(double angle);
@@ -683,11 +604,7 @@ void		get_quad(t_camera *c);
 void		floor_is_lava(t_app *app, t_camera *c, double dt);
 void		get_speed(t_app *app);
 void 		check_collision(t_app *app, t_v3d *pos, t_v3d f);
-void 		create_tr_thrd(t_app *app, t_v3d v0, t_v3d v1, t_v3d v2);
-void 		join_tr_thrd(t_app *app);
 void		sector_update_shade(t_sector *s);
-void 		fill_shade_wall(t_light *light, t_v3d v0, t_v3d v1, double *sh);
-void		update_wall_shade(t_sprite *sprites, t_sector *s, t_wall *w);
 t_wall		*decor_add(t_v3d lp, t_sector *cs, t_wall *hit_w, t_camera *cam);
 void 		camera_live_mode(t_v3d *rot);
 void 		camera_point_mode(t_v3d *pos, t_v3d *rot);
@@ -714,39 +631,31 @@ void		player_fly(t_app *app, t_camera *c);
 void		player_jump(t_app *app);
 void		player_movement(t_app *app, t_camera *c, const uint8_t *key, double dt);
 void		view_rotation(t_mouse_state	*mouse, t_camera *c, double ms);
-
 void		draw_hud(t_app *app);
 t_hud_data	hud_image_new(int x, int y, int w, int h);
-
 void 		move(t_v3d *v, t_v3d dir, double amount);
-
 void 		draw_line_3d(t_app *app, t_v3d start, t_v3d end, uint32_t c);
 void 		draw_point_mode(t_app *app);
 void 		draw_grid_point(t_app *app, t_v3d *gp, Uint32 c);
 void		triangulate(t_triangle *trs, int *trs_size, t_polygon *polygon);
-
 void		process_inputs(t_app *app, double delta_time);
 void		process_points_inputs(t_app *app, double delta_time);
 void 		update_camera(t_app *app, t_camera *camera);
 t_mat4x4	view_matrix(t_v3d eye, double pitch, double yaw);
 void 		update_points_camera(t_camera *c);
-void		point_mode_inputs(t_app *app);
 void		live_mode_inputs(t_app *app);
 void 		draw_points(t_app *app, t_v3d *p, int size);
 void		draw_sectors(t_app *app);
-
 void		wall_reset_tex(t_wall *w);
 t_wall		wall_new();
 void 		wall_update_scale(t_wall *w);
 double 		calc_tex(double min, double cur, double max);
 void 		wall_update_tex(t_wall *w);
-void		update_walls_data(t_app *app);
 t_edge		edge_new(t_gradient	g, t_v3d min, t_v3d max, int index);
 void		edge_step(t_edge *edge);
 double 		gradient_calc_x_step(double coords[3], t_triangle tr,double one_over_dx);
 double 		gradient_calc_y_step(double coords[3], t_triangle tr, double one_over_dy);
 t_gradient	gradient_new(t_v3d min, t_v3d mid, t_v3d max);
-void 		draw_grid(t_app *app);
 void 		draw_exit(t_app *app);
 void 		draw_start(t_app *app);
 void 		print_to_screen(t_app *app, int x, int y, char *text);
@@ -770,78 +679,33 @@ void		render_map(t_app *app);
 void 		fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3);
 void 		draw_cross(t_app *app, int x, int y, double size);
 void		update_fps_text(t_app *app);
-int			find_linked_wall(t_sector *sector, t_v3d v, int skip);
 double		get_orientation(t_v3d *polygon, int size);
-int 		compare_vertex(t_v3d *v1, t_v3d *v2);
-void 		get_floor_poly(t_sector *cs);
 t_polygon	*points_to_list(t_sector *s);
 void 		sector_close(t_app *app, t_sector *s);
-void		draw_new_wall(t_app *app);
-void		save_new_wall(t_app *app);
-void		draw_edge(t_app *app, t_v3d edge);
 void		render_skybox(t_app *app, t_skybox s);
 uint8_t		wall_outside(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3);
 uint32_t	wall_inside(t_v3d *v0, t_v3d *v1, t_v3d *v2, t_v3d *v3);
-
 void		texture_change(t_app *app);
 void		texture_scale_y_change(t_app *app);
 void		texture_scale_x_change(t_app *app);
 void 		sector_update_height(t_sector *cs, t_v3d *fpts, t_v3d *cpts);
-
 t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection);
-
 void		exit_with_status(int status, char *fnf_path);
-
-void		*image_clear(void *b, int c, size_t len);
-
-void 		app_close(t_app *app);
-
 void		init_app(t_app *app);
-
-void		set_vector(t_v3d *v, double x, double y, double z);
-
 t_mat4x4	matrix_rotation(double x, double y, double z);
-
-void		set_color(t_color *color, int r, int g, int b);
-uint32_t	sprite_get_color(t_sprite *s, int offset);
 void		pixel_set(SDL_Surface *surface, int offset, Uint32 c);
-void		set_pixel(SDL_Surface *surface, int x, int y, t_color c);
 void		draw_line(t_app *app, t_v3d *start, t_v3d *end, uint32_t color);
-void		sprite_draw(SDL_Surface *screen, t_sprite *sprite, int x, int y, int size_x, int size_y);
 t_v3d		get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
 double		signed_tetra_volume(t_v3d ba, t_v3d ca, t_v3d da);
-
-void		get_ticks(t_timer *timer);
 void		get_delta_time(t_timer *timer);
-void 		show_edge(t_app *app);
-
-void		get_color(SDL_Surface *surface, int x, int y, t_color c);
-t_color		color_new(int r, int g, int b);
-t_color		color_sub(t_color color, int k);
-
-int 		out_of_borders(int x, int y);
-int 		color_key(t_color c);
 void		quit_properly();
-
 int			event_handling(t_app *app);
-
-void		mouse_update(t_app *app);
-
 t_mat4x4	matrix_screen_space();
 t_mat4x4	matrix_persp(double fov, double ar, double z_near, double z_far);
 t_mat4x4	matrix_translation(double x, double y, double z);
 t_mat4x4	matrix_multiply(t_mat4x4 m1, t_mat4x4 m2);
 t_v3d		matrix_transform(t_mat4x4 mat, t_v3d v);
-
-t_mat4x4	matrix_subtraction(t_mat4x4 m1, t_mat4x4 m2);
-t_mat4x4	matrix_summary(t_mat4x4 m1, t_mat4x4 m2);
-t_mat4x4	matrix_multiply_matrix(t_mat4x4 m1, t_mat4x4 m2);
-t_v3d		matrix_multiply_vector(t_mat4x4 m, t_v3d v);
-t_mat4x4	matrix_look_at(t_v3d from, t_v3d to);
-t_mat4x4	matrix_inverse(t_mat4x4 m);
 t_mat4x4	matrix_identity();
-t_mat4x4	init_translation_mat(t_v3d trans_v);
-
 t_v3d		new_vector(double x, double y, double z);
 t_v3d		v3d_sum(t_v3d vector1, t_v3d vector2);
 t_v3d		v3d_sub(t_v3d vector1, t_v3d vector2);
@@ -851,11 +715,5 @@ t_v3d		v3d_normalise(t_v3d v);
 double		v3d_length(t_v3d v);
 t_v3d		v3d_cross(t_v3d v1, t_v3d v2);
 double		v3d_dot(t_v3d v1, t_v3d v2);
-
 void		bmp_load(t_app *app, char *path);
-void		obj_load(char *path, t_mesh *mesh);
-
-void		animation_next_frame(t_animation *anim, double dt);
-void		animation_play(t_animation *anim);
-
 #endif

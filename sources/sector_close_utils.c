@@ -30,7 +30,6 @@ void	sector_new(t_app *app, t_sector *s)
 	s->inside = 0;
 	s->door_anim = 0;
 	s->door = 0;
-	s->door_h = s->delta_y;
 	s->door_dir = -1.0;
 	s->lava = 0;
 	s->id = app->sectors_count;
