@@ -141,7 +141,7 @@ void	start_the_game(t_app *app)
 			point_mode_inputs(app);
 			update_points_camera(app->camera);
 			process_points_inputs(app, app->timer->delta);
-			draw_cross(app, (int)app->cursor_x, (int)app->cursor_y, 8, 0xffffff);
+			draw_cross(app, (int)app->cursor_x, (int)app->cursor_y, 8);
 			draw_sectors(app);
 			if (app->points_count > 3)
 				points_add_check(&app->points[0], &app->points_count);
@@ -164,7 +164,7 @@ void	start_the_game(t_app *app)
 			draw_hud(app);
 			update_fps_text(app);
 			draw_action_text(app);
-			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8, 0xffffff);
+			draw_cross(app, SCREEN_W / 2, SCREEN_H / 2, 8);
 			SDL_UpdateWindowSurface(app->sdl->window);
 			reset_screen(app);
 		}
