@@ -21,3 +21,31 @@ double	signed_tetra_volume(t_v3d ba, t_v3d ca, t_v3d da)
 {
 	return (SIGNF(v3d_dot(v3d_cross(ba, ca), da) * 0.166666));
 }
+
+uint8_t	vertex_inside(t_v3d *v)
+{
+	double	w;
+
+	w = fabs(v->w);
+	return (fabs(v->x) <= w &&
+			fabs(v->y) <= w &&
+			fabs(v->z) <= w);
+}
+
+void	state_reset(t_app *app)
+{
+	app->speed = PLAYER_SPEED;
+	app->acc = 0.0;
+	app->y_vel = 0.0;
+	app->y_acc = 0.0;
+	app->ground = 1;
+	app->height = PLAYER_HEIGHT;
+	app->hp = 100;
+	app->falling = 0.0;
+	app->jumped = 0;
+	app->lava_timer = 0.0;
+	app->prev_dy = app->height;
+	app->hth = 0;
+	app->md.card_picked = 0;
+	app->heal_tick = 0.0;
+}

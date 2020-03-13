@@ -12,7 +12,7 @@
 
 #include "doom_nukem.h"
 
-void	draw_point(t_app *app, int x, int y, Uint32 c)
+void	draw_point(t_app *app, int x, int y, uint32_t c)
 {
 	int		offset;
 
@@ -20,7 +20,7 @@ void	draw_point(t_app *app, int x, int y, Uint32 c)
 	pixel_set(app->sdl->surface, offset, c);
 }
 
-void	draw_grid_point(t_app *app, t_v3d *gp, Uint32 c)
+void	draw_grid_point(t_app *app, t_v3d *gp, uint32_t c)
 {
 	t_v3d	tmp;
 

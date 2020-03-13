@@ -40,15 +40,15 @@ void	billboard_switch_sprite(t_app *app, t_wall *w)
 	quad = app->camera->quad + w->ori;
 	quad = (quad % 8 + 8) % 8;
 	if (quad == 2)
-		w->sprite = 482;
-	if (quad == 6)
-		w->sprite = 486;
-	if (quad == 5 || quad == 7)
-		w->sprite = 485;
-	if (quad == 1 || quad == 3)
-		w->sprite = 483;
-	if (quad == 4 || quad == 0)
-		w->sprite = 484;
+		w->sprite = NPC_SPRITE;
+	else if (quad == 1 || quad == 3)
+		w->sprite = NPC_SPRITE + 1;
+	else if (quad == 4 || quad == 0)
+		w->sprite = NPC_SPRITE + 2;
+	else if (quad == 5 || quad == 7)
+		w->sprite = NPC_SPRITE + 3;
+	else if (quad == 6)
+		w->sprite = NPC_SPRITE + 4;
 	if (quad == 1 || quad == 0 || quad == 7)
 	{
 		SWAP(w->v[3].tex_x, w->v[1].tex_x, double);

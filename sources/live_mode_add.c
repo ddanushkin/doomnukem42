@@ -58,7 +58,7 @@ void	live_mode_add_card(t_app *app)
 	obj = wall_new();
 	obj.pos = app->floor_point;
 	obj.size = 0.5;
-	obj.sprite = HUD_CARD_SPRITE;
+	obj.sprite = HUD_CARD_SPRITE_P;
 	obj.is_card = 1;
 	obj.collect = 1;
 	obj.rotate = 0;

@@ -9,26 +9,8 @@
 # include <SDL_ttf.h>
 # include <SDL_mixer.h>
 
-//# define	SCREEN_W 1920
-//# define	SCREEN_H 1080
-
-//# define	SCREEN_W 1280
-//# define	SCREEN_H 720
-
 # define	SCREEN_W 1024
 # define	SCREEN_H 576
-
-//# define	SCREEN_W 640
-//# define	SCREEN_H 360
-
-//# define	SCREEN_W 480
-//# define	SCREEN_H 270
-
-//# define	SCREEN_W 320
-//# define	SCREEN_H 200
-
-//# define	SCREEN_W 320
-//# define	SCREEN_H 180
 
 # define	WIN_TITLE "DOOM-NUKEM"
 # define	TRANSPARENCY_COLOR 0xffff00ff
@@ -43,70 +25,72 @@
 # define TO_RAD(a) (a * M_PI / 180.0)
 # define TO_DEG(a) (a * 180.0 / M_PI)
 
-# define RESOURCES_MD5 "308e4f5eda0502b663ce403aa8b71726"
+# define RESOURCES_MD5			"ea3461eccf46bed991def7a535badbb7"
 
-# define STATUS_OK 0
-# define STATUS_FILE_NOT_FOUND 1
-# define STATUS_BAD_RESOURCES 2
+# define STATUS_OK				0
+# define STATUS_FILE_NOT_FOUND	1
+# define STATUS_BAD_RESOURCES	2
+# define STATUS_NO_MAP_PATH		3
+# define STATUS_MAP_NOT_FOUND	4
+# define STATUS_NO_GAME_DATA	5
 
 # define MSG_OK "OK."
-# define MSG_FILE_NOT_FOUND "FILE NOT FOUND: "
-# define MSG_BAD_RESOURCES "BAD RESOURCES!"
-# define DECOR_LEN 0.35355339059327379
-# define DECOR_LEN_HALF 0.17677669529663689
+# define MSG_FILE_NOT_FOUND		"FILE NOT FOUND: "
+# define MSG_BAD_RESOURCES		"BAD RESOURCES!"
+# define MSG_NO_MAP_PATH		"NO MAP PATH IN ARGUMENTS!"
+# define MSG_MAP_NOT_FOUND		"MAP NOT FOUND: "
+# define MSG_NO_GAME_DATA		"GAME_DATA FILE NOT FOUND!"
+# define DECOR_LEN				0.35355339059327379
+# define DECOR_LEN_HALF			0.17677669529663689
 
-# define SDL_MOUSE_LEFT 1
-# define SDL_MOUSE_RIGHT 3
-# define SDL_MOUSE_MIDDLE 2
-# define SDL_MOUSE_SCROLL_UP 4
-# define SDL_MOUSE_SCROLL_DOWN 5
-# define THREADS_N 8
+# define SDL_MOUSE_LEFT			1
+# define SDL_MOUSE_RIGHT		3
+# define SDL_MOUSE_MIDDLE		2
+# define SDL_MOUSE_SCROLL_UP	4
+# define SDL_MOUSE_SCROLL_DOWN	5
+# define THREADS_N				8
 
-# define PLAYER_HEIGHT 1.1
-# define PLAYER_SPEED 5.0
-# define MOUSE_SPEED 1.2123
-# define USE_DIST 1.25
-# define LAVA_TIMER 0.5
-# define HEAL_TIMER 0.025
+# define PLAYER_HEIGHT			1.1
+# define PLAYER_SPEED			5.0
+# define MOUSE_SPEED			1.2123
+# define USE_DIST				1.25
+# define LAVA_TIMER				0.5
+# define HEAL_TIMER				0.025
 
-# define WALL_SPRITE	162
-# define OBJ_SPRITE		358
-# define DECOR_SPRITE	372
-# define FLOOR_SPRITE	151
-# define CEIL_SPRITE	171
-# define LAVA_SPRITE	60
-# define DOOR_SIDE		227
-# define DOOR_TOP_BOT	229
-# define LAST_TEX		476
-# define HEALER_SPRITE	105
+# define MAX_SECTOR				100
+# define MAX_WALL				50
+# define MAX_DECOR				25
+# define MAX_NPC				25
+# define MAX_OBJ				25
+# define MAX_SPRITE				487
+# define MAX_SFX				107
+# define MAX_BG					11
 
-# define MAX_SECTOR		100
-# define MAX_WALL		50
-# define MAX_DECOR		25
-# define MAX_NPC		25
-# define MAX_OBJ		25
-# define MAX_SPRITE		487
-# define MAX_SFX		107
-# define MAX_BG			11
+# define HUD_CARD_POS_X			(SCREEN_W - 100 - 64)
+# define HUD_CARD_POS_Y			(SCREEN_H - 100 - 64)
+# define HUD_HP_POS_X			100
+# define HUD_HP_POS_Y			(SCREEN_H - 100 - 64)
+# define HUD_TIME_POS_X			(SCREEN_W / 2 - 32)
+# define HUD_TIME_POS_Y			(SCREEN_H - 100 - 64)
 
-# define HUD_CARD_SPRITE 234
-# define HUD_CARD_HOLDER 232
-# define HUD_CARD_POS_X	(SCREEN_W - 100 - 64)
-# define HUD_CARD_POS_Y	(SCREEN_H - 100 - 64)
+# define FIRST_TEX				20
+# define LAST_TEX				300
 
-# define HUD_HP_HOLDER	105
-# define HUD_HP_POS_X	100
-# define HUD_HP_POS_Y	(SCREEN_H - 100 - 64)
-
-# define HUD_TIME_HOLDER 42
-# define HUD_TIME_POS_X	(SCREEN_W / 2 - 32)
-# define HUD_TIME_POS_Y	(SCREEN_H - 100 - 64)
-
-# ifndef MULTITHREAD
-#  ifdef __APPLE__
-#    define MULTITHREAD
-#  endif
-# endif
+# define NPC_SPRITE				6
+# define SKYBOX_SPRITE			0
+# define HEALER_SPRITE			16
+# define HUD_TIME_SPRITE		17
+# define HUD_CARD_SPRITE_E		18
+# define HUD_CARD_SPRITE_P		19
+# define WALL_SPRITE			20
+# define FLOOR_SPRITE			21
+# define CEIL_SPRITE			22
+# define DOOR_SIDE				23
+# define DOOR_TOP_BOT			24
+# define OBJ_SPRITE				25
+# define DECOR_SPRITE			26
+# define LAVA_SPRITE			27
+# define HUD_HP_SPRITE			HEALER_SPRITE
 
 enum e_hit_type
 {
@@ -558,6 +542,9 @@ typedef struct		s_app
 	t_hud_data 		time_hud;
 	t_wall			card_w;
 	double 			heal_tick;
+	int 			editor;
+	int 			new_map;
+	char 			*map_path;
 }					t_app;
 
 void		init_sdl(t_sdl *sdl);
@@ -691,14 +678,27 @@ void		texture_scale_x_change(t_app *app);
 void 		sector_update_height(t_sector *cs, t_v3d *fpts, t_v3d *cpts);
 t_mat4x4 	get_transform_matrix(t_mat4x4 view_projection);
 void		exit_with_status(int status, char *fnf_path);
-void		init_app(t_app *app);
+void		app_init(t_app *app);
 t_mat4x4	matrix_rotation(double x, double y, double z);
 void		pixel_set(SDL_Surface *surface, int offset, Uint32 c);
 void		draw_line(t_app *app, t_v3d *start, t_v3d *end, uint32_t color);
 t_v3d		get_triangle_normal(t_v3d v0, t_v3d v1, t_v3d v2);
 double		signed_tetra_volume(t_v3d ba, t_v3d ca, t_v3d da);
 void		get_delta_time(t_timer *timer);
-void		quit_properly();
+void		app_exit(t_app *app);
+void		app_load_game_data(t_app *app);
+void		app_is_editor_mode(t_app *app, int argc, char **argv);
+void		app_check_map(t_app *app, int argc, char **argv);
+int			gamedata_load(t_app *a);
+int			map_load(t_app *a, char *name);
+void		prepare_chunks(t_app *app);
+void		reset_screen(t_app *app);
+void		init_map(t_app *app);
+void		editor_start(t_app *app);
+void		game_start(t_app *app);
+void		map_save(t_app *a, char *name);
+void		draw_action_text(t_app *app);
+int			check_resources(void);
 int			event_handling(t_app *app);
 t_mat4x4	matrix_screen_space();
 t_mat4x4	matrix_persp(double fov, double ar, double z_near, double z_far);

@@ -20,6 +20,8 @@ void	texture_change(t_app *app)
 		app->hit_wall->sprite++;
 	app->hit_wall->sprite =
 			(app->hit_wall->sprite % LAST_TEX + LAST_TEX) % LAST_TEX;
+	if (app->hit_wall->sprite < FIRST_TEX)
+		app->hit_wall->sprite = FIRST_TEX;
 }
 
 void	texture_scale_y_change(t_app *app)

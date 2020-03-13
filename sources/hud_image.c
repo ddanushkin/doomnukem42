@@ -69,12 +69,12 @@ void		draw_hud(t_app *app)
 	p = &app->sdl->surface->pixels[0];
 	s = &app->sprites[0];
 	if (app->md.card_picked)
-		draw_hud_image(p, app->card_hud, &s[HUD_CARD_SPRITE].pixels[0]);
+		draw_hud_image(p, app->card_hud, &s[HUD_CARD_SPRITE_P].pixels[0]);
 	else
-		draw_hud_image(p, app->card_hud, &s[HUD_CARD_HOLDER].pixels[0]);
-	draw_hud_image(p, app->hp_hud, &s[HUD_HP_HOLDER].pixels[0]);
+		draw_hud_image(p, app->card_hud, &s[HUD_CARD_SPRITE_E].pixels[0]);
+	draw_hud_image(p, app->hp_hud, &s[HUD_HP_SPRITE].pixels[0]);
 	draw_hud_text(app, app->hp, 120, SCREEN_H - 155);
-	draw_hud_image(p, app->time_hud, &s[HUD_TIME_HOLDER].pixels[0]);
+	draw_hud_image(p, app->time_hud, &s[HUD_TIME_SPRITE].pixels[0]);
 	draw_hud_text(app,
 			(int)app->timer->time, SCREEN_W / 2 - 10, SCREEN_H - 130);
 }

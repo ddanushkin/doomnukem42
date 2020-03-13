@@ -52,7 +52,7 @@ int		switch_mode(t_app *app)
 		app->camera->pos.y = temp_y;
 		app_reset_floor_ceil_hit(app);
 		update_floor_dist(app, app->camera->pos);
-		if (app->floor_sector != NULL)
+		if (app->floor_sector != NULL && !app->md.start_set)
 		{
 			app->camera->pos.y = app->floor_point.y + PLAYER_HEIGHT;
 			camera_live_mode(&app->camera->rot);

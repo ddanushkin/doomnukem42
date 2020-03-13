@@ -12,6 +12,16 @@
 
 #include "doom_nukem.h"
 
+void	init_map(t_app *app)
+{
+	app->sectors_count = 0;
+	app->md.start_set = 0;
+	app->md.music_id = 8;
+	app->md.card_set = 0;
+	app->md.card_picked = 0;
+	app->sectors = (t_sector *)malloc(sizeof(t_sector) * MAX_SECTOR);
+}
+
 void	init_projection_mat(t_app *app)
 {
 	t_camera *c;
@@ -59,7 +69,7 @@ void	init_skybox(t_app *app)
 	app->skybox.v[7] = new_vector(-size, size, -size);
 }
 
-void	init_app(t_app *app)
+void	app_init(t_app *app)
 {
 	init_sdl(app->sdl);
 	app->screen = app->sdl->surface->pixels;

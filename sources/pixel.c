@@ -18,9 +18,9 @@ int		point_in_screen(t_v3d p)
 			(int)p.y >= 0 && (int)p.y < SCREEN_H);
 }
 
-void	pixel_set(SDL_Surface *surface, int offset, Uint32 c)
+void	pixel_set(SDL_Surface *surface, int offset, uint32_t c)
 {
 	if (offset < 0 || offset >= SCREEN_W * SCREEN_H)
 		return ;
-	((Uint32 *)surface->pixels)[offset] = c;
+	((uint32_t *)surface->pixels)[offset] = c;
 }

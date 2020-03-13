@@ -12,7 +12,7 @@
 
 #include "doom_nukem.h"
 
-void	event_mouse(t_app *app, SDL_Event e, Uint32 event)
+void	event_mouse(t_app *app, SDL_Event e, uint32_t event)
 {
 	if (event == SDL_MOUSEMOTION)
 	{
@@ -33,14 +33,14 @@ void	event_mouse(t_app *app, SDL_Event e, Uint32 event)
 int		event_handling(t_app *app)
 {
 	SDL_Event	e;
-	Uint32		event;
+	uint32_t	event;
 
 	app->inputs->mouse.x = 0;
 	app->inputs->mouse.y = 0;
 	while (SDL_PollEvent(&e))
 	{
 		event = e.type;
-		if (event == SDL_QUIT)
+		if (event == SDL_QUIT || app->inputs->keyboard[SDL_SCANCODE_ESCAPE])
 			return (0);
 		event_mouse(app, e, event);
 		if (event == SDL_KEYDOWN)

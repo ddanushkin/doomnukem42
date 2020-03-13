@@ -36,7 +36,7 @@ void	points_add_check(t_v3d *points, int *size)
 	}
 }
 
-void	point_draw(t_app *app, t_v3d p, Uint32 c)
+void	point_draw(t_app *app, t_v3d p, uint32_t c)
 {
 	int		offset;
 
