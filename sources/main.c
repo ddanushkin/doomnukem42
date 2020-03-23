@@ -12,7 +12,7 @@
 
 #include "doom_nukem.h"
 
-int		main(int argc, char **argv)
+void	main(int argc, char **argv)
 {
 	t_app	*app;
 
@@ -34,5 +34,4 @@ int		main(int argc, char **argv)
 	else
 		game_start(app);
 	app_exit(app);
-	return (0);
 }

@@ -22,7 +22,6 @@ void	app_reset_floor_ceil_hit(t_app *app)
 
 void	app_load_game_data(t_app *app)
 {
-
 	if (!gamedata_load(app))
 		exit_with_status(STATUS_NO_GAME_DATA, NULL);
 	if (!check_resources())

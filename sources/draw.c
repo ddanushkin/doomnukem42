@@ -93,7 +93,7 @@ void	draw_points(t_app *app, t_v3d *p, int size)
 	}
 }
 
-void 	draw_action_text(t_app *app)
+void	draw_action_text(t_app *app)
 {
 	if (app->hit_wall && app->hit_dist <= USE_DIST)
 	{
