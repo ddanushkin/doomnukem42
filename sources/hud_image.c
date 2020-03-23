@@ -27,10 +27,10 @@ t_hud_data	hud_image_new(int x, int y, int w, int h)
 
 void		draw_hud_image(uint32_t *screen, t_hud_data d, uint32_t *img)
 {
-	int img_y;
-	int img_x;
-	int x;
-	int y;
+	int		img_y;
+	int		img_x;
+	int		x;
+	int		y;
 
 	x = 0;
 	while (x < d.w)
@@ -50,7 +50,7 @@ void		draw_hud_image(uint32_t *screen, t_hud_data d, uint32_t *img)
 
 void		draw_hud_text(t_app *app, int data, int x, int y)
 {
-	char text[5];
+	char	text[5];
 
 	text[0] = '\0';
 	if (data > 9999)
@@ -63,10 +63,10 @@ void		draw_hud_text(t_app *app, int data, int x, int y)
 
 void		draw_hud(t_app *app)
 {
-	t_sprite *s;
-	uint32_t *p;
+	t_sprite	*s;
+	uint32_t	*p;
 
-	p = &app->sdl->surface->pixels[0];
+	p = (uint32_t *)&app->sdl->surface->pixels;
 	s = &app->sprites[0];
 	if (app->md.card_picked)
 		draw_hud_image(p, app->card_hud, &s[HUD_CARD_SPRITE_P].pixels[0]);

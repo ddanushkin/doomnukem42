@@ -44,6 +44,7 @@ void	init_camera(t_camera *camera)
 	camera->asp_ratio = (double)SCREEN_H / (double)SCREEN_W;
 	camera->for_rad = 1.0 / tan(camera->fov * 0.5 / 180.0 * 3.14159);
 	camera->pos = new_vector(1.0, 1.0, -10);
+	camera->up = new_vector(0.0, 1.0, 0.0);
 	camera->rot = new_vector(0.0, 0.0, 0.0);
 	camera->projection = matrix_persp(
 			camera->fov,
