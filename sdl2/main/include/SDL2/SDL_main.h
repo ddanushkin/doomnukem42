@@ -117,8 +117,8 @@ extern "C" {
 /**
  *  The prototype for the application's main() function
  */
-typedef void (*SDL_main_func)(int argc, char *argv[]);
-extern SDLMAIN_DECLSPEC void SDL_main(int argc, char *argv[]);
+//typedef void (*SDL_main_func)(int argc, char *argv[]);
+//extern SDLMAIN_DECLSPEC void SDL_main(int argc, char *argv[]);
 
 
 /**
