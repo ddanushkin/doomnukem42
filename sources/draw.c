@@ -99,17 +99,17 @@ void 	draw_action_text(t_app *app)
 	{
 		font_set(app, 0, 0x0000FF);
 		if (app->hit_wall->is_card)
-			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "PICK UP");
+			pts(app, SCREEN_W / 2 + 15, SCREEN_H / 2 - 15, "PICK UP");
 		else if (app->hit_sector->door && !app->hit_sector->door_anim)
-			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "USE DOOR");
+			pts(app, SCREEN_W / 2 + 15, SCREEN_H / 2 - 15, "USE DOOR");
 		else if (app->hit_wall->is_exit)
-			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "FINISH LEVEL");
+			pts(app, SCREEN_W / 2 + 15, SCREEN_H / 2 - 15, "FINISH LEVEL");
 		else if (app->hit_wall->healer && app->hit_wall->healer_cap > 0)
-			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "RESTORE HEALTH");
+			pts(app, SCREEN_W / 2 + 15, SCREEN_H / 2 - 15, "RESTORE HEALTH");
 		else if (app->hit_wall->healer && app->hit_wall->healer_cap <= 0)
-			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "OUT OF POWER");
+			pts(app, SCREEN_W / 2 + 15, SCREEN_H / 2 - 15, "OUT OF POWER");
 		else if (app->hit_type == npc)
-			print_to_screen(app, SCREEN_W/2 + 15, SCREEN_H/2 - 15, "SPEAK");
+			pts(app, SCREEN_W / 2 + 15, SCREEN_H / 2 - 15, "SPEAK");
 		font_reset(app);
 	}
 }

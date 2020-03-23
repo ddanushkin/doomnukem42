@@ -14,8 +14,8 @@
 
 void	prepare_chunks(t_app *app)
 {
-	int		i;
-	double	*depth_chunk;
+	int			i;
+	double		*depth_chunk;
 	uint32_t	*screen_chunk;
 
 	i = 0;

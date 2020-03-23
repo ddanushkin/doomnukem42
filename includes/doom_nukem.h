@@ -645,7 +645,7 @@ double 		gradient_calc_y_step(double coords[3], t_triangle tr, double one_over_d
 t_gradient	gradient_new(t_v3d min, t_v3d mid, t_v3d max);
 void 		draw_exit(t_app *app);
 void 		draw_start(t_app *app);
-void 		print_to_screen(t_app *app, int x, int y, char *text);
+void 		pts(t_app *app, int x, int y, char *text);
 Uint8		vertex_inside(t_v3d *v);
 void		vertex_perspective_divide(t_v3d *v);
 void		polygon_add(t_polygon **poly, t_v3d v);

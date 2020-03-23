@@ -68,8 +68,8 @@ int		gamedata_load(t_app *a)
 {
 	int		data;
 	char	info[50];
-	char 	buff[2];
-	int 	sep;
+	char	buff[2];
+	int		sep;
 
 	if ((data = open("GAME_DATA", O_RDONLY)) == -1)
 		return (0);
@@ -96,8 +96,8 @@ int		map_load(t_app *a, char *name)
 {
 	int		data;
 	char	info[50];
-	char 	buff[2];
-	int 	sep;
+	char	buff[2];
+	int		sep;
 
 	if ((data = open(name, O_RDONLY)) == -1)
 		return (0);

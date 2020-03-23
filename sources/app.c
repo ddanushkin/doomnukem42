@@ -69,4 +69,3 @@ void	app_check_map(t_app *app, int argc, char **argv)
 	else if (!app->editor && app->map_path && app->new_map)
 		exit_with_status(STATUS_MAP_NOT_FOUND, app->map_path);
 }
-

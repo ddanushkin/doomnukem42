@@ -27,7 +27,7 @@ void	update_fps_text(t_app *app)
 	}
 	ft_itoa2(app->timer->fps, fps_text);
 	font_set(app, 0, 0xffffff);
-	print_to_screen(app, 0, 0, fps_text);
+	pts(app, 0, 0, fps_text);
 	font_reset(app);
 }
 

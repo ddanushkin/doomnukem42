@@ -12,7 +12,7 @@
 
 #include "doom_nukem.h"
 
-void	print_to_screen(t_app *app, int x, int y, char *text)
+void	pts(t_app *app, int x, int y, char *text)
 {
 	SDL_Color	*color;
 	SDL_Surface	*surface;

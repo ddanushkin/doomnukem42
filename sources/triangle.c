@@ -40,7 +40,7 @@ void	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	vertex_perspective_divide(&v2);
 	vertex_perspective_divide(&v3);
 	if (tr_invisible(app, v1, v2, v3))
-		return;
+		return ;
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
 	if (v2.y < v1.y)
