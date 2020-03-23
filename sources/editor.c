@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   editor.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/11 13:03:36 by lglover           #+#    #+#             */
-/*   Updated: 2020/03/11 17:07:44 by lglover          ###   ########.fr       */
+/*   Created: 2020/03/23 17:26:47 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/23 17:26:47 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void	editor_start(t_app *app)
 		ft_bzero(&app->keys, sizeof(uint8_t) * 512);
 		ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
 		if (!event_handling(app))
-			break;
+			break ;
 		if (app->keys[SDL_SCANCODE_P])
 			switch_mode(app);
 		if (app->point_mode)

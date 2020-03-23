@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/11 13:03:30 by lglover           #+#    #+#             */
-/*   Updated: 2020/03/11 13:04:02 by lglover          ###   ########.fr       */
+/*   Created: 2020/03/23 17:27:07 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/23 17:27:07 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	update_fps_text(t_app *app)
 	}
 	ft_itoa2(app->timer->fps, fps_text);
 	font_set(app, 0, 0xffffff);
-	print_to_screen(app, 0, 0, fps_text);
+	pts(app, 0, 0, fps_text);
 	font_reset(app);
 }
 

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   game.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/11 13:03:36 by lglover           #+#    #+#             */
-/*   Updated: 2020/03/11 17:07:44 by lglover          ###   ########.fr       */
+/*   Created: 2020/03/23 17:27:10 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/23 17:27:10 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	game_start(t_app *app)
 		ft_bzero(&app->keys, sizeof(uint8_t) * 512);
 		ft_bzero(&app->mouse, sizeof(uint8_t) * 6);
 		if (!event_handling(app))
-			break;
+			break ;
 		game_inputs(app);
 		update_camera(app, app->camera);
 		process_inputs(app, app->timer->delta);

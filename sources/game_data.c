@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   game_data.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/11 13:03:36 by lglover           #+#    #+#             */
-/*   Updated: 2020/03/11 17:07:44 by lglover          ###   ########.fr       */
+/*   Created: 2020/03/23 17:27:13 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/23 17:27:13 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,11 @@ void	map_save(t_app *a, char *name)
 {
 	int		data;
 
-	data = open(name, O_RDWR | O_CREAT | O_TRUNC, 0777);
+	data = open(name, O_RDWR | O_CREAT | O_TRUNC, 0644);
 	if (data == -1)
 		return ;
-	gamedata_write(data, &a->sectors[0], sizeof(t_sector) * a->sectors_count, "S:\0");
+	gamedata_write(data, &a->sectors[0],
+			sizeof(t_sector) * a->sectors_count, "S:\0");
 	gamedata_write(data, &a->md, sizeof(t_map_data), "D:\0");
 	close(data);
 	usleep(10);

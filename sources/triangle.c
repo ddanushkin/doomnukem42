@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/11 13:03:45 by lglover           #+#    #+#             */
-/*   Updated: 2020/03/11 16:57:44 by lglover          ###   ########.fr       */
+/*   Created: 2020/03/23 17:28:52 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/23 17:29:20 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,14 +40,14 @@ void	fill_triangle(t_app *app, t_v3d v1, t_v3d v2, t_v3d v3)
 	vertex_perspective_divide(&v2);
 	vertex_perspective_divide(&v3);
 	if (tr_invisible(app, v1, v2, v3))
-		return;
+		return ;
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
 	if (v2.y < v1.y)
 		SWAP(v1, v2, t_v3d);
 	if (v3.y < v2.y)
 		SWAP(v2, v3, t_v3d);
-	r.t = &app->sprites[app->rw->sprite % MAX_SPRITE].pixels[0];
+	r.t = &app->sprites[app->rw->sprite].pixels[0];
 	r.handedness = tr_area(v1, v3, v2) >= 0.0;
 	r.depth = &app->depth_buffer[0];
 	r.screen = &app->screen[0];

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   loaders.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/11 13:03:36 by lglover           #+#    #+#             */
-/*   Updated: 2020/03/11 17:07:44 by lglover          ###   ########.fr       */
+/*   Created: 2020/03/23 17:27:55 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/23 17:27:55 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,8 +68,8 @@ int		gamedata_load(t_app *a)
 {
 	int		data;
 	char	info[50];
-	char 	buff[2];
-	int 	sep;
+	char	buff[2];
+	int		sep;
 
 	if ((data = open("GAME_DATA", O_RDONLY)) == -1)
 		return (0);
@@ -96,8 +96,8 @@ int		map_load(t_app *a, char *name)
 {
 	int		data;
 	char	info[50];
-	char 	buff[2];
-	int 	sep;
+	char	buff[2];
+	int		sep;
 
 	if ((data = open(name, O_RDONLY)) == -1)
 		return (0);

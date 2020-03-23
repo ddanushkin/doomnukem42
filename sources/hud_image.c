@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/11 13:03:33 by lglover           #+#    #+#             */
-/*   Updated: 2020/03/11 15:37:35 by lglover          ###   ########.fr       */
+/*   Created: 2020/03/23 17:27:26 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/23 17:27:26 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void		draw_hud_text(t_app *app, int data, int x, int y)
 		data = 9999;
 	ft_itoa2(data, &text[0]);
 	font_set(app, 0, 0xFFFFFF);
-	print_to_screen(app, x, y, &text[0]);
+	pts(app, x, y, &text[0]);
 	font_reset(app);
 }
 

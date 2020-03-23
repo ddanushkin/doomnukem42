@@ -1,2 +1,0 @@
-python convert_sprites.py
-pause

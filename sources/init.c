@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/11 13:03:34 by lglover           #+#    #+#             */
-/*   Updated: 2020/03/11 16:23:55 by lglover          ###   ########.fr       */
+/*   Created: 2020/03/23 17:27:29 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/23 17:29:20 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ void	app_init(t_app *app)
 	app->timer->time = 0.0;
 	app->timer->frame = 0;
 	app->grid_size = 0.5;
-	app->triangles_counter = 0;
 	init_camera(app->camera);
 	init_projection_mat(app);
 	init_font(app);

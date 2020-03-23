@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lglover <lglover@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/11 13:03:49 by lglover           #+#    #+#             */
-/*   Updated: 2020/03/11 17:17:14 by lglover          ###   ########.fr       */
+/*   Created: 2020/03/23 17:28:59 by lglover           #+#    #+#             */
+/*   Updated: 2020/03/23 17:28:59 by lglover          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-void	print_to_screen(t_app *app, int x, int y, char *text)
+void	pts(t_app *app, int x, int y, char *text)
 {
 	SDL_Color	*color;
 	SDL_Surface	*surface;
