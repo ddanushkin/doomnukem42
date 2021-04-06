@@ -38,7 +38,7 @@ void	app_exit(t_app *app)
 	TTF_CloseFont(app->font);
 	TTF_Quit();
 	Mix_Quit();
-	SDL_Quit();
-	SDL_DestroyWindow(app->sdl->window);
+    SDL_DestroyWindow(app->sdl->window);
+    SDL_Quit();
 	exit(0);
 }

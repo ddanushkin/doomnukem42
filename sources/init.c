@@ -74,6 +74,7 @@ void	app_init(t_app *app)
 	init_sdl(app->sdl);
 	app->screen = app->sdl->surface->pixels;
 	app->inputs->keyboard = SDL_GetKeyboardState(NULL);
+    app->sectors = (t_sector*)malloc(sizeof(t_sector) * MAX_SECTOR);
 	app->timer->prev = 0;
 	app->timer->delta = 0;
 	app->timer->fps = 0;

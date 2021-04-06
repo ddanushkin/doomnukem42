@@ -31,7 +31,7 @@ void	gamedata_write(int fd, void *mem, size_t size, char *type)
 {
 	char	info[100];
 
-	info[0] = '\0';
+//	info[0] = '\0';
 	ft_strcat(&info[0], type);
 	ft_itoa2(size, &info[2]);
 	ft_strcat(&info[0], ":");
