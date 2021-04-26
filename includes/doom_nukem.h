@@ -64,10 +64,11 @@
 
 # define PLAYER_HEIGHT 1.1
 # define PLAYER_SPEED 5.0
-# define MOUSE_SPEED 1.2123
+# define MOUSE_SPEED 0.7
 # define USE_DIST 1.25
 # define LAVA_TIMER 0.5
 # define HEAL_TIMER 0.025
+# define SPEAK_TIME 1
 
 # define MAX_SECTOR 100
 # define MAX_WALL 50
@@ -546,6 +547,7 @@ typedef struct	s_app
 	t_hud_data			time_hud;
 	t_wall				card_w;
 	double				heal_tick;
+	double				speak_time;
 	int					editor;
 	int					new_map;
 	char				*map_path;
@@ -561,6 +563,7 @@ void			point_mode_inputs(t_app *app);
 void			live_mode_change_shade(t_app *app);
 void			live_mode_use_wall(t_app *app);
 void			live_mode_door_open(t_app *app);
+void			live_mode_npc_speak(t_app *app);
 void			live_mode_sector_io(t_app *app);
 void			live_mode_rotate_npc(t_app *app);
 void			live_mode_change_floor_h(t_app *app);

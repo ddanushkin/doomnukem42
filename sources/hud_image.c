@@ -66,7 +66,7 @@ void		draw_hud(t_app *app)
 	t_sprite	*s;
 	uint32_t	*p;
 
-	p = (uint32_t *)&app->sdl->surface->pixels;
+	p = &app->sdl->surface->pixels[0];
 	s = &app->sprites[0];
 	if (app->md.card_picked)
 		draw_hud_image(p, app->card_hud, &s[HUD_CARD_SPRITE_P].pixels[0]);

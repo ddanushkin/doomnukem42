@@ -52,6 +52,21 @@ void	live_mode_use_wall(t_app *app)
 	}
 }
 
+void    speak(t_app *app)
+{
+//    TODO: PLAY SIDOROVICH SPEACH
+    Mix_PlayChannel(9, app->sfx[25], 0);
+}
+
+void    live_mode_npc_speak(t_app *app)
+{
+    if (app->timer->time - app->speak_time >= SPEAK_TIME)
+    {
+        speak(app);
+        app->speak_time = app->timer->time;
+    }
+}
+
 void	live_mode_door_open(t_app *app)
 {
 	if (!app->hit_sector || !app->hit_sector->door || app->hit_dist > USE_DIST)

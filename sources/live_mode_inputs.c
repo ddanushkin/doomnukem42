@@ -57,7 +57,9 @@ void	live_mode_inputs_1(t_app *app)
 		live_mode_toggle_healer(app);
 	if (app->keys[SDL_SCANCODE_E] && app->hit_dist <= USE_DIST)
 		live_mode_use_wall(app);
-	if (app->keys[SDL_SCANCODE_E])
+	if (app->hit_type == npc && app->inputs->keyboard[SDL_SCANCODE_E])
+	    live_mode_npc_speak(app);
+	else if (app->keys[SDL_SCANCODE_E])
 		live_mode_door_open(app);
 	if (app->inputs->keyboard[SDL_SCANCODE_M])
 		live_mode_set_bg(app);
