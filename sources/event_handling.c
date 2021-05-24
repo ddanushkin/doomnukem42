@@ -108,6 +108,7 @@ void	process_inputs(t_app *app, double dt)
 	mouse = &app->inputs->mouse;
 	view_rotation(mouse, c, mouse_speed);
 	player_movement(app, c, key, dt);
+	weapon_handling(app, key);
 	if (app->keys[SDL_SCANCODE_SPACE] && !app->jumped &&
 		(app->ground || (app->falling > 0.0 && app->falling < 0.25)))
 		player_jump(app);

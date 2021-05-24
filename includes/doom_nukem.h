@@ -62,6 +62,16 @@
 # define SDL_MOUSE_SCROLL_DOWN 5
 # define THREADS_N 8
 
+# define RELOADING_TIME_SEC 2
+
+# define AUTO 1
+# define PISTOL 2
+# define KNIFE 3
+
+# define MAX_AUTO_AMMO 30
+# define MAX_PISTOL_AMMO 10
+# define INFINITY_AMMO 999
+
 # define PLAYER_HEIGHT 1.1
 # define PLAYER_SPEED 5.0
 # define MOUSE_SPEED 0.7
@@ -127,6 +137,17 @@ typedef struct	s_v3d
 	double				tex_y;
 	int					i;
 }				t_v3d;
+
+typedef struct  s_weapon
+{
+    int                 current_weapon;
+    int					current_ammo;
+    int                 is_reload;
+    int 				is_shooting;
+    double 				start_reload_time;
+    double				start_change_weapon_time;
+    double				shooting_time;
+}               t_weapon;
 
 typedef struct	s_vm_data
 {
@@ -552,6 +573,7 @@ typedef struct	s_app
 	int					new_map;
 	char				*map_path;
 	int					font_size;
+	t_weapon            weapon;
 }				t_app;
 
 void			init_sdl(t_sdl *sdl);
@@ -734,4 +756,5 @@ double			v3d_length(t_v3d v);
 t_v3d			v3d_cross(t_v3d v1, t_v3d v2);
 double			v3d_dot(t_v3d v1, t_v3d v2);
 void			bmp_load(t_app *app, char *path);
+void			weapon_handling(t_app *app, const uint8_t *key);
 #endif

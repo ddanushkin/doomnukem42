@@ -69,7 +69,7 @@ void	live_mode_inputs_1(t_app *app)
 
 void	live_mode_inputs_2(t_app *app)
 {
-	if (app->keys[SDL_SCANCODE_R])
+	if (app->keys[SDL_SCANCODE_F])
 		app->camera->fly = !app->camera->fly;
 	if (app->hit_sector && app->floor_sector)
 	{

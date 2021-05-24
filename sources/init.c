@@ -70,6 +70,15 @@ void	init_skybox(t_app *app)
 	app->skybox.v[7] = new_vector(-size, size, -size);
 }
 
+void	init_weapon(t_app *app)
+{
+	app->weapon.current_weapon = KNIFE;
+	app->weapon.is_reload = 0;
+	app->weapon.current_ammo = INFINITY_AMMO;
+	app->weapon.start_reload_time = 0;
+	app->weapon.start_change_weapon_time = 0;
+}
+
 void	app_init(t_app *app)
 {
 	init_sdl(app->sdl);
@@ -93,4 +102,5 @@ void	app_init(t_app *app)
 	app->card_hud = hud_image_new(HUD_CARD_POS_X, HUD_CARD_POS_Y, 64, 64);
 	app->hp_hud = hud_image_new(HUD_HP_POS_X, HUD_HP_POS_Y, 64, 64);
 	app->time_hud = hud_image_new(HUD_TIME_POS_X, HUD_TIME_POS_Y, 64, 64);
+	init_weapon(app);
 }

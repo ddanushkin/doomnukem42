@@ -62,7 +62,7 @@ void	point_mode_inputs(t_app *app)
 		point_mode_switch_grid(app);
 	if (app->mouse[SDL_MOUSE_LEFT] || app->mouse[SDL_MOUSE_RIGHT])
 		point_mode_mouse(app);
-	if (app->keys[SDL_SCANCODE_R])
+	if (app->keys[SDL_SCANCODE_F])
 		points_mode_reset_camera_pos(&app->camera->pos);
 	if (app->keys[SDL_SCANCODE_Q] && app->points_count >= 3)
 		sector_close(app, &app->sectors[app->sectors_count]);
